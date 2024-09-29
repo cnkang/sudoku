@@ -10,6 +10,7 @@
     "test": "vitest --run"
   },
   "dependencies": {
+    "browserslist": "^4.24.0",
     "core-js": "^3.38.1",
     "next": "14.2.13",
     "react": "^18",
@@ -33,7 +34,6 @@
     "last 2 ChromeAndroid versions",
     "last 2 Firefox versions",
     "last 2 FirefoxAndroid versions",
-    "last 2 iOS Safari versions",
     "last 2 Safari versions"
   ]
 }
