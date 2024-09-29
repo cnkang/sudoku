@@ -1,8 +1,9 @@
 "use client";
-
-import { useEffect, useState } from 'react';
-import SudokuGrid from '../components/SudokuGrid'; // Ensure this path is correct
-import styles from './page.module.css';
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+import { useEffect, useState } from "react";
+import SudokuGrid from "../components/SudokuGrid"; // Ensure this path is correct
+import styles from "./page.module.css";
 
 interface SudokuPuzzle {
   puzzle: number[][];
@@ -22,7 +23,7 @@ export default function Home() {
         );
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to fetch puzzle');
+          throw new Error(errorData.error || "Failed to fetch puzzle");
         }
         const data: SudokuPuzzle = await response.json();
         setPuzzle(data.puzzle);
@@ -31,7 +32,7 @@ export default function Home() {
         if (err instanceof Error) {
           setError(err.message);
         } else {
-          setError('An unexpected error occurred');
+          setError("An unexpected error occurred");
         }
       }
     };
@@ -49,7 +50,11 @@ export default function Home() {
         <h1>Sudoku Generator</h1>
         <label>
           Difficulty Level:
-          <select value={difficulty} onChange={handleDifficultyChange}>
+          <select
+            aria-label="Select difficulty level"
+            value={difficulty}
+            onChange={handleDifficultyChange}
+          >
             {Array.from({ length: 10 }, (_, i) => (
               <option key={i + 1} value={i + 1}>
                 {i + 1}
@@ -57,8 +62,9 @@ export default function Home() {
             ))}
           </select>
         </label>
+
         {error ? (
-          <p style={{ color: 'red' }}>Error: {error}</p>
+          <p style={{ color: "red" }}>Error: {error}</p>
         ) : puzzle ? (
           <SudokuGrid puzzle={puzzle} />
         ) : (

@@ -10,6 +10,7 @@
     "test": "vitest --run"
   },
   "dependencies": {
+    "core-js": "^3.38.1",
     "next": "14.2.13",
     "react": "^18",
     "react-dom": "^18"
@@ -26,5 +27,13 @@
     "happy-dom": "^15.7.4",
     "typescript": "^5",
     "vitest": "^2.1.1"
-  }
+  },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 ChromeAndroid versions",
+    "last 2 Firefox versions",
+    "last 2 FirefoxAndroid versions",
+    "last 2 iOS Safari versions",
+    "last 2 Safari versions"
+  ]
 }
