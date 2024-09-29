@@ -1,0 +1,22 @@
+# Node modules
+node_modules/
+
+# Build outputs
+sudoku-backend/dist/
+sudoku-backend/node_modules/
+sudoku-frontend/.next/
+sudoku-frontend/node_modules/
+
+# Environment variables
+sudoku-backend/.env
+sudoku-frontend/.env
+
+# Logs
+logs/
+*.log
+
+# VSCode
+.vscode/
+
+# Others
+.DS_Store
