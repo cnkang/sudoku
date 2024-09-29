@@ -30,10 +30,7 @@
     "vitest": "^2.1.1"
   },
   "browserslist": [
-    "last 2 Chrome versions",
-    "last 2 ChromeAndroid versions",
-    "last 2 Firefox versions",
-    "last 2 FirefoxAndroid versions",
-    "last 2 Safari versions"
+    "> 0.2% and not dead",
+    "defaults"
   ]
 }
