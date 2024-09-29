@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sudoku Frontend
+
+This is a frontend application for a Sudoku game, built with Next.js and React.
+
+## Prerequisites
+
+Make sure you have Node.js installed. You can download it from [nodejs.org](https://nodejs.org/).
 
 ## Getting Started
 
-First, run the development server:
+Clone the repository:
 
 ```bash
-npm run dev
-# or
+git clone https://github.com/cnkang/sudoku.git
+```
+Navigate to the project directory:
+```bash
+cd sudoku-frontend
+```
+Install the dependencies:
+```bash
+yarn install
+```
+## Running the Application
+To run the application in development mode:
+```bash
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+Open your browser and navigate to `http://localhost:3000` to view the application.
+
+## Building for Production
+To build the application for production:
+```bash
+yarn build
+```
+To start the application:
+```bash
+yarn start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Linting
+To lint the code:
+```bash
+yarn lint
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Testing
+To run tests:
+```bash
+yarn test
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Technologies Used
 
-## Learn More
+- Next.js 14
+- React 18
+- TypeScript
+- ESLint
+- Testing Library
+- Vitest
 
-To learn more about Next.js, take a look at the following resources:
+## Contributing
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+If you'd like to contribute, please fork the repository and use a feature branch. Pull requests are welcome.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License.
