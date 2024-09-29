@@ -15,7 +15,7 @@ const SudokuPage = () => {
     const fetchPuzzle = async () => {
       try {
         const response = await fetch(
-          `https://your-worker-domain.workers.dev/?difficulty=${difficulty}`
+          `${process.env.NEXT_PUBLIC_API_URL}?difficulty=${difficulty}`
         );
         if (!response.ok) {
           const errorData = await response.json();
@@ -24,8 +24,12 @@ const SudokuPage = () => {
         const data: SudokuPuzzle = await response.json();
         setPuzzle(data.puzzle);
         setError(null);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('An unexpected error occurred');
+        }
       }
     };
 
@@ -61,4 +65,3 @@ const SudokuPage = () => {
 };
 
 export default SudokuPage;
-
