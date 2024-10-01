@@ -1,13 +1,50 @@
 {
-  "devDependencies": {
-    "dotenv-cli": "^7.4.2"
-  },
+  "name": "sudoku-project",
+  "version": "1.0.0",
+  "private": true,
   "scripts": {
-  "dev": "next dev",
-  "build": "next build",
-  "start": "next start",
-  "lint": "next lint",
-  "test": "vitest"
-},
+    "dev": "next dev",
+    "build": "next build && tsc",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "vitest --run"
+  },
+  "dependencies": {
+    "browserslist": "^4.24.0",
+    "core-js": "^3.38.1",
+    "fast-sudoku-solver": "^1.1.14",
+    "next": "14.2.13",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "@eslint/config-array": "^0.18.0",
+    "@eslint/object-schema": "^2.1.4",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.0.1",
+    "@types/core-js": "^2.5.8",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/regenerator-runtime": "^0.13.7",
+    "@vitejs/plugin-react": "^4.3.1",
+    "dotenv": "^16.4.5",
+    "dotenv-cli": "^7.4.2",
+    "esbuild": "^0.24.0",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.13",
+    "happy-dom": "^15.7.4",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8",
+    "vitest": "^2.1.1"
+  },
+  "browserslist": [
+    "> 0.2% and not dead",
+    "defaults"
+  ],
+  "resolutions": {
+    "glob": "^11",
+    "rimraf": "^4"
+  },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
