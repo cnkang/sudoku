@@ -14,10 +14,11 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "outDir": "dist",
     "plugins": [
-      {
+    {
         "name": "next"
-      }
+  }
     ],
     "paths": {
       "@/*": ["./src/*"]

@@ -1,22 +1,27 @@
 import { SudokuPuzzle } from './types';
 import { solveSudoku } from './dlxSolver';
 
+// Generates a Sudoku puzzle based on the provided difficulty.
 export function generateSudokuPuzzle(difficulty: number): SudokuPuzzle {
   const board = generateCompleteBoard();
+  console.log("Complete board generated:", board);
   const puzzle = removeNumbers(board, difficulty);
-  return { puzzle, difficulty };
+  console.log("Puzzle generated with difficulty:", difficulty);
+  return { puzzle, solution: board, difficulty }; // Return both puzzle and solution
 }
 
+// Generates a complete solved Sudoku board.
 function generateCompleteBoard(): number[][] {
   const board: number[][] = Array.from({ length: 9 }, () => Array(9).fill(0));
   fillBoard(board);
   return board;
 }
 
+// Recursively fills the board using backtracking.
 function fillBoard(board: number[][]): boolean {
   const emptyCell = findEmptyCell(board);
   if (!emptyCell) {
-    return true; // 填充完成
+    return true;
   }
 
   const [row, col] = emptyCell;
@@ -32,9 +37,10 @@ function fillBoard(board: number[][]): boolean {
     }
   }
 
-  return false; // 无法填充
+  return false;
 }
 
+// Finds the first empty cell in the board.
 function findEmptyCell(board: number[][]): [number, number] | null {
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
@@ -47,19 +53,16 @@ function findEmptyCell(board: number[][]): [number, number] | null {
 }
 
 function isSafe(board: number[][], row: number, col: number, num: number): boolean {
-  // 检查行
   if (board[row].includes(num)) {
     return false;
   }
 
-  // 检查列
   for (let r = 0; r < 9; r++) {
     if (board[r][col] === num) {
       return false;
     }
   }
 
-  // 检查小宫
   const startRow = row - (row % 3);
   const startCol = col - (col % 3);
 
@@ -85,9 +88,11 @@ function shuffleArray(array: number[]): number[] {
 
 function removeNumbers(board: number[][], difficulty: number): number[][] {
   const puzzle = board.map(row => row.slice());
-  let attempts = difficulty * 5 + 20; // 根据难度调整要移除的数字数量
+  const totalCells = 81;
+  const cluesCount = getCluesCount(difficulty);
+  let cellsToRemove = totalCells - cluesCount;
 
-  while (attempts > 0) {
+  while (cellsToRemove > 0) {
     const row = Math.floor(Math.random() * 9);
     const col = Math.floor(Math.random() * 9);
 
@@ -95,17 +100,39 @@ function removeNumbers(board: number[][], difficulty: number): number[][] {
       const backup = puzzle[row][col];
       puzzle[row][col] = 0;
 
-      // 检查是否仍有唯一解
       const puzzleCopy = puzzle.map(r => r.slice());
       const solutions: number[][][] = [];
-      solveSudoku(puzzleCopy, solutions, 2); // 限制最多找到 2 个解
+      solveSudoku(puzzleCopy, solutions, 2);
 
-      if (solutions.length !== 1) {
-        puzzle[row][col] = backup; // 恢复数字
-        attempts--;
+      if (solutions.length === 1) {
+        console.log(`Removed number at (${row}, ${col}) - Unique solution preserved`);
+        cellsToRemove--;
+      } else {
+        console.log(`Restoring number at (${row}, ${col}) - Multiple solutions`);
+        puzzle[row][col] = backup;
       }
     }
   }
 
+  console.log("Final puzzle:", puzzle);
   return puzzle;
+}
+
+function getCluesCount(difficulty: number): number {
+  difficulty = Math.min(Math.max(difficulty, 1), 10);
+
+  const cluesMapping: { [key: number]: number } = {
+    1: 61,
+    2: 58,
+    3: 55,
+    4: 52,
+    5: 49,
+    6: 46,
+    7: 43,
+    8: 40,
+    9: 37,
+    10: 34
+  };
+
+  return cluesMapping[difficulty];
 }
