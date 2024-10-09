@@ -1,68 +1,54 @@
-# Sudoku Frontend
 
-This is a frontend application for a Sudoku game, built with Next.js and React.
+# sudoku-project (v1.0.0)
 
-## Prerequisites
+## Project Description
 
-Make sure you have Node.js installed. You can download it from [nodejs.org](https://nodejs.org/).
+This project is a Sudoku game frontend application built using Next.js and React. It provides an interactive Sudoku grid for users to solve puzzles, with features to input and track user solutions.
 
-## Getting Started
+## Features
+- Interactive Sudoku grid implemented with React.
+- Users can input numbers to solve the puzzle.
+- Dynamic rendering of the Sudoku grid, supporting both initial puzzle values and user inputs.
+- Built with TypeScript for enhanced type safety and maintainability.
+- Uses Vite for fast development and build processes.
 
-Clone the repository:
-
-```bash
-git clone https://github.com/cnkang/sudoku.git
+## Installation
+To install the dependencies, run:
 ```
-Navigate to the project directory:
-```bash
-cd sudoku-frontend
-```
-Install the dependencies:
-```bash
 yarn install
 ```
-## Running the Application
-To run the application in development mode:
-```bash
-yarn dev
-```
-Open your browser and navigate to `http://localhost:3000` to view the application.
 
-## Building for Production
-To build the application for production:
-```bash
-yarn build
+## Usage
+To start the development server, use:
 ```
-To start the application:
-```bash
-yarn start
+next dev
 ```
 
-## Linting
-To lint the code:
-```bash
-yarn lint
+To build the project:
+```
+next build && tsc
 ```
 
-## Testing
-To run tests:
-```bash
-yarn test
+## Tests
+Run the tests using:
+```
+vitest --run
 ```
 
-## Technologies Used
+## Project Structure
+- **src/app/**: Contains the main application setup and routing.
+- **src/components/SudokuGrid.tsx**: Core component that implements the Sudoku grid with user input support.
+- **src/public/**: Static assets such as images or icons.
+- **next.config.mjs**: Configuration for Next.js.
+- **tsconfig.json**: TypeScript configuration.
+- **vite.config.ts**: Configuration for Vite bundler.
 
-- Next.js 14
-- React 18
-- TypeScript
-- ESLint
-- Testing Library
-- Vitest
+## Dependencies
+The project relies on the following key dependencies:
+browserslist, core-js, fast-sudoku-solver, next, react, react-dom
 
-## Contributing
-
-If you'd like to contribute, please fork the repository and use a feature branch. Pull requests are welcome.
+Development dependencies include:
+@eslint/config-array, @eslint/object-schema, @testing-library/dom, @testing-library/react, @types/core-js, @types/node, @types/react, @types/react-dom, @types/regenerator-runtime, @vitejs/plugin-react, dotenv, dotenv-cli, esbuild, eslint, eslint-config-next, happy-dom, typescript, vite, vitest
 
 ## License
-
-This project is licensed under the MIT License.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
