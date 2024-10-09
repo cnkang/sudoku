@@ -1,7 +1,7 @@
 "use client";
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
-import { useEffect, useState } from "react";
+import { useEffect, useReducer } from "react";
 import SudokuGrid from "../components/SudokuGrid";
 import styles from "./page.module.css";
 
@@ -11,21 +11,95 @@ interface SudokuPuzzle {
   difficulty: number;
 }
 
+interface State {
+  puzzle: number[][] | null;
+  solution: number[][] | null;
+  difficulty: number;
+  error: string | null;
+  userInput: number[][];
+  time: number;
+  timerActive: boolean;
+  isCorrect: boolean | null;
+}
+
+type Action =
+  | { type: 'SET_PUZZLE', payload: SudokuPuzzle }
+  | { type: 'SET_ERROR', payload: string }
+  | { type: 'UPDATE_USER_INPUT', payload: { row: number, col: number, value: number } }
+  | { type: 'SET_DIFFICULTY', payload: number }
+  | { type: 'CHECK_ANSWER' }
+  | { type: 'TICK' }
+  | { type: 'RESET' };
+
+const initialState: State = {
+  puzzle: null,
+  solution: null,
+  difficulty: 1,
+  error: null,
+  userInput: [],
+  time: 0,
+  timerActive: false,
+  isCorrect: null,
+};
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case 'SET_PUZZLE':
+      return {
+        ...state,
+        puzzle: action.payload.puzzle,
+        solution: action.payload.solution,
+        userInput: action.payload.puzzle.map(row => row.map(val => (val === 0 ? 0 : val))),
+        error: null,
+        isCorrect: null,
+        time: 0,
+        timerActive: true,
+      };
+    case 'SET_ERROR':
+      return {
+        ...state,
+        error: action.payload,
+      };
+    case 'UPDATE_USER_INPUT':
+      const newInput = [...state.userInput];
+      newInput[action.payload.row][action.payload.col] = action.payload.value;
+      return {
+        ...state,
+        userInput: newInput,
+      };
+    case 'SET_DIFFICULTY':
+      return {
+        ...state,
+        difficulty: action.payload,
+        timerActive: false,
+      };
+    case 'CHECK_ANSWER':
+      const isSolvedCorrectly = JSON.stringify(state.userInput) === JSON.stringify(state.solution);
+      return {
+        ...state,
+        isCorrect: isSolvedCorrectly,
+        timerActive: !isSolvedCorrectly,
+      };
+    case 'TICK':
+      return {
+        ...state,
+        time: state.time + 1,
+      };
+    case 'RESET':
+      return initialState;
+    default:
+      return state;
+  }
+};
+
 export default function Home() {
-  const [puzzle, setPuzzle] = useState<number[][] | null>(null);
-  const [solution, setSolution] = useState<number[][] | null>(null); // Add solution state
-  const [difficulty, setDifficulty] = useState<number>(1);
-  const [error, setError] = useState<string | null>(null);
-  const [userInput, setUserInput] = useState<number[][]>([]);
-  const [time, setTime] = useState(0);
-  const [timerActive, setTimerActive] = useState(false);
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
     const fetchPuzzle = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}?difficulty=${difficulty}`,
+          `${process.env.NEXT_PUBLIC_API_URL}?difficulty=${state.difficulty}`,
           { method: 'POST' }
         );
 
@@ -35,55 +109,40 @@ export default function Home() {
         }
         
         const data: SudokuPuzzle = await response.json();
-        setPuzzle(data.puzzle);
-        setSolution(data.solution); // Set the solution
-        const initialUserInput = data.puzzle.map(row => row.map(val => (val === 0 ? 0 : val)));
-        setUserInput(initialUserInput);
-        setError(null);
-        setIsCorrect(null);
-        setTime(0);
-        setTimerActive(true);
+        dispatch({ type: 'SET_PUZZLE', payload: data });
       } catch (err: unknown) {
         if (err instanceof Error) {
-          setError(err.message);
+          dispatch({ type: 'SET_ERROR', payload: err.message });
         } else {
-          setError("An unexpected error occurred");
+          dispatch({ type: 'SET_ERROR', payload: "An unexpected error occurred" });
         }
       }
     };
 
     fetchPuzzle();
-  }, [difficulty]);
+  }, [state.difficulty]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (timerActive) {
+    if (state.timerActive) {
       timer = setInterval(() => {
-        setTime((prev: number) => prev + 1);;
+        dispatch({ type: 'TICK' });
       }, 1000);
     }
     return () => clearInterval(timer);
-  }, [timerActive]);
+  }, [state.timerActive]);
 
   const handleDifficultyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setDifficulty(parseInt(e.target.value, 10));
+    dispatch({ type: 'SET_DIFFICULTY', payload: parseInt(e.target.value, 10) });
   };
 
   const handleInputChange = (row: number, col: number, value: number) => {
-    const newInput = [...userInput];
-    newInput[row][col] = value;
-    setUserInput(newInput);
+    dispatch({ type: 'UPDATE_USER_INPUT', payload: { row, col, value } });
   };
 
   const checkAnswer = () => {
-    if (!solution) return;
-    const isSolvedCorrectly = JSON.stringify(userInput) === JSON.stringify(solution);
-    setIsCorrect(isSolvedCorrectly);
-  
-    if (isSolvedCorrectly) {
-      setTimerActive(false);
-    }
-  };  
+    dispatch({ type: 'CHECK_ANSWER' });
+  };
 
   return (
     <div className={styles.page}>
@@ -91,9 +150,8 @@ export default function Home() {
         <h1>Sudoku Generator</h1>
         <label>
           Difficulty Level:
-          <select
-            aria-label="Select difficulty level"
-            value={difficulty}
+          <select             aria-label="Select difficulty level"
+            value={state.difficulty}
             onChange={handleDifficultyChange}
           >
             {Array.from({ length: 10 }, (_, i) => (
@@ -104,15 +162,15 @@ export default function Home() {
           </select>
         </label>
 
-        {error ? (
-          <p style={{ color: "red" }}>Error: {error}</p>
-        ) : puzzle ? (
+        {state.error ? (
+          <p style={{ color: "red" }}>Error: {state.error}</p>
+        ) : state.puzzle ? (
           <>
-            <SudokuGrid puzzle={puzzle} userInput={userInput} onInputChange={handleInputChange} />
+            <SudokuGrid puzzle={state.puzzle} userInput={state.userInput} onInputChange={handleInputChange} />
             <button onClick={checkAnswer}>Submit</button>
-            <div>Time: {time}s</div>
-            {isCorrect !== null && (
-              <div>{isCorrect ? 'Correct!' : 'Incorrect, try again.'}</div>
+            <div>Time: {state.time}s</div>
+            {state.isCorrect !== null && (
+              <div>{state.isCorrect ? 'Correct!' : 'Incorrect, try again.'}</div>
             )}
           </>
         ) : (
@@ -122,3 +180,5 @@ export default function Home() {
     </div>
   );
 }
+
+           
