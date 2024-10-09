@@ -59,7 +59,7 @@ export default function Home() {
     let timer: NodeJS.Timeout;
     if (timerActive) {
       timer = setInterval(() => {
-        setTime(prev => prev + 1);
+        setTime((prev: number) => prev + 1);;
       }, 1000);
     }
     return () => clearInterval(timer);
