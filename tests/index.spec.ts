@@ -26,11 +26,11 @@ describe('Sudoku Solver API', () => {
 
     const request = {
       method: 'POST',
-      url: 'http://example.com/api/solveSudoku',
+      url: 'http://example.com/api/solveSudoku?difficulty=3',
       headers: { 'Content-Type': 'application/json' },
       json: async () => requestBody,
       cookies: {},
-    } as unknown as NextRequest;
+    } as unknown as NextRequest;    
 
     const response = await POST(request);
     const data = await response.json();
