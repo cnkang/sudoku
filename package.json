@@ -14,8 +14,9 @@
     "core-js": "^3.38.1",
     "fast-sudoku-solver": "^1.1.14",
     "next": "14.2.13",
-    "react": "^18",
-    "react-dom": "^18"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "regenerator-runtime": "^0.14.1"
   },
   "devDependencies": {
     "@eslint/config-array": "^0.18.0",
@@ -24,8 +25,8 @@
     "@testing-library/react": "^16.0.1",
     "@types/core-js": "^2.5.8",
     "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
     "@types/regenerator-runtime": "^0.13.7",
     "@vitejs/plugin-react": "^4.3.1",
     "dotenv": "^16.4.5",
