@@ -1,13 +1,29 @@
+import winston from 'winston';
 import { SudokuPuzzle } from './types';
 import { solveSudoku } from './dlxSolver';
+import { shuffle } from 'lodash';
+
+// 配置日志
+const logger = winston.createLogger({
+  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(({ timestamp, level, message }) => {
+      return `${timestamp} [${level.toUpperCase()}]: ${message}`;
+    })
+  ),
+  transports: [
+    new winston.transports.Console()
+  ],
+});
 
 // Generates a Sudoku puzzle based on the provided difficulty.
 export function generateSudokuPuzzle(difficulty: number): SudokuPuzzle {
   const board = generateCompleteBoard();
-  console.log("Complete board generated:", board);
+  logger.debug(`Complete board generated: ${JSON.stringify(board)}`);
   const puzzle = removeNumbers(board, difficulty);
-  console.log("Puzzle generated with difficulty:", difficulty);
-  return { puzzle, solution: board, difficulty }; // Return both puzzle and solution
+  logger.debug(`Puzzle generated with difficulty: ${difficulty}`);
+  return { puzzle, solution: board, difficulty };
 }
 
 // Generates a complete solved Sudoku board.
@@ -78,12 +94,7 @@ function isSafe(board: number[][], row: number, col: number, num: number): boole
 }
 
 function shuffleArray(array: number[]): number[] {
-  const arr = array.slice();
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
+  return shuffle(array);
 }
 
 function removeNumbers(board: number[][], difficulty: number): number[][] {
@@ -105,34 +116,20 @@ function removeNumbers(board: number[][], difficulty: number): number[][] {
       solveSudoku(puzzleCopy, solutions, 2);
 
       if (solutions.length === 1) {
-        console.log(`Removed number at (${row}, ${col}) - Unique solution preserved`);
+        logger.debug(`Removed number at (${row}, ${col}) - Unique solution preserved`);
         cellsToRemove--;
       } else {
-        console.log(`Restoring number at (${row}, ${col}) - Multiple solutions`);
+        logger.debug(`Restoring number at (${row}, ${col}) - Multiple solutions`);
         puzzle[row][col] = backup;
       }
     }
   }
 
-  console.log("Final puzzle:", puzzle);
+  logger.debug(`Final puzzle: ${JSON.stringify(puzzle)}`);
   return puzzle;
 }
 
 function getCluesCount(difficulty: number): number {
-  difficulty = Math.min(Math.max(difficulty, 1), 10);
-
-  const cluesMapping: { [key: number]: number } = {
-    1: 61,
-    2: 58,
-    3: 55,
-    4: 52,
-    5: 49,
-    6: 46,
-    7: 43,
-    8: 40,
-    9: 37,
-    10: 34
-  };
-
-  return cluesMapping[difficulty];
+  const validDifficulty = Math.min(Math.max(difficulty, 1), 10);
+  return 61 - 3 * (validDifficulty - 1);
 }
