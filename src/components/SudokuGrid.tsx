@@ -6,9 +6,20 @@ interface SudokuGridProps {
   onInputChange: (row: number, col: number, value: number) => void;
 }
 
+/**
+ * A 9x9 grid to display a Sudoku puzzle and allow user input.
+ * The grid is rendered as a table with each cell containing a number input.
+ * Cells containing fixed numbers are rendered as plain text.
+ * Aria-labels are provided for accessibility.
+ * @param {{ puzzle: number[][], userInput: number[][], onInputChange: (row: number, col: number, value: number) => void }} props
+ * @returns {JSX.Element}
+ */
 const SudokuGrid: React.FC<SudokuGridProps> = ({ puzzle, userInput, onInputChange }) => {
   return (
-    <table style={{ borderCollapse: 'collapse', marginTop: '20px' }}>
+    <table 
+      style={{ borderCollapse: 'collapse', marginTop: '20px' }} 
+      aria-label="Sudoku puzzle grid"
+    >
       <tbody>
         {puzzle.map((row, rowIndex) => (
           <tr key={rowIndex}>
@@ -24,9 +35,10 @@ const SudokuGrid: React.FC<SudokuGridProps> = ({ puzzle, userInput, onInputChang
                     textAlign: 'center',
                     fontSize: '20px',
                   }}
+                  aria-label={`Row ${rowIndex + 1} Column ${colIndex + 1}`}
                 >
                   {isFixed ? (
-                    num // Fixed number display
+                    <span>{num}</span> // Fixed number display
                   ) : (
                     <input
                       type="number"
@@ -49,6 +61,7 @@ const SudokuGrid: React.FC<SudokuGridProps> = ({ puzzle, userInput, onInputChang
                         fontSize: '20px',
                         outline: 'none',
                       }}
+                      aria-label={`Editable cell. Row ${rowIndex + 1} Column ${colIndex + 1}`}
                       onKeyDown={(e) => {
                         // Prevent non-numeric input
                         if (!/[1-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete') {
