@@ -30,7 +30,7 @@ describe('Sudoku Solver API', () => {
       headers: { 'Content-Type': 'application/json' },
       json: async () => requestBody,
       cookies: {},
-    } as unknown as NextRequest;    
+    } as unknown as NextRequest;
 
     const response = await POST(request);
     const data = await response.json();
