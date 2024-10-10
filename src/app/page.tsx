@@ -150,7 +150,7 @@ export default function Home() {
         <h1>Sudoku Generator</h1>
         <label>
           Difficulty Level:
-          <select             aria-label="Select difficulty level"
+          <select aria-label="Select difficulty level"
             value={state.difficulty}
             onChange={handleDifficultyChange}
           >
