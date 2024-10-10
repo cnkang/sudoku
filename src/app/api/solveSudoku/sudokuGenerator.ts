@@ -2,6 +2,7 @@ import winston from 'winston';
 import { SudokuPuzzle } from './types';
 import { solveSudoku } from './dlxSolver';
 import { shuffle } from 'lodash';
+import crypto from 'crypto';
 
 // 配置日志
 const logger = winston.createLogger({
@@ -104,8 +105,8 @@ function removeNumbers(board: number[][], difficulty: number): number[][] {
   let cellsToRemove = totalCells - cluesCount;
 
   while (cellsToRemove > 0) {
-    const row = Math.floor(Math.random() * 9);
-    const col = Math.floor(Math.random() * 9);
+    const row = crypto.randomInt(0, 9);
+    const col = crypto.randomInt(0, 9);
 
     if (puzzle[row][col] !== 0) {
       const backup = puzzle[row][col];
