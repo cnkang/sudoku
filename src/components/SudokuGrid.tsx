@@ -7,12 +7,15 @@ interface SudokuGridProps {
 }
 
 /**
- * A 9x9 grid to display a Sudoku puzzle and allow user input.
- * The grid is rendered as a table with each cell containing a number input.
- * Cells containing fixed numbers are rendered as plain text.
- * Aria-labels are provided for accessibility.
- * @param {{ puzzle: number[][], userInput: number[][], onInputChange: (row: number, col: number, value: number) => void }} props
- * @returns {JSX.Element}
+ * A React component that renders a Sudoku puzzle grid.
+ * The grid is made up of table cells, each containing either a fixed number or an input field.
+ * The component takes in the following props:
+ * - `puzzle`: A 2D array of numbers representing the Sudoku puzzle.
+ * - `userInput`: A 2D array of numbers representing the user's input.
+ * - `onInputChange`: A callback function to handle changes to the user's input.
+ * The component renders a table with the given Sudoku puzzle. Each cell in the table will either
+ * display a fixed number from the puzzle, or an input field where the user can enter a number.
+ * The user's input is tracked in the `userInput` array.
  */
 const SudokuGrid: React.FC<SudokuGridProps> = ({ puzzle, userInput, onInputChange }) => {
   return (
@@ -22,12 +25,14 @@ const SudokuGrid: React.FC<SudokuGridProps> = ({ puzzle, userInput, onInputChang
     >
       <tbody>
         {puzzle.map((row, rowIndex) => (
-          <tr key={rowIndex}>
+          <tr key={`row-${rowIndex}`}>
             {row.map((num, colIndex) => {
               const isFixed = num !== 0;
+              const cellKey = `row-${rowIndex}-col-${colIndex}`;
+              
               return (
                 <td
-                  key={colIndex}
+                  key={cellKey}
                   style={{
                     border: '1px solid #000',
                     width: '40px',
