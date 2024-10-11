@@ -1,7 +1,7 @@
 "use client";
 import "core-js/stable";
 import "regenerator-runtime/runtime";
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useCallback } from "react";
 import SudokuGrid from "../components/SudokuGrid";
 import styles from "./page.module.css";
 
@@ -74,8 +74,9 @@ const reducer = (state: State, action: Action): State => {
     case "UPDATE_USER_INPUT": {
       const { row, col, value } = action.payload;
 
-      const newUserInput = [...state.userInput];
-      newUserInput[row][col] = value;
+      const newUserInput = state.userInput.map((r, i) =>
+        i === row ? r.map((val, j) => (j === col ? value : val)) : r
+      );
 
       return { ...state, userInput: newUserInput };
     }
@@ -105,41 +106,67 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
+/**
+ * Handles an error by dispatching an action to set the error state.
+ * If the error is an instance of Error, its message is used as the error payload.
+ * Otherwise, a default error message is used.
+ * @param {React.Dispatch<Action>} dispatch The dispatcher to use.
+ * @param {unknown} err The error to handle.
+ */
+const handleError = (dispatch: React.Dispatch<Action>, err: unknown) => {
+  if (err instanceof Error) {
+    dispatch({ type: "SET_ERROR", payload: err.message });
+  } else {
+    dispatch({
+      type: "SET_ERROR",
+      payload: "An unexpected error occurred",
+    });
+  }
+};
+
+  /**
+   * The main component of the Sudoku Generator page.
+   *
+   * Manages the state of the page, including the difficulty level, the puzzle,
+   * the user's input, and the solution. Handles changes to the difficulty
+   * level, updates to the user's input, and checks the user's answer against
+   * the solution.
+   *
+   * Renders a select element to select the difficulty level, a Sudoku grid,
+   * a "Submit" button to check the user's answer, and a timer to track the
+   * time taken to solve the puzzle.
+   *
+   * If an error occurs while fetching the puzzle or checking the answer,
+   * displays an error message.
+   */
 export default function Home() {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  useEffect(() => {
-    const fetchPuzzle = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}?difficulty=${state.difficulty}`,
-          { method: "POST" }
-        );
+  const fetchPuzzle = useCallback(async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}?difficulty=${state.difficulty}`,
+        { method: "POST" }
+      );
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          const errorMessage = errorData.error || "Failed to fetch puzzle";
-          throw new Error(errorMessage);
-        }
-
-        const data: SudokuPuzzle = await response.json();
-        dispatch({ type: "SET_PUZZLE", payload: data });
-      } catch (err) {
-        if (err instanceof Error) {
-          dispatch({ type: "SET_ERROR", payload: err.message });
-        } else {
-          dispatch({
-            type: "SET_ERROR",
-            payload: "An unexpected error occurred",
-          });
-        }
+      if (!response.ok) {
+        const errorData = await response.json();
+        const errorMessage = errorData.error || "Failed to fetch puzzle";
+        throw new Error(errorMessage);
       }
-    };
 
+      const data: SudokuPuzzle = await response.json();
+      dispatch({ type: "SET_PUZZLE", payload: data });
+    } catch (err) {
+      handleError(dispatch, err);
+    }
+  }, [state.difficulty]);
+
+  useEffect(() => {
     if (state.difficulty !== null) {
       fetchPuzzle();
     }
-  }, [state.difficulty]);
+  }, [state.difficulty, fetchPuzzle]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined;
@@ -155,6 +182,10 @@ export default function Home() {
     };
   }, [state.timerActive]);
 
+  /**
+   * Handles a change in the difficulty level dropdown.
+   * @param {React.ChangeEvent<HTMLSelectElement>} e The change event.
+   */
   const handleDifficultyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     if (value === null || value === "") {
@@ -177,6 +208,12 @@ export default function Home() {
     dispatch({ type: "SET_DIFFICULTY", payload: difficulty });
   };
 
+  /**
+   * Handles a change in one of the Sudoku input fields.
+   * @param {number} row The row of the input field that changed.
+   * @param {number} col The column of the input field that changed.
+   * @param {number} value The new value of the input field.
+   */
   const handleInputChange = (row: number, col: number, value: number) => {
     if (state.userInput === null) {
       dispatch({
@@ -189,17 +226,16 @@ export default function Home() {
     try {
       dispatch({ type: "UPDATE_USER_INPUT", payload: { row, col, value } });
     } catch (err) {
-      if (err instanceof Error) {
-        dispatch({ type: "SET_ERROR", payload: err.message });
-      } else {
-        dispatch({
-          type: "SET_ERROR",
-          payload: "An unexpected error occurred",
-        });
-      }
+      handleError(dispatch, err);
     }
   };
 
+  /**
+   * Checks the user's answer against the solution.
+   * If the user's answer is correct, sets the `isCorrect` state to `true`.
+   * If the user's answer is incorrect, sets the `isCorrect` state to `false`.
+   * @throws {Error} If the puzzle is not loaded.
+   */
   const checkAnswer = () => {
     if (state.userInput === null || state.solution === null) {
       dispatch({
@@ -212,14 +248,7 @@ export default function Home() {
     try {
       dispatch({ type: "CHECK_ANSWER" });
     } catch (err) {
-      if (err instanceof Error) {
-        dispatch({ type: "SET_ERROR", payload: err.message });
-      } else {
-        dispatch({
-          type: "SET_ERROR",
-          payload: "An unexpected error occurred",
-        });
-      }
+      handleError(dispatch, err);
     }
   };
 
@@ -258,17 +287,11 @@ export default function Home() {
             value={state.difficulty}
             onChange={handleDifficultyChange}
           >
-            {Array.from({ length: 10 }, (_, i) => {
-              const difficultyLevel = i + 1;
-              return (
-                <option
-                  key={`difficulty-${difficultyLevel}`}
-                  value={difficultyLevel}
-                >
-                  {difficultyLevel}
-                </option>
-              );
-            })}
+            {Array.from({ length: 10 }, (_, i) => (
+              <option key={`difficulty-${i + 1}`} value={i + 1}>
+                {i + 1}
+              </option>
+            ))}
           </select>
         </label>
         {content}
