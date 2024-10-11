@@ -2,12 +2,15 @@
   "name": "sudoku-project",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build && tsc",
     "start": "next start",
     "lint": "next lint",
-    "test": "vitest --run"
+    "test:index": "vitest run tests/index.spec.ts --environment=node",
+    "test:ui": "vitest run src/components/__test__/SudokuGrid.test.tsx --environment=happy-dom",
+    "test": "vitest run tests/index.spec.ts --environment=node && vitest run src/components/__test__/SudokuGrid.test.tsx --environment=happy-dom"
   },
   "dependencies": {
     "browserslist": "^4.24.0",
