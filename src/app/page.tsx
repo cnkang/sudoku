@@ -170,6 +170,7 @@ export default function Home() {
             aria-label="Select difficulty level"
             value={state.difficulty}
             onChange={handleDifficultyChange}
+            style={{ marginLeft: '8px' }} // Explicit spacing
           >
             {Array.from({ length: 10 }, (_, i) => (
               <option key={i + 1} value={i + 1}>
