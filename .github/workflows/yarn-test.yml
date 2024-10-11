@@ -1,0 +1,44 @@
+name: Node.js CI
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        check-latest: true
+
+    - name: Enable Corepack
+      run: corepack enable  # Enable Corepack to manage Yarn versions
+
+    - name: Set Yarn to version 2
+      run: yarn set version berry  # Set Yarn to v2 (Berry)
+
+    - name: Install dependencies
+      run: yarn install
+
+    - name: Build project
+      run: yarn build
+
+    - name: Run tests
+      run: yarn test
