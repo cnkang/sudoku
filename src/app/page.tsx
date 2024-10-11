@@ -187,18 +187,25 @@ export default function Home() {
     <div className={styles.page}>
       <main className={styles.main}>
         <h1>Sudoku Generator</h1>
-        <label>
+        <label htmlFor="difficulty-select">
           Difficulty Level:
           <select
+            id="difficulty-select"
             aria-label="Select difficulty level"
             value={state.difficulty}
             onChange={handleDifficultyChange}
           >
-            {Array.from({ length: 10 }, (_, i) => (
-              <option key={i + 1} value={i + 1}>
-                {i + 1}
-              </option>
-            ))}
+            {Array.from({ length: 10 }, (_, i) => {
+              const difficultyLevel = i + 1;
+              return (
+                <option
+                  key={`difficulty-${difficultyLevel}`}
+                  value={difficultyLevel}
+                >
+                  {difficultyLevel}
+                </option>
+              );
+            })}
           </select>
         </label>
         {content}

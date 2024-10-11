@@ -6,6 +6,8 @@ interface SudokuGridProps {
   onInputChange: (row: number, col: number, value: number) => void;
 }
 
+const generateCellKey = (row: number, col: number) => `cell-${row}-${col}`;
+
 /**
  * A React component that renders a Sudoku puzzle grid.
  * The grid is made up of table cells, each containing either a fixed number or an input field.
@@ -28,7 +30,7 @@ const SudokuGrid: React.FC<SudokuGridProps> = ({ puzzle, userInput, onInputChang
           <tr key={`row-${rowIndex}`}>
             {row.map((num, colIndex) => {
               const isFixed = num !== 0;
-              const cellKey = `row-${rowIndex}-col-${colIndex}`;
+              const cellKey = generateCellKey(rowIndex, colIndex);
               
               return (
                 <td
