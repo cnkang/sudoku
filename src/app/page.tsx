@@ -102,7 +102,7 @@ const reducer = (state: State, action: Action): State => {
     }
     default:
       return state;
-  }  
+  }
 };
 
 export default function Home() {
@@ -175,16 +175,14 @@ export default function Home() {
         <button onClick={checkAnswer}>Submit</button>
         <div>Time: {state.time}s</div>
         {state.isCorrect !== null && (
-          <div>
-            {state.isCorrect ? "Correct!" : "Incorrect, try again."}
-          </div>
+          <div>{state.isCorrect ? "Correct!" : "Incorrect, try again."}</div>
         )}
       </>
     );
   } else {
     content = <p>Loading...</p>;
   }
-  
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -195,7 +193,6 @@ export default function Home() {
             aria-label="Select difficulty level"
             value={state.difficulty}
             onChange={handleDifficultyChange}
-            style={{ marginLeft: '8px' }} // Explicit spacing
           >
             {Array.from({ length: 10 }, (_, i) => (
               <option key={i + 1} value={i + 1}>
@@ -207,5 +204,5 @@ export default function Home() {
         {content}
       </main>
     </div>
-  );  
+  );
 }
