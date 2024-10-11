@@ -47,7 +47,7 @@ const initialState: State = {
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
-    case "SET_PUZZLE":
+    case "SET_PUZZLE": {
       return {
         ...state,
         puzzle: action.payload.puzzle,
@@ -60,25 +60,29 @@ const reducer = (state: State, action: Action): State => {
         time: 0,
         timerActive: true,
       };
-    case "SET_ERROR":
+    }
+    case "SET_ERROR": {
       return {
         ...state,
         error: action.payload,
       };
-    case "UPDATE_USER_INPUT":
+    }
+    case "UPDATE_USER_INPUT": {
       const newInput = [...state.userInput];
       newInput[action.payload.row][action.payload.col] = action.payload.value;
       return {
         ...state,
         userInput: newInput,
       };
-    case "SET_DIFFICULTY":
+    }
+    case "SET_DIFFICULTY": {
       return {
         ...state,
         difficulty: action.payload,
         timerActive: false,
       };
-    case "CHECK_ANSWER":
+    }
+    case "CHECK_ANSWER": {
       const isSolvedCorrectly =
         JSON.stringify(state.userInput) === JSON.stringify(state.solution);
       return {
@@ -86,16 +90,19 @@ const reducer = (state: State, action: Action): State => {
         isCorrect: isSolvedCorrectly,
         timerActive: !isSolvedCorrectly,
       };
-    case "TICK":
+    }
+    case "TICK": {
       return {
         ...state,
         time: state.time + 1,
       };
-    case "RESET":
+    }
+    case "RESET": {
       return initialState;
+    }
     default:
       return state;
-  }
+  }  
 };
 
 export default function Home() {
