@@ -160,6 +160,31 @@ export default function Home() {
     dispatch({ type: "CHECK_ANSWER" });
   };
 
+  let content;
+
+  if (state.error) {
+    content = <p style={{ color: "red" }}>Error: {state.error}</p>;
+  } else if (state.puzzle) {
+    content = (
+      <>
+        <SudokuGrid
+          puzzle={state.puzzle}
+          userInput={state.userInput}
+          onInputChange={handleInputChange}
+        />
+        <button onClick={checkAnswer}>Submit</button>
+        <div>Time: {state.time}s</div>
+        {state.isCorrect !== null && (
+          <div>
+            {state.isCorrect ? "Correct!" : "Incorrect, try again."}
+          </div>
+        )}
+      </>
+    );
+  } else {
+    content = <p>Loading...</p>;
+  }
+  
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -179,28 +204,8 @@ export default function Home() {
             ))}
           </select>
         </label>
-
-        {state.error ? (
-          <p style={{ color: "red" }}>Error: {state.error}</p>
-        ) : state.puzzle ? (
-          <>
-            <SudokuGrid
-              puzzle={state.puzzle}
-              userInput={state.userInput}
-              onInputChange={handleInputChange}
-            />
-            <button onClick={checkAnswer}>Submit</button>
-            <div>Time: {state.time}s</div>
-            {state.isCorrect !== null && (
-              <div>
-                {state.isCorrect ? "Correct!" : "Incorrect, try again."}
-              </div>
-            )}
-          </>
-        ) : (
-          <p>Loading...</p>
-        )}
+        {content}
       </main>
     </div>
-  );
+  );  
 }
