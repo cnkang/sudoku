@@ -53,6 +53,5 @@
   "resolutions": {
     "glob": "^11",
     "rimraf": "^4"
-  },
-  "packageManager": "yarn@4.5.0"
+  }
 }
