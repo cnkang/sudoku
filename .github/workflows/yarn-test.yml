@@ -27,6 +27,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         check-latest: true
+        cache: 'yarn'
 
     - name: Enable Corepack
       run: corepack enable  # Enable Corepack to manage Yarn versions
@@ -48,7 +49,7 @@ jobs:
           ${{ runner.os }}-yarn-
 
     - name: Install dependencies
-      run: yarn install
+      run: yarn install --immutable
 
     - name: Build project
       run: yarn build
