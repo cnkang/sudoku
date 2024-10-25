@@ -26,6 +26,11 @@ export const metadata: Metadata = {
   authors: [{ name: "Kang Liu" }],
 };
 
+function extractKeywords(keywords: string | string[] | undefined): string {
+  if (!keywords) return "";
+  return typeof keywords === "string" ? keywords : keywords.join(", ");
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -35,19 +40,14 @@ export default function RootLayout({
     <html lang="en">
       <Head>
         <meta name="description" content={String(metadata.description ?? "")} />
-        <meta
-          name="keywords"
-          content={String(
-            metadata.keywords
-              ? (typeof metadata.keywords === 'string'
-                 ? metadata.keywords
-                 : metadata.keywords.join(", "))
-              : ""
-          )}
-        />
+        <meta name="keywords" content={extractKeywords(metadata.keywords ?? "")} />
         <meta
           name="author"
-          content={String(Array.isArray(metadata.authors) && metadata.authors.length > 0 ? metadata.authors[0].name : "")}
+          content={String(
+            Array.isArray(metadata.authors) && metadata.authors.length > 0
+              ? metadata.authors[0].name
+              : ""
+          )}
         />
         <meta property="og:title" content={String(metadata.title ?? "")} />
         <meta property="og:description" content={String(metadata.description ?? "")} />
