@@ -35,7 +35,7 @@ jobs:
       run: yarn set version berry  # Set Yarn to v2 (Berry)
 
     - name: Install dependencies
-      run: yarn install --immutable-cache
+      run: yarn install
       env:
         YARN_ENABLE_IMMUTABLE_INSTALLS: false
 
