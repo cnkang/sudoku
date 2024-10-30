@@ -606,6 +606,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@eslint/config-array@npm:^0.19.0":
+  version: 0.19.0
+  resolution: "@eslint/config-array@npm:0.19.0"
+  dependencies:
+    "@eslint/object-schema": "npm:^2.1.4"
+    debug: "npm:^4.3.1"
+    minimatch: "npm:^3.1.2"
+  checksum: 10c0/def23c6c67a8f98dc88f1b87e17a5668e5028f5ab9459661aabfe08e08f2acd557474bbaf9ba227be0921ae4db232c62773dbb7739815f8415678eb8f592dbf5
+  languageName: node
+  linkType: hard
+
 "@eslint/core@npm:^0.7.0":
   version: 0.7.0
   resolution: "@eslint/core@npm:0.7.0"
@@ -1318,7 +1329,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^22.7.6":
+"@types/node@npm:^22.8.2":
   version: 22.8.4
   resolution: "@types/node@npm:22.8.4"
   dependencies:
@@ -5249,7 +5260,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "sudoku-project@workspace:."
   dependencies:
-    "@eslint/config-array": "npm:^0.18.0"
+    "@eslint/config-array": "npm:^0.19.0"
     "@eslint/eslintrc": "npm:^3.1.0"
     "@eslint/js": "npm:^9.12.0"
     "@eslint/object-schema": "npm:^2.1.4"
