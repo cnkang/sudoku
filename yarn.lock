@@ -3283,14 +3283,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"happy-dom@npm:^15.11.0":
-  version: 15.11.0
-  resolution: "happy-dom@npm:15.11.0"
+"happy-dom@npm:^15.11.2":
+  version: 15.11.2
+  resolution: "happy-dom@npm:15.11.2"
   dependencies:
     entities: "npm:^4.5.0"
     webidl-conversions: "npm:^7.0.0"
     whatwg-mimetype: "npm:^3.0.0"
-  checksum: 10c0/ff9bb6e0cb257ebb8df8533b830aaff90f6e079adeb90767e89a9b10d6c181e7c41c90b9f716b9197ac9d353ab3b5ab726419e58c14ef740a6fcd7a3ecf0cd1f
+  checksum: 10c0/94de85617988acc75e062e5d9bb36d220ff8cb5672c0d4bc5e35135f2fcaa8735242284d56a9831911628972837e544188db3fb915e11b7e2d96eba9e82398ad
   languageName: node
   linkType: hard
 
@@ -5222,7 +5222,7 @@ __metadata:
     eslint: "npm:^9.14.0"
     eslint-config-next: "npm:^15.0.3"
     fast-sudoku-solver: "npm:^1.1.14"
-    happy-dom: "npm:^15.11.0"
+    happy-dom: "npm:^15.11.2"
     lodash: "npm:^4.17.21"
     next: "npm:^15.0.3"
     react: "npm:^18.3.1"
