@@ -20,7 +20,7 @@
     "lodash": "^4.17.21",
     "next": "^15.1.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react-dom": "^19.0.0",
     "regenerator-runtime": "^0.14.1",
     "winston": "^3.17.0"
   },
@@ -35,7 +35,7 @@
     "@types/lodash": "^4",
     "@types/node": "^22.10.1",
     "@types/react": "^18.3.11",
-    "@types/react-dom": "^18.3.1",
+    "@types/react-dom": "^19.0.2",
     "@types/regenerator-runtime": "^0.13.7",
     "@vitejs/plugin-react": "^4.3.4",
     "dotenv": "^16.4.5",
