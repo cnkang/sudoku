@@ -5700,7 +5700,7 @@ __metadata:
     "@eslint/config-array": "npm:^0.19.1"
     "@eslint/eslintrc": "npm:^3.2.0"
     "@eslint/js": "npm:^9.17.0"
-    "@eslint/object-schema": "npm:^2.1.4"
+    "@eslint/object-schema": "npm:^2.1.5"
     "@testing-library/dom": "npm:^10.4.0"
     "@testing-library/react": "npm:^16.0.1"
     "@types/core-js": "npm:^2.5.8"
