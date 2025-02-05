@@ -25,7 +25,7 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
-    "@eslint/config-array": "^0.19.1",
+    "@eslint/config-array": "^0.19.2",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.17.0",
     "@eslint/object-schema": "^2.1.6",
