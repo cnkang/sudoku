@@ -34,7 +34,7 @@
     "@testing-library/react": "^16.1.0",
     "@types/core-js": "^2.5.8",
     "@types/lodash": "^4",
-    "@types/node": "^22.13.2",
+    "@types/node": "^22.13.4",
     "@types/punycode": "^2",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
