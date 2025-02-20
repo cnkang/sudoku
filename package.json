@@ -18,7 +18,7 @@
     "fast-sudoku-solver": "^1.1.16",
     "lodash": "^4.17.21",
     "next": "^15.1.7",
-    "postcss": "^8.5.2",
+    "postcss": "^8.5.3",
     "punycode": "^2.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
