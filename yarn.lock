@@ -5125,7 +5125,7 @@ __metadata:
     happy-dom: "npm:^17.1.0"
     lodash: "npm:^4.17.21"
     next: "npm:^15.1.7"
-    postcss: "npm:^8.5.2"
+    postcss: "npm:^8.5.3"
     punycode: "npm:^2.3.1"
     react: "npm:^19.0.0"
     react-dom: "npm:^19.0.0"
