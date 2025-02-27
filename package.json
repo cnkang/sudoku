@@ -44,7 +44,7 @@
     "dotenv-cli": "^8.0.0",
     "esbuild": "^0.25.0",
     "eslint": "^9.20.1",
-    "eslint-config-next": "^15.1.7",
+    "eslint-config-next": "^15.2.0",
     "happy-dom": "^17.1.8",
     "typescript": "^5.7.2",
     "vite": "^6.2.0",
