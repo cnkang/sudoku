@@ -45,7 +45,7 @@
     "esbuild": "^0.25.1",
     "eslint": "^9.22.0",
     "eslint-config-next": "^15.2.2",
-    "happy-dom": "^17.4.3",
+    "happy-dom": "^17.4.4",
     "typescript": "^5.8.2",
     "vite": "^6.2.1",
     "vitest": "^3.0.8"
