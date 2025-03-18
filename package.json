@@ -48,7 +48,7 @@
     "happy-dom": "^17.4.4",
     "typescript": "^5.8.2",
     "vite": "^6.2.1",
-    "vitest": "^3.0.8"
+    "vitest": "^3.0.9"
   },
   "browserslist": [
     "> 0.2% and not dead",
