@@ -5158,7 +5158,7 @@ __metadata:
     core-js: "npm:^3.41.0"
     dotenv: "npm:^16.4.7"
     dotenv-cli: "npm:^8.0.0"
-    esbuild: "npm:^0.25.1"
+    esbuild: "npm:^0.25.2"
     eslint: "npm:^9.23.0"
     eslint-config-next: "npm:^15.2.4"
     fast-sudoku-solver: "npm:^1.1.16"
