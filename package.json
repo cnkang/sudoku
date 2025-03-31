@@ -20,7 +20,7 @@
     "next": "^15.2.4",
     "postcss": "^8.5.3",
     "punycode": "^2.3.1",
-    "react": "^19.0.0",
+    "react": "^19.1.0",
     "react-dom": "^19.0.0",
     "regenerator-runtime": "^0.14.1",
     "winston": "^3.17.0"
