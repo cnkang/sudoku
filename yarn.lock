@@ -1265,12 +1265,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^19.0.4":
-  version: 19.0.4
-  resolution: "@types/react-dom@npm:19.0.4"
+"@types/react-dom@npm:^19.1.0":
+  version: 19.1.0
+  resolution: "@types/react-dom@npm:19.1.0"
   peerDependencies:
     "@types/react": ^19.0.0
-  checksum: 10c0/4e71853919b94df9e746a4bd73f8180e9ae13016333ce9c543dcba9f4f4c8fe6e28b038ca6ee61c24e291af8e03ca3bc5ded17c46dee938fcb32d71186fda7a3
+  checksum: 10c0/430cba0b14d74408db8c6d566174594bf0a3bc582d74d4f1d5fb585a066b1155a0329a758f56b122285cbe42ec39b3cb67471a34f5b37cc230b04584da11f49f
   languageName: node
   linkType: hard
 
@@ -5151,7 +5151,7 @@ __metadata:
     "@types/node": "npm:^22.13.14"
     "@types/punycode": "npm:^2"
     "@types/react": "npm:^19.0.12"
-    "@types/react-dom": "npm:^19.0.4"
+    "@types/react-dom": "npm:^19.1.0"
     "@types/regenerator-runtime": "npm:^0.13.7"
     "@vitejs/plugin-react": "npm:^4.3.4"
     browserslist: "npm:^4.24.0"
@@ -5510,58 +5510,6 @@ __metadata:
 "vite@npm:^6.2.4":
   version: 6.2.4
   resolution: "vite@npm:6.2.4"
-  dependencies:
-    esbuild: "npm:^0.25.0"
-    fsevents: "npm:~2.3.3"
-    postcss: "npm:^8.5.3"
-    rollup: "npm:^4.30.1"
-  peerDependencies:
-    "@types/node": ^18.0.0 || ^20.0.0 || >=22.0.0
-    jiti: ">=1.21.0"
-    less: "*"
-    lightningcss: ^1.21.0
-    sass: "*"
-    sass-embedded: "*"
-    stylus: "*"
-    sugarss: "*"
-    terser: ^5.16.0
-    tsx: ^4.8.1
-    yaml: ^2.4.2
-  dependenciesMeta:
-    fsevents:
-      optional: true
-  peerDependenciesMeta:
-    "@types/node":
-      optional: true
-    jiti:
-      optional: true
-    less:
-      optional: true
-    lightningcss:
-      optional: true
-    sass:
-      optional: true
-    sass-embedded:
-      optional: true
-    stylus:
-      optional: true
-    sugarss:
-      optional: true
-    terser:
-      optional: true
-    tsx:
-      optional: true
-    yaml:
-      optional: true
-  bin:
-    vite: bin/vite.js
-  checksum: 10c0/5a011ee5cce91de023a22564a314f04bf64d0d02b420d92c3d539d10257448d60e98e52b491404656426fba4a50dc25f107282540d7388fc5303dc441280155e
-  languageName: node
-  linkType: hard
-
-"vitest@npm:^3.0.9":
-  version: 3.0.9
-  resolution: "vitest@npm:3.0.9"
   dependencies:
     esbuild: "npm:^0.25.0"
     fsevents: "npm:~2.3.3"
