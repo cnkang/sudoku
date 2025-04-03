@@ -1146,9 +1146,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react@npm:^16.1.0":
-  version: 16.2.0
-  resolution: "@testing-library/react@npm:16.2.0"
+"@testing-library/react@npm:^16.3.0":
+  version: 16.3.0
+  resolution: "@testing-library/react@npm:16.3.0"
   dependencies:
     "@babel/runtime": "npm:^7.12.5"
   peerDependencies:
@@ -1162,7 +1162,7 @@ __metadata:
       optional: true
     "@types/react-dom":
       optional: true
-  checksum: 10c0/7adaedaf237002b42e04a6261d2756074a19cbca0f0c79ba375660f618e123c0ee56256ced00aeb0bb7225ba1a8a81b92b692cca053521a21bb92a8cace1e4c6
+  checksum: 10c0/3a2cb1f87c9a67e1ebbbcfd99b94b01e496fc35147be8bc5d8bf07a699c7d523a09d57ef2f7b1d91afccd1a28e21eda3b00d80187fbb51b1de01e422592d845e
   languageName: node
   linkType: hard
 
@@ -1242,35 +1242,35 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4":
+"@types/lodash@npm:^4.17.16":
   version: 4.17.16
   resolution: "@types/lodash@npm:4.17.16"
   checksum: 10c0/cf017901b8ab1d7aabc86d5189d9288f4f99f19a75caf020c0e2c77b8d4cead4db0d0b842d009b029339f92399f49f34377dd7c2721053388f251778b4c23534
   languageName: node
   linkType: hard
 
-"@types/node@npm:^22.13.17":
-  version: 22.13.17
-  resolution: "@types/node@npm:22.13.17"
+"@types/node@npm:^22.14.0":
+  version: 22.14.0
+  resolution: "@types/node@npm:22.14.0"
   dependencies:
-    undici-types: "npm:~6.20.0"
-  checksum: 10c0/77a052fec0fe02f60557e1c5f3f28eb09cd9bee426be88328a94689150a3c0df5b4b6b69fad28157fb34521693dad0b311ecd7f613845d681ff973991310c20e
+    undici-types: "npm:~6.21.0"
+  checksum: 10c0/9d79f3fa1af9c2c869514f419c4a4905b34c10e12915582fd1784868ac4e74c6d306cf5eb47ef889b6750ab85a31be96618227b86739c4a3e0b1c15063f384c6
   languageName: node
   linkType: hard
 
-"@types/punycode@npm:^2":
+"@types/punycode@npm:^2.1.4":
   version: 2.1.4
   resolution: "@types/punycode@npm:2.1.4"
   checksum: 10c0/0472cc871783a22859ad83fe7cb62d23226ff78694b9807d2a3ec37571d46b05409ca9282c8ccedfb59e58e4a4561b27463623ce95bcfd6bd9c11ac1ef3cd0d1
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^19.1.0":
-  version: 19.1.0
-  resolution: "@types/react-dom@npm:19.1.0"
+"@types/react-dom@npm:^19.1.1":
+  version: 19.1.1
+  resolution: "@types/react-dom@npm:19.1.1"
   peerDependencies:
     "@types/react": ^19.0.0
-  checksum: 10c0/430cba0b14d74408db8c6d566174594bf0a3bc582d74d4f1d5fb585a066b1155a0329a758f56b122285cbe42ec39b3cb67471a34f5b37cc230b04584da11f49f
+  checksum: 10c0/83833af502f501a372b370fdeb7cf933dfc8780903fe0e0d6e6a76b4ea3adbe5316159a62a0388d8afdd409afd76a40959e2ce82fbb788f57d32c786a63601ee
   languageName: node
   linkType: hard
 
@@ -1283,7 +1283,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/regenerator-runtime@npm:^0.13.7":
+"@types/regenerator-runtime@npm:^0.13.8":
   version: 0.13.8
   resolution: "@types/regenerator-runtime@npm:0.13.8"
   checksum: 10c0/10c094584c097aec51a29f598425306febab764f054db14d5dd892961bf97c96272d620af5bd6e4c5f7d20c4e5b9ce98b6069b0f009cfc57f54614b33760b86e
@@ -1789,7 +1789,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"browserslist@npm:^4.24.0":
+"browserslist@npm:^4.24.0, browserslist@npm:^4.24.4":
   version: 4.24.4
   resolution: "browserslist@npm:4.24.4"
   dependencies:
@@ -5145,16 +5145,16 @@ __metadata:
     "@eslint/js": "npm:^9.23.0"
     "@eslint/object-schema": "npm:^2.1.6"
     "@testing-library/dom": "npm:^10.4.0"
-    "@testing-library/react": "npm:^16.1.0"
+    "@testing-library/react": "npm:^16.3.0"
     "@types/core-js": "npm:^2.5.8"
-    "@types/lodash": "npm:^4"
-    "@types/node": "npm:^22.13.17"
-    "@types/punycode": "npm:^2"
+    "@types/lodash": "npm:^4.17.16"
+    "@types/node": "npm:^22.14.0"
+    "@types/punycode": "npm:^2.1.4"
     "@types/react": "npm:^19.1.0"
-    "@types/react-dom": "npm:^19.1.0"
-    "@types/regenerator-runtime": "npm:^0.13.7"
+    "@types/react-dom": "npm:^19.1.1"
+    "@types/regenerator-runtime": "npm:^0.13.8"
     "@vitejs/plugin-react": "npm:^4.3.4"
-    browserslist: "npm:^4.24.0"
+    browserslist: "npm:^4.24.4"
     core-js: "npm:^3.41.0"
     dotenv: "npm:^16.4.7"
     dotenv-cli: "npm:^8.0.0"
@@ -5385,10 +5385,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici-types@npm:~6.20.0":
-  version: 6.20.0
-  resolution: "undici-types@npm:6.20.0"
-  checksum: 10c0/68e659a98898d6a836a9a59e6adf14a5d799707f5ea629433e025ac90d239f75e408e2e5ff086afc3cace26f8b26ee52155293564593fbb4a2f666af57fc59bf
+"undici-types@npm:~6.21.0":
+  version: 6.21.0
+  resolution: "undici-types@npm:6.21.0"
+  checksum: 10c0/c01ed51829b10aa72fc3ce64b747f8e74ae9b60eafa19a7b46ef624403508a54c526ffab06a14a26b3120d055e1104d7abe7c9017e83ced038ea5cf52f8d5e04
   languageName: node
   linkType: hard
 
