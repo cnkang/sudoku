@@ -1,5 +1,4 @@
-
-# sudoku-project (v1.0.0)
+# sudoku-project (v1.1.0)
 
 ## 项目简介
 
@@ -11,6 +10,8 @@
 - 动态渲染数独网格，支持初始谜题值和用户输入。
 - 使用 TypeScript 提供更强的类型安全性和可维护性。
 - 使用 Vite 进行快速的开发和构建。
+- 新增功能：重置按钮，用于清除用户输入并重新开始谜题。
+- 新增功能：验证功能，用于检查用户输入的正确性。
 
 ## 安装
 要安装依赖，请运行以下命令：
@@ -38,6 +39,7 @@ vitest --run
 ## 项目结构
 - **src/app/**: 包含应用程序的主要设置和路由。
 - **src/components/SudokuGrid.tsx**: 实现数独网格及用户输入支持的核心组件。
+- **src/components/Controls.tsx**: 实现额外控件（如重置和验证按钮）的组件。
 - **src/public/**: 静态资源，如图片或图标。
 - **next.config.mjs**: Next.js 的配置文件。
 - **tsconfig.json**: TypeScript 配置文件。
