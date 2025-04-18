@@ -1,4 +1,4 @@
-# sudoku-project (v1.1.0)
+# sudoku-project (v1.1.1)
 
 ## 项目简介
 
