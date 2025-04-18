@@ -1,5 +1,5 @@
 
-# sudoku-project (v1.0.0)
+# sudoku-project (v1.1.0)
 
 ## Project Description
 
@@ -11,6 +11,8 @@ This project is a Sudoku game frontend application built using Next.js and React
 - Dynamic rendering of the Sudoku grid, supporting both initial puzzle values and user inputs.
 - Built with TypeScript for enhanced type safety and maintainability.
 - Uses Vite for fast development and build processes.
+- Added feature: Reset button to clear user inputs and restart the puzzle.
+- Added feature: Validate solution to check the correctness of the user's input.
 
 ## Installation
 To install the dependencies, run:
@@ -38,6 +40,7 @@ vitest --run
 ## Project Structure
 - **src/app/**: Contains the main application setup and routing.
 - **src/components/SudokuGrid.tsx**: Core component that implements the Sudoku grid with user input support.
+- **src/components/Controls.tsx**: Component for additional controls like reset and validate buttons.
 - **src/public/**: Static assets such as images or icons.
 - **next.config.mjs**: Configuration for Next.js.
 - **tsconfig.json**: TypeScript configuration.
