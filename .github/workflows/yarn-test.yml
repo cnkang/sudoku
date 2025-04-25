@@ -11,6 +11,9 @@ on:
       - dev
   workflow_dispatch:  # Allows manual trigger
 
+permissions:  # Explicitly setting permissions for the GITHUB_TOKEN
+  contents: read
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
