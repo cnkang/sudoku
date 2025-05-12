@@ -5710,7 +5710,7 @@ __metadata:
     eslint: "npm:^9.26.0"
     eslint-config-next: "npm:^15.3.2"
     fast-sudoku-solver: "npm:^1.1.18"
-    happy-dom: "npm:^17.4.6"
+    happy-dom: "npm:^17.4.7"
     lodash: "npm:^4.17.21"
     next: "npm:^15.3.2"
     postcss: "npm:^8.5.3"
