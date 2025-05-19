@@ -28,7 +28,7 @@
   "devDependencies": {
     "@eslint/config-array": "^0.20.0",
     "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "^9.26.0",
+    "@eslint/js": "^9.27.0",
     "@eslint/object-schema": "^2.1.6",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.3.0",
