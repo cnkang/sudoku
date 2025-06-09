@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "browserslist": "^4.25.0",
-    "core-js": "^3.42.0",
+    "core-js": "^3.43.0",
     "fast-sudoku-solver": "^1.1.18",
     "lodash": "^4.17.21",
     "next": "^15.3.3",
