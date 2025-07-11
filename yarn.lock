@@ -5380,7 +5380,7 @@ __metadata:
     react-dom: "npm:^19.1.0"
     regenerator-runtime: "npm:^0.14.1"
     typescript: "npm:^5.8.3"
-    vite: "npm:^7.0.3"
+    vite: "npm:^7.0.4"
     vitest: "npm:^3.2.4"
     winston: "npm:^3.17.0"
   languageName: unknown
