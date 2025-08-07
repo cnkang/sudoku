@@ -5445,7 +5445,7 @@ __metadata:
     dotenv-cli: "npm:^10.0.0"
     esbuild: "npm:^0.25.8"
     eslint: "npm:^9.32.0"
-    eslint-config-next: "npm:^15.4.5"
+    eslint-config-next: "npm:^15.4.6"
     fast-sudoku-solver: "npm:^1.1.19"
     happy-dom: "npm:^18.0.1"
     lodash: "npm:^4.17.21"
