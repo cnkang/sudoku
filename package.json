@@ -39,7 +39,7 @@
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
     "@types/regenerator-runtime": "^0.13.8",
-    "@vitejs/plugin-react": "^4.7.0",
+    "@vitejs/plugin-react": "^5.0.0",
     "dotenv": "^17.2.1",
     "dotenv-cli": "^10.0.0",
     "esbuild": "^0.25.8",
