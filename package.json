@@ -36,7 +36,7 @@
     "@types/lodash": "^4.17.20",
     "@types/node": "^24.2.0",
     "@types/punycode": "^2.1.4",
-    "@types/react": "^19.1.9",
+    "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@types/regenerator-runtime": "^0.13.8",
     "@vitejs/plugin-react": "^5.0.0",
