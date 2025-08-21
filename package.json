@@ -51,8 +51,10 @@
     "vitest": "^3.2.4"
   },
   "browserslist": [
-    "> 0.2% and not dead",
-    "defaults"
+    "last 2 versions",
+    "> 1%",
+    "not dead",
+    "not ie 11"
   ],
   "resolutions": {
     "glob": "^11",
