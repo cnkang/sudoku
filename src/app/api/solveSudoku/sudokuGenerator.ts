@@ -13,9 +13,7 @@ const logger = winston.createLogger({
       return `${timestamp} [${level.toUpperCase()}]: ${message}`;
     })
   ),
-  transports: [
-    new winston.transports.Console()
-  ],
+  transports: [new winston.transports.Console()],
 });
 
 // Generates a Sudoku puzzle based on the provided difficulty.
@@ -69,7 +67,12 @@ function findEmptyCell(board: number[][]): [number, number] | null {
   return null;
 }
 
-function isSafe(board: number[][], row: number, col: number, num: number): boolean {
+function isSafe(
+  board: number[][],
+  row: number,
+  col: number,
+  num: number
+): boolean {
   if (board[row].includes(num)) {
     return false;
   }
@@ -117,10 +120,14 @@ function removeNumbers(board: number[][], difficulty: number): number[][] {
       solveSudoku(puzzleCopy, solutions, 2);
 
       if (solutions.length === 1) {
-        logger.debug(`Removed number at (${row}, ${col}) - Unique solution preserved`);
+        logger.debug(
+          `Removed number at (${row}, ${col}) - Unique solution preserved`
+        );
         cellsToRemove--;
       } else {
-        logger.debug(`Restoring number at (${row}, ${col}) - Multiple solutions`);
+        logger.debug(
+          `Restoring number at (${row}, ${col}) - Multiple solutions`
+        );
         puzzle[row][col] = backup;
       }
     }

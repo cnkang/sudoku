@@ -1,12 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
-import { SudokuPuzzle } from "./types";
-import { generateSudokuPuzzle } from "./sudokuGenerator";
+import { NextRequest, NextResponse } from 'next/server';
+import { SudokuPuzzle } from './types';
+import { generateSudokuPuzzle } from './sudokuGenerator';
+import { puzzleCache } from './cache';
 
 const MAX_DIFFICULTY = 10;
 const MIN_DIFFICULTY = 1;
-
-// Define cache at the top level to persist between requests
-const cache = new Map<string, { puzzle: SudokuPuzzle; timeout: NodeJS.Timeout }>();
 
 /**
  * Validate the given difficulty level.
@@ -16,7 +14,7 @@ const cache = new Map<string, { puzzle: SudokuPuzzle; timeout: NodeJS.Timeout }>
  */
 function validateDifficulty(difficultyParam: string | null): number {
   if (!difficultyParam || !/^\d+$/.test(difficultyParam)) {
-    throw new Error("Difficulty must be a positive integer.");
+    throw new Error('Difficulty must be a positive integer.');
   }
 
   const difficulty = parseInt(difficultyParam, 10);
@@ -45,16 +43,38 @@ function validateDifficulty(difficultyParam: string | null): number {
 export async function POST(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const difficulty = validateDifficulty(searchParams.get("difficulty"));
+    const difficulty = validateDifficulty(searchParams.get('difficulty'));
+    const seed = searchParams.get('seed') || 'default';
+    const forceRefresh = searchParams.get('force') === 'true';
 
-    const cacheKey = `sudoku-${difficulty}`;
+    const cacheKey = `sudoku-${difficulty}-${seed}`;
+    const forceKey = `force-${difficulty}`;
 
-    if (cache.has(cacheKey)) {
-      const cachedItem = cache.get(cacheKey);
-      if (cachedItem) {
+    // 检查强制刷新限制（10秒）
+    if (forceRefresh) {
+      const lastForce = puzzleCache.get(forceKey);
+      if (lastForce) {
         return NextResponse.json(
-          { ...cachedItem.puzzle, cached: true },
-          { status: 200 }
+          { error: 'Please wait 10 seconds before forcing refresh' },
+          { status: 429 }
+        );
+      }
+      puzzleCache.set(forceKey, Date.now(), 10000);
+    }
+
+    // 检查缓存（非强制刷新时）
+    if (!forceRefresh) {
+      const cachedPuzzle = puzzleCache.get(cacheKey);
+      if (cachedPuzzle) {
+        return NextResponse.json(
+          { ...cachedPuzzle, cached: true },
+          {
+            status: 200,
+            headers: {
+              'Cache-Control': 'public, max-age=30, s-maxage=30',
+              ETag: `"${cacheKey}-${Date.now()}"`,
+            },
+          }
         );
       }
     }
@@ -62,15 +82,23 @@ export async function POST(request: NextRequest) {
     // Generate a new Sudoku puzzle
     const puzzle: SudokuPuzzle = generateSudokuPuzzle(difficulty);
 
-    // Set cache with a timeout to expire after 5 seconds
-    const timeout = setTimeout(() => cache.delete(cacheKey), 5000); // 5,000ms = 5 seconds
-    cache.set(cacheKey, { puzzle, timeout });
+    // 缓存新生成的谜题（30秒TTL）
+    puzzleCache.set(cacheKey, puzzle, 30000);
 
-    return NextResponse.json({ ...puzzle, solved: true }, { status: 200 });
+    return NextResponse.json(
+      { ...puzzle, solved: true },
+      {
+        status: 200,
+        headers: {
+          'Cache-Control': 'public, max-age=30, s-maxage=30',
+          ETag: `"${cacheKey}-${Date.now()}"`,
+        },
+      }
+    );
   } catch (error) {
-    console.error("Error generating puzzle:", error);
+    // console.error('Error generating puzzle:', error);
 
-    let errorMessage = "Internal Server Error";
+    let errorMessage = 'Internal Server Error';
     if (error instanceof Error) {
       errorMessage = error.message;
     }

@@ -13,4 +13,3 @@ export function solveSudoku(
 
   return solutions.length >= maxSolutions;
 }
-
