@@ -1,4 +1,4 @@
-# Sudoku Challenge (v1.0.0)
+# Sudoku Challenge (v2.0.0)
 
 ## Project Description
 
