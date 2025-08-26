@@ -11,28 +11,23 @@ on:
     branches: ['main', 'dev']
 
 permissions:
-  # Required for using the reusable workflow
   actions: read
-  # Required for uploading SARIF file to security tab
-  security-events: write
-  # Read commit contents
   contents: read
+  security-events: write
 
 jobs:
-  scan-scheduled:
-    if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
-    uses: 'google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v1.10.0'
-    with:
-      scan-args: |-
-        -r
-        --skip-git
-        ./
+  osv-scanner:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-  scan-pr:
-    if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
-    uses: 'google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v1.10.0'
-    with:
-      scan-args: |-
-        -r
-        --skip-git
-        ./
+      - name: Run OSV-Scanner
+        uses: google/osv-scanner-action@v1.9.0
+        with:
+          scan-args: |-
+            --recursive
+            --skip-git
+            ./

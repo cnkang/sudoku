@@ -19,11 +19,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: yarn
 
-      - run: corepack enable
+      - name: Enable Corepack
+        run: corepack enable
 
-      - run: yarn install --immutable
+      - name: Install dependencies
+        run: yarn install --immutable
 
       - name: Code Quality Check
         run: yarn quality
