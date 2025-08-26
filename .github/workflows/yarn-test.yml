@@ -1,49 +1,45 @@
-name: Node.js CI
+name: CI/CD
 
 on:
   push:
-    branches:
-      - main
-      - dev
+    branches: [main, dev]
   pull_request:
-    branches:
-      - main
-      - dev
-  workflow_dispatch:  # Allows manual trigger
+    branches: [main, dev]
+  workflow_dispatch:
 
-permissions:  # Explicitly setting permissions for the GITHUB_TOKEN
+permissions:
   contents: read
+  checks: write
+  pull-requests: write
 
 jobs:
-  build-and-test:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [20, 22]
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        check-latest: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: yarn
 
-    - name: Enable Corepack
-      run: corepack enable  # Enable Corepack to manage Yarn versions
+      - run: corepack enable
 
-    - name: Set Yarn to version 2
-      run: yarn set version berry  # Set Yarn to v2 (Berry)
+      - run: yarn install --immutable
 
-    - name: Install dependencies
-      run: yarn install
-      env:
-        YARN_ENABLE_IMMUTABLE_INSTALLS: false
+      - run: yarn build
 
-    - name: Build project
-      run: yarn build
+      - run: yarn test
 
-    - name: Run tests
-      run: yarn test
+      - name: Test Results
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Tests (Node ${{ matrix.node-version }})
+          path: 'test-results.xml'
+          reporter: jest-junit
+          fail-on-error: false
