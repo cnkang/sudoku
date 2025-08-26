@@ -14,22 +14,28 @@ describe('SudokuGrid', () => {
       [7, 1, 3, 9, 2, 4, 8, 5, 6],
       [9, 6, 1, 5, 3, 7, 2, 8, 4],
       [2, 8, 7, 4, 1, 9, 6, 3, 5],
-      [3, 4, 5, 2, 8, 6, 1, 7, 9]
+      [3, 4, 5, 2, 8, 6, 1, 7, 9],
     ];
 
     // Initialize userInput with zeros for empty cells
-    const userInput = puzzle.map(row => row.map(value => (value === 0 ? 0 : value)));
+    const userInput = puzzle.map(row =>
+      row.map(value => (value === 0 ? 0 : value))
+    );
 
     const mockOnInputChange = vi.fn();
 
     const { getAllByRole } = render(
-      <SudokuGrid puzzle={puzzle} userInput={userInput} onInputChange={mockOnInputChange} />
+      <SudokuGrid
+        puzzle={puzzle}
+        userInput={userInput}
+        onInputChange={mockOnInputChange}
+      />
     );
 
-    const inputs = getAllByRole('spinbutton'); // Find all numeric inputs
+    const inputs = getAllByRole('textbox'); // Find all text inputs (changed from spinbutton)
 
-    // Simulate input change in the first empty cell
-    fireEvent.change(inputs[0], { target: { value: '5' } });
-    expect(mockOnInputChange).toHaveBeenCalledWith(0, 2, 5);
+    // Simulate input change in the first empty cell (which is at position 0,2)
+    fireEvent.change(inputs[0], { target: { value: '4' } });
+    expect(mockOnInputChange).toHaveBeenCalledWith(0, 2, 4);
   });
 });
