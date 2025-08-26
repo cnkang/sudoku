@@ -1,178 +1,89 @@
-"use client";
-import "core-js/stable";
-import "regenerator-runtime/runtime";
-import { useEffect, useReducer, useCallback } from "react";
-import SudokuGrid from "../components/SudokuGrid";
-import styles from "./page.module.css";
-
-interface SudokuPuzzle {
-  puzzle: number[][];
-  solution: number[][];
-  difficulty: number;
-}
-
-interface State {
-  puzzle: number[][] | null;
-  solution: number[][] | null;
-  difficulty: number;
-  error: string | null;
-  userInput: number[][];
-  time: number;
-  timerActive: boolean;
-  isCorrect: boolean | null;
-}
-
-type Action =
-  | { type: "SET_PUZZLE"; payload: SudokuPuzzle }
-  | { type: "SET_ERROR"; payload: string }
-  | {
-      type: "UPDATE_USER_INPUT";
-      payload: { row: number; col: number; value: number };
-    }
-  | { type: "SET_DIFFICULTY"; payload: number }
-  | { type: "CHECK_ANSWER" }
-  | { type: "TICK" }
-  | { type: "RESET" };
-
-const initialState: State = {
-  puzzle: null,
-  solution: null,
-  difficulty: 1,
-  error: null,
-  userInput: [],
-  time: 0,
-  timerActive: false,
-  isCorrect: null,
-};
+'use client';
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+import { useEffect, useCallback, useRef } from 'react';
+import SudokuGrid from '../components/SudokuGrid';
+import Timer from '../components/Timer';
+import DifficultySelector from '../components/DifficultySelector';
+import GameControls from '../components/GameControls';
+import { useGameState } from '../hooks/useGameState';
+import { SudokuPuzzle } from '../types';
+import { getHint } from '../utils/hints';
+import { updateStats } from '../utils/stats';
+import { fetchWithCache } from '../utils/apiCache';
+import styles from './page.module.css';
 
 /**
- * Reducer function for the Sudoku state.
- * @param {State} state The current state.
- * @param {Action} action The action to perform on the state.
- * @returns {State} The new state.
+ * Main Sudoku game page component with enhanced features
  */
-const reducer = (state: State, action: Action): State => {
-  switch (action.type) {
-    case "SET_PUZZLE": {
-      const { puzzle, solution } = action.payload;
-
-      return {
-        ...state,
-        puzzle,
-        solution,
-        userInput: puzzle.map((row) => row.map((val) => (val === 0 ? 0 : val))),
-        error: null,
-        isCorrect: null,
-        time: 0,
-        timerActive: true,
-      };
-    }
-
-    case "SET_ERROR":
-      return { ...state, error: action.payload };
-
-    case "UPDATE_USER_INPUT": {
-      const { row, col, value } = action.payload;
-
-      const newUserInput = state.userInput.map((r, i) =>
-        i === row ? r.map((val, j) => (j === col ? value : val)) : r
-      );
-
-      return { ...state, userInput: newUserInput };
-    }
-
-    case "SET_DIFFICULTY":
-      return { ...state, difficulty: action.payload, timerActive: false };
-
-    case "CHECK_ANSWER": {
-      const isSolvedCorrectly =
-        JSON.stringify(state.userInput) === JSON.stringify(state.solution);
-
-      return {
-        ...state,
-        isCorrect: isSolvedCorrectly,
-        timerActive: !isSolvedCorrectly,
-      };
-    }
-
-    case "TICK":
-      return { ...state, time: state.time + 1 };
-
-    case "RESET":
-      return initialState;
-
-    default:
-      return state;
-  }
-};
-
-/**
- * Handles an error by dispatching an action to set the error state.
- * If the error is an instance of Error, its message is used as the error payload.
- * Otherwise, a default error message is used.
- * @param {React.Dispatch<Action>} dispatch The dispatcher to use.
- * @param {unknown} err The error to handle.
- */
-const handleError = (dispatch: React.Dispatch<Action>, err: unknown) => {
-  if (err instanceof Error) {
-    dispatch({ type: "SET_ERROR", payload: err.message });
-  } else {
-    dispatch({
-      type: "SET_ERROR",
-      payload: "An unexpected error occurred",
-    });
-  }
-};
-
-  /**
-   * The main component of the Sudoku Generator page.
-   *
-   * Manages the state of the page, including the difficulty level, the puzzle,
-   * the user's input, and the solution. Handles changes to the difficulty
-   * level, updates to the user's input, and checks the user's answer against
-   * the solution.
-   *
-   * Renders a select element to select the difficulty level, a Sudoku grid,
-   * a "Submit" button to check the user's answer, and a timer to track the
-   * time taken to solve the puzzle.
-   *
-   * If an error occurs while fetching the puzzle or checking the answer,
-   * displays an error message.
-   */
 export default function Home() {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const { state, dispatch, handleError, clearError } = useGameState();
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const lastFetchTimeRef = useRef<number>(0);
+  const lastResetTimeRef = useRef<number>(0);
 
-  const fetchPuzzle = useCallback(async () => {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}?difficulty=${state.difficulty}`,
-        { method: "POST" }
-      );
+  const fetchPuzzle = useCallback(
+    async (difficulty?: number, forceRefresh = false) => {
+      const now = Date.now();
+      // 防抖：非强制刷新时检查间隔
+      if (!forceRefresh && now - lastFetchTimeRef.current < 5000) {
+        return;
+      }
+      // 强制刷新限制：10秒间隔
+      if (forceRefresh && now - lastResetTimeRef.current < 10000) {
+        handleError(new Error('Please wait 10 seconds before resetting'));
+        return;
+      }
+      lastFetchTimeRef.current = now;
+      if (forceRefresh) lastResetTimeRef.current = now;
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        const errorMessage = errorData.error || "Failed to fetch puzzle";
-        throw new Error(errorMessage);
+      // 取消之前的请求
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
       }
 
-      const data: SudokuPuzzle = await response.json();
-      dispatch({ type: "SET_PUZZLE", payload: data });
-    } catch (err) {
-      handleError(dispatch, err);
-    }
-  }, [state.difficulty]);
+      // 创建新的 AbortController
+      abortControllerRef.current = new AbortController();
+
+      try {
+        dispatch({ type: 'SET_LOADING', payload: true });
+        clearError();
+        const targetDifficulty = difficulty ?? state.difficulty;
+        const url = `${process.env.NEXT_PUBLIC_API_URL}?difficulty=${targetDifficulty}${forceRefresh ? '&force=true' : ''}`;
+        const data = await fetchWithCache(
+          url,
+          {
+            method: 'POST',
+            signal: abortControllerRef.current.signal,
+          },
+          forceRefresh
+        );
+        dispatch({ type: 'SET_PUZZLE', payload: data as SudokuPuzzle });
+      } catch (err) {
+        // 如果是取消的请求，不显示错误
+        if (err instanceof Error && err.name === 'AbortError') {
+          return;
+        }
+        dispatch({ type: 'SET_LOADING', payload: false });
+        handleError(err);
+      } finally {
+        abortControllerRef.current = null;
+      }
+    },
+    [state.difficulty, handleError, clearError, dispatch]
+  );
 
   useEffect(() => {
-    if (state.difficulty !== null) {
+    if (state.difficulty !== null && !state.puzzle && !state.isLoading) {
       fetchPuzzle();
     }
-  }, [state.difficulty, fetchPuzzle]);
+  }, [state.difficulty, state.puzzle, state.isLoading, fetchPuzzle]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined;
-    if (state.timerActive) {
+    if (state.timerActive && !state.isPaused) {
       timer = setInterval(() => {
-        dispatch({ type: "TICK" });
+        dispatch({ type: 'TICK' });
       }, 1000);
     }
     return () => {
@@ -180,122 +91,388 @@ export default function Home() {
         clearInterval(timer);
       }
     };
-  }, [state.timerActive]);
+  }, [state.timerActive, state.isPaused, dispatch]);
 
-  /**
-   * Handles a change in the difficulty level dropdown.
-   * @param {React.ChangeEvent<HTMLSelectElement>} e The change event.
-   */
-  const handleDifficultyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    if (value === null || value === "") {
-      dispatch({
-        type: "SET_ERROR",
-        payload: "Event target value is null or empty",
-      });
-      return;
-    }
+  const handleDifficultyChange = useCallback(
+    (difficulty: number) => {
+      dispatch({ type: 'SET_DIFFICULTY', payload: difficulty });
+      // 难度改变时自动获取新谜题，直接传递新难度
+      fetchPuzzle(difficulty);
+    },
+    [dispatch, fetchPuzzle]
+  );
 
-    const difficulty = parseInt(value, 10);
-    if (isNaN(difficulty)) {
-      dispatch({
-        type: "SET_ERROR",
-        payload: "Event target value is not a number",
-      });
-      return;
-    }
+  const handleInputChange = useCallback(
+    (row: number, col: number, value: number) => {
+      if (state.userInput === null) {
+        handleError(
+          new Error('Cannot update user input when puzzle is not loaded')
+        );
+        return;
+      }
 
-    dispatch({ type: "SET_DIFFICULTY", payload: difficulty });
-  };
+      try {
+        dispatch({ type: 'UPDATE_USER_INPUT', payload: { row, col, value } });
 
-  /**
-   * Handles a change in one of the Sudoku input fields.
-   * @param {number} row The row of the input field that changed.
-   * @param {number} col The column of the input field that changed.
-   * @param {number} value The new value of the input field.
-   */
-  const handleInputChange = (row: number, col: number, value: number) => {
-    if (state.userInput === null) {
-      dispatch({
-        type: "SET_ERROR",
-        payload: "Cannot update user input when puzzle is not loaded",
-      });
-      return;
-    }
+        // Clear hint if user filled the hinted cell
+        if (
+          state.showHint &&
+          state.showHint.row === row &&
+          state.showHint.col === col
+        ) {
+          dispatch({ type: 'CLEAR_HINT' });
+        }
+      } catch (err) {
+        handleError(err);
+      }
+    },
+    [state.userInput, state.showHint, handleError, dispatch]
+  );
 
-    try {
-      dispatch({ type: "UPDATE_USER_INPUT", payload: { row, col, value } });
-    } catch (err) {
-      handleError(dispatch, err);
-    }
-  };
-
-  /**
-   * Checks the user's answer against the solution.
-   * If the user's answer is correct, sets the `isCorrect` state to `true`.
-   * If the user's answer is incorrect, sets the `isCorrect` state to `false`.
-   * @throws {Error} If the puzzle is not loaded.
-   */
-  const checkAnswer = () => {
+  const checkAnswer = useCallback(() => {
     if (state.userInput === null || state.solution === null) {
-      dispatch({
-        type: "SET_ERROR",
-        payload: "Cannot check answer when puzzle is not loaded",
-      });
+      handleError(new Error('Cannot check answer when puzzle is not loaded'));
       return;
     }
 
     try {
-      dispatch({ type: "CHECK_ANSWER" });
+      dispatch({ type: 'CHECK_ANSWER' });
+
+      // Update stats
+      const isCorrect =
+        JSON.stringify(state.userInput) === JSON.stringify(state.solution);
+      updateStats(state.difficulty, state.time, isCorrect);
     } catch (err) {
-      handleError(dispatch, err);
+      handleError(err);
     }
-  };
+  }, [
+    state.userInput,
+    state.solution,
+    state.difficulty,
+    state.time,
+    handleError,
+    dispatch,
+  ]);
 
-  let content;
+  const resetGame = useCallback(() => {
+    dispatch({ type: 'RESET_AND_FETCH' });
+    // 重置时强制刷新
+    fetchPuzzle(undefined, true);
+  }, [fetchPuzzle, dispatch]);
 
-  if (state.error) {
-    content = <p style={{ color: "red" }}>Error: {state.error}</p>;
-  } else if (state.puzzle) {
-    content = (
-      <>
-        <SudokuGrid
-          puzzle={state.puzzle}
-          userInput={state.userInput}
-          onInputChange={handleInputChange}
-        />
-        <button onClick={checkAnswer}>Submit</button>
-        <div>Time: {state.time}s</div>
-        {state.isCorrect !== null && (
-          <div>{state.isCorrect ? "Correct!" : "Incorrect, try again."}</div>
-        )}
-      </>
-    );
-  } else {
-    content = <p>Loading...</p>;
-  }
+  const pauseResumeGame = useCallback(() => {
+    dispatch({ type: 'PAUSE_RESUME' });
+  }, [dispatch]);
+
+  const undoMove = useCallback(() => {
+    dispatch({ type: 'UNDO' });
+  }, [dispatch]);
+
+  const getGameHint = useCallback(() => {
+    if (!state.puzzle || !state.solution || !state.userInput) return;
+
+    const hint = getHint(state.puzzle, state.userInput, state.solution);
+    if (hint) {
+      dispatch({ type: 'USE_HINT' });
+      dispatch({
+        type: 'SHOW_HINT',
+        payload: {
+          row: hint.row,
+          col: hint.col,
+          message: hint.reason,
+        },
+      });
+    }
+  }, [state.puzzle, state.solution, state.userInput, dispatch]);
+
+  const isGameDisabled = state.isPaused || state.isCorrect === true;
 
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <h1>Sudoku Generator</h1>
-        <label htmlFor="difficulty-select">
-          Difficulty Level:
-          <select
-            id="difficulty-select"
-            aria-label="Select difficulty level"
-            value={state.difficulty}
-            onChange={handleDifficultyChange}
-          >
-            {Array.from({ length: 10 }, (_, i) => (
-              <option key={`difficulty-${i + 1}`} value={i + 1}>
-                {i + 1}
-              </option>
-            ))}
-          </select>
-        </label>
-        {content}
+        <header className="game-header">
+          <h1>Sudoku Challenge</h1>
+          <p className="game-subtitle">Test your logic and patience</p>
+        </header>
+
+        <DifficultySelector
+          difficulty={state.difficulty}
+          onChange={handleDifficultyChange}
+          disabled={false}
+          isLoading={state.isLoading}
+        />
+
+        {state.error && (
+          <div className="error-message">
+            <span>⚠️ {state.error}</span>
+            <button onClick={clearError} className="error-dismiss">
+              ×
+            </button>
+          </div>
+        )}
+
+        {state.puzzle ? (
+          <div className="game-area">
+            <Timer
+              time={state.time}
+              isActive={state.timerActive}
+              isPaused={state.isPaused}
+            />
+
+            <SudokuGrid
+              puzzle={state.puzzle}
+              userInput={state.userInput}
+              onInputChange={handleInputChange}
+              disabled={isGameDisabled}
+              hintCell={state.showHint}
+            />
+
+            {state.showHint && (
+              <div className="hint-message">💡 {state.showHint.message}</div>
+            )}
+
+            <GameControls
+              onSubmit={checkAnswer}
+              onReset={resetGame}
+              onPauseResume={pauseResumeGame}
+              onUndo={undoMove}
+              onHint={getGameHint}
+              isCorrect={state.isCorrect}
+              isPaused={state.isPaused}
+              disabled={!state.puzzle}
+              isLoading={state.isLoading}
+              canUndo={state.history.length > 1}
+              hintsUsed={state.hintsUsed}
+            />
+          </div>
+        ) : (
+          <div className="loading-state">
+            <div className="loading-spinner"></div>
+            <p>Generating your puzzle...</p>
+          </div>
+        )}
       </main>
+
+      <style jsx>{`
+        .game-header {
+          text-align: center;
+          margin-bottom: 2rem;
+        }
+
+        .game-header h1 {
+          font-size: 2.5rem;
+          font-weight: 800;
+          color: #1f2937;
+          margin-bottom: 0.5rem;
+        }
+
+        .game-subtitle {
+          font-size: 1.1rem;
+          color: #6b7280;
+          font-style: italic;
+        }
+
+        .error-message {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          background-color: #fee2e2;
+          color: #991b1b;
+          padding: 1rem;
+          border-radius: 0.5rem;
+          border: 1px solid #fecaca;
+          margin-bottom: 1rem;
+        }
+
+        .error-dismiss {
+          background: none;
+          border: none;
+          font-size: 1.5rem;
+          cursor: pointer;
+          color: #991b1b;
+          padding: 0;
+          margin-left: 1rem;
+        }
+
+        .game-area {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        .loading-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1rem;
+          padding: 3rem;
+          color: #6b7280;
+        }
+
+        .loading-spinner {
+          width: 40px;
+          height: 40px;
+          border: 4px solid #e5e7eb;
+          border-top: 4px solid #3b82f6;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+
+        .hint-message {
+          background-color: #fef3c7;
+          color: #92400e;
+          padding: 1rem;
+          border-radius: 0.5rem;
+          border: 1px solid #fbbf24;
+          margin: 1rem 0;
+          text-align: center;
+          font-weight: 500;
+          animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+          .game-header {
+            margin-bottom: 1.5rem;
+          }
+
+          .game-header h1 {
+            font-size: 2rem;
+          }
+
+          .game-subtitle {
+            font-size: 1rem;
+          }
+
+          .error-message {
+            font-size: 0.875rem;
+            padding: 0.75rem;
+            margin: 0 -0.5rem 1rem -0.5rem;
+          }
+
+          .game-area {
+            gap: 0.75rem;
+          }
+
+          .loading-state {
+            padding: 2rem 1rem;
+          }
+
+          .hint-message {
+            font-size: 0.875rem;
+            padding: 0.75rem;
+            margin: 0.75rem 0;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .game-header {
+            margin-bottom: 1rem;
+          }
+
+          .game-header h1 {
+            font-size: 1.75rem;
+            line-height: 1.2;
+          }
+
+          .game-subtitle {
+            font-size: 0.875rem;
+            margin-bottom: 0;
+          }
+
+          .error-message {
+            font-size: 0.8rem;
+            padding: 0.625rem;
+            margin: 0 -1rem 0.75rem -1rem;
+            border-radius: 0;
+          }
+
+          .error-dismiss {
+            font-size: 1.25rem;
+            margin-left: 0.5rem;
+          }
+
+          .game-area {
+            gap: 0.5rem;
+          }
+
+          .loading-state {
+            padding: 1.5rem 0.5rem;
+          }
+
+          .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border-width: 3px;
+          }
+
+          .hint-message {
+            font-size: 0.8rem;
+            padding: 0.625rem;
+            margin: 0.5rem 0;
+            line-height: 1.4;
+          }
+        }
+
+        /* 横屏模式 */
+        @media (max-width: 768px) and (orientation: landscape) {
+          .game-header {
+            margin-bottom: 0.75rem;
+          }
+
+          .game-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+          }
+
+          .game-subtitle {
+            font-size: 0.875rem;
+          }
+
+          .game-area {
+            gap: 0.5rem;
+          }
+
+          .hint-message {
+            font-size: 0.8rem;
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+          }
+        }
+
+        /* 触摸设备优化 */
+        @media (hover: none) and (pointer: coarse) {
+          .error-dismiss {
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+          }
+        }
+      `}</style>
     </div>
   );
 }
