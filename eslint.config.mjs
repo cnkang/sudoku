@@ -1,38 +1,102 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import js from '@eslint/js';
-import { FlatCompat } from '@eslint/eslintrc';
+import tseslint from '@typescript-eslint/eslint-plugin';
+import tsparser from '@typescript-eslint/parser';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-});
-
-const eslintConfig = [
+export default [
+  js.configs.recommended,
   {
     ignores: [
       'node_modules/**',
       '.next/**',
       'out/**',
       'build/**',
+      'dist/**',
+      'coverage/**',
       'next-env.d.ts',
     ],
   },
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
+    files: ['**/*.{js,mjs,cjs}'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+      },
+    },
     rules: {
-      '@typescript-eslint/no-unused-vars': 'error',
-      '@typescript-eslint/no-explicit-any': 'warn',
       'prefer-const': 'error',
       'no-var': 'error',
       'no-console': 'warn',
-      'react-hooks/exhaustive-deps': 'warn',
+      'no-unused-vars': 'error',
     },
-    ignores: ['node_modules/**', '.next/**', 'dist/**', 'coverage/**'],
+  },
+  {
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      parser: tsparser,
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+      globals: {
+        // Browser globals
+        window: 'readonly',
+        document: 'readonly',
+        navigator: 'readonly',
+        localStorage: 'readonly',
+        fetch: 'readonly',
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
+        AbortController: 'readonly',
+        AbortSignal: 'readonly',
+        Response: 'readonly',
+        RequestInit: 'readonly',
+        Element: 'readonly',
+        HTMLSelectElement: 'readonly',
+        // Node.js globals
+        process: 'readonly',
+        console: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        // React globals
+        React: 'readonly',
+        // TypeScript globals
+        NodeJS: 'readonly',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    rules: {
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'no-console': 'warn',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_' },
+      ],
+      'no-unused-vars': 'off', // Turn off base rule as it conflicts with TypeScript version
+    },
+  },
+  {
+    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', 'src/test-setup.ts'],
+    languageOptions: {
+      globals: {
+        vi: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        global: 'readonly',
+      },
+    },
   },
 ];
-
-export default eslintConfig;

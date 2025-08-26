@@ -7,18 +7,21 @@ A modern, full-featured Sudoku game built with Next.js 15 and React 19. Features
 ## Features
 
 ### Core Gameplay
+
 - **Interactive Sudoku Grid**: Responsive 9×9 grid with intuitive input handling
 - **10 Difficulty Levels**: From Easy (1-2) to Expert (9-10) with intelligent puzzle generation
 - **Real-time Timer**: Track your solving time with pause/resume functionality
 - **Solution Validation**: Instant feedback on puzzle completion
 
 ### Game Controls
+
 - **Hint System**: Smart hints with usage tracking and strategic suggestions
 - **Undo/Redo**: Full move history with unlimited undo capability
 - **Reset Game**: Generate new puzzles with cooldown protection
 - **Pause/Resume**: Pause timer and hide grid for breaks
 
 ### Technical Features
+
 - **Server-side Puzzle Generation**: Advanced DLX algorithm for unique, solvable puzzles
 - **Intelligent Caching**: API response caching with force refresh options
 - **Mobile-first Design**: Fully responsive with touch optimization
@@ -98,6 +101,7 @@ src/
 ## Dependencies
 
 ### Runtime
+
 - **next** (^15.5.0) - React framework
 - **react** (^19.1.1) - UI library
 - **fast-sudoku-solver** (^1.1.19) - Puzzle generation
@@ -105,6 +109,7 @@ src/
 - **lodash** (^4.17.21) - Utilities
 
 ### Development
+
 - **typescript** (^5.9.2) - Type safety
 - **vitest** (^3.2.4) - Testing framework
 - **eslint** (^9.34.0) - Code linting

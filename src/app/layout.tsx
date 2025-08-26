@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 
@@ -34,17 +34,7 @@ export const metadata: Metadata = {
     description:
       'Play free Sudoku puzzles online with multiple difficulty levels.',
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-    viewportFit: 'cover',
-  },
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f8fafc' },
-    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
-  ],
+
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -53,6 +43,18 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f8fafc' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
+  ],
 };
 
 const structuredData = {
