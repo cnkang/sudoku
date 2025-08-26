@@ -1,57 +1,116 @@
-
-# sudoku-project (v1.1.3)
+# Sudoku Challenge (v1.0.0)
 
 ## Project Description
 
-This project is a Sudoku game frontend application built using Next.js and React. It provides an interactive Sudoku grid for users to solve puzzles, with features to input and track user solutions.
+A modern, full-featured Sudoku game built with Next.js 15 and React 19. Features an intelligent puzzle generator, comprehensive game controls, responsive design, and extensive testing coverage.
 
 ## Features
-- Interactive Sudoku grid implemented with React.
-- Users can input numbers to solve the puzzle.
-- Dynamic rendering of the Sudoku grid, supporting both initial puzzle values and user inputs.
-- Built with TypeScript for enhanced type safety and maintainability.
-- Uses Vite for fast development and build processes.
-- Added feature: Reset button to clear user inputs and restart the puzzle.
-- Added feature: Validate solution to check the correctness of the user's input.
+
+### Core Gameplay
+- **Interactive Sudoku Grid**: Responsive 9×9 grid with intuitive input handling
+- **10 Difficulty Levels**: From Easy (1-2) to Expert (9-10) with intelligent puzzle generation
+- **Real-time Timer**: Track your solving time with pause/resume functionality
+- **Solution Validation**: Instant feedback on puzzle completion
+
+### Game Controls
+- **Hint System**: Smart hints with usage tracking and strategic suggestions
+- **Undo/Redo**: Full move history with unlimited undo capability
+- **Reset Game**: Generate new puzzles with cooldown protection
+- **Pause/Resume**: Pause timer and hide grid for breaks
+
+### Technical Features
+- **Server-side Puzzle Generation**: Advanced DLX algorithm for unique, solvable puzzles
+- **Intelligent Caching**: API response caching with force refresh options
+- **Mobile-first Design**: Fully responsive with touch optimization
+- **Comprehensive Testing**: Unit, integration, and responsive testing
+- **Type Safety**: Full TypeScript implementation
 
 ## Installation
-To install the dependencies, run:
-```
+
+```bash
 yarn install
 ```
 
-## Usage
-To start the development server, use:
-```
-next dev
+## Development
+
+```bash
+# Start development server
+yarn dev
+
+# Build for production
+yarn build
+
+# Start production server
+yarn start
 ```
 
-To build the project:
-```
-next build && tsc
+## Testing
+
+```bash
+# Run all tests
+yarn test
+
+# Run specific test suites
+yarn test:ui          # Component tests
+yarn test:hooks       # Hook tests
+yarn test:api         # API tests
+yarn test:responsive  # Mobile/responsive tests
+yarn test:coverage    # Coverage report
 ```
 
-## Tests
-Run the tests using:
-```
-vitest --run
+## Code Quality
+
+```bash
+# Check code quality
+yarn quality
+
+# Fix linting and formatting
+yarn quality:fix
 ```
 
 ## Project Structure
-- **src/app/**: Contains the main application setup and routing.
-- **src/components/SudokuGrid.tsx**: Core component that implements the Sudoku grid with user input support.
-- **src/components/Controls.tsx**: Component for additional controls like reset and validate buttons.
-- **src/public/**: Static assets such as images or icons.
-- **next.config.mjs**: Configuration for Next.js.
-- **tsconfig.json**: TypeScript configuration.
-- **vite.config.ts**: Configuration for Vite bundler.
+
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── api/solveSudoku/   # Puzzle generation API
+│   ├── globals.css        # Global styles
+│   └── page.tsx           # Main game page
+├── components/            # React components
+│   ├── SudokuGrid.tsx     # Interactive game grid
+│   ├── GameControls.tsx   # Game control buttons
+│   ├── Timer.tsx          # Game timer
+│   └── DifficultySelector.tsx
+├── hooks/                 # Custom React hooks
+│   └── useGameState.ts    # Game state management
+├── utils/                 # Utility functions
+│   ├── hints.ts           # Hint generation logic
+│   ├── apiCache.ts        # API caching
+│   └── storage.ts         # Local storage
+└── types/                 # TypeScript definitions
+```
+
+## API Endpoints
+
+- `POST /api/solveSudoku?difficulty=1-10` - Generate new puzzle
+- `POST /api/solveSudoku?difficulty=5&force=true` - Force new puzzle
 
 ## Dependencies
-The project relies on the following key dependencies:
-browserslist, core-js, fast-sudoku-solver, next, react, react-dom
 
-Development dependencies include:
-@eslint/config-array, @eslint/object-schema, @testing-library/dom, @testing-library/react, @types/core-js, @types/node, @types/react, @types/react-dom, @types/regenerator-runtime, @vitejs/plugin-react, dotenv, dotenv-cli, esbuild, eslint, eslint-config-next, happy-dom, typescript, vite, vitest
+### Runtime
+- **next** (^15.5.0) - React framework
+- **react** (^19.1.1) - UI library
+- **fast-sudoku-solver** (^1.1.19) - Puzzle generation
+- **winston** (^3.17.0) - Logging
+- **lodash** (^4.17.21) - Utilities
+
+### Development
+- **typescript** (^5.9.2) - Type safety
+- **vitest** (^3.2.4) - Testing framework
+- **eslint** (^9.34.0) - Code linting
+- **prettier** (^3.4.2) - Code formatting
+- **husky** (^9.1.7) - Git hooks
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+MIT License - see [LICENSE](LICENSE) file for details.
