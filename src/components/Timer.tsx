@@ -1,0 +1,86 @@
+import React from 'react';
+import { TimerProps } from '../types';
+
+const formatTime = (seconds: number): string => {
+  const totalSeconds = Math.floor(seconds);
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
+
+const Timer: React.FC<TimerProps> = ({ time, isActive, isPaused }) => {
+  return (
+    <div className="timer">
+      <span className="timer-label">Time: </span>
+      <span className="timer-value">{formatTime(time)}</span>
+      {isPaused && <span className="timer-status"> (Paused)</span>}
+      <style jsx>{`
+        .timer {
+          font-size: 1.2rem;
+          font-weight: 600;
+          margin: 1rem 0;
+          color: ${isPaused ? '#f59e0b' : isActive ? '#10b981' : '#6b7280'};
+        }
+        .timer-label {
+          color: #374151;
+        }
+        .timer-value {
+          font-family: 'Courier New', monospace;
+        }
+        .timer-status {
+          font-size: 0.9rem;
+          font-style: italic;
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+          .timer {
+            font-size: 1.1rem;
+            margin: 0.75rem 0;
+            text-align: center;
+          }
+
+          .timer-status {
+            font-size: 0.8rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .timer {
+            font-size: 1rem;
+            margin: 0.5rem 0;
+          }
+
+          .timer-label {
+            font-size: 0.875rem;
+          }
+
+          .timer-value {
+            font-size: 1.125rem;
+          }
+
+          .timer-status {
+            font-size: 0.75rem;
+            display: block;
+            margin-top: 0.25rem;
+          }
+        }
+
+        /* 横屏模式 */
+        @media (max-width: 768px) and (orientation: landscape) {
+          .timer {
+            font-size: 0.9rem;
+            margin: 0.25rem 0;
+          }
+
+          .timer-status {
+            display: inline;
+            margin-top: 0;
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default Timer;
