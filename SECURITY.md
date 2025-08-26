@@ -4,7 +4,7 @@
 
 The following versions are currently being supported with security updates:
 
-- v1.0.0
+- v2.0.0
 
 ## Reporting a Vulnerability
 
