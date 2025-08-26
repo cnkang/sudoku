@@ -1,35 +1,80 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-import Head from "next/head";
-import "./globals.css";
+import type { Metadata } from 'next';
+import localFont from 'next/font/local';
+import './globals.css';
 
 const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+  src: './fonts/GeistVF.woff',
+  variable: '--font-geist-sans',
+  weight: '100 900',
 });
 const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+  src: './fonts/GeistMonoVF.woff',
+  variable: '--font-geist-mono',
+  weight: '100 900',
 });
 
-// Define the Author type if not already defined
-type Author = {
-  name: string;
-};
-
 export const metadata: Metadata = {
-  title: "Sudoku Application",
-  description: "An interactive and challenging Sudoku game built with Next.js and React, offering various difficulty levels and a responsive design.",
-  keywords: "Sudoku, Puzzle, Game, Next.js, React, Interactive",
-  authors: [{ name: "Kang Liu" }],
+  title: 'Sudoku Game - Interactive Online Puzzle',
+  description:
+    'Play free Sudoku puzzles online with multiple difficulty levels. Interactive Sudoku game built with Next.js featuring hints, validation, and responsive design.',
+  keywords:
+    'Sudoku, Puzzle, Game, Online Sudoku, Free Sudoku, Brain Game, Logic Puzzle, Number Puzzle',
+  authors: [{ name: 'Kang Liu' }],
+  openGraph: {
+    title: 'Sudoku Game - Interactive Online Puzzle',
+    description:
+      'Play free Sudoku puzzles online with multiple difficulty levels. Interactive game with hints and validation.',
+    type: 'website',
+    locale: 'en_US',
+    siteName: 'Sudoku Game',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Sudoku Game - Interactive Online Puzzle',
+    description:
+      'Play free Sudoku puzzles online with multiple difficulty levels.',
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: 'cover',
+  },
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f8fafc' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
+  ],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Sudoku Game',
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
-function extractKeywords(keywords: string | string[] | undefined): string {
-  if (!keywords) return "";
-  return typeof keywords === "string" ? keywords : keywords.join(", ");
-}
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Sudoku Game',
+  description:
+    'Interactive online Sudoku puzzle game with multiple difficulty levels',
+  applicationCategory: 'Game',
+  operatingSystem: 'Web Browser',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+  author: {
+    '@type': 'Person',
+    name: 'Kang Liu',
+  },
+  genre: 'Puzzle Game',
+  keywords: 'sudoku, puzzle, brain game, logic puzzle, number game',
+};
 
 export default function RootLayout({
   children,
@@ -38,27 +83,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Head>
-        <meta name="description" content={String(metadata.description ?? "")} />
-        <meta name="keywords" content={extractKeywords(metadata.keywords ?? "")} />
-        <meta
-          name="author"
-          content={String(
-            Array.isArray(metadata.authors) && metadata.authors.length > 0
-              ? metadata.authors[0].name
-              : ""
-          )}
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
-        <meta property="og:title" content={String(metadata.title ?? "")} />
-        <meta property="og:description" content={String(metadata.description ?? "")} />
-        <meta property="og:image" content="URL_to_your_logo_or_image" />
-        <meta property="og:url" content="Your_Website_URL" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={String(metadata.title ?? "")} />
-        <meta name="twitter:description" content={String(metadata.description ?? "")} />
-        <meta name="twitter:image" content="URL_to_your_logo_or_image" />
-        <title>{String(metadata.title ?? "")}</title>
-      </Head>
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {children}
       </body>

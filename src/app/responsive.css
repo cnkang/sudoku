@@ -1,0 +1,267 @@
+/* 移动端优化样式 */
+
+/* 基础响应式变量 */
+:root {
+  --mobile-padding: 0.5rem;
+  --tablet-padding: 1rem;
+  --desktop-padding: 2rem;
+  --mobile-font-size: 0.875rem;
+  --tablet-font-size: 1rem;
+  --desktop-font-size: 1.125rem;
+}
+
+/* 移动端优先的媒体查询 */
+@media (max-width: 480px) {
+  /* 页面布局优化 */
+  .page {
+    padding: var(--mobile-padding) !important;
+    min-height: 100vh;
+  }
+
+  .main {
+    padding: 1rem !important;
+    margin: 0 !important;
+    border-radius: 0.25rem !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+  }
+
+  /* 标题优化 */
+  .game-header h1 {
+    font-size: 1.75rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  .game-subtitle {
+    font-size: 0.875rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* 数独网格优化 */
+  .sudoku-container {
+    margin: 1rem 0 !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sudoku-grid {
+    min-width: 270px; /* 确保最小可用宽度 */
+  }
+
+  .sudoku-cell {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px;
+    min-height: 30px;
+  }
+
+  .fixed-number,
+  .cell-input {
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+  }
+
+  /* 控制按钮优化 */
+  .control-buttons {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    width: 100%;
+  }
+
+  .btn {
+    width: 100% !important;
+    padding: 0.875rem 1rem !important;
+    font-size: 0.875rem !important;
+    min-width: auto !important;
+    max-width: none !important;
+  }
+
+  /* 消息提示优化 */
+  .error-message,
+  .hint-message,
+  .result-message {
+    font-size: 0.875rem !important;
+    padding: 0.75rem !important;
+    margin: 0.75rem 0 !important;
+  }
+
+  /* 计时器优化 */
+  .timer-display {
+    font-size: 1.25rem !important;
+    margin: 0.5rem 0 !important;
+  }
+
+  /* 难度选择器优化 */
+  .difficulty-selector {
+    margin: 1rem 0 !important;
+  }
+
+  .difficulty-buttons {
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+  }
+
+  .difficulty-btn {
+    flex: 1 1 calc(50% - 0.25rem) !important;
+    min-width: 120px !important;
+    font-size: 0.875rem !important;
+    padding: 0.75rem 0.5rem !important;
+  }
+}
+
+/* 平板设备优化 */
+@media (min-width: 481px) and (max-width: 768px) {
+  .page {
+    padding: var(--tablet-padding);
+  }
+
+  .main {
+    padding: 1.5rem;
+    max-width: 600px;
+  }
+
+  .sudoku-cell {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .fixed-number,
+  .cell-input {
+    font-size: 1rem !important;
+  }
+
+  .control-buttons {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1rem !important;
+  }
+
+  .btn {
+    width: 100% !important;
+    min-width: auto !important;
+  }
+
+  .difficulty-buttons {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+  /* 增加触摸目标大小 */
+  .sudoku-cell {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .btn {
+    min-height: 44px;
+    padding: 0.875rem 1rem;
+  }
+
+  .cell-input {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* 移除悬停效果 */
+  .sudoku-cell.editable:hover {
+    background-color: transparent !important;
+  }
+
+  .btn:hover {
+    transform: none !important;
+  }
+}
+
+/* 横屏模式优化 */
+@media (max-width: 768px) and (orientation: landscape) {
+  .page {
+    padding: 0.5rem;
+  }
+
+  .main {
+    padding: 1rem;
+    max-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .game-header {
+    margin-bottom: 1rem !important;
+  }
+
+  .game-header h1 {
+    font-size: 1.5rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  .sudoku-container {
+    margin: 0.75rem 0 !important;
+  }
+
+  .control-buttons {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  .sudoku-cell {
+    border-color: #000000 !important;
+  }
+
+  .sudoku-cell.selected {
+    background-color: #000080 !important;
+    color: #ffffff !important;
+  }
+
+  .sudoku-cell.error {
+    background-color: #ff0000 !important;
+    color: #ffffff !important;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .sudoku-cell.hinted {
+    animation: none !important;
+  }
+
+  .loading-spinner {
+    animation: none !important;
+  }
+
+  .hint-message {
+    animation: none !important;
+  }
+
+  * {
+    transition: none !important;
+  }
+}
+
+/* 暗色模式移动端优化 */
+@media (prefers-color-scheme: dark) and (max-width: 768px) {
+  .main {
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+  }
+
+  .sudoku-cell {
+    background-color: var(--card-background);
+    border-color: var(--border-color);
+  }
+
+  .fixed-number {
+    color: var(--foreground);
+  }
+
+  .cell-input {
+    color: var(--primary-color);
+    background-color: transparent;
+  }
+}
