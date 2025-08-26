@@ -2,13 +2,13 @@ name: OSV-Scanner
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
   merge_group:
-    branches: [ "main" ]
+    branches: ['main']
   schedule:
     - cron: '18 11 * * 4'
   push:
-    branches: [ "main", "dev" ]
+    branches: ['main', 'dev']
 
 permissions:
   # Required for using the reusable workflow
@@ -21,16 +21,16 @@ permissions:
 jobs:
   scan-scheduled:
     if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v1.9.0"
+    uses: 'google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v1.10.0'
     with:
       scan-args: |-
         -r
         --skip-git
         ./
-        
+
   scan-pr:
     if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v1.9.0"
+    uses: 'google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v1.10.0'
     with:
       scan-args: |-
         -r
