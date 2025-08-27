@@ -125,8 +125,6 @@ describe('SudokuGrid', () => {
       expect(value).toBe(7);
     });
 
-
-
     it('should only accept valid numbers (1-9)', () => {
       render(<SudokuGrid {...defaultProps} />);
 
@@ -154,10 +152,10 @@ describe('SudokuGrid', () => {
 
       // Test Backspace key - should call onChange with 0
       fireEvent.keyDown(firstInput, { key: 'Backspace' });
-      
+
       expect(mockOnInputChange).toHaveBeenCalledWith(
         expect.any(Number),
-        expect.any(Number), 
+        expect.any(Number),
         0
       );
     });
@@ -167,7 +165,7 @@ describe('SudokuGrid', () => {
       const testValue = '';
       const expectedResult = testValue === '' ? 0 : parseInt(testValue, 10);
       expect(expectedResult).toBe(0);
-      
+
       // Test valid number conversion
       const testValue2 = '5';
       const expectedResult2 = testValue2 === '' ? 0 : parseInt(testValue2, 10);
@@ -191,7 +189,7 @@ describe('SudokuGrid', () => {
 
       // Test that invalid values don't trigger onChange
       const invalidValues = ['abc', '123', '0', '-1', '10'];
-      
+
       invalidValues.forEach(value => {
         mockOnInputChange.mockClear();
         fireEvent.change(firstInput, { target: { value } });
@@ -277,17 +275,17 @@ describe('SudokuGrid', () => {
       const firstInput = inputs[0];
 
       // Test number key
-      fireEvent.keyDown(firstInput, { 
-        key: '5', 
-        preventDefault: vi.fn() 
+      fireEvent.keyDown(firstInput, {
+        key: '5',
+        preventDefault: vi.fn(),
       });
-      
+
       // Test arrow key
-      fireEvent.keyDown(firstInput, { 
-        key: 'ArrowRight', 
-        preventDefault: vi.fn() 
+      fireEvent.keyDown(firstInput, {
+        key: 'ArrowRight',
+        preventDefault: vi.fn(),
       });
-      
+
       // Verify the events were handled (onChange should be called for number)
       expect(mockOnInputChange).toHaveBeenCalled();
     });
@@ -315,7 +313,7 @@ describe('SudokuGrid', () => {
 
       // Test that ref is set correctly by checking focus functionality
       fireEvent.keyDown(firstInput, { key: 'ArrowRight' });
-      
+
       // Should not throw error when navigating
       expect(() => {
         fireEvent.keyDown(firstInput, { key: 'ArrowDown' });
@@ -510,10 +508,10 @@ describe('SudokuGrid', () => {
   describe('Responsive Design Tests', () => {
     it('should include mobile-specific CSS media queries', () => {
       render(<SudokuGrid {...defaultProps} />);
-      
+
       const styleElement = document.querySelector('style');
       expect(styleElement).toBeInTheDocument();
-      
+
       if (styleElement) {
         const cssText = styleElement.textContent || '';
         expect(cssText).toContain('@media (max-width: 640px)');
@@ -526,7 +524,7 @@ describe('SudokuGrid', () => {
 
     it('should have touch-optimized input attributes', () => {
       render(<SudokuGrid {...defaultProps} />);
-      
+
       const inputs = screen.getAllByRole('textbox');
       inputs.forEach(input => {
         expect(input).toHaveAttribute('inputMode', 'numeric');
@@ -595,7 +593,7 @@ describe('SudokuGrid', () => {
 
     it('should handle ref cleanup on unmount', () => {
       const { unmount } = render(<SudokuGrid {...defaultProps} />);
-      
+
       // Should not throw error on unmount
       expect(() => {
         unmount();

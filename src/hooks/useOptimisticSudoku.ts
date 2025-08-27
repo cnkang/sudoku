@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useOptimistic, useCallback } from 'react';
 
 interface SudokuState {
   userInput: number[][];
@@ -6,26 +6,30 @@ interface SudokuState {
 }
 
 export const useOptimisticSudoku = (initialUserInput: number[][]) => {
-  const [state, setState] = useState<SudokuState>({
-    userInput: initialUserInput,
-    isValidating: false,
-  });
+  const [optimisticState, addOptimisticUpdate] = useOptimistic<
+    SudokuState,
+    { row: number; col: number; value: number }
+  >(
+    { userInput: initialUserInput, isValidating: false },
+    (state, { row, col, value }) => ({
+      ...state,
+      userInput: state.userInput.map((r, i) =>
+        i === row ? r.map((val, j) => (j === col ? value : val)) : r
+      ),
+      isValidating: true,
+    })
+  );
 
   const updateCell = useCallback(
     (row: number, col: number, value: number) => {
-      setState(prevState => ({
-        userInput: prevState.userInput.map((r, i) =>
-          i === row ? r.map((val, j) => (j === col ? value : val)) : r
-        ),
-        isValidating: true,
-      }));
+      addOptimisticUpdate({ row, col, value });
     },
-    []
+    [addOptimisticUpdate]
   );
 
   return {
-    userInput: state.userInput,
-    isValidating: state.isValidating,
+    userInput: optimisticState.userInput,
+    isValidating: optimisticState.isValidating,
     updateCell,
   };
 };

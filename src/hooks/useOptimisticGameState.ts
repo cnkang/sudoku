@@ -23,7 +23,7 @@ export function useOptimisticGameState(
   const handleOptimisticInput = (row: number, col: number, value: number) => {
     // 立即更新UI
     addOptimisticMove({ row, col, value, timestamp: Date.now() });
-    
+
     // 异步更新实际状态
     setTimeout(() => {
       onInputChange(row, col, value);

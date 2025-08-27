@@ -537,16 +537,20 @@ describe('useGameState', () => {
     ];
 
     it('should initialize with correct state', () => {
-      const { result } = renderHook(() => useOptimisticSudoku(initialUserInput));
-      
+      const { result } = renderHook(() =>
+        useOptimisticSudoku(initialUserInput)
+      );
+
       expect(result.current.userInput).toEqual(initialUserInput);
       expect(result.current.isValidating).toBe(false);
       expect(typeof result.current.updateCell).toBe('function');
     });
 
     it('should handle optimistic updates', () => {
-      const { result } = renderHook(() => useOptimisticSudoku(initialUserInput));
-      
+      const { result } = renderHook(() =>
+        useOptimisticSudoku(initialUserInput)
+      );
+
       act(() => {
         result.current.updateCell(0, 1, 5);
       });
@@ -556,8 +560,10 @@ describe('useGameState', () => {
     });
 
     it('should handle multiple updates', () => {
-      const { result } = renderHook(() => useOptimisticSudoku(initialUserInput));
-      
+      const { result } = renderHook(() =>
+        useOptimisticSudoku(initialUserInput)
+      );
+
       act(() => {
         result.current.updateCell(0, 1, 5);
         result.current.updateCell(1, 0, 4);
@@ -603,7 +609,7 @@ describe('useGameState', () => {
       (global.fetch as any).mockResolvedValue(mockResponse);
 
       renderHook(() => usePuzzleLoader(5, true, true));
-      
+
       expect(global.fetch).toHaveBeenCalledWith(
         '/api/solveSudoku?difficulty=5&force=true',
         { method: 'POST' }
@@ -612,7 +618,7 @@ describe('useGameState', () => {
 
     it('should handle fetch errors gracefully', async () => {
       (global.fetch as any).mockRejectedValue(new Error('Network error'));
-      
+
       expect(() => {
         renderHook(() => usePuzzleLoader(5, true));
       }).not.toThrow();
