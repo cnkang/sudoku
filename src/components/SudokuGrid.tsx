@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 
 interface SudokuGridProps {
   puzzle: number[][];
@@ -71,6 +71,17 @@ const hasConflict = (
 const SudokuGrid = React.memo<SudokuGridProps>(
   ({ puzzle, userInput, onInputChange, disabled = false, hintCell = null }) => {
     const [selectedCell, setSelectedCell] = useState<CellPosition | null>(null);
+    const cellRefs = useRef<Map<string, HTMLInputElement>>(new Map());
+
+    const setCellRef = useCallback((key: string) => {
+      return (element: HTMLInputElement | null) => {
+        if (element) {
+          cellRefs.current.set(key, element);
+        } else {
+          cellRefs.current.delete(key);
+        }
+      };
+    }, []);
 
     const handleCellClick = useCallback(
       (row: number, col: number) => {
@@ -123,8 +134,9 @@ const SudokuGrid = React.memo<SudokuGridProps>(
           }
 
           setSelectedCell({ row: newRow, col: newCol });
-          // Focus the new cell
-          const newCell = document.getElementById(`cell-${newRow}-${newCol}`);
+          // Focus the new cell using ref
+          const newCellKey = generateCellKey(newRow, newCol);
+          const newCell = cellRefs.current.get(newCellKey);
           newCell?.focus();
         }
       },
@@ -162,6 +174,7 @@ const SudokuGrid = React.memo<SudokuGridProps>(
                         <span className="fixed-number">{num}</span>
                       ) : (
                         <input
+                          ref={setCellRef(cellKey)}
                           id={cellKey}
                           type="text"
                           inputMode="numeric"

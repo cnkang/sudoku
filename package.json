@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "build": "next build && tsc",
     "start": "next start",
     "lint": "eslint .",
@@ -17,12 +17,13 @@
     "test:index": "vitest run tests/index.spec.ts --environment=node",
     "test:ui": "vitest run src/components/__tests__/*.test.tsx --environment=happy-dom",
     "test:hooks": "vitest run src/hooks/__tests__/*.test.ts --environment=happy-dom",
+
     "test:api": "vitest run src/app/api/**/__tests__/*.test.ts --environment=node",
     "test:app": "vitest run src/app/__tests__/*.test.tsx --environment=happy-dom",
     "test:coverage": "vitest run --coverage",
     "test:responsive": "./scripts/test-responsive.sh",
     "test:mobile": "vitest run src/components/__tests__/*.responsive.test.tsx src/app/__tests__/*.responsive.test.tsx --environment=happy-dom",
-    "test": "vitest run src/hooks/__tests__/*.test.ts src/components/__tests__/Timer.test.tsx src/components/__tests__/DifficultySelector.test.tsx src/components/__tests__/GameControls.test.tsx src/utils/__tests__/apiCache.test.ts --environment=happy-dom",
+    "test": "vitest run src/hooks/__tests__/*.test.ts src/components/__tests__/*.test.tsx src/utils/__tests__/*.test.ts --environment=happy-dom",
     "prepare": "husky"
   },
   "dependencies": {
