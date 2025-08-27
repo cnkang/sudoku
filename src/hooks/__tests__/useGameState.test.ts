@@ -1,6 +1,8 @@
 import { renderHook, act } from '@testing-library/react';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { useGameState } from '../useGameState';
+import { useOptimisticSudoku } from '../useOptimisticSudoku';
+import { usePuzzleLoader } from '../usePuzzleLoader';
 import { SudokuPuzzle } from '../../types';
 
 describe('useGameState', () => {
@@ -430,6 +432,190 @@ describe('useGameState', () => {
       });
 
       expect(result.current.state).toEqual(initialState);
+    });
+  });
+
+  describe('Hint and Undo Features', () => {
+    it('should handle hint actions', () => {
+      act(() => {
+        result.current.dispatch({ type: 'USE_HINT' });
+      });
+
+      expect(result.current.state.hintsUsed).toBe(1);
+
+      act(() => {
+        result.current.dispatch({
+          type: 'SHOW_HINT',
+          payload: { row: 0, col: 2, message: 'Try 4 here' },
+        });
+      });
+
+      expect(result.current.state.showHint).toEqual({
+        row: 0,
+        col: 2,
+        message: 'Try 4 here',
+      });
+
+      act(() => {
+        result.current.dispatch({ type: 'CLEAR_HINT' });
+      });
+
+      expect(result.current.state.showHint).toBeNull();
+    });
+
+    it('should handle undo functionality', () => {
+      const mockPuzzle = {
+        puzzle: [[0, 0, 0]],
+        solution: [[1, 2, 3]],
+        difficulty: 1,
+      };
+
+      act(() => {
+        result.current.dispatch({ type: 'SET_PUZZLE', payload: mockPuzzle });
+      });
+
+      expect(result.current.state.history).toHaveLength(1);
+
+      act(() => {
+        result.current.dispatch({
+          type: 'UPDATE_USER_INPUT',
+          payload: { row: 0, col: 0, value: 1 },
+        });
+      });
+
+      expect(result.current.state.history).toHaveLength(2);
+      expect(result.current.state.userInput[0][0]).toBe(1);
+
+      act(() => {
+        result.current.dispatch({ type: 'UNDO' });
+      });
+
+      expect(result.current.state.history).toHaveLength(1);
+      expect(result.current.state.userInput[0][0]).toBe(0);
+    });
+
+    it('should clear hint when undoing', () => {
+      const mockPuzzle = {
+        puzzle: [[0]],
+        solution: [[1]],
+        difficulty: 1,
+      };
+
+      act(() => {
+        result.current.dispatch({ type: 'SET_PUZZLE', payload: mockPuzzle });
+      });
+
+      act(() => {
+        result.current.dispatch({
+          type: 'UPDATE_USER_INPUT',
+          payload: { row: 0, col: 0, value: 1 },
+        });
+      });
+
+      act(() => {
+        result.current.dispatch({
+          type: 'SHOW_HINT',
+          payload: { row: 0, col: 0, message: 'Test hint' },
+        });
+      });
+
+      expect(result.current.state.showHint).not.toBeNull();
+
+      act(() => {
+        result.current.dispatch({ type: 'UNDO' });
+      });
+
+      expect(result.current.state.showHint).toBeNull();
+    });
+  });
+
+  describe('Optimistic Updates (useOptimisticSudoku)', () => {
+    const initialUserInput = [
+      [1, 0, 3],
+      [0, 2, 0],
+      [3, 0, 1],
+    ];
+
+    it('should initialize with correct state', () => {
+      const { result } = renderHook(() => useOptimisticSudoku(initialUserInput));
+      
+      expect(result.current.userInput).toEqual(initialUserInput);
+      expect(result.current.isValidating).toBe(false);
+      expect(typeof result.current.updateCell).toBe('function');
+    });
+
+    it('should handle optimistic updates', () => {
+      const { result } = renderHook(() => useOptimisticSudoku(initialUserInput));
+      
+      act(() => {
+        result.current.updateCell(0, 1, 5);
+      });
+
+      expect(result.current.userInput[0][1]).toBe(5);
+      expect(result.current.isValidating).toBe(true);
+    });
+
+    it('should handle multiple updates', () => {
+      const { result } = renderHook(() => useOptimisticSudoku(initialUserInput));
+      
+      act(() => {
+        result.current.updateCell(0, 1, 5);
+        result.current.updateCell(1, 0, 4);
+      });
+
+      expect(result.current.userInput[0][1]).toBe(5);
+      expect(result.current.userInput[1][0]).toBe(4);
+      expect(result.current.isValidating).toBe(true);
+    });
+  });
+
+  describe('Puzzle Loading (usePuzzleLoader)', () => {
+    beforeEach(() => {
+      global.fetch = vi.fn();
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('should return null data when shouldFetch is false', () => {
+      const { result } = renderHook(() => usePuzzleLoader(5, false));
+      expect(result.current.data).toBeNull();
+      expect(result.current.loading).toBe(false);
+    });
+
+    it('should start loading when shouldFetch is true', () => {
+      const mockResponse = {
+        ok: true,
+        json: () => Promise.resolve({ puzzle: [[1]], solution: [[1]] }),
+      };
+      (global.fetch as any).mockResolvedValue(mockResponse);
+
+      const { result } = renderHook(() => usePuzzleLoader(5, true));
+      expect(result.current.loading).toBe(true);
+    });
+
+    it('should include force parameter in URL when specified', () => {
+      const mockResponse = {
+        ok: true,
+        json: () => Promise.resolve({ puzzle: [[1]], solution: [[1]] }),
+      };
+      (global.fetch as any).mockResolvedValue(mockResponse);
+
+      renderHook(() => usePuzzleLoader(5, true, true));
+      
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/solveSudoku?difficulty=5&force=true',
+        { method: 'POST' }
+      );
+    });
+
+    it('should handle fetch errors gracefully', async () => {
+      (global.fetch as any).mockRejectedValue(new Error('Network error'));
+      
+      expect(() => {
+        renderHook(() => usePuzzleLoader(5, true));
+      }).not.toThrow();
     });
   });
 });
