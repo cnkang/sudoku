@@ -92,7 +92,7 @@
     "p-limit": "^3.1.0",
     "which": "^5.0.0",
     "p-locate": "^5.0.0",
-    "path-scurry": "^1.11.1",
+    "path-scurry": "^2.0.0",
     "locate-path": "^6.0.0",
     "find-up": "^5.0.0",
     "nanoid": "^3.3.8",

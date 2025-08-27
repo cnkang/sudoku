@@ -9,4 +9,4 @@ const ReactCompilerConfig = {
   enableTreatFunctionDepsAsConditional: true,
 };
 
-module.exports = ReactCompilerConfig;
+export default ReactCompilerConfig;
