@@ -292,17 +292,15 @@ describe('GameControls', () => {
         <GameControls {...mockProps} isCorrect={true} />
       );
 
-      let resultMessage = screen
-        .getByText(/congratulations/i)
-        .closest('.result-message');
-      expect(resultMessage).toHaveClass('success');
+      let resultMessage = screen.getByTestId('result-message');
+      expect(resultMessage).toBeInTheDocument();
+      expect(resultMessage.className).toContain('success');
 
       rerender(<GameControls {...mockProps} isCorrect={false} />);
 
-      resultMessage = screen
-        .getByText(/not quite right/i)
-        .closest('.result-message');
-      expect(resultMessage).toHaveClass('error');
+      resultMessage = screen.getByTestId('result-message');
+      expect(resultMessage).toBeInTheDocument();
+      expect(resultMessage.className).toContain('error');
     });
   });
 

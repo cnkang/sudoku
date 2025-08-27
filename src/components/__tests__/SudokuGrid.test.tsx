@@ -86,8 +86,8 @@ describe('SudokuGrid', () => {
     it('should distinguish between fixed and editable cells', () => {
       render(<SudokuGrid {...defaultProps} />);
 
-      // Fixed cells should have spans with fixed-number class
-      const fixedNumbers = document.querySelectorAll('.fixed-number');
+      // Fixed cells should have spans with fixed-number test id
+      const fixedNumbers = screen.getAllByTestId('fixed-number');
       const expectedFixedCount = mockPuzzle
         .flat()
         .filter(cell => cell !== 0).length;
@@ -104,8 +104,11 @@ describe('SudokuGrid', () => {
     it('should apply correct CSS classes to cells', () => {
       render(<SudokuGrid {...defaultProps} />);
 
-      const fixedCells = document.querySelectorAll('.sudoku-cell.fixed');
-      const editableCells = document.querySelectorAll('.sudoku-cell.editable');
+      // Check using data attributes instead of CSS classes
+      const fixedCells = document.querySelectorAll('[data-cell-type="fixed"]');
+      const editableCells = document.querySelectorAll(
+        '[data-cell-type="editable"]'
+      );
 
       expect(fixedCells.length + editableCells.length).toBe(81); // 9x9 grid
     });
@@ -281,14 +284,16 @@ describe('SudokuGrid', () => {
     it('should handle cell click for editable cells', () => {
       render(<SudokuGrid {...defaultProps} />);
 
-      // Find an editable cell (where puzzle value is 0)
-      const editableCells = document.querySelectorAll('.sudoku-cell.editable');
-      const firstEditableCell = editableCells[0];
+      // Find an editable cell using data attribute
+      const editableCells = document.querySelectorAll(
+        '[data-cell-type="editable"]'
+      );
+      const firstEditableCell = editableCells[0] as HTMLElement;
 
       fireEvent.click(firstEditableCell);
 
-      // Should apply selected class
-      expect(firstEditableCell).toHaveClass('selected');
+      // Should apply selected data attribute
+      expect(firstEditableCell.getAttribute('data-is-selected')).toBe('true');
     });
 
     it('should manage cell refs correctly', () => {
@@ -309,14 +314,14 @@ describe('SudokuGrid', () => {
     it('should not select fixed cells', () => {
       render(<SudokuGrid {...defaultProps} />);
 
-      // Find a fixed cell (where puzzle value is not 0)
-      const fixedCells = document.querySelectorAll('.sudoku-cell.fixed');
-      const firstFixedCell = fixedCells[0];
+      // Find a fixed cell using data attribute
+      const fixedCells = document.querySelectorAll('[data-cell-type="fixed"]');
+      const firstFixedCell = fixedCells[0] as HTMLElement;
 
       fireEvent.click(firstFixedCell);
 
-      // Should not apply selected class
-      expect(firstFixedCell).not.toHaveClass('selected');
+      // Should not apply selected data attribute
+      expect(firstFixedCell.getAttribute('data-is-selected')).toBe('false');
     });
 
     it('should handle focus and blur events', () => {
@@ -326,11 +331,11 @@ describe('SudokuGrid', () => {
       const firstInput = inputs[0];
 
       fireEvent.focus(firstInput);
-      const cell = firstInput.closest('.sudoku-cell');
-      expect(cell).toHaveClass('selected');
+      const cell = firstInput.closest('[data-testid^="sudoku-cell"]');
+      expect(cell?.getAttribute('data-is-selected')).toBe('true');
 
       fireEvent.blur(firstInput);
-      expect(cell).not.toHaveClass('selected');
+      expect(cell?.getAttribute('data-is-selected')).toBe('false');
     });
   });
 
@@ -341,7 +346,7 @@ describe('SudokuGrid', () => {
 
       render(<SudokuGrid {...defaultProps} userInput={conflictUserInput} />);
 
-      const errorCells = document.querySelectorAll('.sudoku-cell.error');
+      const errorCells = document.querySelectorAll('[data-has-error="true"]');
       expect(errorCells.length).toBeGreaterThan(0);
     });
 
@@ -351,7 +356,7 @@ describe('SudokuGrid', () => {
 
       render(<SudokuGrid {...defaultProps} userInput={conflictUserInput} />);
 
-      const errorCells = document.querySelectorAll('.sudoku-cell.error');
+      const errorCells = document.querySelectorAll('[data-has-error="true"]');
       expect(errorCells.length).toBeGreaterThan(0);
     });
 
@@ -361,7 +366,7 @@ describe('SudokuGrid', () => {
 
       render(<SudokuGrid {...defaultProps} userInput={conflictUserInput} />);
 
-      const errorCells = document.querySelectorAll('.sudoku-cell.error');
+      const errorCells = document.querySelectorAll('[data-has-error="true"]');
       expect(errorCells.length).toBeGreaterThan(0);
     });
 
@@ -369,7 +374,7 @@ describe('SudokuGrid', () => {
       render(<SudokuGrid {...defaultProps} />);
 
       // Empty cells (value 0) should not show conflicts
-      const errorCells = document.querySelectorAll('.sudoku-cell.error');
+      const errorCells = document.querySelectorAll('[data-has-error="true"]');
       expect(errorCells).toHaveLength(0);
     });
   });
@@ -442,7 +447,7 @@ describe('SudokuGrid', () => {
     it('should apply correct border styles for 3x3 grid separation', () => {
       render(<SudokuGrid {...defaultProps} />);
 
-      const cells = document.querySelectorAll('.sudoku-cell');
+      const cells = document.querySelectorAll('[data-testid^="sudoku-cell"]');
       expect(cells.length).toBe(81);
 
       // Test first cell only for performance
@@ -460,14 +465,14 @@ describe('SudokuGrid', () => {
       const hintCell = { row: 0, col: 2 };
       render(<SudokuGrid {...defaultProps} hintCell={hintCell} />);
 
-      const hintedCells = document.querySelectorAll('.sudoku-cell.hinted');
+      const hintedCells = document.querySelectorAll('[data-is-hinted="true"]');
       expect(hintedCells).toHaveLength(1);
     });
 
     it('should not highlight when hintCell is null', () => {
       render(<SudokuGrid {...defaultProps} hintCell={null} />);
 
-      const hintedCells = document.querySelectorAll('.sudoku-cell.hinted');
+      const hintedCells = document.querySelectorAll('[data-is-hinted="true"]');
       expect(hintedCells).toHaveLength(0);
     });
 
@@ -475,11 +480,10 @@ describe('SudokuGrid', () => {
       const hintCell = { row: 0, col: 2 };
       render(<SudokuGrid {...defaultProps} hintCell={hintCell} />);
 
-      const hintedCell = document.getElementById('cell-0-2');
-      const cellElement = hintedCell?.closest('td');
-      expect(cellElement).toHaveClass('sudoku-cell');
-      expect(cellElement).toHaveClass('editable');
-      expect(cellElement).toHaveClass('hinted');
+      const cellElement = screen.getByTestId('sudoku-cell-0-2');
+      expect(cellElement).toBeInTheDocument();
+      expect(cellElement.getAttribute('data-cell-type')).toBe('editable');
+      expect(cellElement.getAttribute('data-is-hinted')).toBe('true');
     });
   });
 
@@ -487,13 +491,14 @@ describe('SudokuGrid', () => {
     it('should include mobile-specific CSS media queries', () => {
       render(<SudokuGrid {...defaultProps} />);
 
-      const styleElement = document.querySelector('style');
-      expect(styleElement).toBeInTheDocument();
-
-      // Verify responsive functionality works
+      // Verify responsive functionality works by checking the grid is rendered
       const table = screen.getByRole('table');
       expect(table).toBeInTheDocument();
       expect(table).toHaveAttribute('aria-label', 'Sudoku puzzle grid');
+
+      // Verify the grid container exists
+      const container = screen.getByTestId('sudoku-container');
+      expect(container).toBeInTheDocument();
     });
 
     it('should have touch-optimized input attributes', () => {
@@ -547,7 +552,7 @@ describe('SudokuGrid', () => {
       const inputs = screen.queryAllByRole('textbox');
       expect(inputs).toHaveLength(0); // No cells should be editable
 
-      const fixedNumbers = document.querySelectorAll('.fixed-number');
+      const fixedNumbers = screen.getAllByTestId('fixed-number');
       expect(fixedNumbers).toHaveLength(81);
     });
 
