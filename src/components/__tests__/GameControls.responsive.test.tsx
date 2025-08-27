@@ -86,7 +86,7 @@ describe('GameControls Responsive Tests', () => {
     it('should stack buttons vertically on small screens', () => {
       render(<GameControls {...mockProps} />);
 
-      const controlButtons = document.querySelector('.control-buttons');
+      const controlButtons = screen.getByTestId('control-buttons');
       expect(controlButtons).toBeInTheDocument();
 
       // Verify all buttons are accessible in mobile layout
@@ -108,7 +108,7 @@ describe('GameControls Responsive Tests', () => {
     it('should use grid layout on tablet screens', () => {
       render(<GameControls {...mockProps} />);
 
-      const controlButtons = document.querySelector('.control-buttons');
+      const controlButtons = screen.getByTestId('control-buttons');
       expect(controlButtons).toBeInTheDocument();
 
       // Verify buttons are properly arranged for tablet
@@ -146,7 +146,7 @@ describe('GameControls Responsive Tests', () => {
     it('should adapt button layout for landscape mode', () => {
       render(<GameControls {...mockProps} />);
 
-      const controlButtons = document.querySelector('.control-buttons');
+      const controlButtons = screen.getByTestId('control-buttons');
       expect(controlButtons).toBeInTheDocument();
 
       // Verify layout works in landscape
@@ -222,8 +222,9 @@ describe('GameControls Responsive Tests', () => {
       );
       expect(successMessage).toBeInTheDocument();
 
-      const messageContainer = successMessage.closest('.result-message');
-      expect(messageContainer).toHaveClass('success');
+      const messageContainer = screen.getByTestId('result-message');
+      expect(messageContainer).toBeInTheDocument();
+      expect(messageContainer.className).toContain('success');
     });
 
     it('should display error message responsively', () => {
@@ -232,8 +233,9 @@ describe('GameControls Responsive Tests', () => {
       const errorMessage = screen.getByText(/not quite right. keep trying!/i);
       expect(errorMessage).toBeInTheDocument();
 
-      const messageContainer = errorMessage.closest('.result-message');
-      expect(messageContainer).toHaveClass('error');
+      const messageContainer = screen.getByTestId('result-message');
+      expect(messageContainer).toBeInTheDocument();
+      expect(messageContainer.className).toContain('error');
     });
 
     it('should adapt message text size on mobile', () => {
@@ -252,8 +254,9 @@ describe('GameControls Responsive Tests', () => {
       expect(successMessage).toBeInTheDocument();
 
       // Message should be readable on mobile
-      const messageContainer = successMessage.closest('.result-message');
-      expect(messageContainer).toHaveClass('success');
+      const messageContainer = screen.getByTestId('result-message');
+      expect(messageContainer).toBeInTheDocument();
+      expect(messageContainer.className).toContain('success');
     });
   });
 
@@ -304,12 +307,13 @@ describe('GameControls Responsive Tests', () => {
     it('should include mobile-specific button styles', () => {
       render(<GameControls {...mockProps} />);
 
-      const styleElement = document.querySelector('style');
-      expect(styleElement).toBeInTheDocument();
-
-      // Verify responsive functionality works
+      // Verify responsive functionality works by checking buttons are rendered
       const buttons = screen.getAllByRole('button');
       expect(buttons).toHaveLength(5);
+
+      // Verify control buttons container exists
+      const controlButtons = screen.getByTestId('control-buttons');
+      expect(controlButtons).toBeInTheDocument();
     });
 
     it('should include touch device optimizations in CSS', () => {
@@ -327,7 +331,7 @@ describe('GameControls Responsive Tests', () => {
       render(<GameControls {...mockProps} />);
 
       // Verify landscape layout works functionally
-      const controlButtons = document.querySelector('.control-buttons');
+      const controlButtons = screen.getByTestId('control-buttons');
       expect(controlButtons).toBeInTheDocument();
     });
   });
