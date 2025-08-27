@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     const cacheKey = `sudoku-${difficulty}-${seed}`;
     const forceKey = `force-${difficulty}`;
 
-    // 检查强制刷新限制（10秒）
+    // Check force refresh limit (10 seconds)
     if (forceRefresh) {
       const lastForce = puzzleCache.get(forceKey);
       if (lastForce) {
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       puzzleCache.set(forceKey, Date.now(), 10000);
     }
 
-    // 检查缓存（非强制刷新时）
+    // Check cache (when not force refreshing)
     if (!forceRefresh) {
       const cachedPuzzle = puzzleCache.get(cacheKey);
       if (cachedPuzzle) {
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     // Generate a new Sudoku puzzle
     const puzzle: SudokuPuzzle = generateSudokuPuzzle(difficulty);
 
-    // 缓存新生成的谜题（30秒TTL）
+    // Cache newly generated puzzle (30 second TTL)
     puzzleCache.set(cacheKey, puzzle, 30000);
 
     return NextResponse.json(

@@ -99,7 +99,7 @@ input {
   }
 }
 
-/* 移动端优化样式 */
+/* Mobile optimization styles */
 
 /* 基础响应式变量 */
 :root {
@@ -111,7 +111,7 @@ input {
   --desktop-font-size: 1.125rem;
 }
 
-/* 移动端优先的媒体查询 */
+/* Mobile-first media queries */
 @media (max-width: 480px) {
   /* 页面布局优化已在 page.module.css 中处理 */
 
@@ -230,7 +230,7 @@ input {
   }
 }
 
-/* 触摸设备优化 */
+/* Touch device optimization */
 @media (hover: none) and (pointer: coarse) {
   /* 增加触摸目标大小 */
   .sudoku-cell {
@@ -258,7 +258,7 @@ input {
   }
 }
 
-/* 横屏模式优化 */
+/* Landscape mode optimization */
 @media (max-width: 768px) and (orientation: landscape) {
   /* 页面布局优化已在 page.module.css 中处理 */
 
@@ -318,7 +318,7 @@ input {
   }
 }
 
-/* 暗色模式移动端优化 */
+/* Dark mode mobile optimization */
 @media (prefers-color-scheme: dark) and (max-width: 768px) {
   /* 页面布局优化已在 page.module.css 中处理 */
 

@@ -26,11 +26,11 @@ export default function Home() {
   const fetchPuzzle = useCallback(
     async (difficulty?: number, forceRefresh = false) => {
       const now = Date.now();
-      // 防抖：非强制刷新时检查间隔
+      // Debounce: check interval when not force refreshing
       if (!forceRefresh && now - lastFetchTimeRef.current < 5000) {
         return;
       }
-      // 强制刷新限制：10秒间隔
+      // Force refresh limit: 10 second interval
       if (forceRefresh && now - lastResetTimeRef.current < 10000) {
         handleError(new Error('Please wait 10 seconds before resetting'));
         return;
@@ -38,12 +38,12 @@ export default function Home() {
       lastFetchTimeRef.current = now;
       if (forceRefresh) lastResetTimeRef.current = now;
 
-      // 取消之前的请求
+      // Cancel previous request
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
 
-      // 创建新的 AbortController
+      // Create new AbortController
       abortControllerRef.current = new AbortController();
 
       try {
@@ -61,7 +61,7 @@ export default function Home() {
         );
         dispatch({ type: 'SET_PUZZLE', payload: data as SudokuPuzzle });
       } catch (err) {
-        // 如果是取消的请求，不显示错误
+        // Don't show error if request was cancelled
         if (err instanceof Error && err.name === 'AbortError') {
           return;
         }
@@ -97,7 +97,7 @@ export default function Home() {
   const handleDifficultyChange = useCallback(
     (difficulty: number) => {
       dispatch({ type: 'SET_DIFFICULTY', payload: difficulty });
-      // 难度改变时自动获取新谜题，直接传递新难度
+      // Automatically fetch new puzzle when difficulty changes, pass new difficulty directly
       fetchPuzzle(difficulty);
     },
     [dispatch, fetchPuzzle]
@@ -157,7 +157,7 @@ export default function Home() {
 
   const resetGame = useCallback(() => {
     dispatch({ type: 'RESET_AND_FETCH' });
-    // 重置时强制刷新
+    // Force refresh when resetting
     fetchPuzzle(undefined, true);
   }, [fetchPuzzle, dispatch]);
 

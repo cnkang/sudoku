@@ -24,18 +24,18 @@ const GameControls: React.FC<GameControlsProps> = ({
     setIsResetCooldown(true);
     onReset();
 
-    // 清除之前的定时器
+    // Clear previous timer
     if (resetTimeoutRef.current) {
       clearTimeout(resetTimeoutRef.current);
     }
 
-    // 10秒后解除冷却
+    // Remove cooldown after 10 seconds
     resetTimeoutRef.current = setTimeout(() => {
       setIsResetCooldown(false);
     }, 10000);
   };
 
-  // 清理定时器
+  // Cleanup timer
   useEffect(() => {
     return () => {
       if (resetTimeoutRef.current) {

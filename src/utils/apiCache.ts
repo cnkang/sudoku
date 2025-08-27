@@ -6,7 +6,7 @@ interface CachedResponse {
 
 class ClientCache {
   private cache = new Map<string, CachedResponse>();
-  private readonly maxAge = 30000; // 30秒
+  private readonly maxAge = 30000; // 30 seconds
 
   set(key: string, data: unknown, etag?: string): void {
     this.cache.set(key, {
@@ -47,7 +47,7 @@ export async function fetchWithCache(
 ): Promise<unknown> {
   const cacheKey = `${url}-${JSON.stringify(options)}`;
 
-  // 检查客户端缓存（非强制刷新时）
+  // Check client cache (when not force refreshing)
   if (!forceRefresh) {
     const cached = clientCache.get(cacheKey);
     if (cached) {
@@ -55,7 +55,7 @@ export async function fetchWithCache(
     }
   }
 
-  // 添加条件请求头
+  // Add conditional request headers
   const etag = clientCache.getETag(cacheKey);
   if (etag) {
     options.headers = {
@@ -66,7 +66,7 @@ export async function fetchWithCache(
 
   const response = await fetch(url, options);
 
-  // 304 Not Modified - 使用缓存
+  // 304 Not Modified - use cache
   const cachedData = clientCache.get(cacheKey);
   if (response.status === 304 && cachedData) {
     return cachedData;
@@ -79,7 +79,7 @@ export async function fetchWithCache(
   const data = await response.json();
   const responseETag = response.headers.get('ETag');
 
-  // 缓存响应
+  // Cache response
   clientCache.set(cacheKey, data, responseETag || undefined);
 
   return data;

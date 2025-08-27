@@ -9,7 +9,7 @@ class APICache<T> {
   private readonly defaultTTL: number;
 
   constructor(defaultTTL = 30000) {
-    // 30秒默认TTL
+    // Default TTL of 30 seconds
     this.defaultTTL = defaultTTL;
   }
 
@@ -41,7 +41,7 @@ class APICache<T> {
     this.cache.clear();
   }
 
-  // 清理过期缓存
+  // Clean up expired cache entries
   cleanup(): void {
     const now = Date.now();
     for (const [key, item] of this.cache.entries()) {
@@ -54,5 +54,5 @@ class APICache<T> {
 
 export const puzzleCache = new APICache();
 
-// 定期清理过期缓存
-setInterval(() => puzzleCache.cleanup(), 60000); // 每分钟清理一次
+// Periodically clean up expired cache entries
+setInterval(() => puzzleCache.cleanup(), 60000); // Clean up every minute

@@ -33,7 +33,7 @@ const Timer: React.FC<TimerProps> = ({ time, isActive, isPaused }) => {
           font-style: italic;
         }
 
-        /* 移动端优化 */
+        /* Mobile optimization */
         @media (max-width: 768px) {
           .timer {
             font-size: 1.1rem;
@@ -67,7 +67,7 @@ const Timer: React.FC<TimerProps> = ({ time, isActive, isPaused }) => {
           }
         }
 
-        /* 横屏模式 */
+        /* Landscape mode */
         @media (max-width: 768px) and (orientation: landscape) {
           .timer {
             font-size: 0.9rem;
