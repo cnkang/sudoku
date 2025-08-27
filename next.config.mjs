@@ -2,9 +2,13 @@
 const nextConfig = {
   experimental: {
     esmExternals: true,
-    reactCompiler: true,
     optimizePackageImports: ['lodash', 'fast-sudoku-solver'],
-    staticWorkerRequestDeduping: true,
+    reactCompiler: {
+      compilationMode: 'annotation',
+    },
+  },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
   },
   eslint: {
     ignoreDuringBuilds: true,
