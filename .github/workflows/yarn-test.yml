@@ -17,14 +17,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20, 22]
+        test-group: [quality, build, unit-tests, coverage]
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
 
       - name: Enable Corepack
         run: corepack enable
@@ -32,21 +32,23 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
-      - name: Type check
-        run: yarn type-check
-
-      - name: Lint
-        run: yarn lint
-
-      - name: Format check
-        run: yarn format:check
+      - name: Quality checks
+        if: matrix.test-group == 'quality'
+        run: |
+          yarn type-check
+          yarn lint
+          yarn format:check
 
       - name: Build
+        if: matrix.test-group == 'build'
         run: yarn build
 
-      - name: Run tests
+      - name: Unit tests
+        if: matrix.test-group == 'unit-tests'
         run: yarn test
+        timeout-minutes: 10
 
-      - name: Run test coverage
-        run: yarn test:coverage
-        if: matrix.node-version == 20
+      - name: Coverage tests
+        if: matrix.test-group == 'coverage'
+        run: yarn test --coverage
+        timeout-minutes: 15
