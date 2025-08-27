@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GameControlsProps } from '../types';
-import { gameControlsStyles } from './GameControls.styles';
+import styles from './GameControls.module.css';
 
 const GameControls: React.FC<GameControlsProps> = ({
   onSubmit,
@@ -44,12 +44,12 @@ const GameControls: React.FC<GameControlsProps> = ({
     };
   }, []);
   return (
-    <div className="game-controls">
-      <div className="control-buttons">
+    <div className={styles.gameControls} data-testid="game-controls">
+      <div className={styles.controlButtons} data-testid="control-buttons">
         <button
           onClick={onSubmit}
           disabled={disabled}
-          className="btn btn-primary"
+          className={`${styles.btn} ${styles.btnPrimary}`}
           aria-label="Check your solution"
         >
           Check Solution
@@ -58,7 +58,7 @@ const GameControls: React.FC<GameControlsProps> = ({
         <button
           onClick={onPauseResume}
           disabled={disabled}
-          className="btn btn-secondary"
+          className={`${styles.btn} ${styles.btnSecondary}`}
           aria-label={isPaused ? 'Resume game' : 'Pause game'}
         >
           {isPaused ? 'Resume' : 'Pause'}
@@ -67,7 +67,7 @@ const GameControls: React.FC<GameControlsProps> = ({
         <button
           onClick={onUndo}
           disabled={disabled || !canUndo}
-          className="btn btn-warning"
+          className={`${styles.btn} ${styles.btnWarning}`}
           aria-label="Undo last move"
         >
           Undo
@@ -76,7 +76,7 @@ const GameControls: React.FC<GameControlsProps> = ({
         <button
           onClick={onHint}
           disabled={disabled}
-          className="btn btn-info"
+          className={`${styles.btn} ${styles.btnInfo}`}
           aria-label="Get a hint"
         >
           Hint ({hintsUsed})
@@ -85,7 +85,7 @@ const GameControls: React.FC<GameControlsProps> = ({
         <button
           onClick={handleReset}
           disabled={isLoading || isResetCooldown}
-          className="btn btn-danger"
+          className={`${styles.btn} ${styles.btnDanger}`}
           aria-label="Reset the game"
         >
           {isLoading
@@ -97,7 +97,10 @@ const GameControls: React.FC<GameControlsProps> = ({
       </div>
 
       {isCorrect !== null && (
-        <div className={`result-message ${isCorrect ? 'success' : 'error'}`}>
+        <div
+          className={`${styles.resultMessage} ${isCorrect ? styles.success : styles.error}`}
+          data-testid="result-message"
+        >
           {isCorrect ? (
             <>🎉 Congratulations! You solved it correctly!</>
           ) : (
@@ -105,8 +108,6 @@ const GameControls: React.FC<GameControlsProps> = ({
           )}
         </div>
       )}
-
-      <style jsx>{gameControlsStyles}</style>
     </div>
   );
 };
