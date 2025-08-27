@@ -2,6 +2,9 @@
 const nextConfig = {
   experimental: {
     esmExternals: true,
+    reactCompiler: true,
+    optimizePackageImports: ['lodash', 'fast-sudoku-solver'],
+    staticWorkerRequestDeduping: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -13,12 +16,13 @@ const nextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=30, s-maxage=30, stale-while-revalidate=10',
+            value: 'public, max-age=60, s-maxage=60, stale-while-revalidate=30',
           },
         ],
       },
     ];
   },
+  cacheHandler: process.env.NODE_ENV === 'production' ? require.resolve('./cache-handler.mjs') : undefined,
 };
 
 export default nextConfig;
