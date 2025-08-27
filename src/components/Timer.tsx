@@ -9,6 +9,7 @@ const formatTime = (seconds: number): string => {
 };
 
 const Timer: React.FC<TimerProps> = ({ time, isActive, isPaused }) => {
+  'use memo';
   return (
     <div className="timer">
       <span className="timer-label">Time: </span>
