@@ -2,158 +2,198 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import Timer from '../Timer';
+import { createTimerProps, setupTest, cleanupTest } from './test-utils';
+import {
+  createRenderingTests,
+  createEdgeCaseTests,
+} from './shared-test-suites';
 
 describe('Timer', () => {
-  const defaultProps = {
-    time: 0,
-    isActive: false,
-    isPaused: false,
-  };
+  beforeEach(setupTest);
+  afterEach(cleanupTest);
+
+  // Use shared rendering test suite
+  createRenderingTests('Timer', () =>
+    render(<Timer {...createTimerProps()} />)
+  );
 
   describe('Time Formatting', () => {
-    it('should format time correctly for seconds only', () => {
-      render(<Timer {...defaultProps} time={45} />);
-      expect(screen.getByText('00:45')).toBeInTheDocument();
-    });
+    const timeFormatTests = [
+      { time: 45, expected: '00:45', description: 'seconds only' },
+      { time: 125, expected: '02:05', description: 'minutes and seconds' },
+      { time: 3665, expected: '61:05', description: 'hours' },
+      { time: 9, expected: '00:09', description: 'single digits with zeros' },
+      { time: 0, expected: '00:00', description: 'zero time' },
+      { time: 5999, expected: '99:59', description: 'large time values' },
+    ];
 
-    it('should format time correctly for minutes and seconds', () => {
-      render(<Timer {...defaultProps} time={125} />); // 2 minutes 5 seconds
-      expect(screen.getByText('02:05')).toBeInTheDocument();
-    });
-
-    it('should format time correctly for hours', () => {
-      render(<Timer {...defaultProps} time={3665} />); // 1 hour 1 minute 5 seconds
-      expect(screen.getByText('61:05')).toBeInTheDocument();
-    });
-
-    it('should pad single digits with zeros', () => {
-      render(<Timer {...defaultProps} time={9} />);
-      expect(screen.getByText('00:09')).toBeInTheDocument();
-    });
-
-    it('should handle zero time', () => {
-      render(<Timer {...defaultProps} time={0} />);
-      expect(screen.getByText('00:00')).toBeInTheDocument();
-    });
-
-    it('should handle large time values', () => {
-      render(<Timer {...defaultProps} time={5999} />); // 99 minutes 59 seconds
-      expect(screen.getByText('99:59')).toBeInTheDocument();
+    timeFormatTests.forEach(({ time, expected, description }) => {
+      it(`should format time correctly for ${description}`, () => {
+        render(<Timer {...createTimerProps({ time })} />);
+        expect(screen.getByText(expected)).toBeInTheDocument();
+      });
     });
   });
 
   describe('Timer States', () => {
     it('should show "Time:" label', () => {
-      render(<Timer {...defaultProps} />);
+      render(<Timer {...createTimerProps()} />);
       expect(screen.getByText('Time:')).toBeInTheDocument();
     });
 
-    it('should show paused status when paused', () => {
-      render(<Timer {...defaultProps} isPaused={true} />);
-      expect(screen.getByText('(Paused)')).toBeInTheDocument();
-    });
+    const pausedStateTests = [
+      {
+        isPaused: true,
+        shouldShow: true,
+        description: 'show paused status when paused',
+      },
+      {
+        isPaused: false,
+        shouldShow: false,
+        description: 'not show paused status when not paused',
+      },
+      {
+        isActive: true,
+        isPaused: false,
+        shouldShow: false,
+        description: 'not show paused status when active but not paused',
+      },
+    ];
 
-    it('should not show paused status when not paused', () => {
-      render(<Timer {...defaultProps} isPaused={false} />);
-      expect(screen.queryByText('(Paused)')).not.toBeInTheDocument();
-    });
+    pausedStateTests.forEach(({ shouldShow, description, ...props }) => {
+      it(`should ${description}`, () => {
+        render(<Timer {...createTimerProps(props)} />);
+        const pausedText = screen.queryByText('(Paused)');
 
-    it('should not show paused status when active but not paused', () => {
-      render(<Timer {...defaultProps} isActive={true} isPaused={false} />);
-      expect(screen.queryByText('(Paused)')).not.toBeInTheDocument();
+        if (shouldShow) {
+          expect(pausedText).toBeInTheDocument();
+        } else {
+          expect(pausedText).not.toBeInTheDocument();
+        }
+      });
     });
   });
 
   describe('Visual States', () => {
-    it('should render with correct structure', () => {
-      render(<Timer {...defaultProps} time={30} />);
+    const visualTests = [
+      {
+        props: { time: 30 },
+        description: 'render with correct structure',
+        checks: [
+          () => expect(screen.getByText('Time:')).toHaveClass('timer-label'),
+          () => expect(screen.getByText('00:30')).toHaveClass('timer-value'),
+        ],
+      },
+      {
+        props: { time: 123 },
+        description: 'apply monospace font to timer value',
+        checks: [
+          () => expect(screen.getByText('02:03')).toHaveClass('timer-value'),
+        ],
+      },
+      {
+        props: { isPaused: true },
+        description: 'show paused status with correct styling',
+        checks: [
+          () =>
+            expect(screen.getByText('(Paused)')).toHaveClass('timer-status'),
+        ],
+      },
+    ];
 
-      const timerContainer = screen.getByText('Time:').closest('.timer');
-      expect(timerContainer).toBeInTheDocument();
-
-      expect(screen.getByText('Time:')).toHaveClass('timer-label');
-      expect(screen.getByText('00:30')).toHaveClass('timer-value');
-    });
-
-    it('should apply monospace font to timer value', () => {
-      render(<Timer {...defaultProps} time={123} />);
-
-      const timerValue = screen.getByText('02:03');
-      expect(timerValue).toHaveClass('timer-value');
-    });
-
-    it('should show paused status with correct styling', () => {
-      render(<Timer {...defaultProps} isPaused={true} />);
-
-      const pausedStatus = screen.getByText('(Paused)');
-      expect(pausedStatus).toHaveClass('timer-status');
+    visualTests.forEach(({ props, description, checks }) => {
+      it(`should ${description}`, () => {
+        render(<Timer {...createTimerProps(props)} />);
+        checks.forEach(check => check());
+      });
     });
   });
 
   describe('Color States', () => {
-    it('should handle inactive timer state', () => {
-      render(<Timer {...defaultProps} isActive={false} isPaused={false} />);
-      // Component should render without errors
-      expect(screen.getByText('Time:')).toBeInTheDocument();
-    });
+    const colorStateTests = [
+      {
+        props: { isActive: false, isPaused: false },
+        description: 'handle inactive timer state',
+      },
+      {
+        props: { isActive: true, isPaused: false },
+        description: 'handle active timer state',
+      },
+      {
+        props: { isActive: true, isPaused: true },
+        description: 'handle paused timer state',
+        extraCheck: () =>
+          expect(screen.getByText('(Paused)')).toBeInTheDocument(),
+      },
+    ];
 
-    it('should handle active timer state', () => {
-      render(<Timer {...defaultProps} isActive={true} isPaused={false} />);
-      // Component should render without errors
-      expect(screen.getByText('Time:')).toBeInTheDocument();
-    });
-
-    it('should handle paused timer state', () => {
-      render(<Timer {...defaultProps} isActive={true} isPaused={true} />);
-      // Component should render without errors and show paused status
-      expect(screen.getByText('Time:')).toBeInTheDocument();
-      expect(screen.getByText('(Paused)')).toBeInTheDocument();
+    colorStateTests.forEach(({ props, description, extraCheck }) => {
+      it(`should ${description}`, () => {
+        render(<Timer {...createTimerProps(props)} />);
+        expect(screen.getByText('Time:')).toBeInTheDocument();
+        if (extraCheck) extraCheck();
+      });
     });
   });
 
-  describe('Edge Cases', () => {
-    it('should handle negative time values gracefully', () => {
-      render(<Timer {...defaultProps} time={-10} />);
-      // Should still render, though negative time is not expected in normal use
-      expect(screen.getByText('Time:')).toBeInTheDocument();
-    });
-
-    it('should handle very large time values', () => {
-      render(<Timer {...defaultProps} time={999999} />);
-      expect(screen.getByText('Time:')).toBeInTheDocument();
-      // Should format as minutes:seconds (16666:39)
-      expect(screen.getByText('16666:39')).toBeInTheDocument();
-    });
-
-    it('should handle decimal time values by flooring', () => {
-      render(<Timer {...defaultProps} time={65.7} />);
-      expect(screen.getByText('01:05')).toBeInTheDocument();
-    });
-  });
+  // Use shared edge case test suite
+  createEdgeCaseTests([
+    {
+      description: 'should handle negative time values gracefully',
+      setup: () => render(<Timer {...createTimerProps({ time: -10 })} />),
+      expectation: () => expect(screen.getByText('Time:')).toBeInTheDocument(),
+    },
+    {
+      description: 'should handle very large time values',
+      setup: () => render(<Timer {...createTimerProps({ time: 999999 })} />),
+      expectation: () => {
+        expect(screen.getByText('Time:')).toBeInTheDocument();
+        expect(screen.getByText('16666:39')).toBeInTheDocument();
+      },
+    },
+    {
+      description: 'should handle decimal time values by flooring',
+      setup: () => render(<Timer {...createTimerProps({ time: 65.7 })} />),
+      expectation: () => expect(screen.getByText('01:05')).toBeInTheDocument(),
+    },
+  ]);
 
   describe('Component Props Combinations', () => {
-    it('should handle all props being true', () => {
-      render(<Timer time={150} isActive={true} isPaused={true} />);
+    const propCombinations = [
+      {
+        props: { time: 150, isActive: true, isPaused: true },
+        expectations: [
+          () => expect(screen.getByText('Time:')).toBeInTheDocument(),
+          () => expect(screen.getByText('02:30')).toBeInTheDocument(),
+          () => expect(screen.getByText('(Paused)')).toBeInTheDocument(),
+        ],
+        description: 'all props being true',
+      },
+      {
+        props: { time: 0, isActive: false, isPaused: false },
+        expectations: [
+          () => expect(screen.getByText('Time:')).toBeInTheDocument(),
+          () => expect(screen.getByText('00:00')).toBeInTheDocument(),
+          () => expect(screen.queryByText('(Paused)')).not.toBeInTheDocument(),
+        ],
+        description: 'all props being false/zero',
+      },
+      {
+        props: { time: 75, isActive: true, isPaused: false },
+        expectations: [
+          () => expect(screen.getByText('Time:')).toBeInTheDocument(),
+          () => expect(screen.getByText('01:15')).toBeInTheDocument(),
+          () => expect(screen.queryByText('(Paused)')).not.toBeInTheDocument(),
+        ],
+        description: 'active but not paused state',
+      },
+    ];
 
-      expect(screen.getByText('Time:')).toBeInTheDocument();
-      expect(screen.getByText('02:30')).toBeInTheDocument();
-      expect(screen.getByText('(Paused)')).toBeInTheDocument();
-    });
-
-    it('should handle all props being false/zero', () => {
-      render(<Timer time={0} isActive={false} isPaused={false} />);
-
-      expect(screen.getByText('Time:')).toBeInTheDocument();
-      expect(screen.getByText('00:00')).toBeInTheDocument();
-      expect(screen.queryByText('(Paused)')).not.toBeInTheDocument();
-    });
-
-    it('should handle active but not paused state', () => {
-      render(<Timer time={75} isActive={true} isPaused={false} />);
-
-      expect(screen.getByText('Time:')).toBeInTheDocument();
-      expect(screen.getByText('01:15')).toBeInTheDocument();
-      expect(screen.queryByText('(Paused)')).not.toBeInTheDocument();
+    propCombinations.forEach(({ props, expectations, description }) => {
+      it(`should handle ${description}`, () => {
+        render(<Timer {...createTimerProps(props)} />);
+        expectations.forEach(expectation => expectation());
+      });
     });
   });
 });
