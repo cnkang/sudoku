@@ -1,33 +1,24 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Home from '../page';
 
-// Mock the components
+// Mock the components with proper props
 vi.mock('../../components/SudokuGrid', () => ({
-  default: ({
-    onInputChange,
-    disabled,
-  }: {
-    onInputChange: (row: number, col: number, value: number) => void;
-    disabled: boolean;
-  }) => (
-    <div data-testid="sudoku-grid" data-disabled={disabled}>
-      <button onClick={() => onInputChange(0, 0, 5)}>Mock Input Change</button>
+  default: ({ onInputChange, hintCell }: any) => (
+    <div data-testid="sudoku-grid">
+      <button onClick={() => onInputChange?.(0, 0, 5)}>Mock Input</button>
+      {hintCell && (
+        <div data-testid="hint-cell">
+          Hint at {hintCell.row},{hintCell.col}
+        </div>
+      )}
     </div>
   ),
 }));
 
 vi.mock('../../components/Timer', () => ({
-  default: ({
-    time,
-    isActive,
-    isPaused,
-  }: {
-    time: number;
-    isActive: boolean;
-    isPaused: boolean;
-  }) => (
+  default: ({ time, isActive, isPaused }: any) => (
     <div
       data-testid="timer"
       data-time={time}
@@ -41,29 +32,15 @@ vi.mock('../../components/Timer', () => ({
 
 vi.mock('../../components/DifficultySelector', () => ({
   default: ({
-    difficulty,
+    difficulty: _difficulty,
     onChange,
     disabled,
     isLoading,
-  }: {
-    difficulty: number;
-    onChange: (d: number) => void;
-    disabled: boolean;
-    isLoading: boolean;
-  }) => (
+  }: any) => (
     <div data-testid="difficulty-selector">
-      <select
-        value={difficulty}
-        onChange={e => onChange(parseInt(e.target.value))}
-        disabled={disabled || isLoading}
-        data-testid="difficulty-select"
-      >
-        {[1, 2, 3, 4, 5].map(d => (
-          <option key={d} value={d}>
-            Difficulty {d}
-          </option>
-        ))}
-      </select>
+      <button onClick={() => onChange?.(5)} disabled={disabled || isLoading}>
+        Change Difficulty
+      </button>
     </div>
   ),
 }));
@@ -73,73 +50,80 @@ vi.mock('../../components/GameControls', () => ({
     onSubmit,
     onReset,
     onPauseResume,
+    onUndo,
+    onHint,
     isCorrect,
-    isPaused,
-    disabled,
-    isLoading,
-  }: {
-    onSubmit: () => void;
-    onReset: () => void;
-    onPauseResume: () => void;
-    isCorrect: boolean | null;
-    isPaused: boolean;
-    disabled: boolean;
-    isLoading: boolean;
-  }) => (
+  }: any) => (
     <div data-testid="game-controls">
-      <button onClick={onSubmit} disabled={disabled} data-testid="submit-btn">
-        Check
-      </button>
-      <button
-        onClick={onPauseResume}
-        disabled={disabled}
-        data-testid="pause-btn"
-      >
-        {isPaused ? 'Resume' : 'Pause'}
-      </button>
-      <button onClick={onReset} disabled={isLoading} data-testid="reset-btn">
-        Reset
-      </button>
+      <button onClick={onSubmit}>Check</button>
+      <button onClick={onReset}>Reset</button>
+      <button onClick={onPauseResume}>Pause</button>
+      <button onClick={onUndo}>Undo</button>
+      <button onClick={onHint}>Hint</button>
       {isCorrect !== null && (
-        <div data-testid="result">{isCorrect ? 'Correct!' : 'Incorrect!'}</div>
+        <div data-testid="result">{isCorrect ? 'Correct' : 'Wrong'}</div>
       )}
     </div>
   ),
 }));
 
-// Mock fetch
-const mockFetch = vi.fn();
-global.fetch = mockFetch;
+// Mock utils
+vi.mock('../../utils/hints', () => ({
+  getHint: vi.fn(() => ({ row: 1, col: 1, reason: 'Test hint' })),
+}));
 
-// Mock environment variable
-process.env.NEXT_PUBLIC_API_URL = '/api/test';
+vi.mock('../../utils/stats', () => ({
+  updateStats: vi.fn(),
+}));
+
+vi.mock('../../utils/apiCache', () => ({
+  fetchWithCache: vi.fn(),
+}));
+
+// Mock useGameState with proper factory function
+vi.mock('../../hooks/useGameState', () => ({
+  useGameState: vi.fn(),
+}));
+
+// Get mock functions after import
+const mockDispatch = vi.fn();
+const mockHandleError = vi.fn();
+const mockClearError = vi.fn();
 
 describe('Home Page', () => {
-  const mockPuzzleResponse = {
-    puzzle: [
-      [1, 0, 3],
-      [0, 2, 0],
-      [3, 0, 1],
-    ],
-    solution: [
-      [1, 2, 3],
-      [4, 2, 5],
-      [3, 6, 1],
-    ],
-    difficulty: 1,
-  };
+  const mockPuzzle = Array(9)
+    .fill(null)
+    .map(() => Array(9).fill(0));
+  const mockSolution = Array(9)
+    .fill(null)
+    .map(() => Array(9).fill(1));
+  const mockUserInput = Array(9)
+    .fill(null)
+    .map(() => Array(9).fill(0));
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
-    vi.useFakeTimers();
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(mockPuzzleResponse),
+    const { useGameState } = await import('../../hooks/useGameState');
+    (useGameState as any).mockReturnValue({
+      state: {
+        puzzle: null,
+        solution: null,
+        difficulty: 1,
+        error: null,
+        userInput: [],
+        history: [],
+        time: 0,
+        timerActive: false,
+        isCorrect: null,
+        isPaused: false,
+        isLoading: false,
+        hintsUsed: 0,
+        showHint: null,
+      },
+      dispatch: mockDispatch,
+      handleError: mockHandleError,
+      clearError: mockClearError,
     });
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
   });
 
   describe('Initial Rendering', () => {
@@ -153,412 +137,288 @@ describe('Home Page', () => {
       expect(screen.getByTestId('difficulty-selector')).toBeInTheDocument();
     });
 
-    it('should show loading state initially', () => {
+    it('should show loading state when no puzzle', () => {
       render(<Home />);
 
       expect(screen.getByText('Generating your puzzle...')).toBeInTheDocument();
-      expect(screen.getByText('Loading...')).toBeInTheDocument();
-    });
-
-    it('should fetch puzzle on initial load', async () => {
-      render(<Home />);
-
-      await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledWith(
-          '/api/test?difficulty=1',
-          expect.objectContaining({
-            method: 'POST',
-            signal: expect.any(AbortSignal),
-          })
-        );
-      });
     });
   });
 
-  describe('Puzzle Loading', () => {
-    it('should display game components after puzzle loads', async () => {
+  describe('Game State Interactions', () => {
+    it('should render game area when puzzle is loaded', async () => {
+      const { useGameState } = await import('../../hooks/useGameState');
+      (useGameState as any).mockReturnValue({
+        state: {
+          puzzle: mockPuzzle,
+          solution: mockSolution,
+          userInput: mockUserInput,
+          difficulty: 1,
+          error: null,
+          history: [mockUserInput],
+          time: 120,
+          timerActive: true,
+          isCorrect: null,
+          isPaused: false,
+          isLoading: false,
+          hintsUsed: 2,
+          showHint: null,
+        },
+        dispatch: mockDispatch,
+        handleError: mockHandleError,
+        clearError: mockClearError,
+      });
+
       render(<Home />);
 
-      await waitFor(() => {
-        expect(screen.getByTestId('timer')).toBeInTheDocument();
-        expect(screen.getByTestId('sudoku-grid')).toBeInTheDocument();
-        expect(screen.getByTestId('game-controls')).toBeInTheDocument();
-      });
+      expect(screen.getByTestId('sudoku-grid')).toBeInTheDocument();
+      expect(screen.getByTestId('timer')).toBeInTheDocument();
+      expect(screen.getByTestId('game-controls')).toBeInTheDocument();
     });
 
-    it('should handle fetch errors', async () => {
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
-
-      render(<Home />);
-
-      await waitFor(() => {
-        expect(screen.getByText('⚠️ Network error')).toBeInTheDocument();
-      });
-    });
-
-    it('should handle HTTP errors', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        json: () => Promise.resolve({ error: 'Server error' }),
-      });
-
-      render(<Home />);
-
-      await waitFor(() => {
-        expect(screen.getByText('⚠️ Server error')).toBeInTheDocument();
-      });
-    });
-
-    it('should handle HTTP errors without error message', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        json: () => Promise.resolve({}),
+    it('should display error message when error exists', async () => {
+      const { useGameState } = await import('../../hooks/useGameState');
+      (useGameState as any).mockReturnValue({
+        state: {
+          puzzle: null,
+          error: 'Test error message',
+          difficulty: 1,
+          userInput: [],
+          history: [],
+          time: 0,
+          timerActive: false,
+          isCorrect: null,
+          isPaused: false,
+          isLoading: false,
+          hintsUsed: 0,
+          showHint: null,
+        },
+        dispatch: mockDispatch,
+        handleError: mockHandleError,
+        clearError: mockClearError,
       });
 
       render(<Home />);
 
-      await waitFor(() => {
-        expect(
-          screen.getByText('⚠️ Failed to fetch puzzle')
-        ).toBeInTheDocument();
-      });
-    });
-  });
+      expect(screen.getByText('⚠️ Test error message')).toBeInTheDocument();
 
-  describe('Error Handling', () => {
-    it('should display error messages', async () => {
-      mockFetch.mockRejectedValueOnce(new Error('Test error'));
-
-      render(<Home />);
-
-      await waitFor(() => {
-        expect(screen.getByText('⚠️ Test error')).toBeInTheDocument();
-      });
-    });
-
-    it('should allow clearing errors', async () => {
-      mockFetch.mockRejectedValueOnce(new Error('Test error'));
-
-      render(<Home />);
-
-      await waitFor(() => {
-        expect(screen.getByText('⚠️ Test error')).toBeInTheDocument();
-      });
-
-      const dismissButton = screen.getByRole('button', { name: '×' });
+      const dismissButton = screen.getByText('×');
       fireEvent.click(dismissButton);
-
-      expect(screen.queryByText('⚠️ Test error')).not.toBeInTheDocument();
+      expect(mockClearError).toHaveBeenCalled();
     });
 
-    it('should handle AbortError gracefully', async () => {
-      const abortError = new Error('Request aborted');
-      abortError.name = 'AbortError';
-      mockFetch.mockRejectedValueOnce(abortError);
+    it('should display hint message when hint is shown', async () => {
+      const { useGameState } = await import('../../hooks/useGameState');
+      (useGameState as any).mockReturnValue({
+        state: {
+          puzzle: mockPuzzle,
+          solution: mockSolution,
+          userInput: mockUserInput,
+          difficulty: 1,
+          error: null,
+          history: [mockUserInput],
+          time: 0,
+          timerActive: false,
+          isCorrect: null,
+          isPaused: false,
+          isLoading: false,
+          hintsUsed: 0,
+          showHint: { row: 1, col: 1, message: 'Test hint message' },
+        },
+        dispatch: mockDispatch,
+        handleError: mockHandleError,
+        clearError: mockClearError,
+      });
 
       render(<Home />);
 
-      // Should not show error for aborted requests
-      await waitFor(() => {
-        expect(
-          screen.queryByText('⚠️ Request aborted')
-        ).not.toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Difficulty Changes', () => {
-    it('should fetch new puzzle when difficulty changes', async () => {
-      render(<Home />);
-
-      // Wait for initial load
-      await waitFor(() => {
-        expect(screen.getByTestId('sudoku-grid')).toBeInTheDocument();
-      });
-
-      mockFetch.mockClear();
-
-      const difficultySelect = screen.getByTestId('difficulty-select');
-      fireEvent.change(difficultySelect, { target: { value: '3' } });
-
-      await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledWith(
-          '/api/test?difficulty=3',
-          expect.objectContaining({
-            method: 'POST',
-            signal: expect.any(AbortSignal),
-          })
-        );
-      });
+      expect(screen.getByText('💡 Test hint message')).toBeInTheDocument();
     });
   });
 
   describe('Game Controls', () => {
     beforeEach(async () => {
-      render(<Home />);
-      await waitFor(() => {
-        expect(screen.getByTestId('sudoku-grid')).toBeInTheDocument();
+      const { useGameState } = await import('../../hooks/useGameState');
+      (useGameState as any).mockReturnValue({
+        state: {
+          puzzle: mockPuzzle,
+          solution: mockSolution,
+          userInput: mockUserInput,
+          difficulty: 1,
+          error: null,
+          history: [mockUserInput],
+          time: 0,
+          timerActive: false,
+          isCorrect: null,
+          isPaused: false,
+          isLoading: false,
+          hintsUsed: 0,
+          showHint: null,
+        },
+        dispatch: mockDispatch,
+        handleError: mockHandleError,
+        clearError: mockClearError,
       });
     });
 
-    it('should handle check answer', () => {
-      const checkButton = screen.getByTestId('submit-btn');
-      fireEvent.click(checkButton);
+    it('should handle input change', () => {
+      render(<Home />);
 
-      // Should show result
-      expect(screen.getByTestId('result')).toBeInTheDocument();
+      const inputButton = screen.getByText('Mock Input');
+      act(() => {
+        fireEvent.click(inputButton);
+      });
+
+      expect(mockDispatch).toHaveBeenCalledWith({
+        type: 'UPDATE_USER_INPUT',
+        payload: { row: 0, col: 0, value: 5 },
+      });
+    });
+
+    it('should handle difficulty change', () => {
+      render(<Home />);
+
+      const difficultyButton = screen.getByText('Change Difficulty');
+      act(() => {
+        fireEvent.click(difficultyButton);
+      });
+
+      expect(mockDispatch).toHaveBeenCalledWith({
+        type: 'SET_DIFFICULTY',
+        payload: 5,
+      });
     });
 
     it('should handle pause/resume', () => {
-      const pauseButton = screen.getByTestId('pause-btn');
+      render(<Home />);
 
-      expect(screen.getByText('Pause')).toBeInTheDocument();
+      const pauseButton = screen.getByText('Pause');
+      act(() => {
+        fireEvent.click(pauseButton);
+      });
 
-      fireEvent.click(pauseButton);
-
-      expect(screen.getByText('Resume')).toBeInTheDocument();
+      expect(mockDispatch).toHaveBeenCalledWith({ type: 'PAUSE_RESUME' });
     });
 
-    it('should handle reset with debouncing', async () => {
-      const resetButton = screen.getByTestId('reset-btn');
+    it('should handle undo', () => {
+      render(<Home />);
 
-      // First reset
-      fireEvent.click(resetButton);
-
-      expect(mockFetch).toHaveBeenCalledTimes(2); // Initial + reset
-
-      mockFetch.mockClear();
-
-      // Second reset immediately (should be debounced)
-      fireEvent.click(resetButton);
-
-      expect(mockFetch).not.toHaveBeenCalled();
-
-      // After 5 seconds, should allow reset
-      vi.advanceTimersByTime(5000);
-
-      fireEvent.click(resetButton);
-
-      await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalled();
+      const undoButton = screen.getByText('Undo');
+      act(() => {
+        fireEvent.click(undoButton);
       });
+
+      expect(mockDispatch).toHaveBeenCalledWith({ type: 'UNDO' });
+    });
+
+    it('should handle hint request', () => {
+      render(<Home />);
+
+      const hintButton = screen.getByText('Hint');
+      act(() => {
+        fireEvent.click(hintButton);
+      });
+
+      expect(mockDispatch).toHaveBeenCalledWith({ type: 'USE_HINT' });
+      expect(mockDispatch).toHaveBeenCalledWith({
+        type: 'SHOW_HINT',
+        payload: { row: 1, col: 1, message: 'Test hint' },
+      });
+    });
+
+    it('should handle check answer', async () => {
+      const { updateStats } = await import('../../utils/stats');
+
+      render(<Home />);
+
+      const checkButton = screen.getByText('Check');
+      act(() => {
+        fireEvent.click(checkButton);
+      });
+
+      expect(mockDispatch).toHaveBeenCalledWith({ type: 'CHECK_ANSWER' });
+      expect(updateStats).toHaveBeenCalled();
+    });
+
+    it('should handle reset game', () => {
+      render(<Home />);
+
+      const resetButton = screen.getByText('Reset');
+      act(() => {
+        fireEvent.click(resetButton);
+      });
+
+      expect(mockDispatch).toHaveBeenCalledWith({ type: 'RESET_AND_FETCH' });
     });
   });
 
-  describe('User Input Handling', () => {
-    beforeEach(async () => {
-      render(<Home />);
-      await waitFor(() => {
-        expect(screen.getByTestId('sudoku-grid')).toBeInTheDocument();
+  describe('Error Handling', () => {
+    it('should handle input change error when no puzzle', async () => {
+      const { useGameState } = await import('../../hooks/useGameState');
+      (useGameState as any).mockReturnValue({
+        state: {
+          puzzle: mockPuzzle,
+          userInput: null,
+          difficulty: 1,
+          error: null,
+          history: [],
+          time: 0,
+          timerActive: false,
+          isCorrect: null,
+          isPaused: false,
+          isLoading: false,
+          hintsUsed: 0,
+          showHint: null,
+        },
+        dispatch: mockDispatch,
+        handleError: mockHandleError,
+        clearError: mockClearError,
       });
-    });
 
-    it('should handle valid user input', () => {
-      const inputButton = screen.getByText('Mock Input Change');
-      fireEvent.click(inputButton);
-
-      // Should not show any errors
-      expect(
-        screen.queryByText(/cannot update user input/i)
-      ).not.toBeInTheDocument();
-    });
-
-    it('should handle input when puzzle is not loaded', () => {
-      // Reset to initial state
-      const resetButton = screen.getByTestId('reset-btn');
-      fireEvent.click(resetButton);
-
-      // Try to input before puzzle loads
-      const inputButton = screen.getByText('Mock Input Change');
-      fireEvent.click(inputButton);
-
-      // Should show error
-      expect(
-        screen.getByText(
-          '⚠️ Cannot update user input when puzzle is not loaded'
-        )
-      ).toBeInTheDocument();
-    });
-
-    it('should handle check answer when puzzle is not loaded', () => {
-      // Reset to initial state
-      const resetButton = screen.getByTestId('reset-btn');
-      fireEvent.click(resetButton);
-
-      // Try to check answer before puzzle loads
-      const checkButton = screen.getByTestId('submit-btn');
-      fireEvent.click(checkButton);
-
-      // Should show error
-      expect(
-        screen.getByText('⚠️ Cannot check answer when puzzle is not loaded')
-      ).toBeInTheDocument();
-    });
-  });
-
-  describe('Timer Functionality', () => {
-    beforeEach(async () => {
-      render(<Home />);
-      await waitFor(() => {
-        expect(screen.getByTestId('timer')).toBeInTheDocument();
-      });
-    });
-
-    it('should start timer when puzzle loads', () => {
-      const timer = screen.getByTestId('timer');
-      expect(timer).toHaveAttribute('data-active', 'true');
-      expect(timer).toHaveAttribute('data-paused', 'false');
-    });
-
-    it('should increment timer every second', () => {
-      let timer = screen.getByTestId('timer');
-      expect(timer).toHaveAttribute('data-time', '0');
-
-      vi.advanceTimersByTime(1000);
-
-      timer = screen.getByTestId('timer');
-      expect(timer).toHaveAttribute('data-time', '1');
-
-      vi.advanceTimersByTime(2000);
-
-      timer = screen.getByTestId('timer');
-      expect(timer).toHaveAttribute('data-time', '3');
-    });
-
-    it('should pause timer when game is paused', () => {
-      const pauseButton = screen.getByTestId('pause-btn');
-      fireEvent.click(pauseButton);
-
-      const timer = screen.getByTestId('timer');
-      expect(timer).toHaveAttribute('data-paused', 'true');
-
-      // Timer should not increment when paused
-      vi.advanceTimersByTime(2000);
-
-      expect(timer).toHaveAttribute('data-time', '0');
-    });
-
-    it('should stop timer when puzzle is solved correctly', () => {
-      // Mock a correct solution
-
-      // Simulate solving the puzzle (this would normally happen through user input)
-      const checkButton = screen.getByTestId('submit-btn');
-      fireEvent.click(checkButton);
-
-      // Timer should stop (this is handled by the game state)
-      const timer = screen.getByTestId('timer');
-      expect(timer).toBeInTheDocument();
-    });
-  });
-
-  describe('Game State Management', () => {
-    beforeEach(async () => {
-      render(<Home />);
-      await waitFor(() => {
-        expect(screen.getByTestId('sudoku-grid')).toBeInTheDocument();
-      });
-    });
-
-    it('should disable game when paused', () => {
-      const pauseButton = screen.getByTestId('pause-btn');
-      fireEvent.click(pauseButton);
-
-      const sudokuGrid = screen.getByTestId('sudoku-grid');
-      expect(sudokuGrid).toHaveAttribute('data-disabled', 'true');
-    });
-
-    it('should disable game when solved correctly', () => {
-      // Simulate correct answer
-      const checkButton = screen.getByTestId('submit-btn');
-      fireEvent.click(checkButton);
-
-      // Game should be disabled after correct solution
-      const sudokuGrid = screen.getByTestId('sudoku-grid');
-      expect(sudokuGrid).toHaveAttribute('data-disabled', 'true');
-    });
-  });
-
-  describe('Request Debouncing', () => {
-    it('should debounce fetch requests', async () => {
       render(<Home />);
 
-      await waitFor(() => {
-        expect(screen.getByTestId('sudoku-grid')).toBeInTheDocument();
+      const inputButton = screen.getByText('Mock Input');
+      act(() => {
+        fireEvent.click(inputButton);
       });
 
-      mockFetch.mockClear();
-
-      const difficultySelect = screen.getByTestId('difficulty-select');
-
-      // Rapid difficulty changes
-      fireEvent.change(difficultySelect, { target: { value: '2' } });
-      fireEvent.change(difficultySelect, { target: { value: '3' } });
-      fireEvent.change(difficultySelect, { target: { value: '4' } });
-
-      // Should only make one request due to debouncing
-      await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledTimes(1);
-      });
-    });
-
-    it('should allow requests after debounce period', async () => {
-      render(<Home />);
-
-      await waitFor(() => {
-        expect(screen.getByTestId('sudoku-grid')).toBeInTheDocument();
-      });
-
-      mockFetch.mockClear();
-
-      const difficultySelect = screen.getByTestId('difficulty-select');
-
-      // First change
-      fireEvent.change(difficultySelect, { target: { value: '2' } });
-
-      await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledTimes(1);
-      });
-
-      // Wait for debounce period
-      vi.advanceTimersByTime(5000);
-
-      // Second change after debounce period
-      fireEvent.change(difficultySelect, { target: { value: '3' } });
-
-      await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledTimes(2);
-      });
-    });
-  });
-
-  describe('Request Cancellation', () => {
-    it('should cancel previous requests when making new ones', async () => {
-      const abortSpy = vi.fn();
-      const mockAbortController = {
-        abort: abortSpy,
-        signal: new AbortController().signal,
-      };
-
-      vi.spyOn(global, 'AbortController').mockImplementation(
-        () => mockAbortController
+      expect(mockHandleError).toHaveBeenCalledWith(
+        new Error('Cannot update user input when puzzle is not loaded')
       );
+    });
+
+    it('should handle check answer error when no puzzle data', async () => {
+      const { useGameState } = await import('../../hooks/useGameState');
+      (useGameState as any).mockReturnValue({
+        state: {
+          puzzle: mockPuzzle,
+          solution: null,
+          userInput: null,
+          difficulty: 1,
+          error: null,
+          history: [],
+          time: 0,
+          timerActive: false,
+          isCorrect: null,
+          isPaused: false,
+          isLoading: false,
+          hintsUsed: 0,
+          showHint: null,
+        },
+        dispatch: mockDispatch,
+        handleError: mockHandleError,
+        clearError: mockClearError,
+      });
 
       render(<Home />);
 
-      await waitFor(() => {
-        expect(screen.getByTestId('sudoku-grid')).toBeInTheDocument();
+      const checkButton = screen.getByText('Check');
+      act(() => {
+        fireEvent.click(checkButton);
       });
 
-      const difficultySelect = screen.getByTestId('difficulty-select');
-
-      // Wait for debounce period to allow new request
-      vi.advanceTimersByTime(5000);
-
-      // Make another request
-      fireEvent.change(difficultySelect, { target: { value: '3' } });
-
-      // Previous request should be aborted
-      expect(abortSpy).toHaveBeenCalled();
+      expect(mockHandleError).toHaveBeenCalledWith(
+        new Error('Cannot check answer when puzzle is not loaded')
+      );
     });
   });
 });

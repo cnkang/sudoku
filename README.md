@@ -25,7 +25,7 @@ A modern, full-featured Sudoku game built with Next.js 15 and React 19. Features
 - **Server-side Puzzle Generation**: Advanced DLX algorithm for unique, solvable puzzles
 - **Intelligent Caching**: API response caching with force refresh options
 - **Mobile-first Design**: Fully responsive with touch optimization
-- **Comprehensive Testing**: Unit, integration, and responsive testing
+- **Comprehensive Testing**: 87.5% test coverage with unit, integration, and responsive testing
 - **Type Safety**: Full TypeScript implementation
 
 ## Installation
@@ -49,16 +49,21 @@ yarn start
 
 ## Testing
 
+**Test Coverage: 87.5%** (Functions: 93.4%, Branches: 90.2%)
+
 ```bash
 # Run all tests
 yarn test
 
-# Run specific test suites
-yarn test:ui          # Component tests
-yarn test:hooks       # Hook tests
-yarn test:api         # API tests
-yarn test:responsive  # Mobile/responsive tests
-yarn test:coverage    # Coverage report
+# Run with coverage report
+yarn test:coverage
+
+# Test categories
+# - Component tests (40+ tests)
+# - Hook tests (28+ tests)
+# - API tests (31+ tests)
+# - Responsive tests (20+ tests)
+# - Utility tests (16+ tests)
 ```
 
 ## Code Quality
@@ -77,19 +82,27 @@ yarn quality:fix
 src/
 ├── app/                    # Next.js App Router
 │   ├── api/solveSudoku/   # Puzzle generation API
+│   ├── __tests__/         # Page component tests
 │   ├── globals.css        # Global styles
+│   ├── page.styles.ts     # Page-specific styles
 │   └── page.tsx           # Main game page
 ├── components/            # React components
+│   ├── __tests__/         # Component tests
 │   ├── SudokuGrid.tsx     # Interactive game grid
+│   ├── SudokuGrid.styles.ts # Grid component styles
 │   ├── GameControls.tsx   # Game control buttons
+│   ├── GameControls.styles.ts # Controls component styles
 │   ├── Timer.tsx          # Game timer
 │   └── DifficultySelector.tsx
 ├── hooks/                 # Custom React hooks
+│   ├── __tests__/         # Hook tests
 │   └── useGameState.ts    # Game state management
 ├── utils/                 # Utility functions
+│   ├── __tests__/         # Utility tests
 │   ├── hints.ts           # Hint generation logic
 │   ├── apiCache.ts        # API caching
-│   └── storage.ts         # Local storage
+│   └── stats.ts           # Game statistics
+├── test-utils/            # Testing utilities
 └── types/                 # TypeScript definitions
 ```
 

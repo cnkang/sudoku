@@ -4,7 +4,7 @@ import { solveSudoku } from './dlxSolver';
 import { shuffle } from 'lodash';
 import crypto from 'crypto';
 
-// 配置日志
+// Configure logging
 const logger = winston.createLogger({
   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
   format: winston.format.combine(

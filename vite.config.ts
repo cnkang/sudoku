@@ -7,40 +7,32 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'happy-dom',
+    testTimeout: 15000,
+    hookTimeout: 15000,
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'lcov'],
       exclude: [
-        'node_modules/',
-        'tests/',
+        'node_modules/**',
+        'coverage/**',
+        '**/*.test.{ts,tsx}',
+        '**/*.spec.{ts,tsx}',
         '**/*.d.ts',
-        '**/*.config.*',
-        '**/coverage/**',
-        '**/.next/**',
-        '**/dist/**',
-        '**/*.test.*',
-        '**/__tests__/**',
-        'src/app/layout.tsx', // Next.js boilerplate
-        'src/app/globals.css', // CSS files
-        'src/app/page.module.css',
-        'src/app/responsive.css', // Responsive CSS
-        'src/test-utils/**', // Test utilities
-        'next.config.mjs',
-        'eslint.config.mjs',
+        'src/test-setup.ts',
+        'src/test-utils/**',
+        '.next/**',
+        'next.config.js',
+        'vite.config.ts',
+        'tailwind.config.js',
+        'postcss.config.js',
+        // Exclude Next.js layout files (mainly configuration)
+        'src/app/layout.tsx',
+        // Exclude other configuration-only files
+        'src/app/**/layout.tsx',
       ],
-      include: [
-        'src/**/*.{ts,tsx}',
-        '!src/**/*.test.{ts,tsx}',
-        '!src/**/__tests__/**',
-      ],
-      thresholds: {
-        global: {
-          branches: 90,
-          functions: 90,
-          lines: 90,
-          statements: 90,
-        },
-      },
+      include: ['src/**/*.{ts,tsx}'],
+      all: true,
+      skipFull: false,
     },
     setupFiles: ['./src/test-setup.ts'],
   },

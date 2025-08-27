@@ -87,7 +87,7 @@ const DifficultySelector: React.FC<DifficultySelectProps> = ({
           font-style: italic;
         }
 
-        /* 移动端优化 */
+        /* Mobile optimization */
         @media (max-width: 768px) {
           .difficulty-selector {
             margin-bottom: 1rem;
@@ -130,7 +130,7 @@ const DifficultySelector: React.FC<DifficultySelectProps> = ({
           }
         }
 
-        /* 触摸设备优化 */
+        /* Touch device optimization */
         @media (hover: none) and (pointer: coarse) {
           .difficulty-select {
             min-height: 44px;

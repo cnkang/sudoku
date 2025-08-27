@@ -23,6 +23,10 @@ export default [
       globals: {
         console: 'readonly',
         process: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
       },
     },
     rules: {
@@ -58,6 +62,7 @@ export default [
         RequestInit: 'readonly',
         Element: 'readonly',
         HTMLSelectElement: 'readonly',
+        HTMLInputElement: 'readonly',
         // Node.js globals
         process: 'readonly',
         console: 'readonly',
@@ -86,7 +91,12 @@ export default [
     },
   },
   {
-    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', 'src/test-setup.ts'],
+    files: [
+      '**/*.test.{ts,tsx}',
+      '**/*.spec.{ts,tsx}',
+      'src/test-setup.ts',
+      'src/**/__tests__/**/*.{ts,tsx,js}',
+    ],
     languageOptions: {
       globals: {
         vi: 'readonly',
@@ -96,7 +106,19 @@ export default [
         it: 'readonly',
         expect: 'readonly',
         global: 'readonly',
+        HTMLElement: 'readonly',
+        HTMLInputElement: 'readonly',
+        HTMLSelectElement: 'readonly',
+        KeyboardEvent: 'readonly',
+        console: 'readonly',
+        __dirname: 'readonly',
+        require: 'readonly',
+        module: 'readonly',
       },
+    },
+    rules: {
+      'no-console': 'off', // Allow console in test files
+      '@typescript-eslint/no-unused-vars': 'off', // Allow unused vars in test files for test utilities
     },
   },
 ];

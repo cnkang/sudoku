@@ -11,42 +11,66 @@ permissions:
   contents: read
   checks: write
   pull-requests: write
+  security-events: write
 
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20, 22]
+        job: [quality, build, unit-tests, coverage, security]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-node@v4
+        if: matrix.job != 'security'
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
 
       - name: Enable Corepack
+        if: matrix.job != 'security'
         run: corepack enable
 
       - name: Install dependencies
+        if: matrix.job != 'security'
         run: yarn install --immutable
 
-      - name: Type check
-        run: yarn type-check
-
-      - name: Lint
-        run: yarn lint
-
-      - name: Format check
-        run: yarn format:check
+      - name: Quality checks
+        if: matrix.job == 'quality'
+        run: yarn quality
 
       - name: Build
+        if: matrix.job == 'build'
         run: yarn build
 
-      - name: Run tests
+      - name: Unit tests
+        if: matrix.job == 'unit-tests'
         run: yarn test
+        timeout-minutes: 10
 
-      - name: Run test coverage
+      - name: Coverage tests
+        if: matrix.job == 'coverage'
         run: yarn test:coverage
-        if: matrix.node-version == 20
+        timeout-minutes: 15
+
+      - name: Upload Coverage to Codecov
+        if: matrix.job == 'coverage'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          fail_ci_if_error: false
+
+      - name: Security scan (njsscan)
+        if: matrix.job == 'security'
+        id: njsscan
+        uses: ajinabraham/njsscan-action@master
+        with:
+          args: '. --sarif --output results.sarif || true'
+
+      - name: Upload security scan results
+        if: matrix.job == 'security'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif

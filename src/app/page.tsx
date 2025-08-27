@@ -12,6 +12,7 @@ import { getHint } from '../utils/hints';
 import { updateStats } from '../utils/stats';
 import { fetchWithCache } from '../utils/apiCache';
 import styles from './page.module.css';
+import { pageStyles } from './page.styles';
 
 /**
  * Main Sudoku game page component with enhanced features
@@ -25,11 +26,11 @@ export default function Home() {
   const fetchPuzzle = useCallback(
     async (difficulty?: number, forceRefresh = false) => {
       const now = Date.now();
-      // 防抖：非强制刷新时检查间隔
+      // Debounce: check interval when not force refreshing
       if (!forceRefresh && now - lastFetchTimeRef.current < 5000) {
         return;
       }
-      // 强制刷新限制：10秒间隔
+      // Force refresh limit: 10 second interval
       if (forceRefresh && now - lastResetTimeRef.current < 10000) {
         handleError(new Error('Please wait 10 seconds before resetting'));
         return;
@@ -37,12 +38,12 @@ export default function Home() {
       lastFetchTimeRef.current = now;
       if (forceRefresh) lastResetTimeRef.current = now;
 
-      // 取消之前的请求
+      // Cancel previous request
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
 
-      // 创建新的 AbortController
+      // Create new AbortController
       abortControllerRef.current = new AbortController();
 
       try {
@@ -60,7 +61,7 @@ export default function Home() {
         );
         dispatch({ type: 'SET_PUZZLE', payload: data as SudokuPuzzle });
       } catch (err) {
-        // 如果是取消的请求，不显示错误
+        // Don't show error if request was cancelled
         if (err instanceof Error && err.name === 'AbortError') {
           return;
         }
@@ -96,7 +97,7 @@ export default function Home() {
   const handleDifficultyChange = useCallback(
     (difficulty: number) => {
       dispatch({ type: 'SET_DIFFICULTY', payload: difficulty });
-      // 难度改变时自动获取新谜题，直接传递新难度
+      // Automatically fetch new puzzle when difficulty changes, pass new difficulty directly
       fetchPuzzle(difficulty);
     },
     [dispatch, fetchPuzzle]
@@ -156,7 +157,7 @@ export default function Home() {
 
   const resetGame = useCallback(() => {
     dispatch({ type: 'RESET_AND_FETCH' });
-    // 重置时强制刷新
+    // Force refresh when resetting
     fetchPuzzle(undefined, true);
   }, [fetchPuzzle, dispatch]);
 
@@ -253,226 +254,7 @@ export default function Home() {
         )}
       </main>
 
-      <style jsx>{`
-        .game-header {
-          text-align: center;
-          margin-bottom: 2rem;
-        }
-
-        .game-header h1 {
-          font-size: 2.5rem;
-          font-weight: 800;
-          color: #1f2937;
-          margin-bottom: 0.5rem;
-        }
-
-        .game-subtitle {
-          font-size: 1.1rem;
-          color: #6b7280;
-          font-style: italic;
-        }
-
-        .error-message {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          background-color: #fee2e2;
-          color: #991b1b;
-          padding: 1rem;
-          border-radius: 0.5rem;
-          border: 1px solid #fecaca;
-          margin-bottom: 1rem;
-        }
-
-        .error-dismiss {
-          background: none;
-          border: none;
-          font-size: 1.5rem;
-          cursor: pointer;
-          color: #991b1b;
-          padding: 0;
-          margin-left: 1rem;
-        }
-
-        .game-area {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 1rem;
-        }
-
-        .loading-state {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 1rem;
-          padding: 3rem;
-          color: #6b7280;
-        }
-
-        .loading-spinner {
-          width: 40px;
-          height: 40px;
-          border: 4px solid #e5e7eb;
-          border-top: 4px solid #3b82f6;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-          0% {
-            transform: rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg);
-          }
-        }
-
-        .hint-message {
-          background-color: #fef3c7;
-          color: #92400e;
-          padding: 1rem;
-          border-radius: 0.5rem;
-          border: 1px solid #fbbf24;
-          margin: 1rem 0;
-          text-align: center;
-          font-weight: 500;
-          animation: fadeIn 0.3s ease-in;
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        /* 移动端优化 */
-        @media (max-width: 768px) {
-          .game-header {
-            margin-bottom: 1.5rem;
-          }
-
-          .game-header h1 {
-            font-size: 2rem;
-          }
-
-          .game-subtitle {
-            font-size: 1rem;
-          }
-
-          .error-message {
-            font-size: 0.875rem;
-            padding: 0.75rem;
-            margin: 0 -0.5rem 1rem -0.5rem;
-          }
-
-          .game-area {
-            gap: 0.75rem;
-          }
-
-          .loading-state {
-            padding: 2rem 1rem;
-          }
-
-          .hint-message {
-            font-size: 0.875rem;
-            padding: 0.75rem;
-            margin: 0.75rem 0;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .game-header {
-            margin-bottom: 1rem;
-          }
-
-          .game-header h1 {
-            font-size: 1.75rem;
-            line-height: 1.2;
-          }
-
-          .game-subtitle {
-            font-size: 0.875rem;
-            margin-bottom: 0;
-          }
-
-          .error-message {
-            font-size: 0.8rem;
-            padding: 0.625rem;
-            margin: 0 -1rem 0.75rem -1rem;
-            border-radius: 0;
-          }
-
-          .error-dismiss {
-            font-size: 1.25rem;
-            margin-left: 0.5rem;
-          }
-
-          .game-area {
-            gap: 0.5rem;
-          }
-
-          .loading-state {
-            padding: 1.5rem 0.5rem;
-          }
-
-          .loading-spinner {
-            width: 32px;
-            height: 32px;
-            border-width: 3px;
-          }
-
-          .hint-message {
-            font-size: 0.8rem;
-            padding: 0.625rem;
-            margin: 0.5rem 0;
-            line-height: 1.4;
-          }
-        }
-
-        /* 横屏模式 */
-        @media (max-width: 768px) and (orientation: landscape) {
-          .game-header {
-            margin-bottom: 0.75rem;
-          }
-
-          .game-header h1 {
-            font-size: 1.5rem;
-            margin-bottom: 0.25rem;
-          }
-
-          .game-subtitle {
-            font-size: 0.875rem;
-          }
-
-          .game-area {
-            gap: 0.5rem;
-          }
-
-          .hint-message {
-            font-size: 0.8rem;
-            padding: 0.5rem;
-            margin: 0.5rem 0;
-          }
-        }
-
-        /* 触摸设备优化 */
-        @media (hover: none) and (pointer: coarse) {
-          .error-dismiss {
-            min-width: 44px;
-            min-height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            -webkit-tap-highlight-color: transparent;
-          }
-        }
-      `}</style>
+      <style jsx>{pageStyles}</style>
     </div>
   );
 }

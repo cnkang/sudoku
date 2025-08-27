@@ -7,12 +7,8 @@ echo "🔍 Running pre-commit checks..."
 echo "📝 Checking file formatting..."
 yarn lint-staged
 
-# Run type check
-echo "🔧 Running TypeScript type check..."
-yarn type-check
-
-# Run linting
-echo "🧹 Running ESLint..."
-yarn lint
+# Run quality checks (lint + format + type-check)
+echo "🔍 Running quality checks..."
+yarn quality
 
 echo "✅ Pre-commit checks completed!"
