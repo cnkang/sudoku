@@ -97,6 +97,8 @@ export default [
         it: 'readonly',
         expect: 'readonly',
         global: 'readonly',
+        HTMLElement: 'readonly',
+        HTMLInputElement: 'readonly',
       },
     },
   },
