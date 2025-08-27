@@ -16,15 +16,14 @@ const initialState: GameActionState = {
 
 async function fetchPuzzleAction(
   prevState: GameActionState,
-  formData: FormData
+  payload: { difficulty: number; force?: boolean }
 ): Promise<GameActionState> {
-  const difficulty = formData.get('difficulty') as string;
-  const force = formData.get('force') === 'true';
-  
+  const { difficulty, force = false } = payload;
+
   try {
     const url = `/api/solveSudoku?difficulty=${difficulty}${force ? '&force=true' : ''}`;
     const data = await fetchWithCache(url, { method: 'POST' }, force);
-    
+
     return {
       isLoading: false,
       error: null,
@@ -40,8 +39,11 @@ async function fetchPuzzleAction(
 }
 
 export function useGameActions() {
-  const [state, action, isPending] = useActionState(fetchPuzzleAction, initialState);
-  
+  const [state, action, isPending] = useActionState(
+    fetchPuzzleAction,
+    initialState
+  );
+
   return {
     state: { ...state, isLoading: isPending },
     fetchPuzzle: action,

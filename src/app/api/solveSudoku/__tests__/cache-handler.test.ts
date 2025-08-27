@@ -4,7 +4,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 const mockCache = new Map();
 
 class MockCacheHandler {
-  constructor(options: any) {}
+  constructor(_options: any) {}
 
   async get(key: string) {
     return mockCache.get(key);

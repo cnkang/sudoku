@@ -12,19 +12,19 @@ interface PuzzleContentProps {
   hintCell?: { row: number; col: number } | null;
 }
 
-function PuzzleContent({ 
-  difficulty, 
-  shouldFetch, 
-  force = false, 
-  userInput, 
-  onInputChange, 
-  disabled, 
-  hintCell 
+function PuzzleContent({
+  difficulty,
+  shouldFetch,
+  force = false,
+  userInput,
+  onInputChange,
+  disabled,
+  hintCell,
 }: PuzzleContentProps) {
   const puzzle = usePuzzleData(difficulty, shouldFetch, force);
-  
+
   if (!puzzle) return null;
-  
+
   return (
     <SudokuGrid
       puzzle={puzzle.puzzle}
@@ -59,8 +59,12 @@ function PuzzleLoadingFallback() {
           animation: spin 1s linear infinite;
         }
         @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
         }
       `}</style>
     </div>

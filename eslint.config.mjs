@@ -58,6 +58,7 @@ export default [
         RequestInit: 'readonly',
         Element: 'readonly',
         HTMLSelectElement: 'readonly',
+        HTMLInputElement: 'readonly',
         // Node.js globals
         process: 'readonly',
         console: 'readonly',

@@ -71,14 +71,14 @@ const hasConflict = (
 const SudokuGrid = React.memo<SudokuGridProps>(
   ({ puzzle, userInput, onInputChange, disabled = false, hintCell = null }) => {
     const [selectedCell, setSelectedCell] = useState<CellPosition | null>(null);
-    const cellRefs = useRef<Map<string, HTMLInputElement>>(new Map());
+    const cellRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
     const setCellRef = useCallback((key: string) => {
       return (element: HTMLInputElement | null) => {
         if (element) {
-          cellRefs.current.set(key, element);
+          cellRefs.current[key] = element;
         } else {
-          cellRefs.current.delete(key);
+          delete cellRefs.current[key];
         }
       };
     }, []);
@@ -136,7 +136,7 @@ const SudokuGrid = React.memo<SudokuGridProps>(
           setSelectedCell({ row: newRow, col: newCol });
           // Focus the new cell using ref
           const newCellKey = generateCellKey(newRow, newCol);
-          const newCell = cellRefs.current.get(newCellKey);
+          const newCell = cellRefs.current[newCellKey];
           newCell?.focus();
         }
       },
