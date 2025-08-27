@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { sudokuGridStyles } from './SudokuGrid.styles';
+import styles from './SudokuGrid.module.css';
 
 interface SudokuGridProps {
   puzzle: number[][];
@@ -144,8 +144,12 @@ const SudokuGrid = React.memo<SudokuGridProps>(
       [disabled, onInputChange]
     );
     return (
-      <div className="sudoku-container">
-        <table className="sudoku-grid" aria-label="Sudoku puzzle grid">
+      <div className={styles.sudokuContainer} data-testid="sudoku-container">
+        <table
+          className={styles.sudokuGrid}
+          aria-label="Sudoku puzzle grid"
+          data-testid="sudoku-grid"
+        >
           <tbody>
             {puzzle.map((row, rowIndex) => (
               <tr key={`row-${rowIndex}`}>
@@ -167,12 +171,22 @@ const SudokuGrid = React.memo<SudokuGridProps>(
                   return (
                     <td
                       key={cellKey}
-                      className={`sudoku-cell ${isFixed ? 'fixed' : 'editable'} ${isSelected ? 'selected' : ''} ${hasError ? 'error' : ''} ${isHinted ? 'hinted' : ''}`}
+                      className={`${styles.sudokuCell} ${isFixed ? 'fixed' : 'editable'} ${isSelected ? styles.selected : ''} ${hasError ? styles.error : ''} ${isHinted ? styles.hinted : ''}`}
                       style={borderStyle}
                       onClick={() => handleCellClick(rowIndex, colIndex)}
+                      data-testid={`sudoku-cell-${rowIndex}-${colIndex}`}
+                      data-cell-type={isFixed ? 'fixed' : 'editable'}
+                      data-has-error={hasError}
+                      data-is-hinted={isHinted}
+                      data-is-selected={isSelected}
                     >
                       {isFixed ? (
-                        <span className="fixed-number">{num}</span>
+                        <span
+                          className={styles.fixedNumber}
+                          data-testid="fixed-number"
+                        >
+                          {num}
+                        </span>
                       ) : (
                         <input
                           ref={setCellRef(cellKey)}
@@ -196,7 +210,7 @@ const SudokuGrid = React.memo<SudokuGridProps>(
                           }
                           onBlur={() => setSelectedCell(null)}
                           disabled={disabled}
-                          className="cell-input"
+                          className={styles.cellInput}
                           aria-label={`Editable cell. Row ${rowIndex + 1} Column ${colIndex + 1}`}
                           maxLength={1}
                         />
@@ -208,8 +222,6 @@ const SudokuGrid = React.memo<SudokuGridProps>(
             ))}
           </tbody>
         </table>
-
-        <style jsx>{sudokuGridStyles}</style>
       </div>
     );
   }

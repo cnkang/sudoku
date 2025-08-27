@@ -36,7 +36,6 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "regenerator-runtime": "^0.14.1",
-    "styled-jsx": "^5.1.7",
     "winston": "^3.17.0"
   },
   "devDependencies": {

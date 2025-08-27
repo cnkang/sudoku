@@ -2443,7 +2443,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:^5.3.0, chalk@npm:^5.4.1":
+"chalk@npm:^5.3.0, chalk@npm:^5.5.0":
   version: 5.6.0
   resolution: "chalk@npm:5.6.0"
   checksum: 10c0/f8558fc12fd9805f167611803b325b0098bbccdc9f1d3bafead41c9bac61f263357f3c0df0cbe28bc2fd5fca3edcf618b01d6771a5a776b4c15d061482a72b23
@@ -6440,22 +6440,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"styled-jsx@npm:^5.1.7":
-  version: 5.1.7
-  resolution: "styled-jsx@npm:5.1.7"
-  dependencies:
-    client-only: "npm:0.0.1"
-  peerDependencies:
-    react: ">= 16.8.0 || 17.x.x || ^18.0.0-0 || ^19.0.0-0"
-  peerDependenciesMeta:
-    "@babel/core":
-      optional: true
-    babel-plugin-macros:
-      optional: true
-  checksum: 10c0/7a2544664f74dbd940c96017f81c7066b6c1e88df6e2062fd1ffcada66cfb22eb3367438b4f0ec47de7ba37f7359d153f25da2bf9593a6f3e35af44c7bbaeb48
-  languageName: node
-  linkType: hard
-
 "sudoku-project@workspace:.":
   version: 0.0.0-use.local
   resolution: "sudoku-project@workspace:."
@@ -6499,7 +6483,6 @@ __metadata:
     react: "npm:^19.1.1"
     react-dom: "npm:^19.1.1"
     regenerator-runtime: "npm:^0.14.1"
-    styled-jsx: "npm:^5.1.7"
     typescript: "npm:^5.9.2"
     vite: "npm:^7.1.3"
     vitest: "npm:^3.2.4"
