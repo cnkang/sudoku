@@ -76,6 +76,10 @@ yarn quality
 yarn quality:fix
 ```
 
+### SonarCloud Integration
+
+This project is configured for **SonarCloud Automatic Analysis** for continuous code quality monitoring.
+
 ## Project Structure
 
 ```
