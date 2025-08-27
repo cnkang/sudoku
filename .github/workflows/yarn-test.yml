@@ -36,7 +36,7 @@ jobs:
       - run: yarn test
 
       - name: Test Results
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v2
         if: success() || failure()
         with:
           name: Tests (Node ${{ matrix.node-version }})
