@@ -211,10 +211,16 @@ describe('APICache', () => {
     });
 
     it('should handle overwriting existing keys', () => {
-      cache.set('overwrite', { data: 'original' });
-      cache.set('overwrite', { data: 'updated' });
+      const key = 'overwrite';
+      const originalData = { data: 'original' };
+      const updatedData = { data: 'updated' };
 
-      expect(cache.get('overwrite')).toEqual({ data: 'updated' });
+      cache.set(key, originalData);
+      expect(cache.get(key)).toEqual(originalData);
+
+      // Overwrite with new data
+      cache.set(key, updatedData);
+      expect(cache.get(key)).toEqual(updatedData);
       expect(cache.size()).toBe(1);
     });
 

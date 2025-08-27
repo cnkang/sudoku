@@ -1,26 +1,50 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import DifficultySelector from '../DifficultySelector';
+import {
+  createDifficultySelectorProps,
+  setupTest,
+  cleanupTest,
+} from './test-utils';
+import {
+  createRenderingTests,
+  createDisabledStateTests,
+  createLoadingStateTests,
+  createUserInteractionTests,
+  createAccessibilityTests,
+  createEdgeCaseTests,
+} from './shared-test-suites';
 
 describe('DifficultySelector', () => {
-  const mockOnChange = vi.fn();
-
-  const defaultProps = {
-    difficulty: 1,
-    onChange: mockOnChange,
-    disabled: false,
-    isLoading: false,
-  };
+  let mockOnChange: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    setupTest();
+    mockOnChange = vi.fn();
   });
 
-  describe('Rendering', () => {
-    it('should render difficulty selector with label', () => {
-      render(<DifficultySelector {...defaultProps} />);
+  afterEach(cleanupTest);
 
+  // Use shared rendering tests
+  createRenderingTests('DifficultySelector', () =>
+    render(
+      <DifficultySelector
+        {...createDifficultySelectorProps({ onChange: mockOnChange })}
+      />
+    )
+  );
+
+  describe('Rendering', () => {
+    beforeEach(() => {
+      render(
+        <DifficultySelector
+          {...createDifficultySelectorProps({ onChange: mockOnChange })}
+        />
+      );
+    });
+
+    it('should render difficulty selector with label', () => {
       expect(
         screen.getByLabelText('Select difficulty level')
       ).toBeInTheDocument();
@@ -28,188 +52,206 @@ describe('DifficultySelector', () => {
     });
 
     it('should render all difficulty options (1-10)', () => {
-      render(<DifficultySelector {...defaultProps} />);
-
       const options = screen.getAllByRole('option');
-
       expect(options).toHaveLength(10);
       expect(options[0]).toHaveValue('1');
       expect(options[9]).toHaveValue('10');
     });
 
-    it('should show correct difficulty labels', () => {
-      render(<DifficultySelector {...defaultProps} />);
+    const difficultyLabels = [
+      { level: 1, label: '1 (Easy)' },
+      { level: 2, label: '2 (Easy)' },
+      { level: 3, label: '3 (Medium)' },
+      { level: 5, label: '5 (Medium)' },
+      { level: 6, label: '6 (Hard)' },
+      { level: 8, label: '8 (Hard)' },
+      { level: 9, label: '9 (Expert)' },
+      { level: 10, label: '10 (Expert)' },
+    ];
 
-      expect(
-        screen.getByRole('option', { name: '1 (Easy)' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('option', { name: '2 (Easy)' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('option', { name: '3 (Medium)' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('option', { name: '5 (Medium)' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('option', { name: '6 (Hard)' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('option', { name: '8 (Hard)' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('option', { name: '9 (Expert)' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('option', { name: '10 (Expert)' })
-      ).toBeInTheDocument();
+    difficultyLabels.forEach(({ level, label }) => {
+      it(`should show correct label for difficulty ${level}`, () => {
+        expect(screen.getByRole('option', { name: label })).toBeInTheDocument();
+      });
     });
+  });
 
+  describe('Current Value Display', () => {
     it('should display current difficulty value', () => {
-      render(<DifficultySelector {...defaultProps} difficulty={5} />);
-
+      render(
+        <DifficultySelector
+          {...createDifficultySelectorProps({
+            difficulty: 5,
+            onChange: mockOnChange,
+          })}
+        />
+      );
       const select = screen.getByRole('combobox') as HTMLSelectElement;
       expect(select.value).toBe('5');
     });
   });
 
   describe('Difficulty Label Logic', () => {
-    it('should categorize difficulties correctly', () => {
-      const { rerender } = render(
-        <DifficultySelector {...defaultProps} difficulty={1} />
-      );
+    const difficultyCategories = [
+      { difficulty: 1, expected: '1 (Easy)', category: 'Easy' },
+      { difficulty: 2, expected: '2 (Easy)', category: 'Easy' },
+      { difficulty: 3, expected: '3 (Medium)', category: 'Medium' },
+      { difficulty: 5, expected: '5 (Medium)', category: 'Medium' },
+      { difficulty: 6, expected: '6 (Hard)', category: 'Hard' },
+      { difficulty: 8, expected: '8 (Hard)', category: 'Hard' },
+      { difficulty: 9, expected: '9 (Expert)', category: 'Expert' },
+      { difficulty: 10, expected: '10 (Expert)', category: 'Expert' },
+    ];
 
-      // Easy (1-2)
-      expect(screen.getByDisplayValue('1 (Easy)')).toBeInTheDocument();
-
-      rerender(<DifficultySelector {...defaultProps} difficulty={2} />);
-      expect(screen.getByDisplayValue('2 (Easy)')).toBeInTheDocument();
-
-      // Medium (3-5)
-      rerender(<DifficultySelector {...defaultProps} difficulty={3} />);
-      expect(screen.getByDisplayValue('3 (Medium)')).toBeInTheDocument();
-
-      rerender(<DifficultySelector {...defaultProps} difficulty={5} />);
-      expect(screen.getByDisplayValue('5 (Medium)')).toBeInTheDocument();
-
-      // Hard (6-8)
-      rerender(<DifficultySelector {...defaultProps} difficulty={6} />);
-      expect(screen.getByDisplayValue('6 (Hard)')).toBeInTheDocument();
-
-      rerender(<DifficultySelector {...defaultProps} difficulty={8} />);
-      expect(screen.getByDisplayValue('8 (Hard)')).toBeInTheDocument();
-
-      // Expert (9-10)
-      rerender(<DifficultySelector {...defaultProps} difficulty={9} />);
-      expect(screen.getByDisplayValue('9 (Expert)')).toBeInTheDocument();
-
-      rerender(<DifficultySelector {...defaultProps} difficulty={10} />);
-      expect(screen.getByDisplayValue('10 (Expert)')).toBeInTheDocument();
+    difficultyCategories.forEach(({ difficulty, expected, category }) => {
+      it(`should categorize difficulty ${difficulty} as ${category}`, () => {
+        render(
+          <DifficultySelector
+            {...createDifficultySelectorProps({
+              difficulty,
+              onChange: mockOnChange,
+            })}
+          />
+        );
+        expect(screen.getByDisplayValue(expected)).toBeInTheDocument();
+      });
     });
   });
 
-  describe('User Interactions', () => {
-    it('should call onChange when difficulty is selected', () => {
-      render(<DifficultySelector {...defaultProps} />);
+  // Use shared user interaction tests
+  createUserInteractionTests([
+    {
+      name: 'valid difficulty selection',
+      trigger: () => {
+        render(
+          <DifficultySelector
+            {...createDifficultySelectorProps({ onChange: mockOnChange })}
+          />
+        );
+        fireEvent.change(screen.getByRole('combobox'), {
+          target: { value: '7' },
+        });
+      },
+      expectation: () => {
+        expect(mockOnChange).toHaveBeenCalledWith(7);
+        expect(mockOnChange).toHaveBeenCalledTimes(1);
+      },
+    },
+    {
+      name: 'multiple difficulty changes',
+      trigger: () => {
+        render(
+          <DifficultySelector
+            {...createDifficultySelectorProps({ onChange: mockOnChange })}
+          />
+        );
+        const select = screen.getByRole('combobox');
+        fireEvent.change(select, { target: { value: '3' } });
+        fireEvent.change(select, { target: { value: '8' } });
+      },
+      expectation: () => {
+        expect(mockOnChange).toHaveBeenCalledWith(3);
+        expect(mockOnChange).toHaveBeenCalledWith(8);
+        expect(mockOnChange).toHaveBeenCalledTimes(2);
+      },
+    },
+    {
+      name: 'invalid input rejection',
+      trigger: () => {
+        render(
+          <DifficultySelector
+            {...createDifficultySelectorProps({ onChange: mockOnChange })}
+          />
+        );
+        fireEvent.change(screen.getByRole('combobox'), {
+          target: { value: 'invalid' },
+        });
+      },
+      expectation: () => {
+        expect(mockOnChange).not.toHaveBeenCalled();
+      },
+    },
+  ]);
 
-      const select = screen.getByRole('combobox');
-      fireEvent.change(select, { target: { value: '7' } });
-
-      expect(mockOnChange).toHaveBeenCalledWith(7);
-      expect(mockOnChange).toHaveBeenCalledTimes(1);
-    });
-
-    it('should handle multiple difficulty changes', () => {
-      render(<DifficultySelector {...defaultProps} />);
-
-      const select = screen.getByRole('combobox');
-
-      fireEvent.change(select, { target: { value: '3' } });
-      expect(mockOnChange).toHaveBeenCalledWith(3);
-
-      fireEvent.change(select, { target: { value: '8' } });
-      expect(mockOnChange).toHaveBeenCalledWith(8);
-
-      expect(mockOnChange).toHaveBeenCalledTimes(2);
-    });
-
-    it('should not call onChange for invalid values', () => {
-      render(<DifficultySelector {...defaultProps} />);
-
-      const select = screen.getByRole('combobox');
-      fireEvent.change(select, { target: { value: 'invalid' } });
-
-      expect(mockOnChange).not.toHaveBeenCalled();
-    });
-
-    it('should handle NaN values gracefully', () => {
-      render(<DifficultySelector {...defaultProps} />);
-
-      const select = screen.getByRole('combobox');
-      fireEvent.change(select, { target: { value: 'abc' } });
-
-      expect(mockOnChange).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('Disabled States', () => {
-    it('should disable select when disabled prop is true', () => {
-      render(<DifficultySelector {...defaultProps} disabled={true} />);
-
-      const select = screen.getByRole('combobox');
-      expect(select).toBeDisabled();
-    });
-
-    it('should disable select when isLoading is true', () => {
-      render(<DifficultySelector {...defaultProps} isLoading={true} />);
-
-      const select = screen.getByRole('combobox');
-      expect(select).toBeDisabled();
-    });
-
-    it('should disable select when both disabled and isLoading are true', () => {
+  // Use shared disabled state tests
+  createDisabledStateTests(
+    props =>
       render(
         <DifficultySelector
-          {...defaultProps}
-          disabled={true}
-          isLoading={true}
+          {...createDifficultySelectorProps({
+            onChange: mockOnChange,
+            ...props,
+          })}
         />
-      );
+      ),
+    () => [screen.getByRole('combobox')]
+  );
 
-      const select = screen.getByRole('combobox');
-      expect(select).toBeDisabled();
-    });
+  describe('Disabled States - Additional', () => {
+    const disabledStateTests = [
+      {
+        props: { isLoading: true },
+        description: 'disable select when isLoading is true',
+      },
+      {
+        props: { disabled: true, isLoading: true },
+        description: 'disable select when both disabled and isLoading are true',
+      },
+      {
+        props: { disabled: false, isLoading: false },
+        description:
+          'not disable select when both disabled and isLoading are false',
+        shouldBeDisabled: false,
+      },
+    ];
 
-    it('should not disable select when both disabled and isLoading are false', () => {
-      render(
-        <DifficultySelector
-          {...defaultProps}
-          disabled={false}
-          isLoading={false}
-        />
-      );
+    disabledStateTests.forEach(
+      ({ props, description, shouldBeDisabled = true }) => {
+        it(`should ${description}`, () => {
+          render(
+            <DifficultySelector
+              {...createDifficultySelectorProps({
+                onChange: mockOnChange,
+                ...props,
+              })}
+            />
+          );
+          const select = screen.getByRole('combobox');
 
-      const select = screen.getByRole('combobox');
-      expect(select).not.toBeDisabled();
-    });
+          if (shouldBeDisabled) {
+            expect(select).toBeDisabled();
+          } else {
+            expect(select).not.toBeDisabled();
+          }
+        });
+      }
+    );
   });
 
-  describe('Loading States', () => {
-    it('should show loading hint when isLoading is true', () => {
-      render(<DifficultySelector {...defaultProps} isLoading={true} />);
+  // Use shared loading state tests
+  createLoadingStateTests(
+    props =>
+      render(
+        <DifficultySelector
+          {...createDifficultySelectorProps({
+            onChange: mockOnChange,
+            ...props,
+          })}
+        />
+      ),
+    '🔄 Generating new puzzle...'
+  );
 
-      expect(
-        screen.getByText('🔄 Generating new puzzle...')
-      ).toBeInTheDocument();
-      expect(
-        screen.queryByText('💡 Changing difficulty will generate a new puzzle')
-      ).not.toBeInTheDocument();
-    });
-
+  describe('Hint Messages', () => {
     it('should show normal hint when isLoading is false', () => {
-      render(<DifficultySelector {...defaultProps} isLoading={false} />);
-
+      render(
+        <DifficultySelector
+          {...createDifficultySelectorProps({
+            isLoading: false,
+            onChange: mockOnChange,
+          })}
+        />
+      );
       expect(
         screen.getByText('💡 Changing difficulty will generate a new puzzle')
       ).toBeInTheDocument();
@@ -219,48 +261,61 @@ describe('DifficultySelector', () => {
     });
   });
 
-  describe('Accessibility', () => {
-    it('should have proper accessibility attributes', () => {
-      render(<DifficultySelector {...defaultProps} />);
-
-      const select = screen.getByRole('combobox');
-      expect(select).toHaveAttribute('aria-label', 'Select difficulty level');
-      expect(select).toHaveAttribute('id', 'difficulty-select');
-      expect(select).toHaveAttribute(
-        'title',
-        'Change difficulty to get a new puzzle'
-      );
-    });
-
-    it('should associate label with select element', () => {
-      render(<DifficultySelector {...defaultProps} />);
-
-      const label = screen.getByText('Difficulty Level:');
-      const select = screen.getByRole('combobox');
-
-      expect(label).toHaveAttribute('for', 'difficulty-select');
-      expect(select).toHaveAttribute('id', 'difficulty-select');
-    });
-
-    it('should have proper option values and text', () => {
-      render(<DifficultySelector {...defaultProps} />);
-
-      const options = screen.getAllByRole('option');
-
-      options.forEach((option, index) => {
-        const expectedValue = (index + 1).toString();
-        expect(option).toHaveAttribute('value', expectedValue);
-        // Note: React key props don't appear in DOM, so we don't test for them
-      });
-    });
-  });
+  // Use shared accessibility tests
+  createAccessibilityTests(
+    () =>
+      render(
+        <DifficultySelector
+          {...createDifficultySelectorProps({ onChange: mockOnChange })}
+        />
+      ),
+    [
+      {
+        description: 'should have proper accessibility attributes',
+        check: () => {
+          const select = screen.getByRole('combobox');
+          expect(select).toHaveAttribute(
+            'aria-label',
+            'Select difficulty level'
+          );
+          expect(select).toHaveAttribute('id', 'difficulty-select');
+          expect(select).toHaveAttribute(
+            'title',
+            'Change difficulty to get a new puzzle'
+          );
+        },
+      },
+      {
+        description: 'should associate label with select element',
+        check: () => {
+          const label = screen.getByText('Difficulty Level:');
+          const select = screen.getByRole('combobox');
+          expect(label).toHaveAttribute('for', 'difficulty-select');
+          expect(select).toHaveAttribute('id', 'difficulty-select');
+        },
+      },
+      {
+        description: 'should have proper option values and text',
+        check: () => {
+          const options = screen.getAllByRole('option');
+          options.forEach((option, index) => {
+            const expectedValue = (index + 1).toString();
+            expect(option).toHaveAttribute('value', expectedValue);
+          });
+        },
+      },
+    ]
+  );
 
   describe('Default Props', () => {
     it('should use default values for optional props', () => {
-      const minimalProps = {
+      const minimalProps = createDifficultySelectorProps({
         difficulty: 3,
         onChange: mockOnChange,
-      };
+      });
+      // Remove optional props to test defaults
+      delete minimalProps.disabled;
+      delete minimalProps.isLoading;
 
       render(<DifficultySelector {...minimalProps} />);
 
@@ -272,40 +327,80 @@ describe('DifficultySelector', () => {
     });
   });
 
-  describe('Edge Cases', () => {
-    it('should handle difficulty value outside normal range', () => {
-      render(<DifficultySelector {...defaultProps} difficulty={15} />);
-
-      const select = screen.getByRole('combobox') as HTMLSelectElement;
-      // HTML select falls back to first option when value doesn't exist
-      expect(select.value).toBe('1');
-    });
-
-    it('should handle zero difficulty', () => {
-      render(<DifficultySelector {...defaultProps} difficulty={0} />);
-
-      const select = screen.getByRole('combobox') as HTMLSelectElement;
-      expect(select.value).toBe('1');
-    });
-
-    it('should handle negative difficulty', () => {
-      render(<DifficultySelector {...defaultProps} difficulty={-1} />);
-
-      const select = screen.getByRole('combobox') as HTMLSelectElement;
-      expect(select.value).toBe('1');
-    });
-  });
+  // Use shared edge case tests
+  createEdgeCaseTests([
+    {
+      description: 'should handle difficulty value outside normal range',
+      setup: () =>
+        render(
+          <DifficultySelector
+            {...createDifficultySelectorProps({
+              difficulty: 15,
+              onChange: mockOnChange,
+            })}
+          />
+        ),
+      expectation: () => {
+        const select = screen.getByRole('combobox') as HTMLSelectElement;
+        expect(select.value).toBe('1');
+      },
+    },
+    {
+      description: 'should handle zero difficulty',
+      setup: () =>
+        render(
+          <DifficultySelector
+            {...createDifficultySelectorProps({
+              difficulty: 0,
+              onChange: mockOnChange,
+            })}
+          />
+        ),
+      expectation: () => {
+        const select = screen.getByRole('combobox') as HTMLSelectElement;
+        expect(select.value).toBe('1');
+      },
+    },
+    {
+      description: 'should handle negative difficulty',
+      setup: () =>
+        render(
+          <DifficultySelector
+            {...createDifficultySelectorProps({
+              difficulty: -1,
+              onChange: mockOnChange,
+            })}
+          />
+        ),
+      expectation: () => {
+        const select = screen.getByRole('combobox') as HTMLSelectElement;
+        expect(select.value).toBe('1');
+      },
+    },
+  ]);
 
   describe('Component State Changes', () => {
     it('should update when difficulty prop changes', () => {
       const { rerender } = render(
-        <DifficultySelector {...defaultProps} difficulty={1} />
+        <DifficultySelector
+          {...createDifficultySelectorProps({
+            difficulty: 1,
+            onChange: mockOnChange,
+          })}
+        />
       );
 
       let select = screen.getByRole('combobox') as HTMLSelectElement;
       expect(select.value).toBe('1');
 
-      rerender(<DifficultySelector {...defaultProps} difficulty={7} />);
+      rerender(
+        <DifficultySelector
+          {...createDifficultySelectorProps({
+            difficulty: 7,
+            onChange: mockOnChange,
+          })}
+        />
+      );
 
       select = screen.getByRole('combobox') as HTMLSelectElement;
       expect(select.value).toBe('7');
@@ -313,13 +408,25 @@ describe('DifficultySelector', () => {
 
     it('should update disabled state when props change', () => {
       const { rerender } = render(
-        <DifficultySelector {...defaultProps} disabled={false} />
+        <DifficultySelector
+          {...createDifficultySelectorProps({
+            disabled: false,
+            onChange: mockOnChange,
+          })}
+        />
       );
 
       let select = screen.getByRole('combobox');
       expect(select).not.toBeDisabled();
 
-      rerender(<DifficultySelector {...defaultProps} disabled={true} />);
+      rerender(
+        <DifficultySelector
+          {...createDifficultySelectorProps({
+            disabled: true,
+            onChange: mockOnChange,
+          })}
+        />
+      );
 
       select = screen.getByRole('combobox');
       expect(select).toBeDisabled();
@@ -327,14 +434,26 @@ describe('DifficultySelector', () => {
 
     it('should update loading state when props change', () => {
       const { rerender } = render(
-        <DifficultySelector {...defaultProps} isLoading={false} />
+        <DifficultySelector
+          {...createDifficultySelectorProps({
+            isLoading: false,
+            onChange: mockOnChange,
+          })}
+        />
       );
 
       expect(
         screen.getByText('💡 Changing difficulty will generate a new puzzle')
       ).toBeInTheDocument();
 
-      rerender(<DifficultySelector {...defaultProps} isLoading={true} />);
+      rerender(
+        <DifficultySelector
+          {...createDifficultySelectorProps({
+            isLoading: true,
+            onChange: mockOnChange,
+          })}
+        />
+      );
 
       expect(
         screen.getByText('🔄 Generating new puzzle...')

@@ -2,169 +2,190 @@ import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import GameControls from '../GameControls';
+import { createGameControlsProps, setupTest, cleanupTest } from './test-utils';
+import {
+  createRenderingTests,
+  createLoadingStateTests,
+  createUserInteractionTests,
+} from './shared-test-suites';
 
 describe('GameControls', () => {
-  const mockProps = {
-    onSubmit: vi.fn(),
-    onReset: vi.fn(),
-    onPauseResume: vi.fn(),
-    onUndo: vi.fn(),
-    onHint: vi.fn(),
-    isCorrect: null as boolean | null,
-    isPaused: false,
-    disabled: false,
-    isLoading: false,
-    canUndo: false,
-    hintsUsed: 0,
-  };
+  let mockProps: ReturnType<typeof createGameControlsProps>;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    vi.useFakeTimers();
+    setupTest();
+    mockProps = createGameControlsProps();
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
+  afterEach(cleanupTest);
+
+  // Use shared rendering tests
+  createRenderingTests('GameControls', () =>
+    render(<GameControls {...mockProps} />)
+  );
 
   describe('Rendering', () => {
-    it('should render all control buttons', () => {
-      render(<GameControls {...mockProps} />);
+    const expectedButtons = [
+      { name: /check your solution/i, description: 'submit button' },
+      { name: /pause game/i, description: 'pause button' },
+      { name: /undo last move/i, description: 'undo button' },
+      { name: /get a hint/i, description: 'hint button' },
+      { name: /reset the game/i, description: 'reset button' },
+    ];
 
-      expect(
-        screen.getByRole('button', { name: /check your solution/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /pause game/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /undo last move/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /get a hint/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /reset the game/i })
-      ).toBeInTheDocument();
+    expectedButtons.forEach(({ name, description }) => {
+      it(`should render ${description}`, () => {
+        render(<GameControls {...mockProps} />);
+        expect(screen.getByRole('button', { name })).toBeInTheDocument();
+      });
     });
 
-    it('should show correct button text based on pause state', () => {
-      const { rerender } = render(<GameControls {...mockProps} />);
-      expect(screen.getByText('Pause')).toBeInTheDocument();
+    const pauseStateTests = [
+      {
+        isPaused: false,
+        expectedText: 'Pause',
+        description: 'show Pause when not paused',
+      },
+      {
+        isPaused: true,
+        expectedText: 'Resume',
+        description: 'show Resume when paused',
+      },
+    ];
 
-      rerender(<GameControls {...mockProps} isPaused={true} />);
-      expect(screen.getByText('Resume')).toBeInTheDocument();
-    });
-
-    it('should show loading text when loading', () => {
-      render(<GameControls {...mockProps} isLoading={true} />);
-      expect(screen.getByText('Loading...')).toBeInTheDocument();
+    pauseStateTests.forEach(({ isPaused, expectedText, description }) => {
+      it(`should ${description}`, () => {
+        render(<GameControls {...createGameControlsProps({ isPaused })} />);
+        expect(screen.getByText(expectedText)).toBeInTheDocument();
+      });
     });
   });
+
+  // Use shared loading state tests
+  createLoadingStateTests(
+    props => render(<GameControls {...createGameControlsProps(props)} />),
+    'Loading...'
+  );
 
   describe('Button Interactions', () => {
-    it('should call onSubmit when check solution button is clicked', () => {
-      render(<GameControls {...mockProps} />);
+    const buttonTests = [
+      {
+        name: 'submit button',
+        selector: { name: /check your solution/i },
+        mockFn: 'onSubmit',
+        props: {},
+      },
+      {
+        name: 'pause/resume button',
+        selector: { name: /pause game/i },
+        mockFn: 'onPauseResume',
+        props: {},
+      },
+      {
+        name: 'reset button',
+        selector: { name: /reset the game/i },
+        mockFn: 'onReset',
+        props: {},
+      },
+      {
+        name: 'hint button',
+        selector: { name: /get a hint/i },
+        mockFn: 'onHint',
+        props: {},
+      },
+      {
+        name: 'undo button when enabled',
+        selector: { name: /undo last move/i },
+        mockFn: 'onUndo',
+        props: { canUndo: true },
+      },
+    ];
 
-      fireEvent.click(
-        screen.getByRole('button', { name: /check your solution/i })
-      );
-      expect(mockProps.onSubmit).toHaveBeenCalledTimes(1);
-    });
-
-    it('should call onPauseResume when pause/resume button is clicked', () => {
-      render(<GameControls {...mockProps} />);
-
-      fireEvent.click(screen.getByRole('button', { name: /pause game/i }));
-      expect(mockProps.onPauseResume).toHaveBeenCalledTimes(1);
-    });
-
-    it('should call onReset when reset button is clicked', () => {
-      render(<GameControls {...mockProps} />);
-
-      fireEvent.click(screen.getByRole('button', { name: /reset the game/i }));
-      expect(mockProps.onReset).toHaveBeenCalledTimes(1);
-    });
-
-    it('should call onUndo when undo button is clicked', () => {
-      render(<GameControls {...mockProps} canUndo={true} />);
-
-      fireEvent.click(screen.getByRole('button', { name: /undo last move/i }));
-      expect(mockProps.onUndo).toHaveBeenCalledTimes(1);
-    });
-
-    it('should call onHint when hint button is clicked', () => {
-      render(<GameControls {...mockProps} />);
-
-      fireEvent.click(screen.getByRole('button', { name: /get a hint/i }));
-      expect(mockProps.onHint).toHaveBeenCalledTimes(1);
+    buttonTests.forEach(({ name, selector, mockFn, props }) => {
+      it(`should call handler when ${name} is clicked`, () => {
+        const testProps = { ...mockProps, ...props };
+        render(<GameControls {...testProps} />);
+        fireEvent.click(screen.getByRole('button', selector));
+        expect(testProps[mockFn]).toHaveBeenCalledTimes(1);
+      });
     });
   });
 
-  describe('Button Disabled States', () => {
-    it('should disable buttons when disabled prop is true', () => {
-      render(<GameControls {...mockProps} disabled={true} />);
+  describe('Disabled States', () => {
+    it('should disable main buttons when disabled prop is true', () => {
+      render(<GameControls {...createGameControlsProps({ disabled: true })} />);
 
-      expect(
-        screen.getByRole('button', { name: /check your solution/i })
-      ).toBeDisabled();
-      expect(
-        screen.getByRole('button', { name: /pause game/i })
-      ).toBeDisabled();
-      expect(
-        screen.getByRole('button', { name: /undo last move/i })
-      ).toBeDisabled();
-      expect(
-        screen.getByRole('button', { name: /get a hint/i })
-      ).toBeDisabled();
+      const buttonsToCheck = [
+        screen.getByRole('button', { name: /check your solution/i }),
+        screen.getByRole('button', { name: /pause game/i }),
+        screen.getByRole('button', { name: /get a hint/i }),
+      ];
+
+      buttonsToCheck.forEach(button => {
+        expect(button).toBeDisabled();
+      });
+    });
+
+    it('should enable main buttons when disabled prop is false', () => {
+      render(
+        <GameControls
+          {...createGameControlsProps({ disabled: false, canUndo: true })}
+        />
+      );
+
+      const buttonsToCheck = [
+        screen.getByRole('button', { name: /check your solution/i }),
+        screen.getByRole('button', { name: /pause game/i }),
+        screen.getByRole('button', { name: /get a hint/i }),
+        screen.getByRole('button', { name: /undo last move/i }),
+      ];
+
+      buttonsToCheck.forEach(button => {
+        expect(button).not.toBeDisabled();
+      });
+    });
+  });
+
+  describe('Button Disabled States - Additional', () => {
+    const hintCountTests = [
+      {
+        hintsUsed: 0,
+        expected: 'Hint (0)',
+        description: 'show zero hints initially',
+      },
+      {
+        hintsUsed: 3,
+        expected: 'Hint (3)',
+        description: 'show hints used count',
+      },
+      {
+        hintsUsed: 1,
+        expected: 'Hint (1)',
+        description: 'show single hint count',
+      },
+    ];
+
+    hintCountTests.forEach(({ hintsUsed, expected, description }) => {
+      it(`should ${description}`, () => {
+        render(<GameControls {...createGameControlsProps({ hintsUsed })} />);
+        expect(screen.getByText(expected)).toBeInTheDocument();
+      });
     });
 
     it('should disable undo button when canUndo is false', () => {
-      render(<GameControls {...mockProps} canUndo={false} />);
-
+      render(<GameControls {...createGameControlsProps({ canUndo: false })} />);
       expect(
         screen.getByRole('button', { name: /undo last move/i })
       ).toBeDisabled();
     });
 
-    it('should show hints used count', () => {
-      render(<GameControls {...mockProps} hintsUsed={3} />);
-
-      expect(screen.getByText('Hint (3)')).toBeInTheDocument();
-    });
-
-    it('should show zero hints initially', () => {
-      render(<GameControls {...mockProps} hintsUsed={0} />);
-
-      expect(screen.getByText('Hint (0)')).toBeInTheDocument();
-    });
-
-    it('should update hints count dynamically', () => {
-      const { rerender } = render(
-        <GameControls {...mockProps} hintsUsed={1} />
-      );
-
-      expect(screen.getByText('Hint (1)')).toBeInTheDocument();
-
-      rerender(<GameControls {...mockProps} hintsUsed={5} />);
-
-      expect(screen.getByText('Hint (5)')).toBeInTheDocument();
-    });
-
     it('should disable reset button when loading', () => {
-      render(<GameControls {...mockProps} isLoading={true} />);
-
+      render(
+        <GameControls {...createGameControlsProps({ isLoading: true })} />
+      );
       expect(
         screen.getByRole('button', { name: /reset the game/i })
       ).toBeDisabled();
-    });
-
-    it('should not disable reset button when not loading and not in cooldown', () => {
-      render(<GameControls {...mockProps} />);
-
-      expect(
-        screen.getByRole('button', { name: /reset the game/i })
-      ).not.toBeDisabled();
     });
   });
 
