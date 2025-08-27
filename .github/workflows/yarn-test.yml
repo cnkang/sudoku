@@ -51,7 +51,7 @@ jobs:
 
       - name: Coverage tests
         if: matrix.job == 'coverage'
-        run: yarn test --coverage
+        run: yarn test:coverage
         timeout-minutes: 15
 
       - name: Upload Coverage to Codecov
