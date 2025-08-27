@@ -91,7 +91,12 @@ export default [
     },
   },
   {
-    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', 'src/test-setup.ts'],
+    files: [
+      '**/*.test.{ts,tsx}',
+      '**/*.spec.{ts,tsx}',
+      'src/test-setup.ts',
+      'src/**/__tests__/**/*.{ts,tsx,js}',
+    ],
     languageOptions: {
       globals: {
         vi: 'readonly',
@@ -103,7 +108,17 @@ export default [
         global: 'readonly',
         HTMLElement: 'readonly',
         HTMLInputElement: 'readonly',
+        HTMLSelectElement: 'readonly',
+        KeyboardEvent: 'readonly',
+        console: 'readonly',
+        __dirname: 'readonly',
+        require: 'readonly',
+        module: 'readonly',
       },
+    },
+    rules: {
+      'no-console': 'off', // Allow console in test files
+      '@typescript-eslint/no-unused-vars': 'off', // Allow unused vars in test files for test utilities
     },
   },
 ];
