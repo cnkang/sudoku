@@ -11,44 +11,65 @@ permissions:
   contents: read
   checks: write
   pull-requests: write
+  security-events: write
 
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        test-group: [quality, build, unit-tests, coverage]
+        job: [quality, build, unit-tests, coverage, security]
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
+        if: matrix.job != 'security'
         with:
           node-version: 22
 
       - name: Enable Corepack
+        if: matrix.job != 'security'
         run: corepack enable
 
       - name: Install dependencies
+        if: matrix.job != 'security'
         run: yarn install --immutable
 
       - name: Quality checks
-        if: matrix.test-group == 'quality'
-        run: |
-          yarn type-check
-          yarn lint
-          yarn format:check
+        if: matrix.job == 'quality'
+        run: yarn quality
 
       - name: Build
-        if: matrix.test-group == 'build'
+        if: matrix.job == 'build'
         run: yarn build
 
       - name: Unit tests
-        if: matrix.test-group == 'unit-tests'
+        if: matrix.job == 'unit-tests'
         run: yarn test
         timeout-minutes: 10
 
       - name: Coverage tests
-        if: matrix.test-group == 'coverage'
+        if: matrix.job == 'coverage'
         run: yarn test --coverage
         timeout-minutes: 15
+
+      - name: Upload Coverage to Codecov
+        if: matrix.job == 'coverage'
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+
+      - name: Security scan (njsscan)
+        if: matrix.job == 'security'
+        id: njsscan
+        uses: ajinabraham/njsscan-action@master
+        with:
+          args: '. --sarif --output results.sarif || true'
+
+      - name: Upload security scan results
+        if: matrix.job == 'security'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
