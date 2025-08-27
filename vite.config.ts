@@ -17,7 +17,7 @@ export default defineConfig({
     hookTimeout: 15000,
     coverage: {
       provider: 'v8',
-      reporter: ['text'],
+      reporter: ['text', 'lcov'],
       exclude: [
         'node_modules/**',
         'coverage/**',
