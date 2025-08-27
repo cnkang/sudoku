@@ -3,7 +3,13 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react({
+      babel: {
+        plugins: [['styled-jsx/babel', { optimizeForSpeed: true }]],
+      },
+    }),
+  ],
   test: {
     globals: true,
     environment: 'happy-dom',
@@ -25,6 +31,16 @@ export default defineConfig({
         'src/app/layout.tsx', // Next.js boilerplate
         'src/app/globals.css', // CSS files
         'src/app/page.module.css',
+        'src/app/page.styles.ts', // CSS styles
+        'src/components/GameControls.styles.ts', // Component styles
+        'src/components/SudokuGrid.styles.ts', // Component styles
+        'src/types/index.ts', // Type definitions
+        'src/app/api/solveSudoku/types.ts', // API type definitions
+        'src/custom.d.ts', // Type declarations
+        'src/test-setup.ts', // Test setup
+        'src/test-utils/**', // Test utilities
+        'src/hooks/usePuzzleLoader.ts', // Unused hook
+        'src/hooks/useOptimisticSudoku.ts', // Unused hook
         'src/app/responsive.css', // Responsive CSS
         'src/test-utils/**', // Test utilities
         'next.config.mjs',
