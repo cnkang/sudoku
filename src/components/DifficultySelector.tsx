@@ -88,44 +88,44 @@ const DifficultySelector: React.FC<DifficultySelectProps> = ({
         }
 
         /* Mobile optimization */
-        @media (max-width: 768px) {
+        @media (max-width: var(--tablet-max, 768px)) {
           .difficulty-selector {
-            margin-bottom: 1rem;
+            margin-bottom: var(--spacing-lg, 1rem);
             text-align: center;
           }
 
           .difficulty-label {
-            font-size: 0.875rem;
-            margin-bottom: 0.75rem;
+            font-size: var(--font-sm, 0.875rem);
+            margin-bottom: var(--spacing-md, 0.75rem);
           }
 
           .difficulty-select {
             width: 100%;
             max-width: 300px;
-            padding: 0.75rem 1rem;
-            font-size: 0.875rem;
+            padding: var(--spacing-md, 0.75rem) var(--spacing-lg, 1rem);
+            font-size: var(--font-sm, 0.875rem);
           }
 
           .difficulty-hint {
-            font-size: 0.75rem;
-            margin-top: 0.75rem;
-            padding: 0 1rem;
+            font-size: var(--font-xs, 0.75rem);
+            margin-top: var(--spacing-md, 0.75rem);
+            padding: 0 var(--spacing-lg, 1rem);
           }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: var(--mobile-max, 480px)) {
           .difficulty-selector {
-            margin-bottom: 0.75rem;
+            margin-bottom: var(--spacing-md, 0.75rem);
           }
 
           .difficulty-select {
-            padding: 1rem;
-            font-size: 1rem;
-            min-height: 48px;
+            padding: var(--spacing-lg, 1rem);
+            font-size: var(--font-md, 1rem);
+            min-height: var(--touch-target-comfortable, 48px);
           }
 
           .difficulty-hint {
-            font-size: 0.75rem;
+            font-size: var(--font-xs, 0.75rem);
             line-height: 1.4;
           }
         }
@@ -133,7 +133,7 @@ const DifficultySelector: React.FC<DifficultySelectProps> = ({
         /* Touch device optimization */
         @media (hover: none) and (pointer: coarse) {
           .difficulty-select {
-            min-height: 44px;
+            min-height: var(--touch-target-min, 44px);
             -webkit-tap-highlight-color: transparent;
           }
 
