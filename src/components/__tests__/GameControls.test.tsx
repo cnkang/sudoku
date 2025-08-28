@@ -2,7 +2,14 @@ import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import GameControls from '../GameControls';
-import { createGameControlsProps, setupTest, cleanupTest } from './test-utils';
+import {
+  standardTestSetup,
+  standardTestCleanup,
+} from '@/test-utils/common-test-setup';
+import {
+  createGameControlsProps,
+  COMMON_TEST_SCENARIOS,
+} from '@/test-utils/component-props-factory';
 import {
   createRenderingTests,
   createLoadingStateTests,
@@ -13,11 +20,11 @@ describe('GameControls', () => {
   let mockProps: ReturnType<typeof createGameControlsProps>;
 
   beforeEach(() => {
-    setupTest();
+    standardTestSetup();
     mockProps = createGameControlsProps();
   });
 
-  afterEach(cleanupTest);
+  afterEach(standardTestCleanup);
 
   // Use shared rendering tests
   createRenderingTests('GameControls', () =>
@@ -113,7 +120,11 @@ describe('GameControls', () => {
 
   describe('Disabled States', () => {
     it('should disable main buttons when disabled prop is true', () => {
-      render(<GameControls {...createGameControlsProps({ disabled: true })} />);
+      render(
+        <GameControls
+          {...createGameControlsProps(COMMON_TEST_SCENARIOS.DISABLED_STATE)}
+        />
+      );
 
       const buttonsToCheck = [
         screen.getByRole('button', { name: /check your solution/i }),

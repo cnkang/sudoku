@@ -2,35 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SudokuPuzzle } from './types';
 import { generateSudokuPuzzle } from './sudokuGenerator';
 import { puzzleCache } from './cache';
-
-const MAX_DIFFICULTY = 10;
-const MIN_DIFFICULTY = 1;
-
-/**
- * Validate the given difficulty level.
- * @param {string | null} difficultyParam The difficulty level as a string (or null).
- * @throws {Error} If the difficulty level is invalid.
- * @returns {number} The difficulty level as a number.
- */
-function validateDifficulty(difficultyParam: string | null): number {
-  if (!difficultyParam || !/^\d+$/.test(difficultyParam)) {
-    throw new Error('Difficulty must be a positive integer.');
-  }
-
-  const difficulty = parseInt(difficultyParam, 10);
-
-  if (
-    isNaN(difficulty) ||
-    difficulty < MIN_DIFFICULTY ||
-    difficulty > MAX_DIFFICULTY
-  ) {
-    throw new Error(
-      `Invalid difficulty level. Must be between ${MIN_DIFFICULTY} and ${MAX_DIFFICULTY}.`
-    );
-  }
-
-  return difficulty;
-}
+import { validateDifficulty } from '@/utils/validation';
+import {
+  createErrorResponse,
+  ERROR_MESSAGES,
+  ERROR_TYPES,
+} from '@/utils/error-handling';
 
 /**
  * POST /api/solveSudoku
@@ -55,7 +32,10 @@ export async function POST(request: NextRequest) {
       const lastForce = puzzleCache.get(forceKey);
       if (lastForce) {
         return NextResponse.json(
-          { error: 'Please wait 10 seconds before forcing refresh' },
+          createErrorResponse(
+            ERROR_MESSAGES.RATE_LIMITED,
+            ERROR_TYPES.RATE_LIMIT_ERROR
+          ),
           { status: 429 }
         );
       }
@@ -96,13 +76,9 @@ export async function POST(request: NextRequest) {
       }
     );
   } catch (error) {
-    // console.error('Error generating puzzle:', error);
-
-    let errorMessage = 'Internal Server Error';
-    if (error instanceof Error) {
-      errorMessage = error.message;
-    }
-
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    return NextResponse.json(
+      createErrorResponse(error, ERROR_TYPES.GENERATION_ERROR),
+      { status: 500 }
+    );
   }
 }
