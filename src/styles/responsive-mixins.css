@@ -1,0 +1,143 @@
+/**
+ * Centralized responsive CSS utilities to reduce duplication
+ * These CSS custom properties and classes can be imported and reused
+ */
+
+/* Common breakpoints */
+:root {
+  --mobile-max: 480px;
+  --tablet-min: 481px;
+  --tablet-max: 768px;
+  --desktop-min: 769px;
+
+  /* Common spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 0.75rem;
+  --spacing-lg: 1rem;
+  --spacing-xl: 1.5rem;
+
+  /* Common font sizes */
+  --font-xs: 0.75rem;
+  --font-sm: 0.875rem;
+  --font-md: 1rem;
+  --font-lg: 1.125rem;
+  --font-xl: 1.2rem;
+
+  /* Common touch targets */
+  --touch-target-min: 44px;
+  --touch-target-comfortable: 48px;
+}
+
+/* Responsive utility classes */
+.responsive-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+}
+
+.responsive-text {
+  font-size: var(--font-md);
+  line-height: 1.5;
+}
+
+.responsive-button {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-md);
+  min-height: var(--touch-target-min);
+  border-radius: 0.5rem;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.responsive-input {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-md);
+  min-height: var(--touch-target-min);
+  border: 2px solid #d1d5db;
+  border-radius: 0.5rem;
+  width: 100%;
+}
+
+/* Mobile-first responsive patterns */
+@media (max-width: 480px) {
+  .responsive-container {
+    padding: var(--spacing-md);
+  }
+
+  .responsive-text {
+    font-size: var(--font-sm);
+  }
+
+  .responsive-button {
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--font-md);
+    min-height: var(--touch-target-comfortable);
+    width: 100%;
+  }
+
+  .responsive-input {
+    padding: var(--spacing-md);
+    font-size: var(--font-md);
+    min-height: var(--touch-target-comfortable);
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .responsive-container {
+    padding: var(--spacing-lg);
+    max-width: 600px;
+  }
+
+  .responsive-text {
+    font-size: var(--font-md);
+  }
+}
+
+@media (min-width: 769px) {
+  .responsive-container {
+    padding: var(--spacing-xl);
+    max-width: 800px;
+  }
+
+  .responsive-text {
+    font-size: var(--font-lg);
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+  .responsive-container {
+    padding: var(--spacing-sm) var(--spacing-lg);
+  }
+
+  .responsive-text {
+    font-size: var(--font-sm);
+  }
+
+  .responsive-button {
+    padding: var(--spacing-xs) var(--spacing-md);
+    min-height: 36px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .responsive-button {
+    min-height: var(--touch-target-comfortable);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .responsive-input {
+    min-height: var(--touch-target-comfortable);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .responsive-button:hover {
+    /* Disable hover effects on touch devices */
+    transform: none;
+    box-shadow: none;
+  }
+}
