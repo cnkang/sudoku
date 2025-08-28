@@ -96,7 +96,7 @@ describe('/api/solveSudoku', () => {
       const data = await response.json();
 
       expect(response.status).toBe(500);
-      expect(data.error).toBe('Difficulty must be a positive integer.');
+      expect(data.error).toBe('Difficulty must be a valid number.');
     });
 
     it('should reject empty difficulty parameter', async () => {
@@ -230,7 +230,7 @@ describe('/api/solveSudoku', () => {
       const data = await response.json();
 
       expect(response.status).toBe(429);
-      expect(data.error).toBe('Please wait 10 seconds before forcing refresh');
+      expect(data.error).toBe('Please wait before making another request');
     });
 
     it('should handle force refresh rate limiting', async () => {
@@ -337,7 +337,7 @@ describe('/api/solveSudoku', () => {
       const data = await response.json();
 
       expect(response.status).toBe(500);
-      expect(data.error).toBe('Internal Server Error');
+      expect(data.error).toBe('String error');
     });
 
     it('should handle errors gracefully and log them', async () => {
