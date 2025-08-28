@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
 import styles from './SudokuGrid.module.css';
+import { VALIDATION_CONSTANTS } from '@/utils/validation';
 
 interface SudokuGridProps {
   puzzle: number[][];
@@ -44,21 +45,23 @@ const hasConflict = (
 ): boolean => {
   if (value === 0) return false;
 
+  const { SUDOKU_SIZE, BOX_SIZE } = VALIDATION_CONSTANTS;
+
   // Check row
-  for (let c = 0; c < 9; c++) {
+  for (let c = 0; c < SUDOKU_SIZE; c++) {
     if (c !== col && userInput[row][c] === value) return true;
   }
 
   // Check column
-  for (let r = 0; r < 9; r++) {
+  for (let r = 0; r < SUDOKU_SIZE; r++) {
     if (r !== row && userInput[r][col] === value) return true;
   }
 
   // Check 3x3 box
-  const boxRow = Math.floor(row / 3) * 3;
-  const boxCol = Math.floor(col / 3) * 3;
-  for (let r = boxRow; r < boxRow + 3; r++) {
-    for (let c = boxCol; c < boxCol + 3; c++) {
+  const boxRow = Math.floor(row / BOX_SIZE) * BOX_SIZE;
+  const boxCol = Math.floor(col / BOX_SIZE) * BOX_SIZE;
+  for (let r = boxRow; r < boxRow + BOX_SIZE; r++) {
+    for (let c = boxCol; c < boxCol + BOX_SIZE; c++) {
       if ((r !== row || c !== col) && userInput[r][c] === value) return true;
     }
   }
@@ -118,19 +121,20 @@ const SudokuGrid = React.memo<SudokuGridProps>(
           e.preventDefault();
           let newRow = row;
           let newCol = col;
+          const maxIndex = VALIDATION_CONSTANTS.SUDOKU_SIZE - 1;
 
           switch (key) {
             case 'ArrowUp':
               newRow = Math.max(0, row - 1);
               break;
             case 'ArrowDown':
-              newRow = Math.min(8, row + 1);
+              newRow = Math.min(maxIndex, row + 1);
               break;
             case 'ArrowLeft':
               newCol = Math.max(0, col - 1);
               break;
             case 'ArrowRight':
-              newCol = Math.min(8, col + 1);
+              newCol = Math.min(maxIndex, col + 1);
               break;
           }
 

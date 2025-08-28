@@ -34,44 +34,44 @@ const Timer: React.FC<TimerProps> = ({ time, isActive, isPaused }) => {
         }
 
         /* Mobile optimization */
-        @media (max-width: 768px) {
+        @media (max-width: var(--tablet-max, 768px)) {
           .timer {
-            font-size: 1.1rem;
-            margin: 0.75rem 0;
+            font-size: var(--font-lg, 1.1rem);
+            margin: var(--spacing-md, 0.75rem) 0;
             text-align: center;
           }
 
           .timer-status {
-            font-size: 0.8rem;
+            font-size: var(--font-sm, 0.8rem);
           }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: var(--mobile-max, 480px)) {
           .timer {
-            font-size: 1rem;
-            margin: 0.5rem 0;
+            font-size: var(--font-md, 1rem);
+            margin: var(--spacing-sm, 0.5rem) 0;
           }
 
           .timer-label {
-            font-size: 0.875rem;
+            font-size: var(--font-sm, 0.875rem);
           }
 
           .timer-value {
-            font-size: 1.125rem;
+            font-size: var(--font-lg, 1.125rem);
           }
 
           .timer-status {
-            font-size: 0.75rem;
+            font-size: var(--font-xs, 0.75rem);
             display: block;
-            margin-top: 0.25rem;
+            margin-top: var(--spacing-xs, 0.25rem);
           }
         }
 
         /* Landscape mode */
-        @media (max-width: 768px) and (orientation: landscape) {
+        @media (max-width: var(--tablet-max, 768px)) and (orientation: landscape) {
           .timer {
             font-size: 0.9rem;
-            margin: 0.25rem 0;
+            margin: var(--spacing-xs, 0.25rem) 0;
           }
 
           .timer-status {
