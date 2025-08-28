@@ -1,4 +1,11 @@
 import '@testing-library/jest-dom';
+import { configure } from '@testing-library/react';
+
+// Configure testing library to automatically wrap updates in act()
+configure({
+  testIdAttribute: 'data-testid',
+  asyncUtilTimeout: 5000,
+});
 
 // Mock Next.js router
 vi.mock('next/router', () => ({

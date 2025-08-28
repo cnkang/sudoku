@@ -19,10 +19,10 @@
     "test:hooks": "vitest run src/hooks/__tests__/*.test.ts --environment=happy-dom",
     "test:api": "vitest run src/app/api/**/__tests__/*.test.ts --environment=node",
     "test:app": "vitest run src/app/__tests__/*.test.tsx --environment=happy-dom",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "vitest run --coverage --reporter=verbose",
     "test:responsive": "./scripts/test-responsive.sh",
     "test:mobile": "vitest run src/components/__tests__/*.responsive.test.tsx src/app/__tests__/*.responsive.test.tsx --environment=happy-dom",
-    "test": "vitest run src/hooks/__tests__/*.test.ts src/components/__tests__/*.test.tsx src/utils/__tests__/*.test.ts --environment=happy-dom",
+    "test": "vitest run",
     "prepare": "husky"
   },
   "dependencies": {
