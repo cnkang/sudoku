@@ -8,14 +8,16 @@ export interface GameStats {
 
 const STATS_KEY = 'sudoku-stats';
 
+import { safeSync } from './error-handling';
+
 export const getStats = (): GameStats => {
-  try {
-    const saved = localStorage.getItem(STATS_KEY);
-    if (!saved) return getDefaultStats();
-    return JSON.parse(saved);
-  } catch {
-    return getDefaultStats();
-  }
+  return (
+    safeSync(() => {
+      const saved = localStorage.getItem(STATS_KEY);
+      if (!saved) return getDefaultStats();
+      return JSON.parse(saved);
+    }, getDefaultStats()) || getDefaultStats()
+  );
 };
 
 export const updateStats = (
@@ -23,7 +25,7 @@ export const updateStats = (
   time: number,
   completed: boolean
 ): void => {
-  try {
+  safeSync(() => {
     const stats = getStats();
     stats.gamesPlayed++;
     stats.totalTime += time;
@@ -37,9 +39,7 @@ export const updateStats = (
 
     stats.averageTime = stats.totalTime / stats.gamesPlayed;
     localStorage.setItem(STATS_KEY, JSON.stringify(stats));
-  } catch {
-    // console.warn('Failed to update stats:', error);
-  }
+  });
 };
 
 const getDefaultStats = (): GameStats => ({
