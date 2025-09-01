@@ -3584,10 +3584,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-sudoku-solver@npm:^1.1.19":
-  version: 1.1.19
-  resolution: "fast-sudoku-solver@npm:1.1.19"
-  checksum: 10c0/97d7b060f273e6de8ce4dc445635090c5fbc6f83d8a8e19dc1ff824b4c91923febb5f7abe467429bf24602489df71057770baa216ef2d76135e1c4903e3ee572
+"fast-sudoku-solver@npm:^1.1.20":
+  version: 1.1.20
+  resolution: "fast-sudoku-solver@npm:1.1.20"
+  checksum: 10c0/fa261e05899915963df52534dde0814e03f6cc359a1ed8ec263c9b36191391b3c2c53a190bfb5f3b1f887177ca1789bcdd66764ce367d4616754fc987f719903
   languageName: node
   linkType: hard
 
@@ -6471,7 +6471,7 @@ __metadata:
     esbuild: "npm:^0.25.9"
     eslint: "npm:^9.34.0"
     eslint-config-next: "npm:^15.5.0"
-    fast-sudoku-solver: "npm:^1.1.19"
+    fast-sudoku-solver: "npm:^1.1.20"
     happy-dom: "npm:^18.0.1"
     husky: "npm:^9.1.7"
     lint-staged: "npm:^16.1.5"

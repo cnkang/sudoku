@@ -28,7 +28,7 @@
   "dependencies": {
     "browserslist": "^4.25.3",
     "core-js": "^3.45.0",
-    "fast-sudoku-solver": "^1.1.19",
+    "fast-sudoku-solver": "^1.1.20",
     "lodash": "^4.17.21",
     "next": "^15.5.0",
     "postcss": "^8.5.6",
