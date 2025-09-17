@@ -58,7 +58,7 @@
     "@types/regenerator-runtime": "^0.13.8",
     "@vitejs/plugin-react": "^5.0.1",
     "@vitest/coverage-v8": "^3.2.4",
-    "babel-plugin-react-compiler": "^19.1.0-rc.2",
+    "babel-plugin-react-compiler": "^19.1.0-rc.3",
     "dotenv": "^17.2.1",
     "dotenv-cli": "^10.0.0",
     "esbuild": "^0.25.9",
