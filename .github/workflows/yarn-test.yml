@@ -27,7 +27,11 @@ jobs:
         if: matrix.job != 'security'
         with:
           node-version: 22
-          corepack: true
+          package-manager-cache: false
+
+      - name: Enable Corepack
+        if: matrix.job != 'security'
+        run: corepack enable
 
       - name: Cache Yarn dependencies
         if: matrix.job != 'security'
