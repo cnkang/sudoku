@@ -36,12 +36,9 @@ jobs:
         if: matrix.job != 'security'
         uses: actions/cache@v4
         with:
-          path: |
-            .yarn/cache
-            .yarn/install-state.gz
+          path: .yarn/cache
           key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            yarn-${{ runner.os }}-
+          restore-keys: yarn-${{ runner.os }}-
 
       - name: Install dependencies
         if: matrix.job != 'security'
