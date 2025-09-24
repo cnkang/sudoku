@@ -27,11 +27,19 @@ jobs:
         if: matrix.job != 'security'
         with:
           node-version: 22
-          cache: 'yarn'
+          package-manager-cache: false
 
       - name: Enable Corepack
         if: matrix.job != 'security'
         run: corepack enable
+
+      - name: Cache Yarn dependencies
+        if: matrix.job != 'security'
+        uses: actions/cache@v4
+        with:
+          path: .yarn/cache
+          key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: yarn-${{ runner.os }}-
 
       - name: Install dependencies
         if: matrix.job != 'security'
@@ -57,7 +65,7 @@ jobs:
 
       - name: Upload Coverage to Codecov
         if: matrix.job == 'coverage'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
@@ -66,12 +74,12 @@ jobs:
       - name: Security scan (njsscan)
         if: matrix.job == 'security'
         id: njsscan
-        uses: ajinabraham/njsscan-action@master
+        uses: ajinabraham/njsscan-action@231750a435d85095d33be7d192d52ec650625146 # v9
         with:
           args: '. --sarif --output results.sarif || true'
 
       - name: Upload security scan results
         if: matrix.job == 'security'
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@192325c86100d080feab897ff886c34abd4c83a3 # v3
         with:
           sarif_file: results.sarif
