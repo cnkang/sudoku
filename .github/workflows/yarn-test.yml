@@ -27,7 +27,6 @@ jobs:
         if: matrix.job != 'security'
         with:
           node-version: 22
-          cache: 'yarn'
 
       - name: Enable Corepack
         if: matrix.job != 'security'
