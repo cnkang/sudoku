@@ -30,7 +30,9 @@ jobs:
 
       - name: Enable Corepack
         if: matrix.job != 'security'
-        run: corepack enable
+        run: |
+          corepack enable
+          yarn config set enableGlobalCache false
 
       - name: Install dependencies
         if: matrix.job != 'security'
