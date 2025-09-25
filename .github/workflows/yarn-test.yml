@@ -83,3 +83,79 @@ jobs:
         uses: github/codeql-action/upload-sarif@192325c86100d080feab897ff886c34abd4c83a3 # v3
         with:
           sarif_file: results.sarif
+
+  # Playwright E2E测试 - 独立job避免版本冲突
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: ci
+    if: success()
+    
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v4
+        with:
+          path: .yarn/cache
+          key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: yarn-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('yarn.lock', 'package.json') }}
+          restore-keys: playwright-${{ runner.os }}-
+
+      - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: ./scripts/install-playwright.sh
+
+      - name: Build application
+        run: yarn build
+
+      - name: Start application and run tests
+        run: |
+          # 启动应用
+          yarn start &
+          APP_PID=$!
+          
+          # 等待应用就绪
+          echo "Waiting for application..."
+          for i in {1..30}; do
+            if curl -f http://localhost:3000/api/health >/dev/null 2>&1; then
+              echo "Application ready!"
+              break
+            fi
+            sleep 2
+          done
+          
+          # 运行测试
+          yarn playwright test
+          TEST_EXIT=$?
+          
+          # 清理
+          kill $APP_PID || true
+          exit $TEST_EXIT
+        env:
+          BASE_URL: http://localhost:3000
+
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

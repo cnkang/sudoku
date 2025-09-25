@@ -14,15 +14,14 @@
     "type-check": "tsc --noEmit",
     "quality": "yarn lint && yarn format:check && yarn type-check",
     "quality:fix": "yarn lint:fix && yarn format",
-    "test:index": "vitest run tests/index.spec.ts --environment=node",
-    "test:ui": "vitest run src/components/__tests__/*.test.tsx --environment=happy-dom",
-    "test:hooks": "vitest run src/hooks/__tests__/*.test.ts --environment=happy-dom",
-    "test:api": "vitest run src/app/api/**/__tests__/*.test.ts --environment=node",
-    "test:app": "vitest run src/app/__tests__/*.test.tsx --environment=happy-dom",
+    "test": "vitest run",
     "test:coverage": "vitest run --coverage --reporter=verbose",
     "test:responsive": "./scripts/test-responsive.sh",
-    "test:mobile": "vitest run src/components/__tests__/*.responsive.test.tsx src/app/__tests__/*.responsive.test.tsx --environment=happy-dom",
-    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:headed": "playwright test --headed",
+    "playwright:install": "./scripts/install-playwright.sh",
     "prepare": "husky"
   },
   "dependencies": {
@@ -70,7 +69,8 @@
     "prettier": "^3.6.2",
     "typescript": "^5.9.2",
     "vite": "^7.1.7",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "@playwright/test": "^1.51.1"
   },
   "browserslist": [
     "last 2 versions",
