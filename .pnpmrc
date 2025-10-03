@@ -1,0 +1,20 @@
+# Use node_modules structure similar to npm/yarn
+node-linker=hoisted
+
+# Enable strict peer dependencies
+strict-peer-dependencies=false
+
+# Auto install peer dependencies
+auto-install-peers=true
+
+# Use shamefully-hoist for better compatibility
+shamefully-hoist=true
+
+# Enable resolution mode for better compatibility
+resolution-mode=highest
+
+# Enable dedupe for better disk usage
+dedupe-peer-dependents=true
+
+# Use faster registry
+registry=https://registry.npmjs.org/
