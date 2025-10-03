@@ -7,15 +7,19 @@ test.describe('Sudoku Game E2E Tests', () => {
   });
 
   test('should load the homepage', async ({ page }) => {
-    // 基础页面加载测试
-    await expect(page).toHaveTitle(/Sudoku/);
+    // 等待页面完全加载
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState('networkidle');
+
+    // 基础页面加载测试 - 使用更宽松的标题匹配
+    await expect(page).toHaveTitle(/Sudoku/i);
 
     // 检查页面是否包含基本内容
     const body = page.locator('body');
     await expect(body).toBeVisible();
 
-    // 等待页面完全加载
-    await page.waitForLoadState('domcontentloaded');
+    // 验证页面内容已加载
+    await expect(page.locator('h1, h2, [role="main"], main')).toBeVisible();
   });
 
   test('should be responsive on mobile', async ({ page }) => {

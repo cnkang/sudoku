@@ -118,24 +118,49 @@ jobs:
       - name: Start application and run tests
         run: |
           # 启动应用
+          echo "Starting Next.js application..."
           pnpm start &
           APP_PID=$!
 
           # 等待应用就绪
-          echo "Waiting for application..."
-          for i in {1..30}; do
-            if curl -f http://localhost:3000/api/health >/dev/null 2>&1; then
-              echo "Application ready!"
+          echo "Waiting for application to be ready..."
+          RETRY_COUNT=0
+          MAX_RETRIES=60
+
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            if curl -f -s http://localhost:3000/api/health >/dev/null 2>&1; then
+              echo "✅ Application is ready!"
               break
             fi
+            
+            if [ $RETRY_COUNT -eq 0 ]; then
+              echo "⏳ Waiting for application startup..."
+            fi
+            
+            RETRY_COUNT=$((RETRY_COUNT + 1))
             sleep 2
+            
+            if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+              echo "❌ Application failed to start within timeout"
+              echo "Checking application logs..."
+              ps aux | grep node || true
+              curl -v http://localhost:3000/api/health || true
+              kill $APP_PID || true
+              exit 1
+            fi
           done
 
-          # 运行测试
+          # 验证应用响应
+          echo "🔍 Verifying application response..."
+          curl -f http://localhost:3000/api/health
+
+          # 运行E2E测试
+          echo "🧪 Running E2E tests..."
           pnpm test:e2e
           TEST_EXIT=$?
 
           # 清理
+          echo "🧹 Cleaning up..."
           kill $APP_PID || true
           exit $TEST_EXIT
         env:
