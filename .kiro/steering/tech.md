@@ -9,17 +9,17 @@ inclusion: always
 - **Next.js 15** with App Router - Use server components by default, client components only when needed
 - **React 19** - Leverage latest features including React Compiler optimizations
 - **TypeScript 5.9** - Strict mode enabled, all code must be fully typed
-- **Yarn 4.9.4** - Required package manager, do not use npm or pnpm
+- **pnpm 10.18.0** - Required package manager, do not use npm or yarn
 
 ## Development Workflow
 
 ### Essential Commands
 
 ```bash
-yarn dev          # Development with Turbo acceleration
-yarn build        # Production build + type validation
-yarn quality      # Lint + format + type check (run before commits)
-yarn test         # Core test suite (maintain 87.5% coverage)
+pnpm dev          # Development with Turbo acceleration
+pnpm build        # Production build + type validation
+pnpm quality      # Lint + format + type check (run before commits)
+pnpm test         # Core test suite (maintain 87.5% coverage)
 ```
 
 ### Code Quality Standards

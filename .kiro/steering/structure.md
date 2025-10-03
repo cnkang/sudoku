@@ -86,7 +86,7 @@ export default Component;
 ## Testing Requirements
 
 - **Every new file requires a test** - no exceptions
-- **Maintain 87.5% coverage** - check with `yarn test`
+- **Maintain 87.5% coverage** - check with `pnpm test`
 - **Use co-located `__tests__` folders** - never mix tests with source
 - **Import test utilities** from `@/test-utils/` for consistency
 
