@@ -6,7 +6,7 @@ echo "=========================================="
 
 # 运行所有响应式测试
 echo "📱 Running mobile and responsive component tests..."
-npx vitest run --reporter=verbose \
+pnpm exec vitest run --reporter=verbose \
   "src/components/__tests__/*.responsive.test.tsx" \
   "src/app/__tests__/*.responsive.test.tsx"
 
@@ -20,7 +20,7 @@ fi
 
 echo ""
 echo "🎯 Running coverage for responsive components..."
-npx vitest run --coverage \
+pnpm exec vitest run --coverage \
   "src/components/__tests__/SudokuGrid.responsive.test.tsx" \
   "src/components/__tests__/GameControls.responsive.test.tsx" \
   "src/app/__tests__/page.responsive.test.tsx"
