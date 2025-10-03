@@ -5,18 +5,18 @@
 
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     open-pull-requests-limit: 5
     # 忽略Playwright的自动更新，手动控制版本
     ignore:
-      - dependency-name: "@playwright/test"
+      - dependency-name: '@playwright/test'
         update-types:
-          ["version-update:semver-major", "version-update:semver-minor"]
-  - package-ecosystem: "github-actions"
-    directory: "/"
+          ['version-update:semver-major', 'version-update:semver-minor']
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     open-pull-requests-limit: 3
