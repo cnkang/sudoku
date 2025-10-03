@@ -5,5 +5,5 @@ build
 coverage
 *.min.js
 *.min.css
-yarn.lock
+pnpm-lock.yaml
 package-lock.json

@@ -23,30 +23,17 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Setup pnpm
+        if: matrix.job != 'security'
+        uses: pnpm/action-setup@7088e561eb65bb68695d245aa206f005ef30921d # v4.1.0
+        with:
+          version: 10.18.0
+
       - uses: actions/setup-node@v5
         if: matrix.job != 'security'
         with:
           node-version: 22
-
-      - name: Setup pnpm
-        if: matrix.job != 'security'
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10.18.0
-
-      - name: Get pnpm store directory
-        if: matrix.job != 'security'
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Cache pnpm dependencies
-        if: matrix.job != 'security'
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: pnpm-${{ runner.os }}-
+          cache: 'pnpm'
 
       - name: Install dependencies
         if: matrix.job != 'security'
@@ -100,26 +87,15 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22
-
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@7088e561eb65bb68695d245aa206f005ef30921d # v4.1.0
         with:
           version: 10.18.0
 
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Cache pnpm dependencies
-        uses: actions/cache@v4
+      - uses: actions/setup-node@v5
         with:
-          path: ${{ env.STORE_PATH }}
-          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: pnpm-${{ runner.os }}-
+          node-version: 22
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -142,24 +118,49 @@ jobs:
       - name: Start application and run tests
         run: |
           # 启动应用
+          echo "Starting Next.js application..."
           pnpm start &
           APP_PID=$!
 
           # 等待应用就绪
-          echo "Waiting for application..."
-          for i in {1..30}; do
-            if curl -f http://localhost:3000/api/health >/dev/null 2>&1; then
-              echo "Application ready!"
+          echo "Waiting for application to be ready..."
+          RETRY_COUNT=0
+          MAX_RETRIES=60
+
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            if curl -f -s http://localhost:3000/api/health >/dev/null 2>&1; then
+              echo "✅ Application is ready!"
               break
             fi
+            
+            if [ $RETRY_COUNT -eq 0 ]; then
+              echo "⏳ Waiting for application startup..."
+            fi
+            
+            RETRY_COUNT=$((RETRY_COUNT + 1))
             sleep 2
+            
+            if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+              echo "❌ Application failed to start within timeout"
+              echo "Checking application logs..."
+              ps aux | grep node || true
+              curl -v http://localhost:3000/api/health || true
+              kill $APP_PID || true
+              exit 1
+            fi
           done
 
-          # 运行测试
+          # 验证应用响应
+          echo "🔍 Verifying application response..."
+          curl -f http://localhost:3000/api/health
+
+          # 运行E2E测试
+          echo "🧪 Running E2E tests..."
           pnpm test:e2e
           TEST_EXIT=$?
 
           # 清理
+          echo "🧹 Cleaning up..."
           kill $APP_PID || true
           exit $TEST_EXIT
         env:
