@@ -31,20 +31,20 @@ A modern, full-featured Sudoku game built with Next.js 15 and React 19. Features
 ## Installation
 
 ```bash
-yarn install
+pnpm install
 ```
 
 ## Development
 
 ```bash
 # Start development server
-yarn dev
+pnpm dev
 
 # Build for production
-yarn build
+pnpm build
 
 # Start production server
-yarn start
+pnpm start
 ```
 
 ## Testing
@@ -53,10 +53,10 @@ yarn start
 
 ```bash
 # Run all tests
-yarn test
+pnpm test
 
 # Run with coverage report
-yarn test:coverage
+pnpm test:coverage
 
 # Test categories
 # - Component tests (40+ tests)
@@ -70,10 +70,10 @@ yarn test:coverage
 
 ```bash
 # Check code quality
-yarn quality
+pnpm quality
 
 # Fix linting and formatting
-yarn quality:fix
+pnpm quality:fix
 ```
 
 ### SonarCloud Integration

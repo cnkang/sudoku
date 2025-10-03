@@ -31,20 +31,20 @@
 ## 安装
 
 ```bash
-yarn install
+pnpm install
 ```
 
 ## 开发
 
 ```bash
 # 启动开发服务器
-yarn dev
+pnpm dev
 
 # 生产构建
-yarn build
+pnpm build
 
 # 启动生产服务器
-yarn start
+pnpm start
 ```
 
 ## 测试
@@ -53,10 +53,10 @@ yarn start
 
 ```bash
 # 运行所有测试
-yarn test
+pnpm test
 
 # 运行覆盖率报告
-yarn test:coverage
+pnpm test:coverage
 
 # 测试分类
 # - 组件测试（40+ 个测试）
@@ -70,10 +70,10 @@ yarn test:coverage
 
 ```bash
 # 检查代码质量
-yarn quality
+pnpm quality
 
 # 修复代码规范和格式
-yarn quality:fix
+pnpm quality:fix
 ```
 
 ## 项目结构
