@@ -27,7 +27,9 @@ const nextConfig = {
     ];
   },
   cacheHandler:
-    process.env.NODE_ENV === 'production' ? './cache-handler.mjs' : undefined,
+    process.env.NODE_ENV === 'production' && !process.env.CI
+      ? './cache-handler.mjs'
+      : undefined,
 };
 
 export default nextConfig;
