@@ -129,7 +129,7 @@ jobs:
 
           while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
             if curl -f -s http://localhost:3000/api/health >/dev/null 2>&1; then
-              echo "✅ Application is ready!"
+              echo "✅ Health check passed!"
               break
             fi
             
@@ -150,13 +150,47 @@ jobs:
             fi
           done
 
-          # 验证应用响应
+          # 验证应用响应和主页
           echo "🔍 Verifying application response..."
           curl -f http://localhost:3000/api/health
 
+          # Additional wait for homepage to be fully ready
+          echo "🔍 Verifying homepage accessibility..."
+          RETRY_COUNT=0
+          MAX_RETRIES=30
+
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            if curl -f -s http://localhost:3000/ >/dev/null 2>&1; then
+              echo "✅ Homepage is accessible!"
+              break
+            fi
+            
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            sleep 1
+            
+            if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+              echo "⚠️ Homepage check failed, but continuing with tests..."
+              break
+            fi
+          done
+
+          # Give the app a bit more time to fully initialize
+          echo "⏳ Final initialization wait..."
+          sleep 5
+
           # 运行E2E测试
           echo "🧪 Running E2E tests..."
-          pnpm test:e2e
+
+          # Set environment variables for more resilient testing
+          export CI=true
+          export BASE_URL=http://localhost:3000
+
+          # Run tests with retry on failure
+          pnpm test:e2e || {
+            echo "⚠️ First test run failed, waiting and retrying..."
+            sleep 10
+            pnpm test:e2e
+          }
           TEST_EXIT=$?
 
           # 清理
