@@ -7,6 +7,9 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
 
+  // Global timeout for CI
+  globalTimeout: process.env.CI ? 600000 : 300000, // 10 minutes in CI, 5 minutes locally
+
   reporter: [
     ['html'],
     ['junit', { outputFile: 'test-results/junit.xml' }],
@@ -16,32 +19,45 @@ export default defineConfig({
   outputDir: 'test-results/',
 
   use: {
-    // 基础URL
+    // Base URL
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
 
-    // 追踪配置 - 仅在失败时保留
+    // Tracing configuration - only keep on failure
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
 
-    // 超时设置
-    actionTimeout: 10000,
-    navigationTimeout: 30000,
+    // Timeout settings - more generous for CI
+    actionTimeout: process.env.CI ? 15000 : 10000,
+    navigationTimeout: process.env.CI ? 45000 : 30000,
 
-    // CI环境优化
+    // CI environment optimizations
     ...(process.env.CI && {
-      // 在CI中禁用动画以提高稳定性
+      // Disable animations for better stability in CI
       reducedMotion: 'reduce',
-      // 强制颜色模式
+      // Force color scheme
       colorScheme: 'light',
+      // Increase timeouts for slower CI environments
+      timeout: 60000,
     }),
   },
 
-  // 项目配置 - 根据环境选择浏览器
+  // Project configuration - choose browsers based on environment
   projects: process.env.CI
     ? [
         {
+          name: 'smoke-tests',
+          testMatch: '**/smoke.spec.ts',
+          use: { ...devices['Desktop Chrome'] },
+        },
+        {
+          name: 'api-tests',
+          testMatch: '**/api.spec.ts',
+          use: { ...devices['Desktop Chrome'] },
+        },
+        {
           name: 'chromium',
+          testIgnore: ['**/smoke.spec.ts', '**/api.spec.ts'],
           use: { ...devices['Desktop Chrome'] },
         },
       ]
