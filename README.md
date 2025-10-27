@@ -2,7 +2,7 @@
 
 ## Project Description
 
-A modern, full-featured Sudoku game built with Next.js 15 and React 19. Features an intelligent puzzle generator, comprehensive game controls, responsive design, and extensive testing coverage.
+A modern, full-featured Sudoku game built with Next.js 16 and React 19. Features an intelligent puzzle generator, comprehensive game controls, responsive design, and extensive testing coverage with 92.4% overall coverage.
 
 ## Features
 
@@ -49,7 +49,7 @@ pnpm start
 
 ## Testing
 
-**Test Coverage: 87.5%** (Functions: 93.4%, Branches: 90.2%)
+**Test Coverage: 92.4%** (Functions: 94.3%, Branches: 94.1%, Lines: 92.4%)
 
 ```bash
 # Run all tests
@@ -58,12 +58,16 @@ pnpm test
 # Run with coverage report
 pnpm test:coverage
 
+# Run E2E tests
+pnpm test:e2e
+
 # Test categories
 # - Component tests (40+ tests)
-# - Hook tests (28+ tests)
-# - API tests (31+ tests)
+# - Hook tests (comprehensive state management)
+# - API tests (31+ tests with caching)
 # - Responsive tests (20+ tests)
-# - Utility tests (16+ tests)
+# - Utility tests (comprehensive validation & error handling)
+# - E2E tests (Playwright integration)
 ```
 
 ## Code Quality
@@ -119,19 +123,20 @@ src/
 
 ### Runtime
 
-- **next** (^15.5.0) - React framework
-- **react** (^19.1.1) - UI library
-- **fast-sudoku-solver** (^1.1.19) - Puzzle generation
-- **winston** (^3.17.0) - Logging
-- **lodash** (^4.17.21) - Utilities
+- **next** (^16.0.0) - React framework with App Router
+- **react** (^19.2.0) - UI library with React Compiler
+- **fast-sudoku-solver** (^1.1.22) - Advanced puzzle generation
+- **winston** (^3.18.3) - Structured logging
+- **lodash** (^4.17.21) - Utility functions
 
 ### Development
 
-- **typescript** (^5.9.2) - Type safety
-- **vitest** (^3.2.4) - Testing framework
-- **eslint** (^9.34.0) - Code linting
-- **prettier** (^3.4.2) - Code formatting
-- **husky** (^9.1.7) - Git hooks
+- **typescript** (^5.9.3) - Type safety with strict mode
+- **vitest** (^3.2.4) - Fast testing framework
+- **eslint** (^9.38.0) - Code linting with modern config
+- **prettier** (^3.6.2) - Code formatting
+- **husky** (^9.1.7) - Git hooks for quality gates
+- **playwright** (^1.56.1) - E2E testing framework
 
 ## License
 
