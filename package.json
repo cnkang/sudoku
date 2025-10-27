@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbo",
-    "build": "next build && tsc && pnpm copy-cache-handler",
+    "dev:debug": "next dev --turbo --inspect",
+    "build": "next build --turbo && tsc && pnpm copy-cache-handler",
     "copy-cache-handler": "test -f cache-handler.mjs && cp cache-handler.mjs .next/cache-handler.mjs || echo 'No cache handler to copy'",
     "start": "next start",
     "lint": "eslint .",
@@ -103,5 +104,5 @@
       "@eslint/js": "^9.36.0"
     }
   },
-  "packageManager": "pnpm@10.18.3"
+  "packageManager": "pnpm@10.19.0"
 }
