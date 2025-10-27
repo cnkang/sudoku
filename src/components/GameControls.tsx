@@ -15,6 +15,7 @@ const GameControls: React.FC<GameControlsProps> = ({
   canUndo = false,
   hintsUsed = 0,
 }) => {
+  'use memo';
   const [isResetCooldown, setIsResetCooldown] = useState(false);
   const resetTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
