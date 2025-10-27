@@ -4,9 +4,14 @@ const ReactCompilerConfig = {
   sources: filename => {
     return filename.includes('src/');
   },
-  exclude: [/node_modules/, /\.test\./, /\.spec\./],
+  exclude: [/node_modules/, /\.test\./, /\.spec\./, /e2e/],
+  // Enhanced React Compiler optimizations
   enableTreatRefLikeIdentifierInHoist: true,
   enableTreatFunctionDepsAsConditional: true,
+  enablePreserveExistingMemoizationGuarantees: true,
+  enableReactiveScopesInHIR: true,
+  // Target modern environments for better optimizations
+  target: '19',
 };
 
 export default ReactCompilerConfig;
