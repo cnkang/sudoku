@@ -74,6 +74,7 @@ const hasConflict = (
  */
 const SudokuGrid = React.memo<SudokuGridProps>(
   ({ puzzle, userInput, onInputChange, disabled = false, hintCell = null }) => {
+    'use memo';
     const [selectedCell, setSelectedCell] = useState<CellPosition | null>(null);
     const cellRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
