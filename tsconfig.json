@@ -10,12 +10,15 @@
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "bundler", // Use bundler for vite compatibility
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve", // Updated for React
+    "jsx": "react-jsx",
     "incremental": true,
     "outDir": "dist",
+    // Enhanced for React 19 and React Compiler
+    "exactOptionalPropertyTypes": false,
+    "noUncheckedIndexedAccess": false,
     "plugins": [
       {
         "name": "next"
@@ -25,7 +28,13 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
   "types": ["vitest/globals"],
   "exclude": [
     "node_modules",

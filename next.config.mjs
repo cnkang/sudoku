@@ -1,17 +1,26 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    esmExternals: true,
-    optimizePackageImports: ['lodash', 'fast-sudoku-solver'],
-    reactCompiler: {
-      compilationMode: 'annotation',
+  // Turbopack configuration (moved from experimental)
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
     },
+  },
+  // React Compiler configuration (moved from experimental in Next.js 16)
+  reactCompiler: {
+    compilationMode: 'annotation',
+  },
+  experimental: {
+    // Optimize package imports for better tree shaking
+    optimizePackageImports: ['lodash', 'fast-sudoku-solver', 'winston'],
+    // Optimize CSS handling
+    optimizeCss: true,
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
   },
   async headers() {
     return [
