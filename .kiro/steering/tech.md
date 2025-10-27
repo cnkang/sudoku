@@ -9,7 +9,7 @@ inclusion: always
 - **Next.js 15** with App Router - Use server components by default, client components only when needed
 - **React 19** - Leverage latest features including React Compiler optimizations
 - **TypeScript 5.9** - Strict mode enabled, all code must be fully typed
-- **pnpm 10.18.0** - Required package manager, do not use npm or yarn
+- **pnpm 10.19.0** - Required package manager, do not use npm or yarn
 
 ## Development Workflow
 
