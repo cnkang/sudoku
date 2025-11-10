@@ -43,7 +43,7 @@
     "@commitlint/config-conventional": "^20.0.0",
     "@eslint/config-array": "^0.21.1",
     "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "^9.39.0",
+    "@eslint/js": "^9.39.1",
     "@eslint/object-schema": "^2.1.7",
     "@playwright/test": "^1.56.1",
     "@testing-library/dom": "^10.4.1",
