@@ -78,8 +78,8 @@ importers:
         specifier: ^9.39.1
         version: 9.39.2
       '@eslint/object-schema':
-        specifier: ^2.1.7
-        version: 2.1.7
+        specifier: ^3.0.0
+        version: 3.0.0
       '@playwright/test':
         specifier: ^1.57.0
         version: 1.57.0
