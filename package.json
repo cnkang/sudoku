@@ -39,7 +39,7 @@
     "winston": "^3.19.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.2.0",
+    "@commitlint/cli": "^20.3.0",
     "@commitlint/config-conventional": "^20.2.0",
     "@eslint/config-array": "^0.23.0",
     "@eslint/eslintrc": "^3.3.3",
