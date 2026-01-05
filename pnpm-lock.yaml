@@ -38,8 +38,8 @@ importers:
         specifier: ^3.47.0
         version: 3.47.0
       fast-sudoku-solver:
-        specifier: ^2.0.0
-        version: 2.0.0
+        specifier: ^3.0.0
+        version: 3.0.0
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -1849,8 +1849,8 @@ packages:
   fast-levenshtein@2.0.6:
     resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
 
-  fast-sudoku-solver@2.0.0:
-    resolution: {integrity: sha512-kLaLvGSQtMs/1TSpOgDwoc/SEQn/fH+2J3Rdaq0ZnanYf6HkeedRi+5zpOc6YNFN4AMACPHdvJa3LojXQ/V3Ig==}
+  fast-sudoku-solver@3.0.0:
+    resolution: {integrity: sha512-EJmonH1TzAf6UEiz0UcYsJ6889ktUVFIH0z60GWLXQPggrnELct5tJRCDMhHQEfsNtu49+nCnaGK26r5StsOPw==}
 
   fast-uri@3.1.0:
     resolution: {integrity: sha512-iPeeDKJSWf4IEOasVVrknXpaBV0IApz/gp7S2bb7Z4Lljbl2MGJRqInZiUrQwV16cpzw/D3S5j5Julj/gT52AA==}
@@ -4951,7 +4951,7 @@ snapshots:
 
   fast-levenshtein@2.0.6: {}
 
-  fast-sudoku-solver@2.0.0: {}
+  fast-sudoku-solver@3.0.0: {}
 
   fast-uri@3.1.0: {}
 
