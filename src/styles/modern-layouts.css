@@ -1,0 +1,469 @@
+/**
+ * Modern CSS Grid and Flexbox Layouts
+ * Implements Requirements 6.2, 8.3 for advanced layout patterns
+ * 
+ * Features:
+ * - Advanced CSS Grid patterns with subgrid support
+ * - Modern Flexbox layouts with logical properties
+ * - Intrinsic web design patterns
+ * - Container query-aware components
+ * - Child-friendly layout enhancements
+ */
+
+/* Advanced CSS Grid Patterns */
+.grid-auto-fit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+  gap: var(--space-4, 1rem);
+}
+
+.grid-auto-fill {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-4, 1rem);
+}
+
+.grid-intrinsic {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(clamp(200px, 25vw, 300px), 1fr)
+  );
+  gap: clamp(1rem, 3vw, 2rem);
+}
+
+/* CSS Grid with Named Lines */
+.grid-named-lines {
+  display: grid;
+  grid-template-columns:
+    [sidebar-start] minmax(200px, 1fr)
+    [sidebar-end main-start] minmax(0, 3fr)
+    [main-end];
+  grid-template-rows:
+    [header-start] auto
+    [header-end content-start] 1fr
+    [content-end footer-start] auto
+    [footer-end];
+  gap: var(--space-4, 1rem);
+  min-height: 100vh;
+}
+
+/* CSS Grid Areas for Complex Layouts */
+.grid-complex-layout {
+  display: grid;
+  grid-template-areas:
+    "header header header"
+    "nav main aside"
+    "footer footer footer";
+  grid-template-columns: 200px 1fr 200px;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--space-4, 1rem);
+  min-height: 100vh;
+}
+
+.grid-header {
+  grid-area: header;
+}
+.grid-nav {
+  grid-area: nav;
+}
+.grid-main {
+  grid-area: main;
+}
+.grid-aside {
+  grid-area: aside;
+}
+.grid-footer {
+  grid-area: footer;
+}
+
+/* Responsive Grid Areas */
+@media (max-width: 768px) {
+  .grid-complex-layout {
+    grid-template-areas:
+      "header"
+      "nav"
+      "main"
+      "aside"
+      "footer";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr auto auto;
+  }
+}
+
+/* Modern Flexbox Patterns */
+.flex-sidebar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4, 1rem);
+}
+
+.flex-sidebar > :first-child {
+  flex-basis: 250px;
+  flex-grow: 1;
+}
+
+.flex-sidebar > :last-child {
+  flex-basis: 0;
+  flex-grow: 999;
+  min-width: 50%;
+}
+
+.flex-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4, 1rem);
+}
+
+.flex-switcher > * {
+  flex-grow: 1;
+  flex-basis: calc((30rem - 100%) * 999);
+}
+
+.flex-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3, 0.75rem);
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.flex-stack {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.flex-stack > * {
+  margin-block: 0;
+}
+
+.flex-stack > * + * {
+  margin-block-start: var(--space-4, 1rem);
+}
+
+/* Center Layout Pattern */
+.center-layout {
+  box-sizing: content-box;
+  margin-inline: auto;
+  max-width: var(--measure, 65ch);
+  padding-inline: var(--space-4, 1rem);
+}
+
+/* Cover Layout Pattern */
+.cover-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: var(--space-4, 1rem);
+}
+
+.cover-layout > * {
+  margin-block: var(--space-2, 0.5rem);
+}
+
+.cover-layout > :first-child:not(.cover-centered) {
+  margin-block-end: auto;
+}
+
+.cover-layout > :last-child:not(.cover-centered) {
+  margin-block-start: auto;
+}
+
+.cover-layout > .cover-centered {
+  margin-block: auto;
+}
+
+/* Pancake Stack Layout */
+.pancake-stack {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+}
+
+/* Holy Grail Layout with Modern CSS */
+.holy-grail {
+  display: grid;
+  grid-template: auto 1fr auto / auto 1fr auto;
+  min-height: 100vh;
+}
+
+.holy-grail-header {
+  grid-column: 1 / 4;
+}
+
+.holy-grail-left {
+  grid-column: 1 / 2;
+}
+
+.holy-grail-content {
+  grid-column: 2 / 3;
+}
+
+.holy-grail-right {
+  grid-column: 3 / 4;
+}
+
+.holy-grail-footer {
+  grid-column: 1 / 4;
+}
+
+/* Responsive Holy Grail */
+@media (max-width: 768px) {
+  .holy-grail {
+    grid-template: auto auto 1fr auto auto / 1fr;
+  }
+
+  .holy-grail-header,
+  .holy-grail-left,
+  .holy-grail-content,
+  .holy-grail-right,
+  .holy-grail-footer {
+    grid-column: 1;
+  }
+}
+
+/* Sudoku-Specific Layout Patterns */
+.sudoku-game-layout {
+  display: grid;
+  grid-template-areas:
+    "header"
+    "controls"
+    "grid"
+    "stats"
+    "footer";
+  grid-template-rows: auto auto 1fr auto auto;
+  gap: var(--space-4, 1rem);
+  min-height: 100vh;
+  padding: var(--space-4, 1rem);
+}
+
+.sudoku-header {
+  grid-area: header;
+}
+.sudoku-controls {
+  grid-area: controls;
+}
+.sudoku-grid-area {
+  grid-area: grid;
+}
+.sudoku-stats {
+  grid-area: stats;
+}
+.sudoku-footer {
+  grid-area: footer;
+}
+
+/* Landscape Sudoku Layout */
+@media (orientation: landscape) and (min-width: 768px) {
+  .sudoku-game-layout {
+    grid-template-areas:
+      "header header header"
+      "controls grid stats"
+      "footer footer footer";
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto 1fr auto;
+  }
+}
+
+/* Child-Friendly Layout Enhancements */
+.child-friendly-layout {
+  display: grid;
+  gap: var(--space-6, 1.5rem);
+  padding: var(--space-6, 1.5rem);
+  border-radius: var(--child-border-radius, 12px);
+}
+
+.child-friendly-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-5, 1.25rem);
+}
+
+.child-friendly-flex {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5, 1.25rem);
+  align-items: center;
+}
+
+/* Container Query Layouts */
+.container-aware-layout {
+  container-type: inline-size;
+  container-name: layout;
+}
+
+@container layout (min-width: 400px) {
+  .container-responsive-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4, 1rem);
+  }
+}
+
+@container layout (min-width: 600px) {
+  .container-responsive-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@container layout (min-width: 800px) {
+  .container-responsive-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Aspect Ratio Aware Layouts */
+.aspect-ratio-layout {
+  container-type: size;
+  container-name: aspect-layout;
+}
+
+@container aspect-layout (aspect-ratio > 1.5) {
+  .wide-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--space-4, 1rem);
+  }
+}
+
+@container aspect-layout (aspect-ratio <= 1.5) and (aspect-ratio > 0.75) {
+  .square-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4, 1rem);
+  }
+}
+
+@container aspect-layout (aspect-ratio <= 0.75) {
+  .tall-layout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4, 1rem);
+  }
+}
+
+/* Modern CSS Grid with Masonry (when supported) */
+@supports (grid-template-rows: masonry) {
+  .masonry-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-rows: masonry;
+    gap: var(--space-4, 1rem);
+  }
+}
+
+/* Fallback for browsers without masonry support */
+@supports not (grid-template-rows: masonry) {
+  .masonry-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--space-4, 1rem);
+  }
+}
+
+/* Performance-Optimized Layouts */
+.gpu-accelerated-layout {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.contain-layout {
+  contain: layout style paint;
+}
+
+.contain-strict {
+  contain: strict;
+}
+
+/* Accessibility-Enhanced Layouts */
+.focus-trap-layout {
+  position: relative;
+}
+
+.focus-trap-layout::before,
+.focus-trap-layout::after {
+  content: "";
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.skip-link-layout {
+  position: relative;
+}
+
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--primary-color, #3b82f6);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 1000;
+  transition: top 0.3s;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Print-Optimized Layouts */
+@media print {
+  .print-layout {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  .print-hide {
+    display: none !important;
+  }
+
+  .print-break-before {
+    break-before: page;
+  }
+
+  .print-break-after {
+    break-after: page;
+  }
+
+  .print-break-inside-avoid {
+    break-inside: avoid;
+  }
+}
+
+/* Dark Mode Layout Adjustments */
+@media (prefers-color-scheme: dark) {
+  .dark-mode-layout {
+    background: var(--dark-background, #1e293b);
+    color: var(--dark-foreground, #f1f5f9);
+  }
+}
+
+/* Reduced Motion Layout Adjustments */
+@media (prefers-reduced-motion: reduce) {
+  .reduced-motion-layout * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High Contrast Layout Adjustments */
+@media (prefers-contrast: high) {
+  .high-contrast-layout {
+    border: 2px solid currentColor;
+  }
+
+  .high-contrast-layout * {
+    border-color: currentColor;
+  }
+}
