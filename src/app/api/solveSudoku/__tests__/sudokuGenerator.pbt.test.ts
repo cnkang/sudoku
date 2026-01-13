@@ -141,16 +141,19 @@ describe('Sudoku Generator Property-Based Tests', () => {
     it('should generate puzzles with exactly one unique solution for 4x4 grids', () => {
       // Feature: multi-size-sudoku, Property 2: For any generated puzzle regardless of grid size, the puzzle should have exactly one valid solution
       fc.assert(
-        fc.property(
+        fc.asyncProperty(
           fc.integer({ min: 1, max: 3 }), // Use lower difficulty for faster testing
-          difficulty => {
+          async difficulty => {
             const config = getConfig(4);
             const adjustedDifficulty = Math.min(
               difficulty,
               config.difficultyLevels
             );
 
-            const { puzzle } = generateSudokuPuzzle(adjustedDifficulty, 4);
+            const { puzzle } = await generateSudokuPuzzle(
+              adjustedDifficulty,
+              4
+            );
 
             // Count solutions using our simple solver
             const solutionCount = countSolutions(puzzle, config);
@@ -166,17 +169,17 @@ describe('Sudoku Generator Property-Based Tests', () => {
     it('should generate valid puzzle structure for all grid sizes', () => {
       // Test that generated puzzles have correct structure
       fc.assert(
-        fc.property(
+        fc.asyncProperty(
           fc.constantFrom(4, 6, 9),
           fc.integer({ min: 1, max: 3 }),
-          (gridSize, difficulty) => {
+          async (gridSize, difficulty) => {
             const config = getConfig(gridSize);
             const adjustedDifficulty = Math.min(
               difficulty,
               config.difficultyLevels
             );
 
-            const { puzzle, solution } = generateSudokuPuzzle(
+            const { puzzle, solution } = await generateSudokuPuzzle(
               adjustedDifficulty,
               gridSize
             );
@@ -216,17 +219,17 @@ describe('Sudoku Generator Property-Based Tests', () => {
     it('should generate puzzles with clue counts within difficulty level ranges', () => {
       // Feature: multi-size-sudoku, Property 3: For any grid size and difficulty level, generated puzzles should have clue counts within the specified ranges for that grid size
       fc.assert(
-        fc.property(
+        fc.asyncProperty(
           fc.constantFrom(4, 6, 9),
           fc.integer({ min: 1, max: 5 }),
-          (gridSize, difficulty) => {
+          async (gridSize, difficulty) => {
             const config = getConfig(gridSize);
             const adjustedDifficulty = Math.min(
               difficulty,
               config.difficultyLevels
             );
 
-            const { puzzle } = generateSudokuPuzzle(
+            const { puzzle } = await generateSudokuPuzzle(
               adjustedDifficulty,
               gridSize
             );
