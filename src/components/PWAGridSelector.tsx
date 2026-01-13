@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import type React from "react";
-import { useState, useEffect, useCallback } from "react";
-import { GRID_CONFIGS } from "@/utils/gridConfig";
-import type { GridConfig } from "@/types";
-import styles from "./PWAGridSelector.module.css";
+import type React from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { GRID_CONFIGS } from '@/utils/gridConfig';
+import type { GridConfig } from '@/types';
+import styles from './PWAGridSelector.module.css';
 
 interface PWAGridSelectorProps {
   currentSize: 4 | 6 | 9;
@@ -31,11 +31,11 @@ interface GridOption {
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
 }
 
 const isNavigatorStandalone = (navigatorRef: Navigator): boolean => {
-  if ("standalone" in navigatorRef) {
+  if ('standalone' in navigatorRef) {
     return (
       (navigatorRef as Navigator & { standalone?: boolean }).standalone === true
     );
@@ -46,33 +46,33 @@ const isNavigatorStandalone = (navigatorRef: Navigator): boolean => {
 const GRID_OPTIONS: GridOption[] = [
   {
     size: 4,
-    label: "4×4 Grid",
-    childLabel: "Easy 4×4",
-    description: "Perfect for beginners and young learners",
-    childDescription: "Great for starting your Sudoku journey! 🌟",
-    icon: "🟦",
-    color: "#0077BE",
-    difficulty: "Beginner",
+    label: '4×4 Grid',
+    childLabel: 'Easy 4×4',
+    description: 'Perfect for beginners and young learners',
+    childDescription: 'Great for starting your Sudoku journey! 🌟',
+    icon: '🟦',
+    color: '#0077BE',
+    difficulty: 'Beginner',
   },
   {
     size: 6,
-    label: "6×6 Grid",
-    childLabel: "Fun 6×6",
-    description: "Intermediate challenge with more complexity",
-    childDescription: "Ready for more fun? Try this bigger puzzle! 🎯",
-    icon: "🟨",
-    color: "#FF6B35",
-    difficulty: "Intermediate",
+    label: '6×6 Grid',
+    childLabel: 'Fun 6×6',
+    description: 'Intermediate challenge with more complexity',
+    childDescription: 'Ready for more fun? Try this bigger puzzle! 🎯',
+    icon: '🟨',
+    color: '#FF6B35',
+    difficulty: 'Intermediate',
   },
   {
     size: 9,
-    label: "9×9 Grid",
-    childLabel: "Challenge 9×9",
-    description: "Classic Sudoku experience for experts",
-    childDescription: "The ultimate Sudoku challenge awaits! 🏆",
-    icon: "🟩",
-    color: "#32CD32",
-    difficulty: "Expert",
+    label: '9×9 Grid',
+    childLabel: 'Challenge 9×9',
+    description: 'Classic Sudoku experience for experts',
+    childDescription: 'The ultimate Sudoku challenge awaits! 🏆',
+    icon: '🟩',
+    color: '#32CD32',
+    difficulty: 'Expert',
   },
 ];
 
@@ -84,7 +84,7 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
   disabled = false,
   offlineMode = false,
   onInstallPrompt,
-  notificationPermission: _notificationPermission = "default",
+  notificationPermission: _notificationPermission = 'default',
 }) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [deferredPrompt, setDeferredPrompt] =
@@ -94,7 +94,7 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
 
   // PWA installation detection
   useEffect(() => {
-    const handleBeforeInstallPrompt: EventListener = (event) => {
+    const handleBeforeInstallPrompt: EventListener = event => {
       event.preventDefault();
       const promptEvent = event as BeforeInstallPromptEvent;
       setDeferredPrompt(promptEvent);
@@ -109,23 +109,20 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
 
     // Check if already installed
     const isStandalone = window.matchMedia(
-      "(display-mode: standalone)"
+      '(display-mode: standalone)'
     ).matches;
     const isInWebAppiOS = isNavigatorStandalone(window.navigator);
     setIsInstalled(isStandalone || isInWebAppiOS);
 
-    window.addEventListener(
-      "beforeinstallprompt",
-      handleBeforeInstallPrompt
-    );
-    window.addEventListener("appinstalled", handleAppInstalled);
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
       window.removeEventListener(
-        "beforeinstallprompt",
+        'beforeinstallprompt',
         handleBeforeInstallPrompt
       );
-      window.removeEventListener("appinstalled", handleAppInstalled);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 
@@ -139,12 +136,11 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
 
-      if (outcome === "accepted") {
+      if (outcome === 'accepted') {
         setIsInstallable(false);
         setDeferredPrompt(null);
       }
-    } catch (_error) {
-    }
+    } catch {}
   }, [deferredPrompt, onInstallPrompt]);
 
   const handleSizeChange = useCallback(
@@ -167,7 +163,7 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
           await startViewTransition(() => {
             onSizeChange(newSize);
           }).finished;
-        } catch (_error) {
+        } catch {
           // Fallback if View Transitions fail
           onSizeChange(newSize);
         }
@@ -217,25 +213,25 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
       {/* Grid Size Selection */}
       <div className={styles.selectorHeader}>
         <h2 className={styles.title}>
-          {childMode ? "Choose Your Puzzle Size!" : "Select Grid Size"}
+          {childMode ? 'Choose Your Puzzle Size!' : 'Select Grid Size'}
         </h2>
         {showDescriptions && (
           <p className={styles.subtitle}>
             {childMode
-              ? "Pick the size that feels just right for you! 🎮"
-              : "Choose your preferred Sudoku grid size"}
+              ? 'Pick the size that feels just right for you! 🎮'
+              : 'Choose your preferred Sudoku grid size'}
           </p>
         )}
       </div>
 
       <div
-        className={`${styles.gridOptions} ${childMode ? styles.childMode : ""}`}
+        className={`${styles.gridOptions} ${childMode ? styles.childMode : ''}`}
         role="radiogroup"
         aria-label="Grid size selection"
       >
         {GRID_OPTIONS.map(
           // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: render rich option cards
-          (option) => {
+          option => {
             const config = getGridConfig(option.size);
             const isSelected = currentSize === option.size;
             const isChildFriendly = config.childFriendly.enableAnimations;
@@ -247,16 +243,16 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
                 htmlFor={optionId}
                 className={`
                   ${styles.gridOption}
-                  ${isSelected ? styles.selected : ""}
-                  ${childMode ? styles.childOption : ""}
-                  ${isChildFriendly ? styles.childFriendly : ""}
-                  ${isTransitioning ? styles.transitioning : ""}
+                  ${isSelected ? styles.selected : ''}
+                  ${childMode ? styles.childOption : ''}
+                  ${isChildFriendly ? styles.childFriendly : ''}
+                  ${isTransitioning ? styles.transitioning : ''}
                 `}
                 data-testid={optionId}
                 style={
                   {
-                    "--option-color": option.color,
-                    "--cell-size": `${config.cellSize.mobile}px`,
+                    '--option-color': option.color,
+                    '--cell-size': `${config.cellSize.mobile}px`,
                   } as React.CSSProperties
                 }
               >
@@ -273,56 +269,61 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
                     childMode ? option.childLabel : option.label
                   } - ${option.difficulty} difficulty`}
                 />
-              <div className={styles.optionIcon} aria-hidden="true">
-                {option.icon}
-              </div>
+                <div className={styles.optionIcon} aria-hidden="true">
+                  {option.icon}
+                </div>
 
-              <div className={styles.optionContent}>
-                <h3 className={styles.optionTitle}>
-                  {childMode ? option.childLabel : option.label}
-                </h3>
+                <div className={styles.optionContent}>
+                  <h3 className={styles.optionTitle}>
+                    {childMode ? option.childLabel : option.label}
+                  </h3>
 
-                {showDescriptions && (
-                  <p className={styles.optionDescription}>
-                    {childMode ? option.childDescription : option.description}
-                  </p>
+                  {showDescriptions && (
+                    <p className={styles.optionDescription}>
+                      {childMode ? option.childDescription : option.description}
+                    </p>
+                  )}
+
+                  <div className={styles.optionMeta}>
+                    <span className={styles.difficulty}>
+                      {option.difficulty}
+                    </span>
+                    <span className={styles.clueRange}>
+                      {config.minClues}-{config.maxClues} clues
+                    </span>
+                  </div>
+                </div>
+
+                {/* Visual grid preview */}
+                <div className={styles.gridPreview} aria-hidden="true">
+                  <div
+                    className={styles.previewGrid}
+                    style={{
+                      gridTemplateColumns: `repeat(${option.size}, 1fr)`,
+                      gridTemplateRows: `repeat(${option.size}, 1fr)`,
+                    }}
+                  >
+                    {Array.from(
+                      { length: option.size * option.size },
+                      (_, i) => (
+                        <div
+                          key={`${option.size}-${Math.floor(i / option.size)}-${
+                            i % option.size
+                          }`}
+                          className={`${styles.previewCell} ${
+                            i % 2 === 0 ? styles.filled : ''
+                          }`}
+                        />
+                      )
+                    )}
+                  </div>
+                </div>
+
+                {isSelected && (
+                  <div className={styles.selectedIndicator} aria-hidden="true">
+                    ✓
+                  </div>
                 )}
-
-                <div className={styles.optionMeta}>
-                  <span className={styles.difficulty}>{option.difficulty}</span>
-                  <span className={styles.clueRange}>
-                    {config.minClues}-{config.maxClues} clues
-                  </span>
-                </div>
-              </div>
-
-              {/* Visual grid preview */}
-              <div className={styles.gridPreview} aria-hidden="true">
-                <div
-                  className={styles.previewGrid}
-                  style={{
-                    gridTemplateColumns: `repeat(${option.size}, 1fr)`,
-                    gridTemplateRows: `repeat(${option.size}, 1fr)`,
-                  }}
-                >
-                  {Array.from({ length: option.size * option.size }, (_, i) => (
-                    <div
-                      key={`${option.size}-${Math.floor(i / option.size)}-${
-                        i % option.size
-                      }`}
-                      className={`${styles.previewCell} ${
-                        i % 2 === 0 ? styles.filled : ""
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {isSelected && (
-                <div className={styles.selectedIndicator} aria-hidden="true">
-                  ✓
-                </div>
-              )}
               </label>
             );
           }

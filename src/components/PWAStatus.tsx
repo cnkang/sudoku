@@ -3,11 +3,11 @@
  * Shows PWA installation status, offline indicator, and update notifications
  */
 
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { usePWA, useOfflineStatus } from "@/hooks/usePWA";
-import styles from "./PWAStatus.module.css";
+import { useEffect, useState } from 'react';
+import { usePWA, useOfflineStatus } from '@/hooks/usePWA';
+import styles from './PWAStatus.module.css';
 
 interface PWAStatusProps {
   showInstallButton?: boolean;
@@ -20,7 +20,7 @@ export default function PWAStatus({
   showInstallButton = true,
   showOfflineIndicator = true,
   showUpdateNotification = true,
-  className = "",
+  className = '',
 }: PWAStatusProps) {
   const { status, canInstall, installApp, isInstalling, updateServiceWorker } =
     usePWA();
@@ -65,7 +65,7 @@ export default function PWAStatus({
       setTimeout(() => {
         window.location.reload();
       }, 1000);
-    } catch (_error) {
+    } catch {
     } finally {
       setIsUpdating(false);
     }
@@ -133,7 +133,7 @@ export default function PWAStatus({
                   Updating...
                 </>
               ) : (
-                "Update Now"
+                'Update Now'
               )}
             </button>
             <button
@@ -149,16 +149,16 @@ export default function PWAStatus({
       )}
 
       {/* PWA Status Info (for debugging) */}
-      {process.env.NODE_ENV === "development" && (
+      {process.env.NODE_ENV === 'development' && (
         <div className={styles.debugInfo}>
           <details>
             <summary>PWA Status (Debug)</summary>
             <ul>
-              <li>Supported: {status.isSupported ? "✅" : "❌"}</li>
-              <li>Installed: {status.isInstalled ? "✅" : "❌"}</li>
-              <li>Service Worker: {status.serviceWorkerReady ? "✅" : "❌"}</li>
-              <li>Can Install: {canInstall ? "✅" : "❌"}</li>
-              <li>Offline: {isOffline ? "✅" : "❌"}</li>
+              <li>Supported: {status.isSupported ? '✅' : '❌'}</li>
+              <li>Installed: {status.isInstalled ? '✅' : '❌'}</li>
+              <li>Service Worker: {status.serviceWorkerReady ? '✅' : '❌'}</li>
+              <li>Can Install: {canInstall ? '✅' : '❌'}</li>
+              <li>Offline: {isOffline ? '✅' : '❌'}</li>
               {status.cacheStatus && (
                 <li>Cached Puzzles: {status.cacheStatus.puzzleCount}</li>
               )}
