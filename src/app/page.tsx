@@ -1,13 +1,13 @@
-"use client";
-import "core-js/stable";
-import "regenerator-runtime/runtime";
-import { Suspense } from "react";
-import ModernSudokuApp from "../components/ModernSudokuApp";
-import { getPerformanceMonitor } from "../utils/performance-monitoring";
-import styles from "./page.module.css";
-import { pageStyles } from "./page.styles";
-import "../styles/modern-responsive.css";
-import "../styles/modern-layouts.css";
+'use client';
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+import { Suspense } from 'react';
+import ModernSudokuApp from '../components/ModernSudokuApp';
+import { getPerformanceMonitor } from '../utils/performance-monitoring';
+import styles from './page.module.css';
+import { pageStyles } from './page.styles';
+import '../styles/modern-responsive.css';
+import '../styles/modern-layouts.css';
 
 /**
  * Main Sudoku game page component with modern architecture integration
@@ -16,15 +16,15 @@ import "../styles/modern-layouts.css";
  * Requirements: 1.2, 1.3, 7.3, 8.1
  */
 export default function Home() {
-  "use memo"; // React Compiler directive for automatic optimization
+  'use memo'; // React Compiler directive for automatic optimization
 
   // Initialize performance monitoring for the page
-  if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     const monitor = getPerformanceMonitor();
     const startTime = performance.now();
 
     // Track page load performance
-    window.addEventListener("load", () => {
+    window.addEventListener('load', () => {
       const endTime = performance.now();
       const _loadTime = endTime - startTime;
       const meetsRequirements = monitor.meetsPerformanceRequirements();
@@ -32,7 +32,7 @@ export default function Home() {
     });
   }
 
-  const isTestEnv = process.env.NODE_ENV === "test";
+  const isTestEnv = process.env.NODE_ENV === 'test';
 
   return (
     <div className={`${styles.page} container-query-root modern-grid-layout`}>
