@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import type { ReactNode } from "react";
-import { ThemeContext, useTheme } from "@/hooks/useTheme";
+import type { ReactNode } from 'react';
+import { ThemeContext, useTheme } from '@/hooks/useTheme';
 
 interface ThemeProviderProps {
   children: ReactNode;

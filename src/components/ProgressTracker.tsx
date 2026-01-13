@@ -1,11 +1,11 @@
-import type React from "react";
-import { useState, useCallback, useMemo } from "react";
+import type React from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import type {
   Achievement,
   ProgressReward,
   CelebrationEffect,
   ProgressStats,
-} from "@/utils/progressTracking";
+} from '@/utils/progressTracking';
 import {
   checkForNewAchievements,
   generateCompletionReward,
@@ -13,8 +13,8 @@ import {
   getCelebrationMessage,
   updateProgressStats,
   getAllAchievements,
-} from "@/utils/progressTracking";
-import styles from "./ProgressTracker.module.css";
+} from '@/utils/progressTracking';
+import styles from './ProgressTracker.module.css';
 
 export interface ProgressTrackerProps {
   currentStats: ProgressStats;
@@ -93,12 +93,12 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
         timestamp: Date.now(),
       };
 
-      setDisplayedRewards((prev) => [...prev, newDisplayedReward]);
+      setDisplayedRewards(prev => [...prev, newDisplayedReward]);
       onRewardEarned?.(completionReward);
 
       // Auto-remove reward after duration
       setTimeout(() => {
-        setDisplayedRewards((prev) => prev.filter((r) => r.id !== rewardId));
+        setDisplayedRewards(prev => prev.filter(r => r.id !== rewardId));
       }, completionReward.duration);
 
       // Handle new achievements
@@ -117,17 +117,14 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
             celebrationEffect,
           };
 
-          setDisplayedAchievements((prev) => [
-            ...prev,
-            newDisplayedAchievement,
-          ]);
+          setDisplayedAchievements(prev => [...prev, newDisplayedAchievement]);
           onAchievementUnlocked?.(achievement);
           onCelebrationTriggered?.(celebrationEffect);
 
           // Auto-remove achievement display after celebration
           setTimeout(() => {
-            setDisplayedAchievements((prev) =>
-              prev.filter((a) => a.id !== achievementId)
+            setDisplayedAchievements(prev =>
+              prev.filter(a => a.id !== achievementId)
             );
           }, celebrationEffect.duration + 2000);
         }, index * 1000); // Stagger multiple achievements
@@ -146,7 +143,7 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
 
   // Calculate progress display data
   const allAchievements = getAllAchievements();
-  const unlockedAchievements = allAchievements.filter((a) =>
+  const unlockedAchievements = allAchievements.filter(a =>
     currentStats.achievements.includes(a.id)
   );
   const progressPercentage =
@@ -154,30 +151,32 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
 
   // Get recent achievements for display
   const recentAchievements = unlockedAchievements
-    .filter(
-      (achievement): achievement is Achievement & { unlockedAt: Date } =>
-        Boolean(achievement.unlockedAt)
+    .filter((achievement): achievement is Achievement & { unlockedAt: Date } =>
+      Boolean(achievement.unlockedAt)
     )
     .sort((a, b) => b.unlockedAt.getTime() - a.unlockedAt.getTime())
     .slice(0, 3);
 
   const confettiPieces = useMemo(
-    () => Array.from({ length: 20 }, (_, index) => ({ id: `confetti-${index}` })),
+    () =>
+      Array.from({ length: 20 }, (_, index) => ({ id: `confetti-${index}` })),
     []
   );
   const sparklePieces = useMemo(
-    () => Array.from({ length: 10 }, (_, index) => ({ id: `sparkle-${index}` })),
+    () =>
+      Array.from({ length: 10 }, (_, index) => ({ id: `sparkle-${index}` })),
     []
   );
   const fireworkPieces = useMemo(
-    () => Array.from({ length: 5 }, (_, index) => ({ id: `firework-${index}` })),
+    () =>
+      Array.from({ length: 5 }, (_, index) => ({ id: `firework-${index}` })),
     []
   );
 
   return (
     <div
       className={`${styles.progressTracker} ${
-        childMode ? styles.childMode : ""
+        childMode ? styles.childMode : ''
       }`}
     >
       {/* Progress Overview */}
@@ -231,7 +230,7 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
         <div className={styles.recentAchievements}>
           <h3 className={styles.sectionTitle}>Recent Achievements 🎉</h3>
           <div className={styles.achievementsList}>
-            {recentAchievements.map((achievement) => (
+            {recentAchievements.map(achievement => (
               <div key={achievement.id} className={styles.achievementItem}>
                 <div className={styles.achievementIcon}>{achievement.icon}</div>
                 <div className={styles.achievementInfo}>
@@ -264,7 +263,7 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
           }`}
           style={
             {
-              "--reward-color": getRewardColor(reward.color),
+              '--reward-color': getRewardColor(reward.color),
               animationDuration: `${reward.duration}ms`,
             } as React.CSSProperties
           }
@@ -300,7 +299,7 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
               styles[celebrationEffect.type]
             }`}
           >
-            {celebrationEffect.type === "confetti" && (
+            {celebrationEffect.type === 'confetti' && (
               <div className={styles.confettiContainer}>
                 {confettiPieces.map((piece, i) => (
                   <div
@@ -308,8 +307,8 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
                     className={styles.confettiPiece}
                     style={
                       {
-                        "--delay": `${i * 0.1}s`,
-                        "--color":
+                        '--delay': `${i * 0.1}s`,
+                        '--color':
                           celebrationEffect.colors[
                             i % celebrationEffect.colors.length
                           ],
@@ -320,7 +319,7 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
               </div>
             )}
 
-            {celebrationEffect.type === "sparkles" && (
+            {celebrationEffect.type === 'sparkles' && (
               <div className={styles.sparklesContainer}>
                 {sparklePieces.map((piece, i) => (
                   <div
@@ -328,7 +327,7 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
                     className={styles.sparkle}
                     style={
                       {
-                        "--delay": `${i * 0.2}s`,
+                        '--delay': `${i * 0.2}s`,
                       } as React.CSSProperties
                     }
                   >
@@ -338,7 +337,7 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
               </div>
             )}
 
-            {celebrationEffect.type === "fireworks" && (
+            {celebrationEffect.type === 'fireworks' && (
               <div className={styles.fireworksContainer}>
                 {fireworkPieces.map((piece, i) => (
                   <div
@@ -346,8 +345,8 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
                     className={styles.firework}
                     style={
                       {
-                        "--delay": `${i * 0.5}s`,
-                        "--color":
+                        '--delay': `${i * 0.5}s`,
+                        '--color':
                           celebrationEffect.colors[
                             i % celebrationEffect.colors.length
                           ],
@@ -383,29 +382,29 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
 // Helper functions
 const getRewardColor = (color: string): string => {
   const colorMap: Record<string, string> = {
-    gold: "#FFD700",
-    silver: "#C0C0C0",
-    bronze: "#CD7F32",
+    gold: '#FFD700',
+    silver: '#C0C0C0',
+    bronze: '#CD7F32',
     rainbow:
-      "linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3)",
-    blue: "#4A90E2",
-    green: "#7ED321",
-    purple: "#9013FE",
-    pink: "#FF6B9D",
+      'linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3)',
+    blue: '#4A90E2',
+    green: '#7ED321',
+    purple: '#9013FE',
+    pink: '#FF6B9D',
   };
-  return colorMap[color] || "#FFD700";
+  return colorMap[color] || '#FFD700';
 };
 
 const getRewardIcon = (type: string): string => {
   const iconMap: Record<string, string> = {
-    star: "⭐",
-    badge: "🏅",
-    sticker: "🌟",
-    trophy: "🏆",
-    crown: "👑",
-    gem: "💎",
+    star: '⭐',
+    badge: '🏅',
+    sticker: '🌟',
+    trophy: '🏆',
+    crown: '👑',
+    gem: '💎',
   };
-  return iconMap[type] || "⭐";
+  return iconMap[type] || '⭐';
 };
 
 export default ProgressTracker;
