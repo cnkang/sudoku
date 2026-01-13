@@ -184,7 +184,7 @@ describe('/api/solveSudoku', () => {
       const data1 = await response1.json();
 
       expect(generateSudokuPuzzle).toHaveBeenCalledTimes(1);
-      expect(data1.cached).toBeUndefined();
+      expect(data1.cached).toBe(false);
 
       // Second request with same difficulty (should use cache)
       mockRequest = createMockRequest('3');
@@ -212,7 +212,7 @@ describe('/api/solveSudoku', () => {
       const data = await response.json();
 
       expect(generateSudokuPuzzle).toHaveBeenCalledTimes(2);
-      expect(data.cached).toBeUndefined();
+      expect(data.cached).toBe(false);
     });
 
     it('should rate limit force refresh requests', async () => {
@@ -374,7 +374,7 @@ describe('/api/solveSudoku', () => {
       expect(data).toHaveProperty('solution');
       expect(data).toHaveProperty('difficulty');
       expect(data.solved).toBe(true);
-      expect(data.cached).toBeUndefined();
+      expect(data.cached).toBe(false);
     });
 
     it('should return correct response structure for cached puzzle', async () => {

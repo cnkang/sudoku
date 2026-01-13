@@ -8,6 +8,58 @@ export interface HintResult {
 import { validateSudokuGrid } from './validation';
 import { VALIDATION_CONSTANTS } from './validation';
 
+type CellValues = {
+  puzzleCell: number;
+  inputCell: number;
+  solutionCell: number;
+};
+
+const getCellValues = (
+  puzzle: number[][],
+  userInput: number[][],
+  solution: number[][],
+  row: number,
+  col: number
+): CellValues | null => {
+  const puzzleCell = puzzle[row]?.[col];
+  const inputCell = userInput[row]?.[col];
+  const solutionCell = solution[row]?.[col];
+  if (
+    puzzleCell === undefined ||
+    inputCell === undefined ||
+    solutionCell === undefined
+  ) {
+    return null;
+  }
+  return { puzzleCell, inputCell, solutionCell };
+};
+
+const findMatchingCell = (
+  puzzle: number[][],
+  userInput: number[][],
+  solution: number[][],
+  predicate: (values: CellValues) => boolean,
+  buildReason: (solutionCell: number, row: number, col: number) => string
+): HintResult | null => {
+  for (let row = 0; row < VALIDATION_CONSTANTS.SUDOKU_SIZE; row++) {
+    for (let col = 0; col < VALIDATION_CONSTANTS.SUDOKU_SIZE; col++) {
+      const values = getCellValues(puzzle, userInput, solution, row, col);
+      if (!values) {
+        continue;
+      }
+      if (predicate(values)) {
+        return {
+          row,
+          col,
+          value: values.solutionCell,
+          reason: buildReason(values.solutionCell, row, col),
+        };
+      }
+    }
+  }
+  return null;
+};
+
 export const getHint = (
   puzzle: number[][],
   userInput: number[][],
@@ -18,37 +70,26 @@ export const getHint = (
   validateSudokuGrid(userInput);
   validateSudokuGrid(solution);
 
-  // Find first empty cell that can be filled
-  for (let row = 0; row < VALIDATION_CONSTANTS.SUDOKU_SIZE; row++) {
-    for (let col = 0; col < VALIDATION_CONSTANTS.SUDOKU_SIZE; col++) {
-      if (puzzle[row][col] === 0 && userInput[row][col] === 0) {
-        return {
-          row,
-          col,
-          value: solution[row][col],
-          reason: `Try placing ${solution[row][col]} in row ${row + 1}, column ${col + 1}`,
-        };
-      }
-    }
+  const emptyCellHint = findMatchingCell(
+    puzzle,
+    userInput,
+    solution,
+    ({ puzzleCell, inputCell }) => puzzleCell === 0 && inputCell === 0,
+    (solutionCell, row, col) =>
+      `Try placing ${solutionCell} in row ${row + 1}, column ${col + 1}`
+  );
+
+  if (emptyCellHint) {
+    return emptyCellHint;
   }
 
-  // Find first incorrect cell
-  for (let row = 0; row < VALIDATION_CONSTANTS.SUDOKU_SIZE; row++) {
-    for (let col = 0; col < VALIDATION_CONSTANTS.SUDOKU_SIZE; col++) {
-      if (
-        puzzle[row][col] === 0 &&
-        userInput[row][col] !== 0 &&
-        userInput[row][col] !== solution[row][col]
-      ) {
-        return {
-          row,
-          col,
-          value: solution[row][col],
-          reason: `The value in row ${row + 1}, column ${col + 1} should be ${solution[row][col]}`,
-        };
-      }
-    }
-  }
-
-  return null;
+  return findMatchingCell(
+    puzzle,
+    userInput,
+    solution,
+    ({ puzzleCell, inputCell, solutionCell }) =>
+      puzzleCell === 0 && inputCell !== 0 && inputCell !== solutionCell,
+    (solutionCell, row, col) =>
+      `The value in row ${row + 1}, column ${col + 1} should be ${solutionCell}`
+  );
 };

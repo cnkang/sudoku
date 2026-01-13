@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import GameControls from '../GameControls';
@@ -13,7 +12,6 @@ import {
 import {
   createRenderingTests,
   createLoadingStateTests,
-  createUserInteractionTests,
 } from './shared-test-suites';
 
 describe('GameControls', () => {

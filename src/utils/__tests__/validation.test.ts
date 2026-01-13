@@ -5,8 +5,11 @@ import {
   validateCellValue,
   validateSudokuGrid,
   validateInputChange,
+  detectConflicts,
+  getValidationConstants,
   VALIDATION_CONSTANTS,
 } from '../validation';
+import { GridConfigManager } from '../gridConfig';
 
 describe('validation utilities', () => {
   describe('VALIDATION_CONSTANTS', () => {
@@ -323,5 +326,167 @@ describe('validation utilities', () => {
         'Invalid cell value: 3.14. Must be 0 or between 1 and 9.'
       );
     });
+  });
+});
+describe('getValidationConstants', () => {
+  it('should return correct constants for different grid sizes', () => {
+    const config4 = GridConfigManager.getConfig(4);
+    const constants4 = getValidationConstants(config4);
+
+    expect(constants4.SUDOKU_SIZE).toBe(4);
+    expect(constants4.MAX_DIFFICULTY).toBe(5);
+    expect(constants4.BOX_ROWS).toBe(2);
+    expect(constants4.BOX_COLS).toBe(2);
+    expect(constants4.VALID_SUDOKU_VALUES).toEqual([1, 2, 3, 4]);
+
+    const config9 = GridConfigManager.getConfig(9);
+    const constants9 = getValidationConstants(config9);
+
+    expect(constants9.SUDOKU_SIZE).toBe(9);
+    expect(constants9.MAX_DIFFICULTY).toBe(10);
+    expect(constants9.BOX_ROWS).toBe(3);
+    expect(constants9.BOX_COLS).toBe(3);
+    expect(constants9.VALID_SUDOKU_VALUES).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+});
+
+describe('multi-size validation functions', () => {
+  describe('validateCellCoordinates with config', () => {
+    it('should validate coordinates for 4x4 grid', () => {
+      const config = GridConfigManager.getConfig(4);
+      expect(() => validateCellCoordinates(0, 0, config)).not.toThrow();
+      expect(() => validateCellCoordinates(3, 3, config)).not.toThrow();
+      expect(() => validateCellCoordinates(4, 0, config)).toThrow(
+        'Invalid row: 4. Must be between 0 and 3.'
+      );
+      expect(() => validateCellCoordinates(0, 4, config)).toThrow(
+        'Invalid column: 4. Must be between 0 and 3.'
+      );
+    });
+
+    it('should validate coordinates for 6x6 grid', () => {
+      const config = GridConfigManager.getConfig(6);
+      expect(() => validateCellCoordinates(0, 0, config)).not.toThrow();
+      expect(() => validateCellCoordinates(5, 5, config)).not.toThrow();
+      expect(() => validateCellCoordinates(6, 0, config)).toThrow(
+        'Invalid row: 6. Must be between 0 and 5.'
+      );
+    });
+  });
+
+  describe('validateCellValue with config', () => {
+    it('should validate values for 4x4 grid', () => {
+      const config = GridConfigManager.getConfig(4);
+      expect(() => validateCellValue(0, config)).not.toThrow();
+      expect(() => validateCellValue(4, config)).not.toThrow();
+      expect(() => validateCellValue(5, config)).toThrow(
+        'Invalid cell value: 5. Must be 0 or between 1 and 4.'
+      );
+    });
+
+    it('should validate values for 6x6 grid', () => {
+      const config = GridConfigManager.getConfig(6);
+      expect(() => validateCellValue(6, config)).not.toThrow();
+      expect(() => validateCellValue(7, config)).toThrow(
+        'Invalid cell value: 7. Must be 0 or between 1 and 6.'
+      );
+    });
+  });
+
+  describe('validateSudokuGrid with config', () => {
+    it('should validate 4x4 grid structure', () => {
+      const config = GridConfigManager.getConfig(4);
+      const validGrid = Array(4)
+        .fill(null)
+        .map(() => Array(4).fill(0));
+      expect(() => validateSudokuGrid(validGrid, config)).not.toThrow();
+
+      const invalidGrid = Array(3)
+        .fill(null)
+        .map(() => Array(4).fill(0));
+      expect(() => validateSudokuGrid(invalidGrid, config)).toThrow(
+        'Invalid grid: must be a 4x4 array.'
+      );
+    });
+  });
+
+  describe('validateInputChange with config', () => {
+    it('should validate input changes for different grid sizes', () => {
+      const config4 = GridConfigManager.getConfig(4);
+      expect(() => validateInputChange(0, 0, 4, config4)).not.toThrow();
+      expect(() => validateInputChange(0, 0, 5, config4)).toThrow(
+        'Invalid cell value: 5. Must be 0 or between 1 and 4.'
+      );
+    });
+  });
+});
+
+describe('detectConflicts', () => {
+  it('should detect row conflicts', () => {
+    const config = GridConfigManager.getConfig(4);
+    const grid = [
+      [1, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ];
+
+    const result = detectConflicts(grid, 0, 1, 1, config);
+    expect(result.hasConflict).toBe(true);
+    expect(result.conflictType).toBe('row');
+  });
+
+  it('should detect column conflicts', () => {
+    const config = GridConfigManager.getConfig(4);
+    const grid = [
+      [1, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ];
+
+    const result = detectConflicts(grid, 1, 0, 1, config);
+    expect(result.hasConflict).toBe(true);
+    expect(result.conflictType).toBe('column');
+  });
+
+  it('should detect box conflicts', () => {
+    const config = GridConfigManager.getConfig(4);
+    const grid = [
+      [1, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ];
+
+    const result = detectConflicts(grid, 1, 1, 1, config);
+    expect(result.hasConflict).toBe(true);
+    expect(result.conflictType).toBe('box');
+  });
+
+  it('should allow valid moves', () => {
+    const config = GridConfigManager.getConfig(4);
+    const grid = [
+      [1, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ];
+
+    const result = detectConflicts(grid, 0, 1, 2, config);
+    expect(result.hasConflict).toBe(false);
+  });
+
+  it('should allow clearing cells', () => {
+    const config = GridConfigManager.getConfig(4);
+    const grid = [
+      [1, 2, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ];
+
+    const result = detectConflicts(grid, 0, 1, 0, config);
+    expect(result.hasConflict).toBe(false);
   });
 });

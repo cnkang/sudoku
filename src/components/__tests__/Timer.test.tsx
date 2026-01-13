@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import Timer from '../Timer';
@@ -104,7 +103,9 @@ describe('Timer', () => {
     visualTests.forEach(({ props, description, checks }) => {
       it(`should ${description}`, () => {
         render(<Timer {...createTimerProps(props)} />);
-        checks.forEach(check => check());
+        for (const check of checks) {
+          check();
+        }
       });
     });
   });
@@ -192,7 +193,9 @@ describe('Timer', () => {
     propCombinations.forEach(({ props, expectations, description }) => {
       it(`should handle ${description}`, () => {
         render(<Timer {...createTimerProps(props)} />);
-        expectations.forEach(expectation => expectation());
+        for (const expectation of expectations) {
+          expectation();
+        }
       });
     });
   });

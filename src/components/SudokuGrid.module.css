@@ -1,7 +1,31 @@
+/* Modern CSS with Container Queries for Multi-Size Sudoku Grid */
+
+/* Screen reader only content */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .sudokuContainer {
   display: flex;
   justify-content: center;
   margin: 2rem 0;
+  container-type: inline-size;
+  container-name: sudoku-grid;
+  padding: 0 1rem;
+}
+
+/* Child-friendly mode enhancements */
+.sudokuContainer.childMode {
+  margin: 1.5rem 0;
+  padding: 0 1.5rem;
 }
 
 .sudokuGrid {
@@ -12,21 +36,50 @@
   overflow: hidden;
   border: 4px solid #1f2937;
   table-layout: fixed !important;
-  width: 405px !important;
-  max-width: 405px !important;
+
+  /* Dynamic sizing based on grid size */
+  --cell-size: 45px;
+  --grid-size: 9;
+  width: calc(var(--grid-size) * var(--cell-size));
+  max-width: calc(var(--grid-size) * var(--cell-size));
+}
+
+/* Grid size variations */
+.sudokuGrid[data-grid-size="4"] {
+  --cell-size: 60px;
+  --grid-size: 4;
+}
+
+.sudokuGrid[data-grid-size="6"] {
+  --cell-size: 50px;
+  --grid-size: 6;
+}
+
+.sudokuGrid[data-grid-size="9"] {
+  --cell-size: 45px;
+  --grid-size: 9;
 }
 
 .sudokuCell {
-  width: 45px !important;
-  height: 45px !important;
-  min-width: 45px !important;
-  max-width: 45px !important;
+  width: var(--cell-size) !important;
+  height: var(--cell-size) !important;
+  min-width: var(--cell-size) !important;
+  max-width: var(--cell-size) !important;
+  min-height: var(--cell-size) !important;
+  max-height: var(--cell-size) !important;
   position: relative;
   background-color: white;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s ease;
   border: 1px solid #d1d5db;
   padding: 0;
   margin: 0;
+  cursor: pointer;
+}
+
+/* Child-friendly larger touch targets */
+.sudokuContainer[data-child-mode="true"] .sudokuCell {
+  min-width: 50px !important;
+  min-height: 50px !important;
 }
 
 .sudokuCell.editable:hover {
@@ -35,24 +88,94 @@
 
 .sudokuCell.selected {
   background-color: #dbeafe !important;
+  box-shadow: inset 0 0 0 2px #3b82f6;
 }
 
+/* Gentle error highlighting with warm colors */
 .sudokuCell.error {
-  background-color: #fee2e2 !important;
+  background-color: #fff7ed !important; /* Warm orange instead of harsh red */
+  box-shadow: inset 0 0 0 2px #fb923c;
+  animation: gentleErrorPulse 1.5s ease-in-out 2;
 }
 
-.sudokuCell.hinted {
-  background-color: #fef3c7 !important;
-  animation: pulse 1s ease-in-out 3;
+/* Enhanced gentle animations */
+@keyframes gentleErrorPulse {
+  0%,
+  100% {
+    background-color: #fff7ed;
+    transform: scale(1);
+  }
+  50% {
+    background-color: #fed7aa;
+    transform: scale(1.01);
+  }
 }
 
-@keyframes pulse {
+@keyframes gentleBounce {
   0%,
   100% {
     transform: scale(1);
   }
+  25% {
+    transform: scale(1.02);
+  }
   50% {
     transform: scale(1.05);
+  }
+  75% {
+    transform: scale(1.02);
+  }
+}
+
+.sudokuCell.hinted {
+  background-color: #ecfdf5 !important; /* Gentle green */
+  animation: gentlePulse 1s ease-in-out 3;
+  box-shadow: inset 0 0 0 2px #10b981;
+}
+
+/* Child-friendly gentle animations */
+@keyframes gentlePulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 0.95;
+  }
+}
+
+/* Success highlighting for correct moves */
+.sudokuCell.success {
+  background-color: #dcfce7 !important;
+  box-shadow: inset 0 0 0 2px #22c55e;
+  animation: successGlow 0.8s ease-out;
+}
+
+@keyframes successGlow {
+  0% {
+    background-color: #dcfce7;
+    box-shadow: inset 0 0 0 2px #22c55e;
+  }
+  50% {
+    background-color: #bbf7d0;
+    box-shadow: inset 0 0 0 3px #22c55e, 0 0 10px rgba(34, 197, 94, 0.4);
+  }
+  100% {
+    background-color: #dcfce7;
+    box-shadow: inset 0 0 0 2px #22c55e;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .sudokuCell {
+    transition: none;
+  }
+
+  .sudokuCell.hinted {
+    animation: none;
   }
 }
 
@@ -65,6 +188,7 @@
   font-size: 1.25rem;
   font-weight: 700;
   color: #1f2937;
+  user-select: none;
 }
 
 .cellInput {
@@ -78,6 +202,9 @@
   color: #3b82f6;
   background: transparent;
   cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .cellInput:disabled {
@@ -87,12 +214,90 @@
 
 .cellInput:focus {
   background-color: #dbeafe;
+  outline: 2px solid #3b82f6;
+  outline-offset: -2px;
 }
 
-.sudokuGrid:hover .sudokuCell {
-  transition: background-color 0.1s;
+/* Large text accessibility option */
+.largeText {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
 }
 
+/* High contrast mode */
+.sudokuContainer[data-high-contrast="true"] .sudokuCell {
+  border-color: #000000;
+}
+
+.sudokuContainer[data-high-contrast="true"] .sudokuCell.error {
+  background-color: #ffeb3b !important;
+  color: #000000 !important;
+}
+
+.sudokuContainer[data-high-contrast="true"] .fixedNumber,
+.sudokuContainer[data-high-contrast="true"] .cellInput {
+  color: #000000;
+}
+
+/* Container Queries for responsive design */
+@container sudoku-grid (max-width: 500px) {
+  .sudokuGrid[data-grid-size="4"] {
+    --cell-size: 55px;
+  }
+
+  .sudokuGrid[data-grid-size="6"] {
+    --cell-size: 45px;
+  }
+
+  .sudokuGrid[data-grid-size="9"] {
+    --cell-size: 40px;
+  }
+
+  .fixedNumber,
+  .cellInput {
+    font-size: 1.1rem;
+  }
+}
+
+@container sudoku-grid (max-width: 400px) {
+  .sudokuGrid[data-grid-size="4"] {
+    --cell-size: 50px;
+  }
+
+  .sudokuGrid[data-grid-size="6"] {
+    --cell-size: 40px;
+  }
+
+  .sudokuGrid[data-grid-size="9"] {
+    --cell-size: 35px;
+  }
+
+  .fixedNumber,
+  .cellInput {
+    font-size: 1rem;
+  }
+}
+
+@container sudoku-grid (max-width: 320px) {
+  .sudokuGrid[data-grid-size="4"] {
+    --cell-size: 45px;
+  }
+
+  .sudokuGrid[data-grid-size="6"] {
+    --cell-size: 35px;
+  }
+
+  .sudokuGrid[data-grid-size="9"] {
+    --cell-size: 30px;
+  }
+
+  .fixedNumber,
+  .cellInput {
+    font-size: 0.875rem;
+  }
+}
+
+/* Fallback media queries for browsers without container query support */
 @media (max-width: 640px) {
   .sudokuContainer {
     margin: 1rem 0;
@@ -101,16 +306,6 @@
 
   .sudokuGrid {
     border-radius: 6px;
-  }
-
-  .sudokuCell {
-    width: 35px !important;
-    height: 35px !important;
-  }
-
-  .fixedNumber,
-  .cellInput {
-    font-size: 1rem;
   }
 }
 
@@ -122,28 +317,22 @@
   }
 
   .sudokuGrid {
-    min-width: 270px;
     margin: 0 auto;
-  }
-
-  .sudokuCell {
-    width: 30px !important;
-    height: 30px !important;
-    min-width: 30px !important;
-    min-height: 30px !important;
-  }
-
-  .fixedNumber,
-  .cellInput {
-    font-size: 0.75rem;
-    font-weight: 600;
   }
 }
 
+/* Touch device optimizations */
 @media (hover: none) and (pointer: coarse) {
   .sudokuCell {
+    /* Ensure minimum 44px touch targets on touch devices */
     min-width: 44px !important;
     min-height: 44px !important;
+  }
+
+  /* Child mode gets even larger touch targets */
+  .sudokuContainer[data-child-mode="true"] .sudokuCell {
+    min-width: 50px !important;
+    min-height: 50px !important;
   }
 
   .cellInput {
@@ -157,18 +346,46 @@
   }
 }
 
+/* Landscape orientation adjustments for mobile */
 @media (max-width: 768px) and (orientation: landscape) {
   .sudokuContainer {
     margin: 0.5rem 0;
   }
+}
 
-  .sudokuCell {
-    width: 32px !important;
-    height: 32px !important;
+/* Modern viewport units for better mobile support */
+@supports (height: 100dvh) {
+  .sudokuContainer {
+    max-height: calc(100dvh - 200px);
+    overflow: auto;
+  }
+}
+
+/* Focus management for keyboard navigation */
+.sudokuCell:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  z-index: 1;
+}
+
+/* Smooth transitions with performance optimization */
+.sudokuGrid:hover .sudokuCell {
+  transition: background-color 0.1s ease;
+}
+
+/* Print styles */
+@media print {
+  .sudokuContainer {
+    margin: 0;
+    padding: 0;
   }
 
-  .fixedNumber,
-  .cellInput {
-    font-size: 0.875rem;
+  .sudokuGrid {
+    box-shadow: none;
+    border: 2px solid #000;
+  }
+
+  .sudokuCell {
+    border-color: #000;
   }
 }

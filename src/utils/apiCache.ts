@@ -9,11 +9,12 @@ class ClientCache {
   private readonly maxAge = 30000; // 30 seconds
 
   set(key: string, data: unknown, etag?: string): void {
-    this.cache.set(key, {
+    const entry: CachedResponse = {
       data,
       timestamp: Date.now(),
-      etag,
-    });
+      ...(etag ? { etag } : {}),
+    };
+    this.cache.set(key, entry);
   }
 
   get(key: string): unknown | null {
@@ -80,7 +81,7 @@ export async function fetchWithCache(
   const responseETag = response.headers.get('ETag');
 
   // Cache response
-  clientCache.set(cacheKey, data, responseETag || undefined);
+  clientCache.set(cacheKey, data, responseETag ?? undefined);
 
   return data;
 }

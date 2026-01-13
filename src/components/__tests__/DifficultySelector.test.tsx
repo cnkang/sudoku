@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import DifficultySelector from '../DifficultySelector';
@@ -314,8 +313,8 @@ describe('DifficultySelector', () => {
         onChange: mockOnChange,
       });
       // Remove optional props to test defaults
-      delete minimalProps.disabled;
-      delete minimalProps.isLoading;
+      minimalProps.disabled = undefined;
+      minimalProps.isLoading = undefined;
 
       render(<DifficultySelector {...minimalProps} />);
 
