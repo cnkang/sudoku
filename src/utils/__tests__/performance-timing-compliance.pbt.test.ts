@@ -5,14 +5,14 @@
  * Feature: multi-size-sudoku, Property 12: Performance timing compliance
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import fc from "fast-check";
-import { GRID_CONFIGS } from "@/utils/gridConfig";
-import type { GridConfig } from "@/types";
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import fc from 'fast-check';
+import { GRID_CONFIGS } from '@/utils/gridConfig';
+import type { GridConfig } from '@/types';
 
 // Mock performance.now for consistent testing
 const mockPerformanceNow = vi.fn();
-Object.defineProperty(global, "performance", {
+Object.defineProperty(global, 'performance', {
   value: {
     now: mockPerformanceNow,
   },
@@ -21,7 +21,7 @@ Object.defineProperty(global, "performance", {
 
 // Mock document.startViewTransition for testing
 const mockStartViewTransition = vi.fn();
-Object.defineProperty(global, "document", {
+Object.defineProperty(global, 'document', {
   value: {
     startViewTransition: mockStartViewTransition,
   },
@@ -33,8 +33,8 @@ const mockStartTransition = vi.fn((callback: () => void) => {
   callback();
 });
 
-vi.mock("react", async () => {
-  const actual = await vi.importActual("react");
+vi.mock('react', async () => {
+  const actual = await vi.importActual('react');
   return {
     ...actual,
     startTransition: mockStartTransition,
@@ -92,7 +92,7 @@ async function simulateGridTransition(
 
   // Add simulated processing delay
   if (simulatedDelay > 0) {
-    await new Promise((resolve) => setTimeout(resolve, simulatedDelay));
+    await new Promise(resolve => setTimeout(resolve, simulatedDelay));
   }
 
   return timer.end();
@@ -129,7 +129,7 @@ async function simulateApiCall(
 
   // Simulate network delay
   if (networkDelay > 0) {
-    await new Promise((resolve) => setTimeout(resolve, networkDelay));
+    await new Promise(resolve => setTimeout(resolve, networkDelay));
   }
 
   // Simulate puzzle generation work
@@ -144,7 +144,7 @@ async function simulateApiCall(
   return timer.end();
 }
 
-describe("Performance Timing Compliance Property Tests", () => {
+describe('Performance Timing Compliance Property Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -165,7 +165,7 @@ describe("Performance Timing Compliance Property Tests", () => {
    * For any grid size transition, the operation should complete within 200ms
    * **Validates: Requirements 7.3**
    */
-  it("should complete grid size transitions within 200ms performance requirement", async () => {
+  it('should complete grid size transitions within 200ms performance requirement', async () => {
     await fc.assert(
       fc.asyncProperty(
         // Generate source and target grid sizes
@@ -210,7 +210,7 @@ describe("Performance Timing Compliance Property Tests", () => {
     );
   });
 
-  it("should maintain performance across different grid size combinations", async () => {
+  it('should maintain performance across different grid size combinations', async () => {
     await fc.assert(
       fc.asyncProperty(
         // Generate all possible grid size transitions
@@ -240,7 +240,10 @@ describe("Performance Timing Compliance Property Tests", () => {
             fromConfig,
             complexityFactor
           );
-          const _mountTime = simulateComponentRender(toConfig, complexityFactor);
+          const _mountTime = simulateComponentRender(
+            toConfig,
+            complexityFactor
+          );
 
           const transitionEnd = performance.now();
           const totalTime = transitionEnd - transitionStart;
@@ -260,7 +263,7 @@ describe("Performance Timing Compliance Property Tests", () => {
     );
   });
 
-  it("should handle View Transitions API availability gracefully", async () => {
+  it('should handle View Transitions API availability gracefully', async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.constantFrom(4, 6, 9),
@@ -279,7 +282,7 @@ describe("Performance Timing Compliance Property Tests", () => {
             });
           } else {
             mockStartViewTransition.mockImplementation(() => {
-              throw new Error("View Transitions API not supported");
+              throw new Error('View Transitions API not supported');
             });
           }
 
@@ -301,7 +304,7 @@ describe("Performance Timing Compliance Property Tests", () => {
             // and still meet performance requirements
             expect(transitionTime).toBeLessThanOrEqual(200);
             return true;
-          } catch (_error) {
+          } catch {
             // If View Transitions fail, fallback should still work
             const fallbackTime = await simulateGridTransition(
               fromSize,
@@ -321,7 +324,7 @@ describe("Performance Timing Compliance Property Tests", () => {
     );
   });
 
-  it("should maintain performance under concurrent operations", async () => {
+  it('should maintain performance under concurrent operations', async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.constantFrom(4, 6, 9),
@@ -370,7 +373,7 @@ describe("Performance Timing Compliance Property Tests", () => {
     );
   });
 
-  it("should scale performance appropriately with grid size", async () => {
+  it('should scale performance appropriately with grid size', async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.constantFrom(4, 6, 9),
@@ -407,7 +410,7 @@ describe("Performance Timing Compliance Property Tests", () => {
     );
   });
 
-  it("should handle reduced motion preferences without performance impact", async () => {
+  it('should handle reduced motion preferences without performance impact', async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.constantFrom(4, 6, 9),
@@ -452,18 +455,18 @@ describe("Performance Timing Compliance Property Tests", () => {
 /**
  * Integration tests for performance timing in realistic scenarios
  */
-describe("Performance Timing Integration Tests", () => {
+describe('Performance Timing Integration Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("should meet performance requirements in realistic user scenarios", async () => {
+  it('should meet performance requirements in realistic user scenarios', async () => {
     // Test realistic user interaction patterns
     const userScenarios = [
-      { from: 9, to: 4, description: "Expert to beginner" },
-      { from: 4, to: 6, description: "Beginner progression" },
-      { from: 6, to: 9, description: "Intermediate to expert" },
-      { from: 9, to: 6, description: "Expert stepping down" },
+      { from: 9, to: 4, description: 'Expert to beginner' },
+      { from: 4, to: 6, description: 'Beginner progression' },
+      { from: 6, to: 9, description: 'Intermediate to expert' },
+      { from: 9, to: 6, description: 'Expert stepping down' },
     ];
 
     for (const scenario of userScenarios) {
@@ -487,7 +490,7 @@ describe("Performance Timing Integration Tests", () => {
     }
   });
 
-  it("should maintain performance under memory pressure simulation", async () => {
+  it('should maintain performance under memory pressure simulation', async () => {
     // Simulate memory pressure by creating large objects
     const memoryPressure = Array.from({ length: 1000 }, () =>
       Array.from({ length: 100 }, () => Math.random())
