@@ -1,7 +1,7 @@
-import type React from "react";
-import { useCallback } from "react";
-import type { ThemeConfig } from "@/types";
-import styles from "./AccessibilityControls.module.css";
+import type React from 'react';
+import { useCallback } from 'react';
+import type { ThemeConfig } from '@/types';
+import styles from './AccessibilityControls.module.css';
 
 export interface AccessibilityControlsProps {
   currentTheme: ThemeConfig;
@@ -36,10 +36,10 @@ function AccessibilityControls({
   disabled = false,
 }: AccessibilityControlsProps) {
   // Filter themes based on child mode
-  const filteredThemes = availableThemes.filter((theme) =>
+  const filteredThemes = availableThemes.filter(theme =>
     childMode
-      ? theme.category === "child-friendly" ||
-        theme.category === "high-contrast"
+      ? theme.category === 'child-friendly' ||
+        theme.category === 'high-contrast'
       : true
   );
 
@@ -58,18 +58,18 @@ function AccessibilityControls({
     disabled && styles.disabled,
   ]
     .filter(Boolean)
-    .join(" ");
+    .join(' ');
 
   return (
     <div className={controlsClassName} data-testid="accessibility-controls">
       <h3 className={styles.title}>
-        {childMode ? "🎨 Make it Perfect for You!" : "Accessibility Settings"}
+        {childMode ? '🎨 Make it Perfect for You!' : 'Accessibility Settings'}
       </h3>
 
       {/* Theme Selector */}
       <div className={styles.controlGroup}>
         <label htmlFor="theme-selector" className={styles.label}>
-          {childMode ? "🌈 Choose Your Adventure Theme:" : "Theme:"}
+          {childMode ? '🌈 Choose Your Adventure Theme:' : 'Theme:'}
         </label>
         <select
           id="theme-selector"
@@ -79,7 +79,7 @@ function AccessibilityControls({
           className={styles.themeSelector}
           aria-describedby="theme-description"
         >
-          {filteredThemes.map((theme) => (
+          {filteredThemes.map(theme => (
             <option key={theme.id} value={theme.id}>
               {theme.displayName}
             </option>
@@ -103,13 +103,13 @@ function AccessibilityControls({
           />
           <span className={styles.toggleSlider} aria-hidden="true" />
           <span className={styles.toggleText}>
-            {childMode ? "🌙 Super Clear Colors" : "High Contrast Mode"}
+            {childMode ? '🌙 Super Clear Colors' : 'High Contrast Mode'}
           </span>
         </label>
         <div id="high-contrast-description" className={styles.description}>
           {childMode
-            ? "Makes colors extra clear and easy to see!"
-            : "Increases contrast for better visibility"}
+            ? 'Makes colors extra clear and easy to see!'
+            : 'Increases contrast for better visibility'}
         </div>
       </div>
 
@@ -126,13 +126,13 @@ function AccessibilityControls({
           />
           <span className={styles.toggleSlider} aria-hidden="true" />
           <span className={styles.toggleText}>
-            {childMode ? "🐌 Calm Animations" : "Reduce Motion"}
+            {childMode ? '🐌 Calm Animations' : 'Reduce Motion'}
           </span>
         </label>
         <div id="reduced-motion-description" className={styles.description}>
           {childMode
-            ? "Makes animations slower and gentler"
-            : "Reduces animations and motion effects"}
+            ? 'Makes animations slower and gentler'
+            : 'Reduces animations and motion effects'}
         </div>
       </div>
 
@@ -149,13 +149,13 @@ function AccessibilityControls({
           />
           <span className={styles.toggleSlider} aria-hidden="true" />
           <span className={styles.toggleText}>
-            {childMode ? "🔍 Big Numbers" : "Large Text"}
+            {childMode ? '🔍 Big Numbers' : 'Large Text'}
           </span>
         </label>
         <div id="large-text-description" className={styles.description}>
           {childMode
-            ? "Makes all numbers bigger and easier to read!"
-            : "Increases text size for better readability"}
+            ? 'Makes all numbers bigger and easier to read!'
+            : 'Increases text size for better readability'}
         </div>
       </div>
 
@@ -194,30 +194,30 @@ function AccessibilityControls({
       <div className={styles.quickActions}>
         <button
           type="button"
-          onClick={() => onThemeChange("high-contrast")}
-          disabled={disabled || currentTheme.id === "high-contrast"}
+          onClick={() => onThemeChange('high-contrast')}
+          disabled={disabled || currentTheme.id === 'high-contrast'}
           className={`${styles.quickButton} ${styles.contrastButton}`}
           aria-label="Switch to high contrast theme"
         >
-          {childMode ? "🌙 Super Clear" : "High Contrast"}
+          {childMode ? '🌙 Super Clear' : 'High Contrast'}
         </button>
 
         <button
           type="button"
-          onClick={() => onThemeChange("ocean")}
-          disabled={disabled || currentTheme.id === "ocean"}
+          onClick={() => onThemeChange('ocean')}
+          disabled={disabled || currentTheme.id === 'ocean'}
           className={`${styles.quickButton} ${styles.oceanButton}`}
           aria-label="Switch to ocean theme"
         >
-          {childMode ? "🌊 Ocean Fun" : "Ocean Theme"}
+          {childMode ? '🌊 Ocean Fun' : 'Ocean Theme'}
         </button>
 
         {childMode && (
           <>
             <button
               type="button"
-              onClick={() => onThemeChange("forest")}
-              disabled={disabled || currentTheme.id === "forest"}
+              onClick={() => onThemeChange('forest')}
+              disabled={disabled || currentTheme.id === 'forest'}
               className={`${styles.quickButton} ${styles.forestButton}`}
               aria-label="Switch to forest theme"
             >
@@ -226,8 +226,8 @@ function AccessibilityControls({
 
             <button
               type="button"
-              onClick={() => onThemeChange("space")}
-              disabled={disabled || currentTheme.id === "space"}
+              onClick={() => onThemeChange('space')}
+              disabled={disabled || currentTheme.id === 'space'}
               className={`${styles.quickButton} ${styles.spaceButton}`}
               aria-label="Switch to space theme"
             >
