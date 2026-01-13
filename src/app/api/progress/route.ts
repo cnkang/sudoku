@@ -3,9 +3,9 @@
  * Handles progress data from offline gameplay
  */
 
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-import { z } from "zod";
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
 // Progress data validation schema
 const ProgressDataSchema = z.object({
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     );
 
     // Process each progress entry
-    const processedEntries = progressData.map((entry) => {
+    const processedEntries = progressData.map(entry => {
       // Calculate performance metrics
       const averageTimePerCell =
         entry.timeSpent / (entry.gridSize * entry.gridSize);
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: "Invalid progress data format",
+          error: 'Invalid progress data format',
           details: error.issues,
         },
         { status: 400 }
@@ -73,8 +73,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: "Internal server error",
-        message: "Failed to process progress data",
+        error: 'Internal server error',
+        message: 'Failed to process progress data',
       },
       { status: 500 }
     );
@@ -84,11 +84,8 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   // Get progress statistics (for future implementation)
   const { searchParams } = new URL(request.url);
-  const gridSizeParam = searchParams.get("gridSize");
-  const parsedLimit = Number.parseInt(
-    searchParams.get("limit") ?? "10",
-    10
-  );
+  const gridSizeParam = searchParams.get('gridSize');
+  const parsedLimit = Number.parseInt(searchParams.get('limit') ?? '10', 10);
   const limit = Number.isNaN(parsedLimit) ? 10 : parsedLimit;
   const parsedGridSize = gridSizeParam
     ? Number.parseInt(gridSizeParam, 10)
@@ -98,7 +95,7 @@ export async function GET(request: NextRequest) {
   // In a real application, you would fetch from a database
   // For now, return mock statistics
   const mockStats = {
-    gridSize: gridSize ?? "all",
+    gridSize: gridSize ?? 'all',
     totalGames: 42,
     completedGames: 38,
     averageTime: 180000, // 3 minutes in milliseconds
