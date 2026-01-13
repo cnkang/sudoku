@@ -3,19 +3,19 @@
 // Simple PWA screenshot generator for Multi-Size Sudoku
 // Creates basic SVG-based screenshots for the manifest
 
-import { writeFileSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
 
-const screenshotsDir = "public/screenshots";
+const screenshotsDir = 'public/screenshots';
 
 // Ensure screenshots directory exists
 try {
   mkdirSync(screenshotsDir, { recursive: true });
-} catch (_error) {
+} catch {
   // Directory already exists
 }
 
-const writeLine = (message) => {
+const writeLine = message => {
   process.stdout.write(`${message}\n`);
 };
 
@@ -76,7 +76,7 @@ const mobile4x4Screenshot = `<svg width="390" height="844" viewBox="0 0 390 844"
   <text x="195" y="550" fill="#666" font-family="Arial, sans-serif" font-size="16" text-anchor="middle">Great job! Keep solving! 🌟</text>
 </svg>`;
 
-writeFileSync(join(screenshotsDir, "mobile-4x4.svg"), mobile4x4Screenshot);
+writeFileSync(join(screenshotsDir, 'mobile-4x4.svg'), mobile4x4Screenshot);
 
 // Generate mobile screenshot for 6x6 grid
 const mobile6x6Screenshot = `<svg width="390" height="844" viewBox="0 0 390 844" xmlns="http://www.w3.org/2000/svg">
@@ -130,7 +130,7 @@ const mobile6x6Screenshot = `<svg width="390" height="844" viewBox="0 0 390 844"
   <text x="195" y="580" fill="#666" font-family="Arial, sans-serif" font-size="16" text-anchor="middle">You're doing amazing! 🎉</text>
 </svg>`;
 
-writeFileSync(join(screenshotsDir, "mobile-6x6.svg"), mobile6x6Screenshot);
+writeFileSync(join(screenshotsDir, 'mobile-6x6.svg'), mobile6x6Screenshot);
 
 // Generate tablet screenshot for 9x9 grid
 const tablet9x9Screenshot = `<svg width="1024" height="768" viewBox="0 0 1024 768" xmlns="http://www.w3.org/2000/svg">
@@ -152,7 +152,7 @@ const tablet9x9Screenshot = `<svg width="1024" height="768" viewBox="0 0 1024 76
       const weight = (i + 1) % 3 === 0 ? 3 : 1;
       return `<line x1="${pos}" y1="0" x2="${pos}" y2="450" stroke="#9B59B6" stroke-width="${weight}"/>
               <line x1="0" y1="${pos}" x2="450" y2="${pos}" stroke="#9B59B6" stroke-width="${weight}"/>`;
-    }).join("")}
+    }).join('')}
     
     <!-- Sample numbers in a classic Sudoku pattern -->
     <text x="25" y="35" fill="#9B59B6" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle">5</text>
@@ -189,12 +189,12 @@ const tablet9x9Screenshot = `<svg width="1024" height="768" viewBox="0 0 1024 76
   <text x="512" y="650" fill="#666" font-family="Arial, sans-serif" font-size="18" text-anchor="middle">Challenge yourself with the classic 9×9 Sudoku! 🧠</text>
 </svg>`;
 
-writeFileSync(join(screenshotsDir, "tablet-9x9.svg"), tablet9x9Screenshot);
+writeFileSync(join(screenshotsDir, 'tablet-9x9.svg'), tablet9x9Screenshot);
 
-writeLine("Generated PWA screenshots:");
-writeLine("- mobile-4x4.svg");
-writeLine("- mobile-6x6.svg");
-writeLine("- tablet-9x9.svg");
+writeLine('Generated PWA screenshots:');
+writeLine('- mobile-4x4.svg');
+writeLine('- mobile-6x6.svg');
+writeLine('- tablet-9x9.svg');
 writeLine(
-  "\\nNote: For production, consider converting SVG screenshots to PNG format for better compatibility."
+  '\\nNote: For production, consider converting SVG screenshots to PNG format for better compatibility.'
 );
