@@ -4,35 +4,35 @@
  * Should be included in the root layout
  */
 
-"use client";
+'use client';
 
-import { useEffect } from "react";
+import { useEffect } from 'react';
 
 export default function PWAInit() {
   useEffect(() => {
     // Only run in browser environment
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     // Register service worker
-    if ("serviceWorker" in navigator) {
+    if ('serviceWorker' in navigator) {
       navigator.serviceWorker
-        .register("/sw.js", {
-          scope: "/",
-          updateViaCache: "none",
+        .register('/sw.js', {
+          scope: '/',
+          updateViaCache: 'none',
         })
-        .then((registration) => {
+        .then(registration => {
           // Check for updates
-          registration.addEventListener("updatefound", () => {
+          registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
             if (newWorker) {
-              newWorker.addEventListener("statechange", () => {
+              newWorker.addEventListener('statechange', () => {
                 if (
-                  newWorker.state === "installed" &&
+                  newWorker.state === 'installed' &&
                   navigator.serviceWorker.controller
                 ) {
                   // Dispatch custom event for update notification
                   window.dispatchEvent(
-                    new CustomEvent("sw-update-available", {
+                    new CustomEvent('sw-update-available', {
                       detail: { registration },
                     })
                   );
@@ -42,21 +42,21 @@ export default function PWAInit() {
           });
 
           // Listen for controlling service worker changes
-          registration.addEventListener("controllerchange", () => {
+          registration.addEventListener('controllerchange', () => {
             window.location.reload();
           });
         })
-        .catch((_error) => {});
+        .catch(_error => {});
 
       // Listen for messages from service worker
-      navigator.serviceWorker.addEventListener("message", (event) => {
+      navigator.serviceWorker.addEventListener('message', event => {
         if (event.data?.type) {
           switch (event.data.type) {
-            case "CACHE_UPDATED":
+            case 'CACHE_UPDATED':
               break;
-            case "OFFLINE_READY":
+            case 'OFFLINE_READY':
               break;
-            case "SYNC_COMPLETE":
+            case 'SYNC_COMPLETE':
               break;
           }
         }
@@ -70,28 +70,28 @@ export default function PWAInit() {
 
       // Dispatch custom event for install prompt
       window.dispatchEvent(
-        new CustomEvent("pwa-install-prompt", {
+        new CustomEvent('pwa-install-prompt', {
           detail: { event },
         })
       );
     };
 
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
     // Handle app installation
     const handleAppInstalled = () => {
       // Dispatch custom event for installation success
-      window.dispatchEvent(new CustomEvent("pwa-installed"));
+      window.dispatchEvent(new CustomEvent('pwa-installed'));
     };
 
-    window.addEventListener("appinstalled", handleAppInstalled);
+    window.addEventListener('appinstalled', handleAppInstalled);
 
     // Handle online/offline events
     const handleOnline = () => {
       // Trigger background sync if available
-      if ("serviceWorker" in navigator) {
+      if ('serviceWorker' in navigator) {
         navigator.serviceWorker.ready
-          .then((registration) => {
+          .then(registration => {
             const syncManager = (
               registration as ServiceWorkerRegistration & {
                 sync?: { register: (tag: string) => Promise<void> };
@@ -102,16 +102,16 @@ export default function PWAInit() {
               return;
             }
 
-            return syncManager.register("background-sync");
+            return syncManager.register('background-sync');
           })
-          .catch((_error) => {});
+          .catch(_error => {});
       }
     };
 
     const handleOffline = () => {};
 
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
 
     // Handle visibility change for background sync
     const handleVisibilityChange = () => {
@@ -121,18 +121,18 @@ export default function PWAInit() {
       }
     };
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     // Cleanup event listeners
     return () => {
       window.removeEventListener(
-        "beforeinstallprompt",
+        'beforeinstallprompt',
         handleBeforeInstallPrompt
       );
-      window.removeEventListener("appinstalled", handleAppInstalled);
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 

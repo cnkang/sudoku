@@ -3,10 +3,10 @@
  * Child-friendly installation prompt for the Progressive Web App
  */
 
-"use client";
+'use client';
 
-import { useInstallPrompt } from "@/hooks/usePWA";
-import styles from "./PWAInstallPrompt.module.css";
+import { useInstallPrompt } from '@/hooks/usePWA';
+import styles from './PWAInstallPrompt.module.css';
 
 export default function PWAInstallPrompt() {
   const { showPrompt, isInstalling, handleInstall, handleDismiss } =
