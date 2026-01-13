@@ -3,7 +3,7 @@
  * Implements WCAG AAA compliance with audio descriptions and keyboard navigation
  */
 
-import type { AccessibilitySettings, GridConfig } from "@/types";
+import type { AccessibilitySettings, GridConfig } from '@/types';
 
 type GameStateChangeDetails = {
   gridSize?: number;
@@ -22,15 +22,15 @@ type GameStateChangeDetails = {
 
 export interface ScreenReaderAnnouncement {
   message: string;
-  priority: "polite" | "assertive";
+  priority: 'polite' | 'assertive';
   delay?: number;
-  category: "game-state" | "error" | "success" | "navigation" | "hint";
+  category: 'game-state' | 'error' | 'success' | 'navigation' | 'hint';
 }
 
 export interface KeyboardNavigationState {
   currentCell: { row: number; col: number } | null;
   focusedElement: string | null;
-  navigationMode: "grid" | "controls" | "menu";
+  navigationMode: 'grid' | 'controls' | 'menu';
   tabOrder: string[];
 }
 
@@ -53,7 +53,7 @@ class AccessibilityManager {
     this.keyboardState = {
       currentCell: null,
       focusedElement: null,
-      navigationMode: "grid",
+      navigationMode: 'grid',
       tabOrder: [],
     };
 
@@ -66,19 +66,19 @@ class AccessibilityManager {
    */
   private initializeScreenReader(): void {
     // Create or find the live region for announcements
-    this.announcer = document.getElementById("accessibility-announcer");
+    this.announcer = document.getElementById('accessibility-announcer');
 
     if (!this.announcer) {
-      this.announcer = document.createElement("div");
-      this.announcer.id = "accessibility-announcer";
-      this.announcer.setAttribute("aria-live", "polite");
-      this.announcer.setAttribute("aria-atomic", "true");
-      this.announcer.setAttribute("aria-relevant", "additions text");
-      this.announcer.style.position = "absolute";
-      this.announcer.style.left = "-10000px";
-      this.announcer.style.width = "1px";
-      this.announcer.style.height = "1px";
-      this.announcer.style.overflow = "hidden";
+      this.announcer = document.createElement('div');
+      this.announcer.id = 'accessibility-announcer';
+      this.announcer.setAttribute('aria-live', 'polite');
+      this.announcer.setAttribute('aria-atomic', 'true');
+      this.announcer.setAttribute('aria-relevant', 'additions text');
+      this.announcer.style.position = 'absolute';
+      this.announcer.style.left = '-10000px';
+      this.announcer.style.width = '1px';
+      this.announcer.style.height = '1px';
+      this.announcer.style.overflow = 'hidden';
       document.body.appendChild(this.announcer);
     }
   }
@@ -87,7 +87,7 @@ class AccessibilityManager {
    * Initialize speech synthesis for audio descriptions
    */
   private initializeSpeechSynthesis(): void {
-    if ("speechSynthesis" in window) {
+    if ('speechSynthesis' in window) {
       this.speechSynthesis = window.speechSynthesis;
     }
   }
@@ -120,18 +120,18 @@ class AccessibilityManager {
     }
 
     // Handle high priority announcements immediately
-    if (announcement.priority === "assertive") {
+    if (announcement.priority === 'assertive') {
       this.clearPreviousAnnouncements();
     }
 
     // Wait for delay if specified
     if (announcement.delay) {
-      await new Promise((resolve) => setTimeout(resolve, announcement.delay));
+      await new Promise(resolve => setTimeout(resolve, announcement.delay));
     }
 
     // Make the announcement
     if (this.announcer) {
-      this.announcer.setAttribute("aria-live", announcement.priority);
+      this.announcer.setAttribute('aria-live', announcement.priority);
       this.announcer.textContent = announcement.message;
     }
 
@@ -146,7 +146,7 @@ class AccessibilityManager {
    */
   private clearPreviousAnnouncements(): void {
     if (this.announcer) {
-      this.announcer.textContent = "";
+      this.announcer.textContent = '';
     }
     this.announcementQueue = [];
   }
@@ -171,7 +171,7 @@ class AccessibilityManager {
     utterance.volume = description.volume ?? 0.8;
 
     // Set language for better pronunciation
-    utterance.lang = "en-US";
+    utterance.lang = 'en-US';
 
     this.speechSynthesis.speak(utterance);
   }
@@ -225,23 +225,23 @@ class AccessibilityManager {
     } else if (value > 0) {
       parts.push(`contains entered number ${value}`);
     } else {
-      parts.push("is empty");
+      parts.push('is empty');
     }
 
     // Conflict status
     if (hasConflict) {
-      parts.push("has conflict with other numbers");
+      parts.push('has conflict with other numbers');
     }
 
     // Hint status
     if (isHinted) {
-      parts.push("is highlighted as a hint");
+      parts.push('is highlighted as a hint');
     }
 
     // Valid range
     parts.push(`Valid numbers are 1 to ${gridConfig.maxValue}`);
 
-    return `${parts.join(", ")}.`;
+    return `${parts.join(', ')}.`;
   }
 
   /**
@@ -250,51 +250,50 @@ class AccessibilityManager {
   // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: multiple announcement cases
   public describeGameStateChange(
     type:
-      | "puzzle-loaded"
-      | "move-made"
-      | "puzzle-completed"
-      | "hint-used"
-      | "error-occurred",
+      | 'puzzle-loaded'
+      | 'move-made'
+      | 'puzzle-completed'
+      | 'hint-used'
+      | 'error-occurred',
     details: GameStateChangeDetails = {}
   ): string {
     switch (type) {
-      case "puzzle-loaded":
+      case 'puzzle-loaded':
         return `New ${details.gridSize}×${details.gridSize} Sudoku puzzle loaded with ${details.difficulty} difficulty. ${details.clueCount} numbers are provided as clues.`;
 
-      case "move-made": {
-        const moveResult = details.isCorrect ? "correct" : "incorrect";
+      case 'move-made': {
+        const moveResult = details.isCorrect ? 'correct' : 'incorrect';
         const row =
-          typeof details.row === "number" ? details.row + 1 : "unknown";
+          typeof details.row === 'number' ? details.row + 1 : 'unknown';
         const col =
-          typeof details.col === "number" ? details.col + 1 : "unknown";
+          typeof details.col === 'number' ? details.col + 1 : 'unknown';
         const value =
-          typeof details.value === "number" ? details.value : "unknown";
+          typeof details.value === 'number' ? details.value : 'unknown';
         return `Number ${value} entered in row ${row}, column ${col}. Move is ${moveResult}.`;
       }
 
-      case "puzzle-completed":
+      case 'puzzle-completed':
         return `Congratulations! Puzzle completed successfully in ${details.timeFormatted}. You used ${details.hintsUsed} hints.`;
 
-      case "hint-used":
-        {
-          const row =
-            typeof details.row === "number" ? details.row + 1 : "unknown";
-          const col =
-            typeof details.col === "number" ? details.col + 1 : "unknown";
-          const value =
-            typeof details.value === "number" ? details.value : "unknown";
-          const hintsRemaining =
-            typeof details.hintsRemaining === "number"
-              ? `${details.hintsRemaining} hints remaining.`
-              : "";
-          return `Hint revealed: Number ${value} goes in row ${row}, column ${col}. ${hintsRemaining}`.trim();
-        }
+      case 'hint-used': {
+        const row =
+          typeof details.row === 'number' ? details.row + 1 : 'unknown';
+        const col =
+          typeof details.col === 'number' ? details.col + 1 : 'unknown';
+        const value =
+          typeof details.value === 'number' ? details.value : 'unknown';
+        const hintsRemaining =
+          typeof details.hintsRemaining === 'number'
+            ? `${details.hintsRemaining} hints remaining.`
+            : '';
+        return `Hint revealed: Number ${value} goes in row ${row}, column ${col}. ${hintsRemaining}`.trim();
+      }
 
-      case "error-occurred":
+      case 'error-occurred':
         return `Error: ${details.message}. Please try again.`;
 
       default:
-        return "Game state changed.";
+        return 'Game state changed.';
     }
   }
 
@@ -321,16 +320,16 @@ class AccessibilityManager {
     const { size } = gridConfig;
 
     return [
-      "Keyboard navigation instructions:",
-      "Use arrow keys to move between cells.",
+      'Keyboard navigation instructions:',
+      'Use arrow keys to move between cells.',
       `Press numbers 1 to ${gridConfig.maxValue} to enter values.`,
-      "Press Backspace or Delete to clear a cell.",
-      "Press Tab to move to game controls.",
-      "Press Shift+Tab to move backwards.",
-      "Press Enter or Space to activate buttons.",
-      "Press Escape to return to the grid.",
+      'Press Backspace or Delete to clear a cell.',
+      'Press Tab to move to game controls.',
+      'Press Shift+Tab to move backwards.',
+      'Press Enter or Space to activate buttons.',
+      'Press Escape to return to the grid.',
       `Grid size is ${size} by ${size} with ${size} sub-grids.`,
-    ].join(" ");
+    ].join(' ');
   }
 
   /**
@@ -373,8 +372,8 @@ class AccessibilityManager {
 
     this.announce({
       message,
-      priority: "polite",
-      category: "game-state",
+      priority: 'polite',
+      category: 'game-state',
       delay: 500,
     });
   }
@@ -387,24 +386,24 @@ class AccessibilityManager {
     enabled: boolean
   ): void {
     const settingNames: Record<keyof AccessibilitySettings, string> = {
-      highContrast: "High contrast mode",
-      reducedMotion: "Reduced motion",
-      screenReaderMode: "Screen reader mode",
-      largeText: "Large text",
-      audioFeedback: "Audio feedback",
-      keyboardNavigation: "Enhanced keyboard navigation",
-      voiceInput: "Voice input",
-      adaptiveTouchTargets: "Adaptive touch targets",
+      highContrast: 'High contrast mode',
+      reducedMotion: 'Reduced motion',
+      screenReaderMode: 'Screen reader mode',
+      largeText: 'Large text',
+      audioFeedback: 'Audio feedback',
+      keyboardNavigation: 'Enhanced keyboard navigation',
+      voiceInput: 'Voice input',
+      adaptiveTouchTargets: 'Adaptive touch targets',
     };
 
     const message = `${settingNames[setting]} ${
-      enabled ? "enabled" : "disabled"
+      enabled ? 'enabled' : 'disabled'
     }.`;
 
     this.announce({
       message,
-      priority: "polite",
-      category: "navigation",
+      priority: 'polite',
+      category: 'navigation',
     });
   }
 
