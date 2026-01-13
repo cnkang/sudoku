@@ -1,0 +1,451 @@
+/* Modern Sudoku App Styles with Container Queries and Modern CSS */
+
+.modernApp {
+  /* Modern CSS Grid Layout */
+  display: grid;
+  grid-template-areas:
+    "pwa"
+    "accessibility"
+    "game";
+  grid-template-rows: auto auto 1fr;
+  gap: clamp(1rem, 2vw, 2rem);
+  min-height: 100dvh; /* Modern viewport units */
+  padding: clamp(0.5rem, 2vw, 1.5rem);
+  background: var(--background, #f8fafc);
+  color: var(--foreground, #1e293b);
+
+  /* Container Query Support */
+  container-type: inline-size;
+  container-name: sudoku-app;
+}
+
+/* Child Mode Styling */
+.childMode {
+  --primary-color: #0077be;
+  --secondary-color: #ff6b35;
+  --success-color: #32cd32;
+  --warning-color: #ffd700;
+  --background: #f0f8ff;
+  --surface: #ffffff;
+
+  background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+  border-radius: clamp(8px, 1vw, 16px);
+  box-shadow: 0 4px 20px rgba(0, 119, 190, 0.1);
+}
+
+/* PWA Section */
+.pwaSection {
+  grid-area: pwa;
+  background: var(--surface, white);
+  border-radius: var(--border-radius, 0.75rem);
+  padding: clamp(1rem, 2vw, 1.5rem);
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+/* Game Area */
+.gameArea {
+  grid-area: game;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2vw, 1.5rem);
+  background: var(--surface, white);
+  border-radius: var(--border-radius, 0.75rem);
+  padding: clamp(1rem, 3vw, 2rem);
+  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+/* Game Header */
+.gameHeader {
+  text-align: center;
+  margin-bottom: clamp(1rem, 2vw, 1.5rem);
+}
+
+.title {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: var(--primary-color, #3b82f6);
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-size: clamp(0.875rem, 2vw, 1.125rem);
+  color: var(--text-secondary, #64748b);
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Controls Section */
+.controlsSection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.75rem, 2vw, 1rem);
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.75rem, 2vw, 1rem);
+  background: var(--background-secondary, #f8fafc);
+  border-radius: var(--border-radius, 0.5rem);
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+/* Grid Container with Container Queries */
+.gridContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1rem, 2vw, 1.5rem);
+  padding: clamp(1rem, 2vw, 1.5rem);
+  background: var(--surface, white);
+  border-radius: var(--border-radius, 0.75rem);
+  box-shadow: var(--shadow-inner, inset 0 2px 4px rgba(0, 0, 0, 0.05));
+  border: 2px solid var(--border-color, #e2e8f0);
+
+  /* Container Query for responsive grid */
+  container-type: inline-size;
+  container-name: grid-container;
+}
+
+/* Grid Loading State */
+.gridLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  font-size: 1.125rem;
+  color: var(--text-secondary, #64748b);
+  background: var(--background-secondary, #f8fafc);
+  border-radius: var(--border-radius, 0.5rem);
+  border: 2px dashed var(--border-color, #e2e8f0);
+}
+
+/* Loading State */
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: clamp(2rem, 4vw, 3rem);
+  text-align: center;
+}
+
+.loadingSpinner {
+  width: clamp(40px, 8vw, 60px);
+  height: clamp(40px, 8vw, 60px);
+  border: 3px solid var(--border-color, #e2e8f0);
+  border-top: 3px solid var(--primary-color, #3b82f6);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error Message */
+.errorMessage {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: clamp(0.75rem, 2vw, 1rem);
+  background: var(--error-background, #fef2f2);
+  color: var(--error-color, #dc2626);
+  border: 1px solid var(--error-border, #fecaca);
+  border-radius: var(--border-radius, 0.5rem);
+  font-weight: 500;
+}
+
+.childError {
+  background: linear-gradient(135deg, #fff4e6 0%, #ffe4b5 100%);
+  color: #d2691e;
+  border-color: #deb887;
+  font-size: clamp(1rem, 2.5vw, 1.125rem);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(210, 105, 30, 0.2);
+}
+
+.errorDismiss {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: inherit;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s ease;
+  min-width: 44px; /* Accessibility touch target */
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.errorDismiss:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.errorDismiss:focus {
+  outline: 2px solid var(--focus-color, #3b82f6);
+  outline-offset: 2px;
+}
+
+/* Hint Message */
+.hintMessage {
+  padding: clamp(0.75rem, 2vw, 1rem);
+  background: var(--info-background, #eff6ff);
+  color: var(--info-color, #1d4ed8);
+  border: 1px solid var(--info-border, #bfdbfe);
+  border-radius: var(--border-radius, 0.5rem);
+  text-align: center;
+  font-weight: 500;
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
+}
+
+.childHint {
+  background: linear-gradient(135deg, #fffacd 0%, #f0e68c 100%);
+  color: #b8860b;
+  border-color: #ddd700;
+  font-size: clamp(1rem, 2.5vw, 1.125rem);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+  animation: gentle-pulse 2s ease-in-out infinite;
+}
+
+@keyframes gentle-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+/* Action Controls */
+.actionControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.75rem, 2vw, 1rem);
+  justify-content: center;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  background: var(--background-secondary, #f8fafc);
+  border-radius: var(--border-radius, 0.75rem);
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+/* Debug Info (Development Only) */
+.debugInfo {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  font-family: monospace;
+  font-size: 0.75rem;
+  max-width: 300px;
+  z-index: 1000;
+}
+
+.debugInfo summary {
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.debugInfo pre {
+  margin: 0.5rem 0 0 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Container Query Responsive Design */
+@container sudoku-app (min-width: 768px) {
+  .modernApp {
+    grid-template-areas:
+      "pwa accessibility"
+      "game game";
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .controlsSection {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+}
+
+@container sudoku-app (min-width: 1024px) {
+  .modernApp {
+    grid-template-areas:
+      "pwa pwa accessibility"
+      "game game game";
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .gameArea {
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+  }
+}
+
+/* Container Query for Grid Container */
+@container grid-container (min-width: 400px) {
+  .gridContainer {
+    padding: clamp(1.5rem, 3vw, 2rem);
+  }
+}
+
+@container grid-container (min-width: 600px) {
+  .gridContainer {
+    max-width: 600px;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .modernApp {
+    --border-color: #000000;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .errorMessage {
+    border-width: 2px;
+  }
+
+  .hintMessage {
+    border-width: 2px;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .loadingSpinner {
+    animation: none;
+    border-top-color: var(--primary-color, #3b82f6);
+  }
+
+  .childHint {
+    animation: none;
+  }
+
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .modernApp {
+    --background: #0f172a;
+    --surface: #1e293b;
+    --foreground: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-color: #334155;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  .childMode {
+    --background: #1a202c;
+    --surface: #2d3748;
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .modernApp {
+    background: white;
+    color: black;
+    box-shadow: none;
+  }
+
+  .pwaSection,
+  .actionControls,
+  .debugInfo {
+    display: none;
+  }
+
+  .gameArea {
+    box-shadow: none;
+    border: 1px solid black;
+  }
+}
+
+/* Focus Management for Accessibility */
+.modernApp:focus-within {
+  --focus-color: #3b82f6;
+}
+
+.childMode:focus-within {
+  --focus-color: #0077be;
+}
+
+/* Modern CSS Features */
+.modernApp {
+  /* CSS Logical Properties */
+  padding-inline: clamp(0.5rem, 2vw, 1.5rem);
+  padding-block: clamp(0.5rem, 2vw, 1.5rem);
+
+  /* CSS Custom Properties for theming */
+  --border-radius: 0.75rem;
+  --transition-duration: 0.2s;
+  --transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Modern color functions */
+  background: color-mix(in srgb, var(--background, #f8fafc) 95%, transparent);
+}
+
+/* View Transitions API Support */
+@supports (view-transition-name: auto) {
+  .gridContainer {
+    view-transition-name: sudoku-grid;
+  }
+
+  .gameHeader {
+    view-transition-name: game-header;
+  }
+}
+
+/* CSS Cascade Layers for better organization */
+@layer base, components, utilities;
+
+@layer base {
+  .modernApp {
+    font-family: system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
+  }
+}
+
+@layer components {
+  .modernApp {
+    /* Component-specific styles are defined here */
+  }
+}
+
+@layer utilities {
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
