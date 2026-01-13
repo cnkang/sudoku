@@ -1,4 +1,4 @@
-import type React from "react";
+import type React from 'react';
 import {
   useCallback,
   useEffect,
@@ -8,19 +8,19 @@ import {
   useMemo,
   startTransition,
   useDeferredValue,
-} from "react";
-import type { GridConfig } from "@/types";
+} from 'react';
+import type { GridConfig } from '@/types';
 import {
   useVisualFeedback,
   getContextualFeedback,
-} from "@/hooks/useVisualFeedback";
-import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
-import { useAudioAccessibility } from "@/hooks/useAudioAccessibility";
-import { useVoiceInput } from "@/hooks/useVoiceInput";
-import { useAdaptiveTouchTargets } from "@/hooks/useAdaptiveTouchTargets";
-import { useMotionPreferences } from "@/utils/reducedMotion";
-import { getAccessibilityManager } from "@/utils/accessibilityManager";
-import styles from "./SudokuGrid.module.css";
+} from '@/hooks/useVisualFeedback';
+import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
+import { useAudioAccessibility } from '@/hooks/useAudioAccessibility';
+import { useVoiceInput } from '@/hooks/useVoiceInput';
+import { useAdaptiveTouchTargets } from '@/hooks/useAdaptiveTouchTargets';
+import { useMotionPreferences } from '@/utils/reducedMotion';
+import { getAccessibilityManager } from '@/utils/accessibilityManager';
+import styles from './SudokuGrid.module.css';
 
 interface SudokuGridProps {
   puzzle: number[][];
@@ -60,9 +60,9 @@ interface TouchState {
 
 // Haptic feedback support with React 19 optimization
 const triggerHapticFeedback = (
-  type: "light" | "medium" | "heavy" = "light"
+  type: 'light' | 'medium' | 'heavy' = 'light'
 ) => {
-  if ("vibrate" in navigator) {
+  if ('vibrate' in navigator) {
     const patterns = {
       light: [10],
       medium: [20],
@@ -83,20 +83,20 @@ const getCellBorderStyle = (
   const maxIndex = size - 1;
 
   return {
-    borderTop: row % boxRows === 0 ? "4px solid #1f2937" : "1px solid #d1d5db",
-    borderLeft: col % boxCols === 0 ? "4px solid #1f2937" : "1px solid #d1d5db",
+    borderTop: row % boxRows === 0 ? '4px solid #1f2937' : '1px solid #d1d5db',
+    borderLeft: col % boxCols === 0 ? '4px solid #1f2937' : '1px solid #d1d5db',
     borderRight:
       col === maxIndex
-        ? "4px solid #1f2937"
+        ? '4px solid #1f2937'
         : col % boxCols === boxCols - 1
-        ? "4px solid #1f2937"
-        : "1px solid #d1d5db",
+          ? '4px solid #1f2937'
+          : '1px solid #d1d5db',
     borderBottom:
       row === maxIndex
-        ? "4px solid #1f2937"
+        ? '4px solid #1f2937'
         : row % boxRows === boxRows - 1
-        ? "4px solid #1f2937"
-        : "1px solid #d1d5db",
+          ? '4px solid #1f2937'
+          : '1px solid #d1d5db',
   };
 };
 
@@ -238,13 +238,13 @@ const getCellClassName = (
 ) =>
   [
     styles.sudokuCell,
-    isFixed ? "fixed" : "editable",
-    isSelected ? styles.selected : "",
-    hasError ? styles.error : "",
-    isHinted ? styles.hinted : "",
+    isFixed ? 'fixed' : 'editable',
+    isSelected ? styles.selected : '',
+    hasError ? styles.error : '',
+    isHinted ? styles.hinted : '',
   ]
     .filter(Boolean)
-    .join(" ");
+    .join(' ');
 
 interface SudokuCellProps {
   cellKey: string;
@@ -330,17 +330,15 @@ const SudokuCell = ({
       // Set up long press detection
       longPressTimeoutRef.current = setTimeout(() => {
         if (onLongPress && !accessibility.reducedMotion) {
-          triggerHapticFeedback("medium");
+          triggerHapticFeedback('medium');
           onLongPress(rowIndex, colIndex);
-          setTouchState((prev) =>
-            prev ? { ...prev, isLongPress: true } : null
-          );
+          setTouchState(prev => (prev ? { ...prev, isLongPress: true } : null));
         }
       }, 500); // 500ms for long press
 
       // Light haptic feedback on touch start
       if (!accessibility.reducedMotion) {
-        triggerHapticFeedback("light");
+        triggerHapticFeedback('light');
       }
     },
     [
@@ -376,7 +374,7 @@ const SudokuCell = ({
       if (deltaX < 10 && deltaY < 10 && deltaTime < 300) {
         onCellClick(rowIndex, colIndex);
         if (!accessibility.reducedMotion) {
-          triggerHapticFeedback("light");
+          triggerHapticFeedback('light');
         }
       }
 
@@ -417,13 +415,13 @@ const SudokuCell = ({
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const { value } = e.target;
-      if (value === "" || new RegExp(`^[1-${maxValue}]$`).test(value)) {
-        const numValue = value === "" ? 0 : parseInt(value, 10);
+      if (value === '' || new RegExp(`^[1-${maxValue}]$`).test(value)) {
+        const numValue = value === '' ? 0 : parseInt(value, 10);
         onInputChange(rowIndex, colIndex, numValue);
 
         // Haptic feedback for successful input
         if (numValue > 0 && !accessibility.reducedMotion) {
-          triggerHapticFeedback("light");
+          triggerHapticFeedback('light');
         }
       }
     },
@@ -441,13 +439,13 @@ const SudokuCell = ({
       )}
       style={borderStyle}
       onClick={() => onCellClick(rowIndex, colIndex)}
-      onKeyDown={(event) => onCellKeyDown(event, rowIndex, colIndex)}
+      onKeyDown={event => onCellKeyDown(event, rowIndex, colIndex)}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onTouchMove={handleTouchMove}
       tabIndex={isFocusable ? 0 : -1}
       data-testid={`sudoku-cell-${rowIndex}-${colIndex}`}
-      data-cell-type={isFixed ? "fixed" : "editable"}
+      data-cell-type={isFixed ? 'fixed' : 'editable'}
       data-has-error={hasError}
       data-is-hinted={isHinted}
       data-is-selected={isSelected}
@@ -457,7 +455,7 @@ const SudokuCell = ({
       {isFixed ? (
         <span
           className={`${styles.fixedNumber} ${
-            accessibility.largeText ? styles.largeText : ""
+            accessibility.largeText ? styles.largeText : ''
           }`}
           data-testid="fixed-number"
         >
@@ -470,22 +468,20 @@ const SudokuCell = ({
             id={cellKey}
             type="text"
             inputMode="numeric"
-            value={currentValue || ""}
+            value={currentValue || ''}
             onChange={handleInputChange}
-            onKeyDown={(event) => onInputKeyDown(event, rowIndex, colIndex)}
+            onKeyDown={event => onInputKeyDown(event, rowIndex, colIndex)}
             onFocus={() => onInputFocus(rowIndex, colIndex)}
             onBlur={onInputBlur}
             disabled={disabled}
             className={`${styles.cellInput} ${
-              accessibility.largeText ? styles.largeText : ""
+              accessibility.largeText ? styles.largeText : ''
             }`}
             aria-label={`Editable cell in row ${rowIndex + 1}, column ${colIndex + 1}. ${
               currentValue ? `Current value: ${currentValue}` : 'Empty cell'
             }. Enter numbers 1 to ${maxValue}. ${
               hasError ? 'This cell has a conflict with other numbers.' : ''
-            } ${
-              isHinted ? 'This cell is highlighted as a hint.' : ''
-            }`}
+            } ${isHinted ? 'This cell is highlighted as a hint.' : ''}`}
             aria-describedby={`${cellKey}-description`}
             aria-invalid={hasError}
             aria-required="false"
@@ -494,18 +490,18 @@ const SudokuCell = ({
             autoCorrect="off"
             spellCheck="false"
           />
-          <div 
-            id={`${cellKey}-description`} 
+          <div
+            id={`${cellKey}-description`}
             className={styles.srOnly}
             aria-hidden="true"
           >
             {`Cell in ${gridConfig.size}×${gridConfig.size} Sudoku grid. Sub-grid ${
               Math.floor(rowIndex / gridConfig.boxRows) + 1
             }, ${Math.floor(colIndex / gridConfig.boxCols) + 1}. ${
-              hasError ? 'Conflict detected with other numbers in row, column, or sub-grid.' : ''
-            } ${
-              isHinted ? 'This cell is suggested as a good next move.' : ''
-            }`}
+              hasError
+                ? 'Conflict detected with other numbers in row, column, or sub-grid.'
+                : ''
+            } ${isHinted ? 'This cell is suggested as a good next move.' : ''}`}
           </div>
         </>
       )}
@@ -530,7 +526,7 @@ const SudokuGrid = memo<SudokuGridProps>(
     onIncorrectMove,
     onPuzzleComplete,
   }) => {
-    "use memo"; // React Compiler directive for automatic memoization
+    'use memo'; // React Compiler directive for automatic memoization
 
     // Use deferred values for non-critical updates to improve performance
     const _deferredUserInput = useDeferredValue(userInput);
@@ -569,14 +565,14 @@ const SudokuGrid = memo<SudokuGridProps>(
     // Motion preferences for reduced motion support
     const { preferences: _motionPreferences } = useMotionPreferences({
       respectSystemPreference: true,
-      customPreference: reducedMotion ? "reduce" : "no-preference",
+      customPreference: reducedMotion ? 'reduce' : 'no-preference',
       animationScale: reducedMotion ? 0 : 1,
     });
 
     // Voice input hook for hands-free number entry
     const [_voiceState, voiceHandlers] = useVoiceInput(
       gridConfig,
-      (number) => {
+      number => {
         if (selectedCell && !disabled) {
           handleInputChangeWithFeedback(
             selectedCell.row,
@@ -585,8 +581,8 @@ const SudokuGrid = memo<SudokuGridProps>(
           );
         }
       },
-      (command) => {
-        if (command === "clear" && selectedCell) {
+      command => {
+        if (command === 'clear' && selectedCell) {
           handleInputChangeWithFeedback(selectedCell.row, selectedCell.col, 0);
         }
       }
@@ -695,14 +691,14 @@ const SudokuGrid = memo<SudokuGridProps>(
 
           if (hasConflictAfterMove) {
             // Incorrect move - show gentle error feedback with pattern-based cues
-            const feedback = getContextualFeedback("incorrect_move", childMode);
-            visualFeedback.triggerError(feedback.message, "gentle");
+            const feedback = getContextualFeedback('incorrect_move', childMode);
+            visualFeedback.triggerError(feedback.message, 'gentle');
 
             // Audio feedback for incorrect move
             if (audioFeedback) {
               audioHandlers.speakMove(row, col, value, false);
               audioHandlers.speakError(
-                feedback.message ?? "Invalid move.",
+                feedback.message ?? 'Invalid move.',
                 childMode
               );
             }
@@ -713,8 +709,8 @@ const SudokuGrid = memo<SudokuGridProps>(
                 message: `Incorrect move: Number ${value} conflicts with other numbers in row ${
                   row + 1
                 }, column ${col + 1}`,
-                priority: "assertive",
-                category: "error",
+                priority: 'assertive',
+                category: 'error',
               });
             }
 
@@ -723,27 +719,27 @@ const SudokuGrid = memo<SudokuGridProps>(
             if (cellElement) {
               // Apply gentle warm highlighting with pattern overlay
               cellElement.style.backgroundColor = highContrast
-                ? "#ffff00"
-                : "#fff7ed";
+                ? '#ffff00'
+                : '#fff7ed';
               cellElement.style.boxShadow = highContrast
-                ? "0 0 0 3px #000000"
-                : "0 0 0 2px #fb923c, 0 4px 12px rgba(251, 146, 60, 0.3)";
-              cellElement.style.transform = "scale(1.02)";
-              cellElement.style.transition = "all 0.3s ease";
+                ? '0 0 0 3px #000000'
+                : '0 0 0 2px #fb923c, 0 4px 12px rgba(251, 146, 60, 0.3)';
+              cellElement.style.transform = 'scale(1.02)';
+              cellElement.style.transition = 'all 0.3s ease';
 
               // Reset after 2 seconds
               setTimeout(() => {
-                cellElement.style.backgroundColor = "";
-                cellElement.style.boxShadow = "";
-                cellElement.style.transform = "";
+                cellElement.style.backgroundColor = '';
+                cellElement.style.boxShadow = '';
+                cellElement.style.transform = '';
               }, 2000);
             }
 
-            setIncorrectMoveCount((prev) => prev + 1);
+            setIncorrectMoveCount(prev => prev + 1);
             onIncorrectMove?.();
           } else {
             // Correct move - show success feedback with positive reinforcement
-            const feedback = getContextualFeedback("correct_move", childMode);
+            const feedback = getContextualFeedback('correct_move', childMode);
             visualFeedback.triggerSuccess(feedback.message);
 
             // Audio feedback for correct move
@@ -757,8 +753,8 @@ const SudokuGrid = memo<SudokuGridProps>(
                 message: `Correct move: Number ${value} entered in row ${
                   row + 1
                 }, column ${col + 1}`,
-                priority: "polite",
-                category: "success",
+                priority: 'polite',
+                category: 'success',
               });
             }
 
@@ -767,9 +763,9 @@ const SudokuGrid = memo<SudokuGridProps>(
             if (cellElement && !reducedMotion) {
               // Add sparkle effect for correct moves in child mode
               if (childMode) {
-                cellElement.style.animation = "gentleBounce 0.6s ease-in-out";
+                cellElement.style.animation = 'gentleBounce 0.6s ease-in-out';
                 setTimeout(() => {
-                  cellElement.style.animation = "";
+                  cellElement.style.animation = '';
                 }, 600);
               }
             }
@@ -780,22 +776,20 @@ const SudokuGrid = memo<SudokuGridProps>(
             // Check if puzzle is complete
             const isComplete = isPuzzleComplete(userInput, puzzle, gridConfig);
             if (isComplete) {
-              visualFeedback.triggerCelebration("confetti");
+              visualFeedback.triggerCelebration('confetti');
 
               // Audio feedback for puzzle completion
               if (audioFeedback) {
-                const timeFormatted = `${Math.floor(0 / 60)} minutes and ${
-                  0 % 60
-                } seconds`; // TODO: Get actual time
+                const timeFormatted = '0 minutes and 0 seconds'; // TODO: Replace with tracked completion time
                 audioHandlers.speakPuzzleCompletion(timeFormatted, 0); // TODO: Get actual hints used
               }
 
               // Screen reader announcement for completion
               if (screenReaderMode) {
                 accessibilityManager.current.announce({
-                  message: "Congratulations! Puzzle completed successfully!",
-                  priority: "assertive",
-                  category: "success",
+                  message: 'Congratulations! Puzzle completed successfully!',
+                  priority: 'assertive',
+                  category: 'success',
                 });
               }
 
@@ -811,8 +805,8 @@ const SudokuGrid = memo<SudokuGridProps>(
           if (screenReaderMode) {
             accessibilityManager.current.announce({
               message: `Cell cleared in row ${row + 1}, column ${col + 1}`,
-              priority: "polite",
-              category: "game-state",
+              priority: 'polite',
+              category: 'game-state',
             });
           }
         }
@@ -835,22 +829,25 @@ const SudokuGrid = memo<SudokuGridProps>(
       ]
     );
 
-    const setCellRef = useCallback((key: string) => {
-      return (element: HTMLInputElement | null) => {
-        if (element) {
-          cellRefs.current[key] = element;
-          // Register with keyboard navigation
-          const parts = key.split("-");
-          const row = Number(parts[1]);
-          const col = Number(parts[2]);
-          if (!Number.isNaN(row) && !Number.isNaN(col)) {
-            keyboardHandlers.registerCellRef(row, col, element);
+    const setCellRef = useCallback(
+      (key: string) => {
+        return (element: HTMLInputElement | null) => {
+          if (element) {
+            cellRefs.current[key] = element;
+            // Register with keyboard navigation
+            const parts = key.split('-');
+            const row = Number(parts[1]);
+            const col = Number(parts[2]);
+            if (!Number.isNaN(row) && !Number.isNaN(col)) {
+              keyboardHandlers.registerCellRef(row, col, element);
+            }
+          } else {
+            delete cellRefs.current[key];
           }
-        } else {
-          delete cellRefs.current[key];
-        }
-      };
-    }, [keyboardHandlers]);
+        };
+      },
+      [keyboardHandlers]
+    );
 
     const handleCellClick = useCallback(
       (row: number, col: number) => {
@@ -888,13 +885,13 @@ const SudokuGrid = memo<SudokuGridProps>(
           handleInputChangeWithFeedback(row, col, value);
         }
         // Handle deletion
-        else if (key === "Backspace" || key === "Delete" || key === "0") {
+        else if (key === 'Backspace' || key === 'Delete' || key === '0') {
           e.preventDefault();
           handleInputChangeWithFeedback(row, col, 0);
         }
         // Handle navigation
         else if (
-          ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(key)
+          ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)
         ) {
           e.preventDefault();
           let newRow = row;
@@ -902,16 +899,16 @@ const SudokuGrid = memo<SudokuGridProps>(
           const maxIndex = gridConfig.size - 1;
 
           switch (key) {
-            case "ArrowUp":
+            case 'ArrowUp':
               newRow = Math.max(0, row - 1);
               break;
-            case "ArrowDown":
+            case 'ArrowDown':
               newRow = Math.min(maxIndex, row + 1);
               break;
-            case "ArrowLeft":
+            case 'ArrowLeft':
               newCol = Math.max(0, col - 1);
               break;
-            case "ArrowRight":
+            case 'ArrowRight':
               newCol = Math.min(maxIndex, col + 1);
               break;
           }
@@ -929,7 +926,7 @@ const SudokuGrid = memo<SudokuGridProps>(
     const _handleCellKeyDown = useCallback(
       (event: React.KeyboardEvent, row: number, col: number) => {
         if (disabled) return;
-        if (event.key === "Enter" || event.key === " ") {
+        if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
           handleCellClick(row, col);
           const newCellKey = generateCellKey(row, col);
@@ -944,11 +941,14 @@ const SudokuGrid = memo<SudokuGridProps>(
       if (screenReaderMode || audioFeedback) {
         // Announce grid configuration
         accessibilityManager.current.announce({
-          message: accessibilityManager.current.describeGameStateChange('puzzle-loaded', {
-            gridSize: gridConfig.size,
-            difficulty: 'medium', // TODO: Get actual difficulty
-            clueCount: puzzle.flat().filter(cell => cell !== 0).length,
-          }),
+          message: accessibilityManager.current.describeGameStateChange(
+            'puzzle-loaded',
+            {
+              gridSize: gridConfig.size,
+              difficulty: 'medium', // TODO: Get actual difficulty
+              clueCount: puzzle.flat().filter(cell => cell !== 0).length,
+            }
+          ),
           priority: 'polite',
           category: 'game-state',
         });
@@ -979,7 +979,7 @@ const SudokuGrid = memo<SudokuGridProps>(
     return (
       <div
         className={`${styles.sudokuContainer} ${
-          childMode ? styles.childMode : ""
+          childMode ? styles.childMode : ''
         }`}
         data-testid="sudoku-container"
         data-grid-size={gridConfig.size}
@@ -990,11 +990,11 @@ const SudokuGrid = memo<SudokuGridProps>(
         <div id="grid-instructions" className={styles.srOnly}>
           {accessibilityManager.current.getKeyboardInstructions(gridConfig)}
         </div>
-        
+
         {/* Live region for announcements */}
-        <div 
-          id="accessibility-announcer" 
-          aria-live="polite" 
+        <div
+          id="accessibility-announcer"
+          aria-live="polite"
           aria-atomic="true"
           className={styles.srOnly}
         />
@@ -1012,7 +1012,10 @@ const SudokuGrid = memo<SudokuGridProps>(
               const inputRow = userInput[rowIndex];
 
               return (
-                <tr key={rowKey} aria-label={`Row ${rowIndex + 1} of ${gridConfig.size}`}>
+                <tr
+                  key={rowKey}
+                  aria-label={`Row ${rowIndex + 1} of ${gridConfig.size}`}
+                >
                   {row.map((num, colIndex) => {
                     const isFixed = num !== 0;
                     const cellKey = generateCellKey(rowIndex, colIndex);
@@ -1077,6 +1080,6 @@ const SudokuGrid = memo<SudokuGridProps>(
   }
 );
 
-SudokuGrid.displayName = "SudokuGrid";
+SudokuGrid.displayName = 'SudokuGrid';
 
 export default SudokuGrid;

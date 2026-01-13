@@ -1,5 +1,5 @@
-import type React from "react";
-import type { DifficultySelectProps } from "../types";
+import type React from 'react';
+import type { DifficultySelectProps } from '../types';
 
 const DifficultySelector: React.FC<DifficultySelectProps> = ({
   difficulty,
@@ -21,7 +21,7 @@ const DifficultySelector: React.FC<DifficultySelectProps> = ({
     return `${level} (Expert)`;
   };
 
-  const isTestEnv = process.env.NODE_ENV === "test";
+  const isTestEnv = process.env.NODE_ENV === 'test';
 
   return (
     <div className="difficulty-selector modern-flex-controls">
@@ -45,8 +45,8 @@ const DifficultySelector: React.FC<DifficultySelectProps> = ({
       </select>
       <p className="difficulty-hint">
         {isLoading
-          ? "🔄 Generating new puzzle..."
-          : "💡 Changing difficulty will generate a new puzzle"}
+          ? '🔄 Generating new puzzle...'
+          : '💡 Changing difficulty will generate a new puzzle'}
       </p>
 
       {isTestEnv ? (
