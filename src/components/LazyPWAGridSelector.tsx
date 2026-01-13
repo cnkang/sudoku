@@ -3,12 +3,12 @@
  * Implements React 19 performance optimizations with lazy loading
  */
 
-import type { PWAGridSelectorProps } from "@/types";
-import { createLazyComponent } from "@/utils/performance-monitoring";
+import type { PWAGridSelectorProps } from '@/types';
+import { createLazyComponent } from '@/utils/performance-monitoring';
 
 // Lazy load the PWAGridSelector component
 const LazyPWAGridSelector = createLazyComponent<PWAGridSelectorProps>(
-  () => import("./PWAGridSelector"),
+  () => import('./PWAGridSelector'),
   // Fallback component while loading
   () => (
     <div className="grid-selector-loading modern-flex-controls">
@@ -18,7 +18,7 @@ const LazyPWAGridSelector = createLazyComponent<PWAGridSelectorProps>(
           <div className="skeleton-subtitle"></div>
         </div>
         <div className="skeleton-grid">
-          {[1, 2, 3].map((i) => (
+          {[1, 2, 3].map(i => (
             <div key={i} className="skeleton-option">
               <div className="skeleton-icon"></div>
               <div className="skeleton-content">

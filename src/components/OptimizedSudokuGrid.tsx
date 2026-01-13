@@ -9,14 +9,14 @@ import React, {
   useRef,
   useState,
   useMemo,
-} from "react";
-import type { GridConfig } from "@/types";
-import { useVisualFeedback } from "@/hooks/useVisualFeedback";
+} from 'react';
+import type { GridConfig } from '@/types';
+import { useVisualFeedback } from '@/hooks/useVisualFeedback';
 import {
   usePerformanceTracking,
   withPerformanceTracking,
-} from "@/utils/performance-monitoring";
-import styles from "./SudokuGrid.module.css";
+} from '@/utils/performance-monitoring';
+import styles from './SudokuGrid.module.css';
 
 interface OptimizedSudokuGridProps {
   puzzle: number[][];
@@ -104,7 +104,7 @@ const SudokuCell = React.memo(
       if (isSuccess) classes.push(styles.success);
       if (accessibility?.largeText) classes.push(styles.largeText);
 
-      return classes.join(" ");
+      return classes.join(' ');
     }, [
       isFixed,
       isSelected,
@@ -132,7 +132,7 @@ const SudokuCell = React.memo(
           newValue <= gridConfig.maxValue
         ) {
           onCellChange(row, col, newValue);
-        } else if (e.target.value === "") {
+        } else if (e.target.value === '') {
           onCellChange(row, col, 0);
         }
       },
@@ -155,9 +155,7 @@ const SudokuCell = React.memo(
 
         // Long press detection for hints
         setTimeout(() => {
-          setTouchState((prev) =>
-            prev ? { ...prev, isLongPress: true } : null
-          );
+          setTouchState(prev => (prev ? { ...prev, isLongPress: true } : null));
         }, 500);
       },
       [disabled, isFixed]
@@ -194,8 +192,8 @@ const SudokuCell = React.memo(
         ref={cellRef}
         className={cellClasses}
         onClick={handleClick}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
+        onKeyDown={event => {
+          if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
             handleClick();
           }
@@ -206,12 +204,12 @@ const SudokuCell = React.memo(
         data-col={col}
         data-testid={`cell-${row}-${col}`}
         aria-label={`Cell ${row + 1}, ${col + 1}${
-          value ? `, value ${value}` : ", empty"
+          value ? `, value ${value}` : ', empty'
         }`}
         tabIndex={isSelected ? 0 : -1}
       >
         {isFixed ? (
-          <span className={styles.fixedNumber}>{value || ""}</span>
+          <span className={styles.fixedNumber}>{value || ''}</span>
         ) : (
           <input
             ref={inputRef}
@@ -219,7 +217,7 @@ const SudokuCell = React.memo(
             inputMode="numeric"
             pattern="[1-9]"
             maxLength={1}
-            value={value || ""}
+            value={value || ''}
             onChange={handleInputChange}
             disabled={disabled}
             className={styles.cellInput}
@@ -231,7 +229,7 @@ const SudokuCell = React.memo(
   }
 );
 
-SudokuCell.displayName = "SudokuCell";
+SudokuCell.displayName = 'SudokuCell';
 
 // Main optimized grid component
 const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
@@ -251,7 +249,7 @@ const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
 }) => {
   const [selectedCell, setSelectedCell] = useState<CellPosition | null>(null);
   const gridRef = useRef<HTMLTableElement>(null);
-  const { trackRender } = usePerformanceTracking("OptimizedSudokuGrid");
+  const { trackRender } = usePerformanceTracking('OptimizedSudokuGrid');
 
   // Visual feedback integration
   const { triggerSuccess, triggerError } = useVisualFeedback({
@@ -320,7 +318,13 @@ const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
         }
       }
     },
-    [onInputChange, onCorrectMove, onIncorrectMove, triggerSuccess, triggerError]
+    [
+      onInputChange,
+      onCorrectMove,
+      onIncorrectMove,
+      triggerSuccess,
+      triggerError,
+    ]
   );
 
   // Keyboard navigation
@@ -333,16 +337,16 @@ const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
       let newCol = col;
 
       switch (e.key) {
-        case "ArrowUp":
+        case 'ArrowUp':
           newRow = Math.max(0, row - 1);
           break;
-        case "ArrowDown":
+        case 'ArrowDown':
           newRow = Math.min(gridConfig.size - 1, row + 1);
           break;
-        case "ArrowLeft":
+        case 'ArrowLeft':
           newCol = Math.max(0, col - 1);
           break;
-        case "ArrowRight":
+        case 'ArrowRight':
           newCol = Math.min(gridConfig.size - 1, col + 1);
           break;
         default:
@@ -366,12 +370,12 @@ const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
 
   // Container classes with modern CSS
   const containerClasses = useMemo(() => {
-    const classes = [styles.sudokuContainer, "sudoku-container-query"];
+    const classes = [styles.sudokuContainer, 'sudoku-container-query'];
 
     if (childMode) classes.push(styles.childMode);
     if (accessibility.highContrast) classes.push(styles.highContrast);
 
-    return classes.join(" ");
+    return classes.join(' ');
   }, [childMode, accessibility.highContrast]);
 
   const gridClasses = useMemo(() => {
@@ -379,7 +383,7 @@ const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
       styles.sudokuGrid,
       `sudoku-grid-${gridConfig.size}x${gridConfig.size}`,
     ];
-    return classes.join(" ");
+    return classes.join(' ');
   }, [gridConfig.size]);
 
   return (
@@ -402,18 +406,18 @@ const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
             const rowKey = rowData[0]?.row ?? rowIndex;
             return (
               <tr key={`row-${rowKey}`}>
-              {rowData.map((cellData) => (
-                <SudokuCell
-                  key={`cell-${cellData.row}-${cellData.col}`}
-                  {...cellData}
-                  gridConfig={gridConfig}
-                  accessibility={accessibility}
-                  onCellClick={handleCellClick}
-                  onCellChange={handleCellChange}
-                  disabled={disabled}
-                />
-              ))}
-            </tr>
+                {rowData.map(cellData => (
+                  <SudokuCell
+                    key={`cell-${cellData.row}-${cellData.col}`}
+                    {...cellData}
+                    gridConfig={gridConfig}
+                    accessibility={accessibility}
+                    onCellClick={handleCellClick}
+                    onCellChange={handleCellChange}
+                    disabled={disabled}
+                  />
+                ))}
+              </tr>
             );
           })}
         </tbody>
@@ -423,4 +427,7 @@ const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
 };
 
 // Export with performance tracking wrapper
-export default withPerformanceTracking(OptimizedSudokuGrid, "OptimizedSudokuGrid");
+export default withPerformanceTracking(
+  OptimizedSudokuGrid,
+  'OptimizedSudokuGrid'
+);
