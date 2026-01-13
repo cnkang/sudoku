@@ -4,34 +4,34 @@
  * Validates: Requirements 5.5
  */
 
-import { describe, it, expect } from "vitest";
-import fc from "fast-check";
+import { describe, it, expect } from 'vitest';
+import fc from 'fast-check';
 import {
   createChildFriendlyError,
   getEncouragementMessage,
   getRecoveryActions,
   formatErrorMessage,
-} from "../childFriendlyErrorHandling";
+} from '../childFriendlyErrorHandling';
 
 // Simple generators for property-based testing
 const gridSizeGen = fc.constantFrom(4, 6, 9);
 const errorTypeGen = fc.constantFrom(
-  "DUPLICATE_IN_ROW",
-  "DUPLICATE_IN_COLUMN",
-  "DUPLICATE_IN_BOX",
-  "INVALID_NUMBER_RANGE",
-  "PUZZLE_GENERATION_FAILED"
+  'DUPLICATE_IN_ROW',
+  'DUPLICATE_IN_COLUMN',
+  'DUPLICATE_IN_BOX',
+  'INVALID_NUMBER_RANGE',
+  'PUZZLE_GENERATION_FAILED'
 );
 
 const encouragementTypeGen = fc.constantFrom(
-  "STRUGGLING",
-  "MULTIPLE_ERRORS",
-  "FIRST_SUCCESS"
+  'STRUGGLING',
+  'MULTIPLE_ERRORS',
+  'FIRST_SUCCESS'
 );
 
-describe("Child-Friendly Error Handling - Property Tests", () => {
-  describe("Property 14: Gentle error messaging", () => {
-    it("should always use encouraging language in child mode", () => {
+describe('Child-Friendly Error Handling - Property Tests', () => {
+  describe('Property 14: Gentle error messaging', () => {
+    it('should always use encouraging language in child mode', () => {
       fc.assert(
         fc.property(errorTypeGen, gridSizeGen, (errorType, gridSize) => {
           const error = createChildFriendlyError(errorType, {
@@ -41,23 +41,23 @@ describe("Child-Friendly Error Handling - Property Tests", () => {
 
           // Child messages should never contain harsh words
           const harshWords = [
-            "error",
-            "wrong",
-            "incorrect",
-            "failed",
-            "invalid",
-            "bad",
+            'error',
+            'wrong',
+            'incorrect',
+            'failed',
+            'invalid',
+            'bad',
           ];
           const messageWords = error.childMessage.toLowerCase();
-          const containsHarshWords = harshWords.some((word) =>
+          const containsHarshWords = harshWords.some(word =>
             messageWords.includes(word)
           );
 
           expect(containsHarshWords).toBe(false);
 
           // Should contain encouraging elements
-          const encouragingElements = ["!", "try", "let's", "you", "🌟", "💪"];
-          const containsEncouragement = encouragingElements.some((element) =>
+          const encouragingElements = ['!', 'try', "let's", 'you', '🌟', '💪'];
+          const containsEncouragement = encouragingElements.some(element =>
             messageWords.includes(element.toLowerCase())
           );
 
@@ -67,9 +67,9 @@ describe("Child-Friendly Error Handling - Property Tests", () => {
       );
     });
 
-    it("should provide educational explanations for all error types", () => {
+    it('should provide educational explanations for all error types', () => {
       fc.assert(
-        fc.property(errorTypeGen, (errorType) => {
+        fc.property(errorTypeGen, errorType => {
           const error = createChildFriendlyError(errorType, {
             gridSize: 6,
             childMode: true,
@@ -77,15 +77,15 @@ describe("Child-Friendly Error Handling - Property Tests", () => {
 
           // Every error should have an educational explanation
           expect(error.educationalExplanation).toBeDefined();
-          expect(error.educationalExplanation).not.toBe("");
-          expect(typeof error.educationalExplanation).toBe("string");
+          expect(error.educationalExplanation).not.toBe('');
+          expect(typeof error.educationalExplanation).toBe('string');
           expect(error.educationalExplanation?.length).toBeGreaterThan(20);
         }),
         { numRuns: 5 }
       );
     });
 
-    it("should always provide recovery actions for errors", () => {
+    it('should always provide recovery actions for errors', () => {
       fc.assert(
         fc.property(
           errorTypeGen,
@@ -106,16 +106,16 @@ describe("Child-Friendly Error Handling - Property Tests", () => {
             expect(recoveryActions.length).toBeGreaterThan(0);
 
             // Each action should have required properties
-            recoveryActions.forEach((action) => {
+            recoveryActions.forEach(action => {
               expect(action.action).toBeDefined();
               expect(action.label).toBeDefined();
               expect(action.icon).toBeDefined();
-              expect(typeof action.primary).toBe("boolean");
+              expect(typeof action.primary).toBe('boolean');
             });
 
             // Should have at least one primary action
             const hasPrimaryAction = recoveryActions.some(
-              (action) => action.primary
+              action => action.primary
             );
             expect(hasPrimaryAction).toBe(true);
           }
@@ -124,13 +124,13 @@ describe("Child-Friendly Error Handling - Property Tests", () => {
       );
     });
 
-    it("should generate appropriate encouragement messages", () => {
+    it('should generate appropriate encouragement messages', () => {
       fc.assert(
-        fc.property(encouragementTypeGen, (encouragementType) => {
+        fc.property(encouragementTypeGen, encouragementType => {
           const message = getEncouragementMessage(encouragementType, {
             gridSize: 6,
             childMode: true,
-            strugglingLevel: "moderate",
+            strugglingLevel: 'moderate',
           });
 
           // Message should be encouraging and positive
@@ -138,9 +138,9 @@ describe("Child-Friendly Error Handling - Property Tests", () => {
           expect(message.message.length).toBeGreaterThan(10);
 
           // Should not contain negative words
-          const negativeWords = ["bad", "wrong", "terrible"];
+          const negativeWords = ['bad', 'wrong', 'terrible'];
           const messageText = message.message.toLowerCase();
-          negativeWords.forEach((word) => {
+          negativeWords.forEach(word => {
             expect(messageText).not.toContain(word);
           });
 
@@ -152,11 +152,11 @@ describe("Child-Friendly Error Handling - Property Tests", () => {
       );
     });
 
-    it("should format messages appropriately for different audiences", () => {
+    it('should format messages appropriately for different audiences', () => {
       fc.assert(
         fc.property(
           errorTypeGen,
-          fc.constantFrom("child", "adult"),
+          fc.constantFrom('child', 'adult'),
           (errorType, audience) => {
             const error = createChildFriendlyError(errorType, {
               gridSize: 6,
@@ -168,7 +168,7 @@ describe("Child-Friendly Error Handling - Property Tests", () => {
             expect(formattedMessage).toBeDefined();
             expect(formattedMessage.length).toBeGreaterThan(0);
 
-            if (audience === "child") {
+            if (audience === 'child') {
               expect(formattedMessage).toContain(error.childMessage);
             }
           }

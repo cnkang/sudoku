@@ -1,28 +1,28 @@
-import { describe, it } from "vitest";
-import * as fc from "fast-check";
+import { describe, it } from 'vitest';
+import * as fc from 'fast-check';
 import {
   calculateContrastRatio,
   AccessibilityManager,
   getAllThemes,
   getChildFriendlyThemes,
-} from "../themes";
+} from '../themes';
 
 // Generators for property-based testing
 const hexColorArb = fc
   .string({ minLength: 6, maxLength: 6 })
-  .filter((s) => /^[0-9A-Fa-f]{6}$/.test(s))
-  .map((hex) => `#${hex}`);
+  .filter(s => /^[0-9A-Fa-f]{6}$/.test(s))
+  .map(hex => `#${hex}`);
 
-describe("Theme Property-Based Tests", () => {
+describe('Theme Property-Based Tests', () => {
   /**
    * Feature: multi-size-sudoku, Property 8: WCAG AAA compliance
    * For any color combination used in the interface, the contrast ratio should meet
    * or exceed WCAG AAA standards (7:1 for normal text, 4.5:1 for large text)
    * Validates: Requirements 9.1, 9.3
    */
-  it("should ensure all predefined themes meet WCAG AAA compliance standards", () => {
+  it('should ensure all predefined themes meet WCAG AAA compliance standards', () => {
     fc.assert(
-      fc.property(fc.constantFrom(...getAllThemes()), (theme) => {
+      fc.property(fc.constantFrom(...getAllThemes()), theme => {
         // All predefined themes should pass WCAG AAA validation
         const isCompliant = AccessibilityManager.validateThemeCompliance(theme);
 
@@ -42,9 +42,9 @@ describe("Theme Property-Based Tests", () => {
    * For any critical color combination (text on background, text on primary, etc.),
    * the contrast ratio should meet WCAG AAA standards
    */
-  it("should validate critical color combinations meet WCAG AAA standards", () => {
+  it('should validate critical color combinations meet WCAG AAA standards', () => {
     fc.assert(
-      fc.property(fc.constantFrom(...getChildFriendlyThemes()), (theme) => {
+      fc.property(fc.constantFrom(...getChildFriendlyThemes()), theme => {
         const { colors } = theme;
 
         // Critical combinations that must meet WCAG AAA (7:1 ratio)
@@ -76,9 +76,9 @@ describe("Theme Property-Based Tests", () => {
    * For any theme with accessibility settings, touch targets should meet minimum size requirements
    * and focus indicators should be sufficiently visible
    */
-  it("should ensure accessibility settings meet minimum requirements", () => {
+  it('should ensure accessibility settings meet minimum requirements', () => {
     fc.assert(
-      fc.property(fc.constantFrom(...getAllThemes()), (theme) => {
+      fc.property(fc.constantFrom(...getAllThemes()), theme => {
         const { accessibility } = theme;
 
         // Touch targets must be at least 44px (WCAG 2.1 AA minimum)
@@ -109,7 +109,7 @@ describe("Theme Property-Based Tests", () => {
    * For any two valid hex colors, the contrast ratio calculation should be mathematically correct
    * and symmetric (order shouldn't matter for the final ratio)
    */
-  it("should calculate contrast ratios correctly and symmetrically", () => {
+  it('should calculate contrast ratios correctly and symmetrically', () => {
     fc.assert(
       fc.property(hexColorArb, hexColorArb, (color1, color2) => {
         const ratio1 = calculateContrastRatio(color1, color2);
@@ -136,11 +136,11 @@ describe("Theme Property-Based Tests", () => {
    * For any theme, generating a high contrast variant should result in improved contrast ratios
    * while maintaining the theme's essential character
    */
-  it("should generate high contrast variants with improved accessibility", () => {
+  it('should generate high contrast variants with improved accessibility', () => {
     fc.assert(
       fc.property(
         fc.constantFrom(...getChildFriendlyThemes()),
-        (originalTheme) => {
+        originalTheme => {
           const highContrastTheme =
             AccessibilityManager.generateHighContrastVariant(originalTheme);
 
@@ -150,7 +150,7 @@ describe("Theme Property-Based Tests", () => {
 
           // Should be categorized as high-contrast
           const isHighContrastCategory =
-            highContrastTheme.category === "high-contrast";
+            highContrastTheme.category === 'high-contrast';
 
           // Should have proper ID naming
           const hasCorrectId =
@@ -185,10 +185,10 @@ describe("Theme Property-Based Tests", () => {
    * For any combination of user needs (age group, contrast needs, motion preferences),
    * theme recommendations should only include appropriate themes
    */
-  it("should provide appropriate theme recommendations based on user needs", () => {
+  it('should provide appropriate theme recommendations based on user needs', () => {
     fc.assert(
       fc.property(
-        fc.constantFrom("children", "adults", "all"),
+        fc.constantFrom('children', 'adults', 'all'),
         fc.boolean(), // needsHighContrast
         fc.boolean(), // prefersReducedMotion
         (ageGroup, needsHighContrast, prefersReducedMotion) => {
@@ -199,16 +199,16 @@ describe("Theme Property-Based Tests", () => {
           );
 
           // All recommendations should match the criteria
-          return recommendations.every((theme) => {
+          return recommendations.every(theme => {
             // Age group filter
             const ageGroupMatch =
-              ageGroup === "all" ||
-              theme.ageGroup === "all" ||
+              ageGroup === 'all' ||
+              theme.ageGroup === 'all' ||
               theme.ageGroup === ageGroup;
 
             // High contrast filter
             const contrastMatch =
-              !needsHighContrast || theme.category === "high-contrast";
+              !needsHighContrast || theme.category === 'high-contrast';
 
             // Reduced motion filter
             const motionMatch =
@@ -227,7 +227,7 @@ describe("Theme Property-Based Tests", () => {
    * For any grid size and screen width, calculated font sizes should be appropriate
    * and meet minimum accessibility requirements
    */
-  it("should calculate optimal font sizes that meet accessibility requirements", () => {
+  it('should calculate optimal font sizes that meet accessibility requirements', () => {
     fc.assert(
       fc.property(
         fc.constantFrom(4, 6, 9), // gridSize
