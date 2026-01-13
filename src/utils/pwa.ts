@@ -28,18 +28,18 @@ export interface ProgressData {
 }
 
 export interface AchievementData {
-  type: "completion" | "streak" | "speed" | "perfect";
+  type: 'completion' | 'streak' | 'speed' | 'perfect';
   gridSize: 4 | 6 | 9;
   value: number;
   timestamp: number;
 }
 
 const getWindow = (): (Window & typeof globalThis) | undefined => {
-  return typeof window === "undefined" ? undefined : window;
+  return typeof window === 'undefined' ? undefined : window;
 };
 
 const getNavigator = (): Navigator | undefined => {
-  if (typeof navigator !== "undefined") {
+  if (typeof navigator !== 'undefined') {
     return navigator;
   }
   return getWindow()?.navigator;
@@ -48,18 +48,18 @@ const getNavigator = (): Navigator | undefined => {
 const getCaches = (): CacheStorage | undefined => {
   const windowRef = getWindow();
   if (windowRef?.caches) return windowRef.caches;
-  if (typeof caches !== "undefined") return caches;
+  if (typeof caches !== 'undefined') return caches;
   return undefined;
 };
 
 const getNotificationApi = (): typeof Notification | undefined => {
   const windowRef = getWindow();
   if (windowRef?.Notification) return windowRef.Notification;
-  if (typeof Notification !== "undefined") return Notification;
+  if (typeof Notification !== 'undefined') return Notification;
   return undefined;
 };
 
-const isTestEnv = process.env.NODE_ENV === "test";
+const isTestEnv = process.env.NODE_ENV === 'test';
 
 const logInfo = (..._args: unknown[]): void => {
   void _args;
@@ -71,7 +71,7 @@ const logError = (..._args: unknown[]): void => {
 
 const isNavigatorStandalone = (navigatorRef?: Navigator): boolean => {
   if (!navigatorRef) return false;
-  if ("standalone" in navigatorRef) {
+  if ('standalone' in navigatorRef) {
     return (
       (navigatorRef as Navigator & { standalone?: boolean }).standalone === true
     );
@@ -113,25 +113,25 @@ class PWAManager {
   private async registerServiceWorker(): Promise<void> {
     const navigatorRef = getNavigator();
     if (!navigatorRef?.serviceWorker) {
-      logInfo("[PWA] Service Worker not supported");
+      logInfo('[PWA] Service Worker not supported');
       return;
     }
 
     try {
-      const registration = await navigatorRef.serviceWorker.register("/sw.js", {
-        scope: "/",
-        updateViaCache: "none",
+      const registration = await navigatorRef.serviceWorker.register('/sw.js', {
+        scope: '/',
+        updateViaCache: 'none',
       });
 
       this.serviceWorkerRegistration = registration;
 
       // Handle service worker updates
-      registration.addEventListener("updatefound", () => {
+      registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
         if (newWorker) {
-          newWorker.addEventListener("statechange", () => {
+          newWorker.addEventListener('statechange', () => {
             if (
-              newWorker.state === "installed" &&
+              newWorker.state === 'installed' &&
               navigatorRef.serviceWorker.controller
             ) {
               // New service worker available
@@ -143,16 +143,16 @@ class PWAManager {
 
       // Listen for messages from service worker
       navigatorRef.serviceWorker.addEventListener(
-        "message",
+        'message',
         this.handleServiceWorkerMessage.bind(this)
       );
 
-      logInfo("[PWA] Service Worker registered successfully");
+      logInfo('[PWA] Service Worker registered successfully');
       if (!isTestEnv) {
         this.updateStatus();
       }
     } catch (error) {
-      logError("[PWA] Service Worker registration failed:", error);
+      logError('[PWA] Service Worker registration failed:', error);
     }
   }
 
@@ -163,13 +163,13 @@ class PWAManager {
     const windowRef = getWindow();
     if (!windowRef) return;
 
-    windowRef.addEventListener("beforeinstallprompt", (event) => {
+    windowRef.addEventListener('beforeinstallprompt', event => {
       event.preventDefault();
       this.installPromptEvent = event as BeforeInstallPromptEvent;
       this.updateStatus();
     });
 
-    windowRef.addEventListener("appinstalled", () => {
+    windowRef.addEventListener('appinstalled', () => {
       this.installPromptEvent = null;
       this.updateStatus();
     });
@@ -182,14 +182,14 @@ class PWAManager {
     const windowRef = getWindow();
     if (!windowRef) return;
 
-    windowRef.addEventListener("online", () => {
-      logInfo("[PWA] Back online");
+    windowRef.addEventListener('online', () => {
+      logInfo('[PWA] Back online');
       this.updateStatus();
       this.syncPendingData();
     });
 
-    windowRef.addEventListener("offline", () => {
-      logInfo("[PWA] Gone offline");
+    windowRef.addEventListener('offline', () => {
+      logInfo('[PWA] Gone offline');
       this.updateStatus();
     });
   }
@@ -202,15 +202,15 @@ class PWAManager {
 
     if (data?.type) {
       switch (data.type) {
-        case "CACHE_UPDATED":
-          logInfo("[PWA] Cache updated");
+        case 'CACHE_UPDATED':
+          logInfo('[PWA] Cache updated');
           this.updateStatus();
           break;
-        case "OFFLINE_READY":
-          logInfo("[PWA] App ready for offline use");
+        case 'OFFLINE_READY':
+          logInfo('[PWA] App ready for offline use');
           break;
-        case "SYNC_COMPLETE":
-          logInfo("[PWA] Background sync completed");
+        case 'SYNC_COMPLETE':
+          logInfo('[PWA] Background sync completed');
           break;
       }
     }
@@ -223,7 +223,7 @@ class PWAManager {
     const windowRef = getWindow();
     const navigatorRef = getNavigator();
     const shouldRefreshRegistration =
-      process.env.NODE_ENV === "test" && navigatorRef?.serviceWorker;
+      process.env.NODE_ENV === 'test' && navigatorRef?.serviceWorker;
 
     if (shouldRefreshRegistration) {
       this.serviceWorkerRegistration = null;
@@ -240,7 +240,7 @@ class PWAManager {
       !!windowRef &&
       !!navigatorRef.serviceWorker &&
       !!windowRef.caches;
-    const matchMedia = windowRef?.matchMedia?.("(display-mode: standalone)");
+    const matchMedia = windowRef?.matchMedia?.('(display-mode: standalone)');
     const isInstalled =
       !!windowRef &&
       (matchMedia?.matches || isNavigatorStandalone(navigatorRef));
@@ -273,17 +273,16 @@ class PWAManager {
     const activeWorker = registration?.active;
     if (!activeWorker) return undefined;
 
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const messageChannel = new MessageChannel();
 
-      messageChannel.port1.onmessage = (event) => {
+      messageChannel.port1.onmessage = event => {
         resolve(event.data);
       };
 
-      activeWorker.postMessage(
-        { type: "GET_CACHE_STATUS" },
-        [messageChannel.port2]
-      );
+      activeWorker.postMessage({ type: 'GET_CACHE_STATUS' }, [
+        messageChannel.port2,
+      ]);
 
       // Timeout after 5 seconds
       setTimeout(() => resolve(undefined), 5000);
@@ -295,7 +294,7 @@ class PWAManager {
    */
   public async installApp(): Promise<boolean> {
     if (!this.installPromptEvent) {
-      logInfo("[PWA] Install prompt not available");
+      logInfo('[PWA] Install prompt not available');
       return false;
     }
 
@@ -303,16 +302,16 @@ class PWAManager {
       await this.installPromptEvent.prompt();
       const { outcome } = await this.installPromptEvent.userChoice;
 
-      if (outcome === "accepted") {
-        logInfo("[PWA] App installation accepted");
+      if (outcome === 'accepted') {
+        logInfo('[PWA] App installation accepted');
         this.installPromptEvent = null;
         return true;
       } else {
-        logInfo("[PWA] App installation dismissed");
+        logInfo('[PWA] App installation dismissed');
         return false;
       }
     } catch (error) {
-      logError("[PWA] Install failed:", error);
+      logError('[PWA] Install failed:', error);
       return false;
     }
   }
@@ -331,7 +330,7 @@ class PWAManager {
     if (!this.serviceWorkerRegistration?.active) return;
 
     this.serviceWorkerRegistration.active.postMessage({
-      type: "CACHE_PROGRESS",
+      type: 'CACHE_PROGRESS',
       payload: progressData,
     });
   }
@@ -345,7 +344,7 @@ class PWAManager {
     if (!this.serviceWorkerRegistration?.active) return;
 
     this.serviceWorkerRegistration.active.postMessage({
-      type: "CACHE_ACHIEVEMENT",
+      type: 'CACHE_ACHIEVEMENT',
       payload: achievementData,
     });
   }
@@ -366,11 +365,11 @@ class PWAManager {
       ).sync;
 
       if (syncManager) {
-        await syncManager.register("progress-sync");
-        await syncManager.register("achievement-sync");
+        await syncManager.register('progress-sync');
+        await syncManager.register('achievement-sync');
       }
     } catch (error) {
-      logError("[PWA] Background sync registration failed:", error);
+      logError('[PWA] Background sync registration failed:', error);
     }
   }
 
@@ -380,12 +379,12 @@ class PWAManager {
   public async requestNotificationPermission(): Promise<NotificationPermission> {
     const notificationApi = getNotificationApi();
     if (!notificationApi) {
-      return "denied";
+      return 'denied';
     }
 
     if (
-      notificationApi.permission === "default" &&
-      typeof notificationApi.requestPermission === "function"
+      notificationApi.permission === 'default' &&
+      typeof notificationApi.requestPermission === 'function'
     ) {
       return await notificationApi.requestPermission();
     }
@@ -403,7 +402,7 @@ class PWAManager {
   ): Promise<void> {
     const permission = await this.requestNotificationPermission();
 
-    if (permission !== "granted" || !this.serviceWorkerRegistration) {
+    if (permission !== 'granted' || !this.serviceWorkerRegistration) {
       return;
     }
 
@@ -412,15 +411,15 @@ class PWAManager {
       vibrate?: number[];
     } = {
       body,
-      icon: "/icons/icon-192x192.svg",
-      badge: "/icons/badge-72x72.svg",
-      tag: "achievement",
+      icon: '/icons/icon-192x192.svg',
+      badge: '/icons/badge-72x72.svg',
+      tag: 'achievement',
       data,
       actions: [
         {
-          action: "play",
-          title: "Play Now",
-          icon: "/icons/play-action.svg",
+          action: 'play',
+          title: 'Play Now',
+          icon: '/icons/play-action.svg',
         },
       ],
       vibrate: [200, 100, 200],
@@ -445,11 +444,11 @@ class PWAManager {
       // Skip waiting for new service worker
       if (this.serviceWorkerRegistration.waiting) {
         this.serviceWorkerRegistration.waiting.postMessage({
-          type: "SKIP_WAITING",
+          type: 'SKIP_WAITING',
         });
       }
     } catch (error) {
-      logError("[PWA] Service worker update failed:", error);
+      logError('[PWA] Service worker update failed:', error);
     }
   }
 
@@ -458,7 +457,7 @@ class PWAManager {
    */
   private notifyUpdate(): void {
     // You can implement a toast notification or modal here
-    logInfo("[PWA] New version available! Refresh to update.");
+    logInfo('[PWA] New version available! Refresh to update.');
 
     // Auto-update after a delay (optional)
     setTimeout(() => {
@@ -501,11 +500,11 @@ class PWAManager {
     try {
       const cacheNames = await cacheApi.keys();
       await Promise.all(
-        cacheNames.map((cacheName) => cacheApi.delete(cacheName))
+        cacheNames.map(cacheName => cacheApi.delete(cacheName))
       );
-      logInfo("[PWA] All caches cleared");
+      logInfo('[PWA] All caches cleared');
     } catch (error) {
-      logError("[PWA] Failed to clear caches:", error);
+      logError('[PWA] Failed to clear caches:', error);
     }
   }
 }
@@ -529,7 +528,7 @@ export const isPWAInstalled = (): boolean => {
   const windowRef = getWindow();
   const navigatorRef = getNavigator();
   if (!windowRef) return false;
-  const matchMedia = windowRef.matchMedia?.("(display-mode: standalone)");
+  const matchMedia = windowRef.matchMedia?.('(display-mode: standalone)');
   return matchMedia?.matches || isNavigatorStandalone(navigatorRef);
 };
 
@@ -541,5 +540,5 @@ export const isOffline = (): boolean => {
 // Types for TypeScript
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
 }

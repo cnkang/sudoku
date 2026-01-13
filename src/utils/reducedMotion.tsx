@@ -3,7 +3,7 @@
  * Provides utilities for respecting user's motion preferences and accessibility needs
  */
 
-import React from "react";
+import React from 'react';
 
 export interface MotionPreferences {
   prefersReducedMotion: boolean;
@@ -14,7 +14,7 @@ export interface MotionPreferences {
 
 export interface MotionSettings {
   respectSystemPreference: boolean;
-  customPreference: "no-preference" | "reduce";
+  customPreference: 'no-preference' | 'reduce';
   animationScale: number; // 0 = no animations, 1 = full animations
   enableHapticFeedback: boolean;
   enableSoundEffects: boolean;
@@ -28,7 +28,7 @@ export const getMotionPreferences = (
 ): MotionPreferences => {
   const defaultSettings: MotionSettings = {
     respectSystemPreference: true,
-    customPreference: "no-preference",
+    customPreference: 'no-preference',
     animationScale: 1,
     enableHapticFeedback: true,
     enableSoundEffects: true,
@@ -38,13 +38,13 @@ export const getMotionPreferences = (
 
   // Check system preference
   const systemPrefersReduced = window.matchMedia(
-    "(prefers-reduced-motion: reduce)"
+    '(prefers-reduced-motion: reduce)'
   ).matches;
 
   // Determine if reduced motion should be applied
   const shouldReduceMotion =
     (settings.respectSystemPreference && systemPrefersReduced) ||
-    settings.customPreference === "reduce" ||
+    settings.customPreference === 'reduce' ||
     settings.animationScale === 0;
 
   // Calculate animation durations based on preferences
@@ -68,10 +68,10 @@ export const createMotionCSSProperties = (
   preferences: MotionPreferences
 ): Record<string, string> => {
   return {
-    "--animation-duration": `${preferences.animationDuration}ms`,
-    "--transition-duration": `${preferences.transitionDuration}ms`,
-    "--animation-scale": preferences.allowAnimations ? "1" : "0",
-    "--motion-safe": preferences.allowAnimations ? "1" : "0",
+    '--animation-duration': `${preferences.animationDuration}ms`,
+    '--transition-duration': `${preferences.transitionDuration}ms`,
+    '--animation-scale': preferences.allowAnimations ? '1' : '0',
+    '--motion-safe': preferences.allowAnimations ? '1' : '0',
   };
 };
 
@@ -87,7 +87,7 @@ export const useMotionPreferences = (
 
   const [settings, setSettings] = React.useState<MotionSettings>(() => ({
     respectSystemPreference: true,
-    customPreference: "no-preference",
+    customPreference: 'no-preference',
     animationScale: 1,
     enableHapticFeedback: true,
     enableSoundEffects: true,
@@ -104,19 +104,19 @@ export const useMotionPreferences = (
   React.useEffect(() => {
     if (!settings.respectSystemPreference) return;
 
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     const handleChange = () => {
       const newPreferences = getMotionPreferences(settings);
       setPreferences(newPreferences);
     };
 
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, [settings]);
 
   const updateSettings = React.useCallback(
     (newSettings: Partial<MotionSettings>) => {
-      setSettings((prev) => ({ ...prev, ...newSettings }));
+      setSettings(prev => ({ ...prev, ...newSettings }));
     },
     []
   );
@@ -151,17 +151,18 @@ export const ConditionalAnimation: React.FC<{
 
   if (!preferences.allowAnimations) {
     // Return children without animation classes/props
-    return React.Children.map(children, (child) => {
+    return React.Children.map(children, child => {
       if (React.isValidElement(child)) {
-        const element =
-          child as React.ReactElement<React.HTMLAttributes<HTMLElement>>;
+        const element = child as React.ReactElement<
+          React.HTMLAttributes<HTMLElement>
+        >;
         const { className, style, ...otherProps } = element.props;
 
         // Remove animation-related classes
         const cleanClassName = className
-          ?.split(" ")
-          .filter((cls: string) => !cls.includes("animate"))
-          .join(" ");
+          ?.split(' ')
+          .filter((cls: string) => !cls.includes('animate'))
+          .join(' ');
 
         // Remove animation-related styles
         const cleanStyle = style ? { ...style } : {};
@@ -194,7 +195,7 @@ export const safeAnimate = {
     preferences?: MotionPreferences
   ): string => {
     const prefs = preferences || getMotionPreferences();
-    return prefs.allowAnimations ? animationClass : "";
+    return prefs.allowAnimations ? animationClass : '';
   },
 
   /**

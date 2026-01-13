@@ -12,8 +12,8 @@ import type {
   GridConfig,
   ProgressStats,
   SudokuPuzzle,
-} from "@/types";
-import { GRID_CONFIGS } from "./gridConfig";
+} from '@/types';
+import { GRID_CONFIGS } from './gridConfig';
 
 type MigratedPreferences = {
   difficulty: number;
@@ -158,9 +158,9 @@ export function migrateLegacyGameState(
     childMode: legacyState.childMode || false,
     accessibility,
     progress: legacyState.progress || {
-      "4x4": createEmptyProgressStats(),
-      "6x6": createEmptyProgressStats(),
-      "9x9": createEmptyProgressStats(),
+      '4x4': createEmptyProgressStats(),
+      '6x6': createEmptyProgressStats(),
+      '9x9': createEmptyProgressStats(),
     },
   };
 
@@ -176,7 +176,7 @@ export function migrateLegacyPreferences(
   return {
     // Preserve existing preferences
     difficulty: legacyPrefs.difficulty || 1,
-    theme: legacyPrefs.theme || "default",
+    theme: legacyPrefs.theme || 'default',
     soundEnabled: legacyPrefs.soundEnabled || false,
 
     // Add new multi-size preferences with backward-compatible defaults
@@ -197,9 +197,9 @@ export function migrateLegacyPreferences(
 
     // Add progress tracking with empty initial state
     progress: {
-      "4x4": createEmptyProgressStats(),
-      "6x6": createEmptyProgressStats(),
-      "9x9": createEmptyProgressStats(),
+      '4x4': createEmptyProgressStats(),
+      '6x6': createEmptyProgressStats(),
+      '9x9': createEmptyProgressStats(),
     },
   };
 }
@@ -209,17 +209,17 @@ export function migrateLegacyPreferences(
  */
 export function isLegacyPuzzle(puzzle: unknown): puzzle is LegacySudokuPuzzle {
   return (
-    typeof puzzle === "object" &&
+    typeof puzzle === 'object' &&
     puzzle !== null &&
-    "puzzle" in puzzle &&
-    "solution" in puzzle &&
-    "difficulty" in puzzle &&
+    'puzzle' in puzzle &&
+    'solution' in puzzle &&
+    'difficulty' in puzzle &&
     Array.isArray((puzzle as LegacySudokuPuzzle).puzzle) &&
     Array.isArray((puzzle as LegacySudokuPuzzle).solution) &&
-    typeof (puzzle as LegacySudokuPuzzle).difficulty === "number" &&
+    typeof (puzzle as LegacySudokuPuzzle).difficulty === 'number' &&
     (puzzle as LegacySudokuPuzzle).puzzle.length === 9 &&
     (puzzle as LegacySudokuPuzzle).solution.length === 9 &&
-    !("gridSize" in puzzle)
+    !('gridSize' in puzzle)
   );
 }
 
@@ -228,26 +228,28 @@ export function isLegacyPuzzle(puzzle: unknown): puzzle is LegacySudokuPuzzle {
  */
 export function isLegacyGameState(state: unknown): state is LegacyGameState {
   return (
-    typeof state === "object" &&
+    typeof state === 'object' &&
     state !== null &&
-    !("gridConfig" in state) &&
-    ("puzzle" in state &&
-      ((state as LegacyGameState).puzzle === null ||
-        (Array.isArray((state as LegacyGameState).puzzle) &&
-          (state as LegacyGameState).puzzle?.length === 9)))
+    !('gridConfig' in state) &&
+    'puzzle' in state &&
+    ((state as LegacyGameState).puzzle === null ||
+      (Array.isArray((state as LegacyGameState).puzzle) &&
+        (state as LegacyGameState).puzzle?.length === 9))
   );
 }
 
 /**
  * Checks if preferences are in legacy format
  */
-export function isLegacyPreferences(prefs: unknown): prefs is LegacyPreferences {
+export function isLegacyPreferences(
+  prefs: unknown
+): prefs is LegacyPreferences {
   return (
-    typeof prefs === "object" &&
+    typeof prefs === 'object' &&
     prefs !== null &&
-    !("gridSize" in prefs) &&
-    !("accessibility" in prefs) &&
-    !("progress" in prefs)
+    !('gridSize' in prefs) &&
+    !('accessibility' in prefs) &&
+    !('progress' in prefs)
   );
 }
 
@@ -265,7 +267,7 @@ export function validateLegacyPuzzleStructure(puzzle: number[][]): boolean {
     }
 
     for (const cell of row) {
-      if (typeof cell !== "number" || cell < 0 || cell > 9) {
+      if (typeof cell !== 'number' || cell < 0 || cell > 9) {
         return false;
       }
     }
@@ -284,7 +286,7 @@ export function ensureBackwardCompatibleResponse(
 
   // If it's a modern multi-size response, add legacy fields for compatibility
   const gridSize =
-    typeof response.gridSize === "number" ? response.gridSize : undefined;
+    typeof response.gridSize === 'number' ? response.gridSize : undefined;
   if (gridSize && gridSize !== 9) {
     // For non-9x9 grids, don't add legacy fields to avoid confusion
     return response;
@@ -303,19 +305,19 @@ export function ensureBackwardCompatibleResponse(
  */
 export const LegacyDataMigrator = {
   LEGACY_KEYS: [
-    "sudoku-game-state",
-    "sudoku-preferences",
-    "sudoku-stats",
-    "sudoku-theme",
+    'sudoku-game-state',
+    'sudoku-preferences',
+    'sudoku-stats',
+    'sudoku-theme',
   ],
 
   /**
    * Checks if legacy data exists in localStorage
    */
   hasLegacyData(): boolean {
-    if (typeof window === "undefined") return false;
+    if (typeof window === 'undefined') return false;
 
-    return LegacyDataMigrator.LEGACY_KEYS.some((key) => {
+    return LegacyDataMigrator.LEGACY_KEYS.some(key => {
       try {
         return localStorage.getItem(key) !== null;
       } catch {
@@ -329,42 +331,42 @@ export const LegacyDataMigrator = {
    */
   // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: migration logic is sequential
   async migrateLegacyData(): Promise<void> {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     try {
       // Migrate game state
-      const legacyState = localStorage.getItem("sudoku-game-state");
+      const legacyState = localStorage.getItem('sudoku-game-state');
       if (legacyState) {
         const parsed = JSON.parse(legacyState);
         if (isLegacyGameState(parsed)) {
           const migratedState = migrateLegacyGameState(parsed);
           localStorage.setItem(
-            "multi-sudoku-game-state",
+            'multi-sudoku-game-state',
             JSON.stringify(migratedState)
           );
         }
       }
 
       // Migrate preferences
-      const legacyPrefs = localStorage.getItem("sudoku-preferences");
+      const legacyPrefs = localStorage.getItem('sudoku-preferences');
       if (legacyPrefs) {
         const parsed = JSON.parse(legacyPrefs);
         if (isLegacyPreferences(parsed)) {
           const migratedPrefs = migrateLegacyPreferences(parsed);
           localStorage.setItem(
-            "multi-sudoku-preferences",
+            'multi-sudoku-preferences',
             JSON.stringify(migratedPrefs)
           );
         }
       }
 
       // Migrate stats to progress format
-      const legacyStats = localStorage.getItem("sudoku-stats");
+      const legacyStats = localStorage.getItem('sudoku-stats');
       if (legacyStats) {
         const parsed = JSON.parse(legacyStats);
         const baseStats = createEmptyProgressStats();
         const migratedProgress = {
-          "9x9": {
+          '9x9': {
             ...baseStats,
             puzzlesCompleted: parsed.gamesPlayed || 0,
             totalTime: parsed.totalTime || 0,
@@ -376,17 +378,17 @@ export const LegacyDataMigrator = {
             longestStreak: parsed.longestStreak || parsed.streak || 0,
             lastPlayed: parsed.lastPlayed ? new Date(parsed.lastPlayed) : null,
           },
-          "4x4": createEmptyProgressStats(),
-          "6x6": createEmptyProgressStats(),
+          '4x4': createEmptyProgressStats(),
+          '6x6': createEmptyProgressStats(),
         };
         localStorage.setItem(
-          "multi-sudoku-progress",
+          'multi-sudoku-progress',
           JSON.stringify(migratedProgress)
         );
       }
 
       // Mark migration as complete
-      localStorage.setItem("sudoku-migration-complete", "true");
+      localStorage.setItem('sudoku-migration-complete', 'true');
     } catch (error) {
       void error;
     }
@@ -396,10 +398,10 @@ export const LegacyDataMigrator = {
    * Checks if migration has been completed
    */
   isMigrationComplete(): boolean {
-    if (typeof window === "undefined") return true;
+    if (typeof window === 'undefined') return true;
 
     try {
-      return localStorage.getItem("sudoku-migration-complete") === "true";
+      return localStorage.getItem('sudoku-migration-complete') === 'true';
     } catch {
       return false;
     }
@@ -409,10 +411,10 @@ export const LegacyDataMigrator = {
    * Cleans up legacy data after successful migration
    */
   cleanupLegacyData(): void {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     try {
-      LegacyDataMigrator.LEGACY_KEYS.forEach((key) => {
+      LegacyDataMigrator.LEGACY_KEYS.forEach(key => {
         localStorage.removeItem(key);
       });
     } catch (error) {

@@ -3,7 +3,7 @@
  * Implements Core Web Vitals tracking and React 19 optimization monitoring
  */
 
-import React from "react";
+import React from 'react';
 
 declare const gtag:
   | ((event: string, action: string, params?: Record<string, unknown>) => void)
@@ -42,7 +42,7 @@ export const PERFORMANCE_THRESHOLDS = {
 export interface PerformanceMetric {
   name: string;
   value: number;
-  rating: "good" | "needs-improvement" | "poor";
+  rating: 'good' | 'needs-improvement' | 'poor';
   timestamp: number;
   url: string;
   userAgent: string;
@@ -69,11 +69,11 @@ class PerformanceMonitor {
 
   private initializeObservers(): void {
     // Only initialize in browser environment
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     try {
       // LCP Observer
-      const lcpObserver = new PerformanceObserver((list) => {
+      const lcpObserver = new PerformanceObserver(list => {
         const entries = list.getEntries();
         const lastEntry = entries[entries.length - 1] as PerformanceEntry & {
           renderTime?: number;
@@ -82,56 +82,56 @@ class PerformanceMonitor {
 
         if (lastEntry) {
           const value = lastEntry.renderTime || lastEntry.loadTime || 0;
-          this.recordMetric("LCP", value);
+          this.recordMetric('LCP', value);
         }
       });
-      lcpObserver.observe({ type: "largest-contentful-paint", buffered: true });
+      lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
       this.observers.push(lcpObserver);
 
       // FID Observer
-      const fidObserver = new PerformanceObserver((list) => {
+      const fidObserver = new PerformanceObserver(list => {
         const entries = list.getEntries();
-        entries.forEach((entry) => {
+        entries.forEach(entry => {
           const fidEntry = entry as PerformanceEntry & {
             processingStart?: number;
           };
           if (fidEntry.processingStart) {
             const value = fidEntry.processingStart - entry.startTime;
-            this.recordMetric("FID", value);
+            this.recordMetric('FID', value);
           }
         });
       });
-      fidObserver.observe({ type: "first-input", buffered: true });
+      fidObserver.observe({ type: 'first-input', buffered: true });
       this.observers.push(fidObserver);
 
       // CLS Observer
       let clsValue = 0;
-      const clsObserver = new PerformanceObserver((list) => {
+      const clsObserver = new PerformanceObserver(list => {
         const entries = list.getEntries();
-        entries.forEach((entry) => {
+        entries.forEach(entry => {
           const clsEntry = entry as PerformanceEntry & {
             value?: number;
             hadRecentInput?: boolean;
           };
           if (clsEntry.value && !clsEntry.hadRecentInput) {
             clsValue += clsEntry.value;
-            this.recordMetric("CLS", clsValue);
+            this.recordMetric('CLS', clsValue);
           }
         });
       });
-      clsObserver.observe({ type: "layout-shift", buffered: true });
+      clsObserver.observe({ type: 'layout-shift', buffered: true });
       this.observers.push(clsObserver);
 
       // FCP Observer
-      const fcpObserver = new PerformanceObserver((list) => {
+      const fcpObserver = new PerformanceObserver(list => {
         const entries = list.getEntries();
-        entries.forEach((entry) => {
-          if (entry.name === "first-contentful-paint") {
-            this.recordMetric("FCP", entry.startTime);
+        entries.forEach(entry => {
+          if (entry.name === 'first-contentful-paint') {
+            this.recordMetric('FCP', entry.startTime);
           }
         });
       });
-      fcpObserver.observe({ type: "paint", buffered: true });
+      fcpObserver.observe({ type: 'paint', buffered: true });
       this.observers.push(fcpObserver);
 
       // Navigation timing for TTI approximation
@@ -142,18 +142,18 @@ class PerformanceMonitor {
   }
 
   private observeNavigationTiming(): void {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     // Use Navigation Timing API to calculate TTI approximation
-    window.addEventListener("load", () => {
+    window.addEventListener('load', () => {
       setTimeout(() => {
         const navigation = performance.getEntriesByType(
-          "navigation"
+          'navigation'
         )[0] as PerformanceNavigationTiming;
         if (navigation) {
           // TTI approximation: domContentLoadedEventEnd + some buffer for React hydration
           const tti = navigation.domContentLoadedEventEnd + 500; // 500ms buffer for React 19 hydration
-          this.recordMetric("TTI", tti);
+          this.recordMetric('TTI', tti);
         }
       }, 0);
     });
@@ -166,8 +166,8 @@ class PerformanceMonitor {
       value,
       rating,
       timestamp: Date.now(),
-      url: typeof window !== "undefined" ? window.location.href : "",
-      userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+      url: typeof window !== 'undefined' ? window.location.href : '',
+      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
     };
 
     this.metrics.set(name, metric);
@@ -177,23 +177,23 @@ class PerformanceMonitor {
   private getRating(
     name: string,
     value: number
-  ): "good" | "needs-improvement" | "poor" {
+  ): 'good' | 'needs-improvement' | 'poor' {
     const thresholds =
       PERFORMANCE_THRESHOLDS[name as keyof typeof PERFORMANCE_THRESHOLDS];
-    if (!thresholds) return "good";
+    if (!thresholds) return 'good';
 
-    if (value <= thresholds.GOOD) return "good";
-    if (value <= thresholds.NEEDS_IMPROVEMENT) return "needs-improvement";
-    return "poor";
+    if (value <= thresholds.GOOD) return 'good';
+    if (value <= thresholds.NEEDS_IMPROVEMENT) return 'needs-improvement';
+    return 'poor';
   }
 
   private reportMetric(metric: PerformanceMetric): void {
     // Send to analytics service in production
-    if (process.env.NODE_ENV === "production") {
+    if (process.env.NODE_ENV === 'production') {
       // Example: Send to Google Analytics 4
-      if (typeof gtag !== "undefined") {
-        gtag("event", metric.name, {
-          event_category: "Web Vitals",
+      if (typeof gtag !== 'undefined') {
+        gtag('event', metric.name, {
+          event_category: 'Web Vitals',
           value: Math.round(metric.value),
           custom_parameter_rating: metric.rating,
         });
@@ -244,14 +244,14 @@ class PerformanceMonitor {
 
   // Check if performance meets requirements
   public meetsPerformanceRequirements(): boolean {
-    const lcp = this.metrics.get("LCP");
-    const fid = this.metrics.get("FID");
-    const cls = this.metrics.get("CLS");
+    const lcp = this.metrics.get('LCP');
+    const fid = this.metrics.get('FID');
+    const cls = this.metrics.get('CLS');
 
     return (
-      (!lcp || lcp.rating !== "poor") &&
-      (!fid || fid.rating !== "poor") &&
-      (!cls || cls.rating !== "poor")
+      (!lcp || lcp.rating !== 'poor') &&
+      (!fid || fid.rating !== 'poor') &&
+      (!cls || cls.rating !== 'poor')
     );
   }
 
@@ -297,7 +297,7 @@ export const createLazyComponent = <P extends object>(
   return (props: P) => {
     const fallbackElement = fallback
       ? React.createElement(fallback)
-      : React.createElement("div", {}, "Loading...");
+      : React.createElement('div', {}, 'Loading...');
 
     return React.createElement(
       React.Suspense,
@@ -330,11 +330,11 @@ export const withPerformanceTracking = <P extends object>(
 
 // Bundle size monitoring
 export const getBundleSize = async (): Promise<number> => {
-  if (typeof window === "undefined") return 0;
+  if (typeof window === 'undefined') return 0;
 
   try {
     const entries = performance.getEntriesByType(
-      "navigation"
+      'navigation'
     ) as PerformanceNavigationTiming[];
     const entry = entries[0];
     if (entry) {
@@ -354,7 +354,7 @@ declare global {
   }
 }
 
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   window.performanceMonitor = getPerformanceMonitor();
 }
 
