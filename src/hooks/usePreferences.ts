@@ -1,5 +1,5 @@
-import { useEffect, useCallback } from "react";
-import type { GameState, GameAction } from "@/types";
+import { useEffect, useCallback } from 'react';
+import type { GameState, GameAction } from '@/types';
 import {
   loadUserPreferences,
   saveAccessibilitySettings,
@@ -7,8 +7,8 @@ import {
   saveChildMode,
   saveGridConfig,
   saveDifficulty,
-} from "@/utils/preferences";
-import { GRID_CONFIGS } from "@/utils/gridConfig";
+} from '@/utils/preferences';
+import { GRID_CONFIGS } from '@/utils/gridConfig';
 
 /**
  * Custom hook for managing user preferences persistence
@@ -26,7 +26,7 @@ export function usePreferences(
     // Load accessibility settings
     if (preferences.accessibility) {
       dispatch({
-        type: "UPDATE_ACCESSIBILITY",
+        type: 'UPDATE_ACCESSIBILITY',
         payload: preferences.accessibility,
       });
     }
@@ -35,7 +35,7 @@ export function usePreferences(
     if (preferences.progress) {
       Object.entries(preferences.progress).forEach(([gridSize, stats]) => {
         dispatch({
-          type: "UPDATE_PROGRESS",
+          type: 'UPDATE_PROGRESS',
           payload: { gridSize, stats },
         });
       });
@@ -44,7 +44,7 @@ export function usePreferences(
     // Load child mode
     if (preferences.childMode !== undefined) {
       dispatch({
-        type: "SET_CHILD_MODE",
+        type: 'SET_CHILD_MODE',
         payload: preferences.childMode,
       });
     }
@@ -52,7 +52,7 @@ export function usePreferences(
     // Load grid config (if valid)
     if (preferences.gridConfig && isValidGridConfig(preferences.gridConfig)) {
       dispatch({
-        type: "SET_GRID_CONFIG",
+        type: 'SET_GRID_CONFIG',
         payload: preferences.gridConfig,
       });
     }
@@ -60,7 +60,7 @@ export function usePreferences(
     // Load difficulty
     if (preferences.difficulty !== undefined) {
       dispatch({
-        type: "SET_DIFFICULTY",
+        type: 'SET_DIFFICULTY',
         payload: preferences.difficulty,
       });
     }
@@ -109,7 +109,7 @@ export function usePreferences(
 
     if (preferences.accessibility) {
       dispatch({
-        type: "UPDATE_ACCESSIBILITY",
+        type: 'UPDATE_ACCESSIBILITY',
         payload: preferences.accessibility,
       });
     }
@@ -117,7 +117,7 @@ export function usePreferences(
     if (preferences.progress) {
       Object.entries(preferences.progress).forEach(([gridSize, stats]) => {
         dispatch({
-          type: "UPDATE_PROGRESS",
+          type: 'UPDATE_PROGRESS',
           payload: { gridSize, stats },
         });
       });
@@ -125,21 +125,21 @@ export function usePreferences(
 
     if (preferences.childMode !== undefined) {
       dispatch({
-        type: "SET_CHILD_MODE",
+        type: 'SET_CHILD_MODE',
         payload: preferences.childMode,
       });
     }
 
     if (preferences.gridConfig && isValidGridConfig(preferences.gridConfig)) {
       dispatch({
-        type: "SET_GRID_CONFIG",
+        type: 'SET_GRID_CONFIG',
         payload: preferences.gridConfig,
       });
     }
 
     if (preferences.difficulty !== undefined) {
       dispatch({
-        type: "SET_DIFFICULTY",
+        type: 'SET_DIFFICULTY',
         payload: preferences.difficulty,
       });
     }
@@ -174,7 +174,7 @@ export function usePreferences(
 function isValidGridConfig(
   config: unknown
 ): config is (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS] {
-  if (!config || typeof config !== "object") {
+  if (!config || typeof config !== 'object') {
     return false;
   }
 

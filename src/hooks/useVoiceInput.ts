@@ -3,8 +3,8 @@
  * Provides voice input support for accessibility and hands-free interaction
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import type { GridConfig } from "@/types";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { GridConfig } from '@/types';
 
 export interface VoiceInputSettings {
   enabled: boolean;
@@ -72,7 +72,7 @@ declare global {
 
 const defaultSettings: VoiceInputSettings = {
   enabled: false,
-  language: "en-US",
+  language: 'en-US',
   continuous: false,
   interimResults: false,
   maxAlternatives: 1,
@@ -88,7 +88,7 @@ export const useVoiceInput = (
     isSupported: false,
     isListening: false,
     isEnabled: false,
-    lastTranscript: "",
+    lastTranscript: '',
     confidence: 0,
     error: null,
     currentSettings: defaultSettings,
@@ -107,7 +107,7 @@ export const useVoiceInput = (
       return undefined;
     }
 
-    setState((prev) => ({ ...prev, isSupported: true }));
+    setState(prev => ({ ...prev, isSupported: true }));
 
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
@@ -120,11 +120,11 @@ export const useVoiceInput = (
 
     // Event handlers
     recognition.onstart = () => {
-      setState((prev) => ({ ...prev, isListening: true, error: null }));
+      setState(prev => ({ ...prev, isListening: true, error: null }));
     };
 
     recognition.onend = () => {
-      setState((prev) => ({ ...prev, isListening: false }));
+      setState(prev => ({ ...prev, isListening: false }));
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
@@ -133,7 +133,7 @@ export const useVoiceInput = (
       const transcript = result[0].transcript.trim().toLowerCase();
       const confidence = result[0].confidence;
 
-      setState((prev) => ({
+      setState(prev => ({
         ...prev,
         lastTranscript: transcript,
         confidence,
@@ -144,7 +144,7 @@ export const useVoiceInput = (
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      setState((prev) => ({
+      setState(prev => ({
         ...prev,
         isListening: false,
         error: `Speech recognition error: ${event.error}`,
@@ -202,18 +202,18 @@ export const useVoiceInput = (
 
       // Check for commands
       const commands: Record<string, string> = {
-        clear: "clear",
-        delete: "clear",
-        remove: "clear",
-        erase: "clear",
-        hint: "hint",
-        help: "help",
-        undo: "undo",
-        back: "undo",
-        submit: "submit",
-        check: "submit",
-        pause: "pause",
-        stop: "stop",
+        clear: 'clear',
+        delete: 'clear',
+        remove: 'clear',
+        erase: 'clear',
+        hint: 'hint',
+        help: 'help',
+        undo: 'undo',
+        back: 'undo',
+        submit: 'submit',
+        check: 'submit',
+        pause: 'pause',
+        stop: 'stop',
       };
 
       // Check for partial matches in transcript
@@ -279,7 +279,7 @@ export const useVoiceInput = (
         stopListening();
       }, 5000);
     } catch (error) {
-      setState((prev) => ({
+      setState(prev => ({
         ...prev,
         error: `Failed to start voice recognition: ${error}`,
       }));
@@ -297,7 +297,7 @@ export const useVoiceInput = (
 
   // Enable voice input
   const enableVoiceInput = useCallback(() => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       isEnabled: true,
       currentSettings: {
@@ -310,7 +310,7 @@ export const useVoiceInput = (
   // Disable voice input
   const disableVoiceInput = useCallback(() => {
     stopListening();
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       isEnabled: false,
       currentSettings: {
@@ -323,7 +323,7 @@ export const useVoiceInput = (
   // Update settings
   const updateSettings = useCallback(
     (newSettings: Partial<VoiceInputSettings>) => {
-      setState((prev) => ({
+      setState(prev => ({
         ...prev,
         currentSettings: {
           ...prev.currentSettings,

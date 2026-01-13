@@ -3,8 +3,8 @@
  * Automatically adjusts touch target sizes based on user interaction patterns
  */
 
-import type React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import type React from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface TouchInteractionData {
   timestamp: number;
@@ -25,7 +25,7 @@ export interface AdaptiveTouchSettings {
 
 export interface AdaptiveTouchState {
   currentTargetSize: number;
-  adaptationLevel: "none" | "mild" | "moderate" | "high";
+  adaptationLevel: 'none' | 'mild' | 'moderate' | 'high';
   interactionHistory: TouchInteractionData[];
   motorDifficultiesDetected: boolean;
   settings: AdaptiveTouchSettings;
@@ -33,7 +33,7 @@ export interface AdaptiveTouchState {
 
 export interface AdaptiveTouchHandlers {
   recordInteraction: (
-    interaction: Omit<TouchInteractionData, "timestamp">
+    interaction: Omit<TouchInteractionData, 'timestamp'>
   ) => void;
   getAdaptedSize: (baseSize: number) => number;
   updateSettings: (settings: Partial<AdaptiveTouchSettings>) => void;
@@ -53,11 +53,11 @@ const defaultSettings: AdaptiveTouchSettings = {
 
 export const useAdaptiveTouchTargets = (): [
   AdaptiveTouchState,
-  AdaptiveTouchHandlers
+  AdaptiveTouchHandlers,
 ] => {
   const [state, setState] = useState<AdaptiveTouchState>({
     currentTargetSize: defaultSettings.minTargetSize,
-    adaptationLevel: "none",
+    adaptationLevel: 'none',
     interactionHistory: [],
     motorDifficultiesDetected: false,
     settings: defaultSettings,
@@ -68,7 +68,7 @@ export const useAdaptiveTouchTargets = (): [
   // Analyze interaction patterns to detect motor difficulties
   const analyzeInteractionPatterns = useCallback(
     (history: TouchInteractionData[]) => {
-      if (history.length < 5) return "none"; // Need minimum data
+      if (history.length < 5) return 'none'; // Need minimum data
 
       const recentInteractions = history.slice(-10); // Last 10 interactions
 
@@ -94,10 +94,10 @@ export const useAdaptiveTouchTargets = (): [
         (lowAccuracy ? 0.4 : 0) +
         (multipleAttempts ? 0.2 : 0);
 
-      if (difficultyScore >= 0.8) return "high";
-      if (difficultyScore >= 0.6) return "moderate";
-      if (difficultyScore >= 0.3) return "mild";
-      return "none";
+      if (difficultyScore >= 0.8) return 'high';
+      if (difficultyScore >= 0.6) return 'moderate';
+      if (difficultyScore >= 0.3) return 'mild';
+      return 'none';
     },
     []
   );
@@ -109,7 +109,7 @@ export const useAdaptiveTouchTargets = (): [
       adaptationLevel: string,
       settings: AdaptiveTouchSettings
     ) => {
-      if (!settings.enabled || adaptationLevel === "none") {
+      if (!settings.enabled || adaptationLevel === 'none') {
         return Math.max(baseSize, settings.minTargetSize);
       }
 
@@ -135,24 +135,24 @@ export const useAdaptiveTouchTargets = (): [
 
   // Record a touch interaction
   const recordInteraction = useCallback(
-    (interaction: Omit<TouchInteractionData, "timestamp">) => {
+    (interaction: Omit<TouchInteractionData, 'timestamp'>) => {
       const newInteraction: TouchInteractionData = {
         ...interaction,
         timestamp: Date.now(),
       };
 
-      setState((prev) => {
+      setState(prev => {
         const updatedHistory = [...prev.interactionHistory, newInteraction];
 
         // Remove old interactions outside tracking duration
         const cutoffTime = Date.now() - prev.settings.trackingDuration;
         const filteredHistory = updatedHistory.filter(
-          (i) => i.timestamp > cutoffTime
+          i => i.timestamp > cutoffTime
         );
 
         // Analyze patterns
         const newAdaptationLevel = analyzeInteractionPatterns(filteredHistory);
-        const motorDifficultiesDetected = newAdaptationLevel !== "none";
+        const motorDifficultiesDetected = newAdaptationLevel !== 'none';
 
         // Calculate new target size
         const newTargetSize = calculateAdaptedSize(
@@ -188,7 +188,7 @@ export const useAdaptiveTouchTargets = (): [
   // Update settings
   const updateSettings = useCallback(
     (newSettings: Partial<AdaptiveTouchSettings>) => {
-      setState((prev) => {
+      setState(prev => {
         const updatedSettings = { ...prev.settings, ...newSettings };
 
         // Recalculate target size with new settings
@@ -210,10 +210,10 @@ export const useAdaptiveTouchTargets = (): [
 
   // Reset adaptation to baseline
   const resetAdaptation = useCallback(() => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       currentTargetSize: prev.settings.minTargetSize,
-      adaptationLevel: "none",
+      adaptationLevel: 'none',
       interactionHistory: [],
       motorDifficultiesDetected: false,
     }));
@@ -237,16 +237,16 @@ export const useAdaptiveTouchTargets = (): [
     }
 
     cleanupTimeoutRef.current = setTimeout(() => {
-      setState((prev) => {
+      setState(prev => {
         const cutoffTime = Date.now() - prev.settings.trackingDuration;
         const filteredHistory = prev.interactionHistory.filter(
-          (i) => i.timestamp > cutoffTime
+          i => i.timestamp > cutoffTime
         );
 
         if (filteredHistory.length !== prev.interactionHistory.length) {
           const newAdaptationLevel =
             analyzeInteractionPatterns(filteredHistory);
-          const motorDifficultiesDetected = newAdaptationLevel !== "none";
+          const motorDifficultiesDetected = newAdaptationLevel !== 'none';
 
           return {
             ...prev,
@@ -312,12 +312,12 @@ export const withAdaptiveTouchTargets = <
 
           let clientX: number, clientY: number;
 
-          if ("touches" in event && event.touches.length > 0) {
+          if ('touches' in event && event.touches.length > 0) {
             const touch = event.touches[0];
             if (!touch) return;
             clientX = touch.clientX;
             clientY = touch.clientY;
-          } else if ("clientX" in event) {
+          } else if ('clientX' in event) {
             clientX = event.clientX;
             clientY = event.clientY;
           } else {
@@ -341,10 +341,10 @@ export const withAdaptiveTouchTargets = <
         };
 
         // Add event listeners for interaction end
-        if ("touches" in event) {
-          document.addEventListener("touchend", handleEnd, { once: true });
+        if ('touches' in event) {
+          document.addEventListener('touchend', handleEnd, { once: true });
         } else {
-          document.addEventListener("mouseup", handleEnd, { once: true });
+          document.addEventListener('mouseup', handleEnd, { once: true });
         }
       },
       [touchHandlers, adaptedSize]
@@ -352,7 +352,7 @@ export const withAdaptiveTouchTargets = <
 
     const { style, onTouchStart, onMouseDown } = props;
     const mergedStyle: React.CSSProperties = {
-      ...(style ?? {}),
+      ...style,
       minWidth: `${adaptedSize}px`,
       minHeight: `${adaptedSize}px`,
     };

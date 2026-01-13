@@ -3,13 +3,13 @@
  * Provides PWA status, installation, and offline capabilities
  */
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from 'react';
 import {
   pwaManager,
   type PWAStatus,
   type ProgressData,
   type AchievementData,
-} from "@/utils/pwa";
+} from '@/utils/pwa';
 
 export interface UsePWAReturn {
   status: PWAStatus;
@@ -130,7 +130,7 @@ export function useOfflineStatus(): boolean {
   const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     const updateOnlineStatus = () => {
       setIsOffline(!navigator.onLine);
@@ -140,12 +140,12 @@ export function useOfflineStatus(): boolean {
     updateOnlineStatus();
 
     // Listen for online/offline events
-    window.addEventListener("online", updateOnlineStatus);
-    window.addEventListener("offline", updateOnlineStatus);
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
 
     return () => {
-      window.removeEventListener("online", updateOnlineStatus);
-      window.removeEventListener("offline", updateOnlineStatus);
+      window.removeEventListener('online', updateOnlineStatus);
+      window.removeEventListener('offline', updateOnlineStatus);
     };
   }, []);
 
@@ -186,12 +186,12 @@ export function useInstallPrompt() {
     setDismissed(true);
 
     // Remember dismissal for this session
-    sessionStorage.setItem("pwa-install-dismissed", "true");
+    sessionStorage.setItem('pwa-install-dismissed', 'true');
   }, []);
 
   // Check if previously dismissed in this session
   useEffect(() => {
-    const wasDismissed = sessionStorage.getItem("pwa-install-dismissed");
+    const wasDismissed = sessionStorage.getItem('pwa-install-dismissed');
     if (wasDismissed) {
       setDismissed(true);
     }
@@ -216,20 +216,20 @@ export function useBackgroundSync() {
       try {
         // Try to send immediately if online
         if (navigator.onLine) {
-          const response = await fetch("/api/progress", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+          const response = await fetch('/api/progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(progressData),
           });
 
           if (!response.ok) {
-            throw new Error("Failed to sync progress");
+            throw new Error('Failed to sync progress');
           }
         } else {
           // Cache for later sync when back online
           await cacheProgress(progressData);
         }
-      } catch (_error) {
+      } catch {
         // Cache for later sync
         await cacheProgress(progressData);
       }
@@ -242,20 +242,20 @@ export function useBackgroundSync() {
       try {
         // Try to send immediately if online
         if (navigator.onLine) {
-          const response = await fetch("/api/achievements", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+          const response = await fetch('/api/achievements', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(achievementData),
           });
 
           if (!response.ok) {
-            throw new Error("Failed to sync achievement");
+            throw new Error('Failed to sync achievement');
           }
         } else {
           // Cache for later sync when back online
           await cacheAchievement(achievementData);
         }
-      } catch (_error) {
+      } catch {
         // Cache for later sync
         await cacheAchievement(achievementData);
       }
