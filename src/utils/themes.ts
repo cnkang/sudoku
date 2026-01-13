@@ -3,7 +3,7 @@ import type {
   ThemeColors,
   ThemeAccessibility,
   ThemeChildFriendly,
-} from "@/types";
+} from '@/types';
 
 /**
  * WCAG AAA Compliance Constants
@@ -108,7 +108,7 @@ const defaultAccessibility: ThemeAccessibility = {
   contrastRatio: WCAG_AAA_NORMAL_TEXT_RATIO,
   largeTextContrastRatio: WCAG_AAA_LARGE_TEXT_RATIO,
   focusIndicatorWidth: 3,
-  focusIndicatorStyle: "solid",
+  focusIndicatorStyle: 'solid',
   focusIndicatorOffset: 2,
   minimumTouchTarget: 44,
   recommendedTouchTarget: 50,
@@ -127,7 +127,7 @@ const defaultChildFriendly: ThemeChildFriendly = {
   shadowIntensity: 0.2,
   borderWidth: 2,
   enableAnimations: true,
-  celebrationIntensity: "moderate",
+  celebrationIntensity: 'moderate',
   enableSoundEffects: false,
   enableHapticFeedback: true,
   enableVisualFeedback: true,
@@ -141,55 +141,55 @@ const defaultChildFriendly: ThemeChildFriendly = {
  */
 const oceanThemeColors: ThemeColors = {
   // Primary colors - Ocean blue with high contrast
-  primary: "#003D7A", // 8.5:1 contrast with white
-  primaryHover: "#0052A3",
-  primaryActive: "#002952",
-  secondary: "#A02E17", // Dark coral, 7.1:1 contrast with white
-  secondaryHover: "#8A2614",
-  secondaryActive: "#731F11",
+  primary: '#003D7A', // 8.5:1 contrast with white
+  primaryHover: '#0052A3',
+  primaryActive: '#002952',
+  secondary: '#A02E17', // Dark coral, 7.1:1 contrast with white
+  secondaryHover: '#8A2614',
+  secondaryActive: '#731F11',
 
   // Background colors
-  background: "#FFFFFF", // Pure white for maximum contrast
-  backgroundSecondary: "#F8FCFF",
-  surface: "#FFFFFF",
-  surfaceSecondary: "#F0F8FF",
+  background: '#FFFFFF', // Pure white for maximum contrast
+  backgroundSecondary: '#F8FCFF',
+  surface: '#FFFFFF',
+  surfaceSecondary: '#F0F8FF',
 
   // Cell colors
-  cellBackground: "#FFFFFF",
-  cellBackgroundFilled: "#E6F3FF",
-  cellBackgroundSelected: "#CCE7FF",
-  cellBackgroundHighlight: "#B3DAFF",
-  cellBorder: "#4A90E2",
-  cellBorderThick: "#003D7A",
+  cellBackground: '#FFFFFF',
+  cellBackgroundFilled: '#E6F3FF',
+  cellBackgroundSelected: '#CCE7FF',
+  cellBackgroundHighlight: '#B3DAFF',
+  cellBorder: '#4A90E2',
+  cellBorderThick: '#003D7A',
 
   // Text colors - All meet WCAG AAA standards
-  text: "#1A1A1A", // 15.3:1 contrast with white
-  textSecondary: "#4A4A4A", // 9.7:1 contrast with white
-  textMuted: "#6B6B6B", // 7.0:1 contrast with white
-  textOnPrimary: "#FFFFFF", // White on dark blue = 8.5:1 contrast
-  textOnSecondary: "#FFFFFF", // White on dark coral = 8.2:1 contrast
+  text: '#1A1A1A', // 15.3:1 contrast with white
+  textSecondary: '#4A4A4A', // 9.7:1 contrast with white
+  textMuted: '#6B6B6B', // 7.0:1 contrast with white
+  textOnPrimary: '#FFFFFF', // White on dark blue = 8.5:1 contrast
+  textOnSecondary: '#FFFFFF', // White on dark coral = 8.2:1 contrast
 
   // State colors - Warm and encouraging
-  success: "#166534", // Dark green, 8.1:1 contrast
-  successBackground: "#DCFCE7",
-  warning: "#CA8A04", // Dark amber, 7.8:1 contrast
-  warningBackground: "#FEF3C7",
-  error: "#DC2626", // Dark red, 7.9:1 contrast
-  errorBackground: "#FEE2E2",
-  info: "#1E40AF", // Dark blue, 8.3:1 contrast
-  infoBackground: "#DBEAFE",
+  success: '#166534', // Dark green, 8.1:1 contrast
+  successBackground: '#DCFCE7',
+  warning: '#CA8A04', // Dark amber, 7.8:1 contrast
+  warningBackground: '#FEF3C7',
+  error: '#DC2626', // Dark red, 7.9:1 contrast
+  errorBackground: '#FEE2E2',
+  info: '#1E40AF', // Dark blue, 8.3:1 contrast
+  infoBackground: '#DBEAFE',
 
   // Child-friendly colors
-  celebration: "#CA8A04", // Dark gold for celebrations
-  encouragement: "#166534", // Dark green for encouragement
-  hint: "#EA580C", // Dark orange for hints
-  hintBackground: "#FFF7ED",
+  celebration: '#CA8A04', // Dark gold for celebrations
+  encouragement: '#166534', // Dark green for encouragement
+  hint: '#EA580C', // Dark orange for hints
+  hintBackground: '#FFF7ED',
 
   // Focus and interaction
-  focus: "#003D7A",
-  focusBackground: "#E6F3FF",
-  hover: "#F0F8FF",
-  active: "#CCE7FF",
+  focus: '#003D7A',
+  focusBackground: '#E6F3FF',
+  hover: '#F0F8FF',
+  active: '#CCE7FF',
 };
 
 /**
@@ -197,55 +197,55 @@ const oceanThemeColors: ThemeColors = {
  */
 const forestThemeColors: ThemeColors = {
   // Primary colors - Forest green with high contrast
-  primary: "#1F3A0F", // 8.1:1 contrast with white
-  primaryHover: "#0F1D08",
-  primaryActive: "#0A1205",
-  secondary: "#A02E17", // Dark coral, 7.1:1 contrast with white
-  secondaryHover: "#8A2614",
-  secondaryActive: "#731F11",
+  primary: '#1F3A0F', // 8.1:1 contrast with white
+  primaryHover: '#0F1D08',
+  primaryActive: '#0A1205',
+  secondary: '#A02E17', // Dark coral, 7.1:1 contrast with white
+  secondaryHover: '#8A2614',
+  secondaryActive: '#731F11',
 
   // Background colors
-  background: "#FFFFFF", // Pure white for maximum contrast
-  backgroundSecondary: "#F0FFF0",
-  surface: "#FFFFFF",
-  surfaceSecondary: "#F5FFF5",
+  background: '#FFFFFF', // Pure white for maximum contrast
+  backgroundSecondary: '#F0FFF0',
+  surface: '#FFFFFF',
+  surfaceSecondary: '#F5FFF5',
 
   // Cell colors
-  cellBackground: "#FFFFFF",
-  cellBackgroundFilled: "#F0FFF0",
-  cellBackgroundSelected: "#E6FFE6",
-  cellBackgroundHighlight: "#CCFFCC",
-  cellBorder: "#90EE90",
-  cellBorderThick: "#1F3A0F",
+  cellBackground: '#FFFFFF',
+  cellBackgroundFilled: '#F0FFF0',
+  cellBackgroundSelected: '#E6FFE6',
+  cellBackgroundHighlight: '#CCFFCC',
+  cellBorder: '#90EE90',
+  cellBorderThick: '#1F3A0F',
 
   // Text colors
-  text: "#1A1A1A",
-  textSecondary: "#4A4A4A",
-  textMuted: "#6B6B6B",
-  textOnPrimary: "#FFFFFF", // White on dark green = 8.1:1 contrast
-  textOnSecondary: "#FFFFFF", // White on dark coral = 8.3:1 contrast
+  text: '#1A1A1A',
+  textSecondary: '#4A4A4A',
+  textMuted: '#6B6B6B',
+  textOnPrimary: '#FFFFFF', // White on dark green = 8.1:1 contrast
+  textOnSecondary: '#FFFFFF', // White on dark coral = 8.3:1 contrast
 
   // State colors
-  success: "#166534", // Dark green, 8.1:1 contrast
-  successBackground: "#DCFCE7",
-  warning: "#CA8A04", // Dark amber, 7.8:1 contrast
-  warningBackground: "#FEF3C7",
-  error: "#DC2626", // Dark red, 7.9:1 contrast
-  errorBackground: "#FEE2E2",
-  info: "#047857", // Dark emerald, 8.0:1 contrast
-  infoBackground: "#D1FAE5",
+  success: '#166534', // Dark green, 8.1:1 contrast
+  successBackground: '#DCFCE7',
+  warning: '#CA8A04', // Dark amber, 7.8:1 contrast
+  warningBackground: '#FEF3C7',
+  error: '#DC2626', // Dark red, 7.9:1 contrast
+  errorBackground: '#FEE2E2',
+  info: '#047857', // Dark emerald, 8.0:1 contrast
+  infoBackground: '#D1FAE5',
 
   // Child-friendly colors
-  celebration: "#CA8A04", // Dark gold
-  encouragement: "#166534", // Dark green
-  hint: "#15803D", // Dark green for hints
-  hintBackground: "#F0FFF0",
+  celebration: '#CA8A04', // Dark gold
+  encouragement: '#166534', // Dark green
+  hint: '#15803D', // Dark green for hints
+  hintBackground: '#F0FFF0',
 
   // Focus and interaction
-  focus: "#1F3A0F",
-  focusBackground: "#F0FFF0",
-  hover: "#F5FFF5",
-  active: "#E6FFE6",
+  focus: '#1F3A0F',
+  focusBackground: '#F0FFF0',
+  hover: '#F5FFF5',
+  active: '#E6FFE6',
 };
 
 /**
@@ -253,55 +253,55 @@ const forestThemeColors: ThemeColors = {
  */
 const spaceThemeColors: ThemeColors = {
   // Primary colors - Deep space blue with high contrast
-  primary: "#1E3A8A", // 8.9:1 contrast with white
-  primaryHover: "#1E40AF",
-  primaryActive: "#1D4ED8",
-  secondary: "#92400E", // Dark amber, 7.1:1 contrast
-  secondaryHover: "#7C2D12",
-  secondaryActive: "#65230F",
+  primary: '#1E3A8A', // 8.9:1 contrast with white
+  primaryHover: '#1E40AF',
+  primaryActive: '#1D4ED8',
+  secondary: '#92400E', // Dark amber, 7.1:1 contrast
+  secondaryHover: '#7C2D12',
+  secondaryActive: '#65230F',
 
   // Background colors
-  background: "#FFFFFF", // Pure white for maximum contrast
-  backgroundSecondary: "#F1F5F9",
-  surface: "#FFFFFF",
-  surfaceSecondary: "#F8FAFC",
+  background: '#FFFFFF', // Pure white for maximum contrast
+  backgroundSecondary: '#F1F5F9',
+  surface: '#FFFFFF',
+  surfaceSecondary: '#F8FAFC',
 
   // Cell colors
-  cellBackground: "#FFFFFF",
-  cellBackgroundFilled: "#F1F5F9",
-  cellBackgroundSelected: "#E2E8F0",
-  cellBackgroundHighlight: "#CBD5E1",
-  cellBorder: "#94A3B8",
-  cellBorderThick: "#1E3A8A",
+  cellBackground: '#FFFFFF',
+  cellBackgroundFilled: '#F1F5F9',
+  cellBackgroundSelected: '#E2E8F0',
+  cellBackgroundHighlight: '#CBD5E1',
+  cellBorder: '#94A3B8',
+  cellBorderThick: '#1E3A8A',
 
   // Text colors
-  text: "#1A1A1A",
-  textSecondary: "#4A4A4A",
-  textMuted: "#6B6B6B",
-  textOnPrimary: "#FFFFFF", // White on dark blue = 8.9:1 contrast
-  textOnSecondary: "#FFFFFF", // White on dark amber = 7.1:1 contrast
+  text: '#1A1A1A',
+  textSecondary: '#4A4A4A',
+  textMuted: '#6B6B6B',
+  textOnPrimary: '#FFFFFF', // White on dark blue = 8.9:1 contrast
+  textOnSecondary: '#FFFFFF', // White on dark amber = 7.1:1 contrast
 
   // State colors
-  success: "#166534", // Dark green, 8.1:1 contrast
-  successBackground: "#DCFCE7",
-  warning: "#CA8A04", // Dark amber, 7.8:1 contrast
-  warningBackground: "#FEF3C7",
-  error: "#DC2626", // Dark red, 7.9:1 contrast
-  errorBackground: "#FEE2E2",
-  info: "#1E40AF", // Dark blue, 8.3:1 contrast
-  infoBackground: "#DBEAFE",
+  success: '#166534', // Dark green, 8.1:1 contrast
+  successBackground: '#DCFCE7',
+  warning: '#CA8A04', // Dark amber, 7.8:1 contrast
+  warningBackground: '#FEF3C7',
+  error: '#DC2626', // Dark red, 7.9:1 contrast
+  errorBackground: '#FEE2E2',
+  info: '#1E40AF', // Dark blue, 8.3:1 contrast
+  infoBackground: '#DBEAFE',
 
   // Child-friendly colors
-  celebration: "#CA8A04", // Dark gold
-  encouragement: "#7C3AED", // Dark purple for space theme
-  hint: "#D97706", // Dark amber for hints
-  hintBackground: "#FEFCE8",
+  celebration: '#CA8A04', // Dark gold
+  encouragement: '#7C3AED', // Dark purple for space theme
+  hint: '#D97706', // Dark amber for hints
+  hintBackground: '#FEFCE8',
 
   // Focus and interaction
-  focus: "#1E3A8A",
-  focusBackground: "#F1F5F9",
-  hover: "#F8FAFC",
-  active: "#E2E8F0",
+  focus: '#1E3A8A',
+  focusBackground: '#F1F5F9',
+  hover: '#F8FAFC',
+  active: '#E2E8F0',
 };
 
 /**
@@ -309,55 +309,55 @@ const spaceThemeColors: ThemeColors = {
  */
 const highContrastColors: ThemeColors = {
   // Primary colors - Maximum contrast
-  primary: "#000000", // Pure black
-  primaryHover: "#1A1A1A",
-  primaryActive: "#333333",
-  secondary: "#FFFFFF", // Pure white
-  secondaryHover: "#F0F0F0",
-  secondaryActive: "#E0E0E0",
+  primary: '#000000', // Pure black
+  primaryHover: '#1A1A1A',
+  primaryActive: '#333333',
+  secondary: '#FFFFFF', // Pure white
+  secondaryHover: '#F0F0F0',
+  secondaryActive: '#E0E0E0',
 
   // Background colors
-  background: "#FFFFFF",
-  backgroundSecondary: "#F8F8F8",
-  surface: "#FFFFFF",
-  surfaceSecondary: "#FAFAFA",
+  background: '#FFFFFF',
+  backgroundSecondary: '#F8F8F8',
+  surface: '#FFFFFF',
+  surfaceSecondary: '#FAFAFA',
 
   // Cell colors
-  cellBackground: "#FFFFFF",
-  cellBackgroundFilled: "#F0F0F0",
-  cellBackgroundSelected: "#E0E0E0",
-  cellBackgroundHighlight: "#D0D0D0",
-  cellBorder: "#000000",
-  cellBorderThick: "#000000",
+  cellBackground: '#FFFFFF',
+  cellBackgroundFilled: '#F0F0F0',
+  cellBackgroundSelected: '#E0E0E0',
+  cellBackgroundHighlight: '#D0D0D0',
+  cellBorder: '#000000',
+  cellBorderThick: '#000000',
 
   // Text colors
-  text: "#000000",
-  textSecondary: "#1A1A1A",
-  textMuted: "#333333",
-  textOnPrimary: "#FFFFFF",
-  textOnSecondary: "#000000",
+  text: '#000000',
+  textSecondary: '#1A1A1A',
+  textMuted: '#333333',
+  textOnPrimary: '#FFFFFF',
+  textOnSecondary: '#000000',
 
   // State colors
-  success: "#006600", // Dark green
-  successBackground: "#E6FFE6",
-  warning: "#CC6600", // Dark orange
-  warningBackground: "#FFF2E6",
-  error: "#CC0000", // Dark red
-  errorBackground: "#FFE6E6",
-  info: "#0066CC",
-  infoBackground: "#E6F3FF",
+  success: '#006600', // Dark green
+  successBackground: '#E6FFE6',
+  warning: '#CC6600', // Dark orange
+  warningBackground: '#FFF2E6',
+  error: '#CC0000', // Dark red
+  errorBackground: '#FFE6E6',
+  info: '#0066CC',
+  infoBackground: '#E6F3FF',
 
   // Child-friendly colors
-  celebration: "#FFD700",
-  encouragement: "#006600",
-  hint: "#CC6600",
-  hintBackground: "#FFF8DC",
+  celebration: '#FFD700',
+  encouragement: '#006600',
+  hint: '#CC6600',
+  hintBackground: '#FFF8DC',
 
   // Focus and interaction
-  focus: "#000000",
-  focusBackground: "#F0F0F0",
-  hover: "#F8F8F8",
-  active: "#E0E0E0",
+  focus: '#000000',
+  focusBackground: '#F0F0F0',
+  hover: '#F8F8F8',
+  active: '#E0E0E0',
 };
 
 /**
@@ -368,7 +368,7 @@ function generateCSSVariables(colors: ThemeColors): Record<string, string> {
 
   Object.entries(colors).forEach(([key, value]) => {
     // Convert camelCase to kebab-case
-    const cssKey = key.replace(/([A-Z])/g, "-$1").toLowerCase();
+    const cssKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
     variables[`--color-${cssKey}`] = value;
   });
 
@@ -380,60 +380,60 @@ function generateCSSVariables(colors: ThemeColors): Record<string, string> {
  */
 export const THEMES: Record<string, ThemeConfig> = {
   ocean: {
-    id: "ocean",
-    name: "ocean",
-    displayName: "Ocean Adventure",
+    id: 'ocean',
+    name: 'ocean',
+    displayName: 'Ocean Adventure',
     description:
-      "Dive into learning with calming ocean blues and coral accents",
-    category: "child-friendly",
+      'Dive into learning with calming ocean blues and coral accents',
+    category: 'child-friendly',
     colors: oceanThemeColors,
     accessibility: defaultAccessibility,
     childFriendly: defaultChildFriendly,
     isDefault: true,
     supportsDarkMode: false,
     supportsHighContrast: true,
-    ageGroup: "children",
+    ageGroup: 'children',
     cssVariables: generateCSSVariables(oceanThemeColors),
   },
 
   forest: {
-    id: "forest",
-    name: "forest",
-    displayName: "Forest Adventure",
-    description: "Explore nature with fresh greens and earthy tones",
-    category: "child-friendly",
+    id: 'forest',
+    name: 'forest',
+    displayName: 'Forest Adventure',
+    description: 'Explore nature with fresh greens and earthy tones',
+    category: 'child-friendly',
     colors: forestThemeColors,
     accessibility: defaultAccessibility,
     childFriendly: defaultChildFriendly,
     isDefault: false,
     supportsDarkMode: false,
     supportsHighContrast: true,
-    ageGroup: "children",
+    ageGroup: 'children',
     cssVariables: generateCSSVariables(forestThemeColors),
   },
 
   space: {
-    id: "space",
-    name: "space",
-    displayName: "Space Adventure",
-    description: "Journey through the cosmos with deep blues and golden stars",
-    category: "child-friendly",
+    id: 'space',
+    name: 'space',
+    displayName: 'Space Adventure',
+    description: 'Journey through the cosmos with deep blues and golden stars',
+    category: 'child-friendly',
     colors: spaceThemeColors,
     accessibility: defaultAccessibility,
     childFriendly: defaultChildFriendly,
     isDefault: false,
     supportsDarkMode: false,
     supportsHighContrast: true,
-    ageGroup: "children",
+    ageGroup: 'children',
     cssVariables: generateCSSVariables(spaceThemeColors),
   },
 
-  "high-contrast": {
-    id: "high-contrast",
-    name: "high-contrast",
-    displayName: "High Contrast",
-    description: "Maximum contrast for enhanced accessibility",
-    category: "high-contrast",
+  'high-contrast': {
+    id: 'high-contrast',
+    name: 'high-contrast',
+    displayName: 'High Contrast',
+    description: 'Maximum contrast for enhanced accessibility',
+    category: 'high-contrast',
     colors: highContrastColors,
     accessibility: {
       ...defaultAccessibility,
@@ -443,13 +443,13 @@ export const THEMES: Record<string, ThemeConfig> = {
     childFriendly: {
       ...defaultChildFriendly,
       enableAnimations: false,
-      celebrationIntensity: "subtle",
+      celebrationIntensity: 'subtle',
       borderWidth: 3,
     },
     isDefault: false,
     supportsDarkMode: false,
     supportsHighContrast: false, // This IS the high contrast theme
-    ageGroup: "all",
+    ageGroup: 'all',
     cssVariables: generateCSSVariables(highContrastColors),
   },
 };
@@ -467,27 +467,27 @@ export class AccessibilityManager {
 
     // Critical color combinations that must meet WCAG AAA
     const criticalCombinations = [
-      { fg: colors.text, bg: colors.background, name: "text on background" },
-      { fg: colors.text, bg: colors.surface, name: "text on surface" },
-      { fg: colors.textOnPrimary, bg: colors.primary, name: "text on primary" },
+      { fg: colors.text, bg: colors.background, name: 'text on background' },
+      { fg: colors.text, bg: colors.surface, name: 'text on surface' },
+      { fg: colors.textOnPrimary, bg: colors.primary, name: 'text on primary' },
       {
         fg: colors.textOnSecondary,
         bg: colors.secondary,
-        name: "text on secondary",
+        name: 'text on secondary',
       },
-      { fg: colors.text, bg: colors.cellBackground, name: "text on cell" },
+      { fg: colors.text, bg: colors.cellBackground, name: 'text on cell' },
       {
         fg: colors.text,
         bg: colors.successBackground,
-        name: "text on success",
+        name: 'text on success',
       },
       {
         fg: colors.text,
         bg: colors.warningBackground,
-        name: "text on warning",
+        name: 'text on warning',
       },
-      { fg: colors.text, bg: colors.errorBackground, name: "text on error" },
-      { fg: colors.text, bg: colors.infoBackground, name: "text on info" },
+      { fg: colors.text, bg: colors.errorBackground, name: 'text on error' },
+      { fg: colors.text, bg: colors.infoBackground, name: 'text on info' },
     ];
 
     // Check all critical combinations
@@ -517,17 +517,17 @@ export class AccessibilityManager {
     const highContrastColors: ThemeColors = {
       ...theme.colors,
       // Ensure maximum contrast for critical elements
-      text: "#000000",
-      background: "#FFFFFF",
-      surface: "#FFFFFF",
-      cellBackground: "#FFFFFF",
-      cellBorder: "#000000",
-      cellBorderThick: "#000000",
-      focus: "#000000",
+      text: '#000000',
+      background: '#FFFFFF',
+      surface: '#FFFFFF',
+      cellBackground: '#FFFFFF',
+      cellBorder: '#000000',
+      cellBorderThick: '#000000',
+      focus: '#000000',
       // Keep child-friendly colors but ensure they meet standards
-      error: "#CC0000",
-      warning: "#CC6600",
-      success: "#006600",
+      error: '#CC0000',
+      warning: '#CC6600',
+      success: '#006600',
     };
 
     return {
@@ -535,7 +535,7 @@ export class AccessibilityManager {
       id: `${theme.id}-high-contrast`,
       name: `${theme.name}-high-contrast`,
       displayName: `${theme.displayName} (High Contrast)`,
-      category: "high-contrast",
+      category: 'high-contrast',
       colors: highContrastColors,
       accessibility: {
         ...theme.accessibility,
@@ -545,7 +545,7 @@ export class AccessibilityManager {
       childFriendly: {
         ...theme.childFriendly,
         enableAnimations: false,
-        celebrationIntensity: "subtle",
+        celebrationIntensity: 'subtle',
       },
       cssVariables: generateCSSVariables(highContrastColors),
     };
@@ -578,24 +578,24 @@ export class AccessibilityManager {
    * Get theme recommendations based on user needs
    */
   static getThemeRecommendations(
-    ageGroup: "children" | "adults" | "all",
+    ageGroup: 'children' | 'adults' | 'all',
     needsHighContrast: boolean,
     prefersReducedMotion: boolean
   ): ThemeConfig[] {
     const allThemes = Object.values(THEMES);
 
-    return allThemes.filter((theme) => {
+    return allThemes.filter(theme => {
       // Filter by age group
       if (
-        ageGroup !== "all" &&
-        theme.ageGroup !== "all" &&
+        ageGroup !== 'all' &&
+        theme.ageGroup !== 'all' &&
         theme.ageGroup !== ageGroup
       ) {
         return false;
       }
 
       // Filter by contrast needs
-      if (needsHighContrast && theme.category !== "high-contrast") {
+      if (needsHighContrast && theme.category !== 'high-contrast') {
         return false;
       }
 
@@ -615,7 +615,7 @@ export class AccessibilityManager {
 export function getDefaultTheme(): ThemeConfig {
   const theme = THEMES.ocean;
   if (!theme) {
-    throw new Error("Default theme not found");
+    throw new Error('Default theme not found');
   }
   return theme;
 }
@@ -639,7 +639,7 @@ export function getAllThemes(): ThemeConfig[] {
  */
 export function getChildFriendlyThemes(): ThemeConfig[] {
   return Object.values(THEMES).filter(
-    (theme) => theme.category === "child-friendly"
+    theme => theme.category === 'child-friendly'
   );
 }
 
@@ -648,7 +648,7 @@ export function getChildFriendlyThemes(): ThemeConfig[] {
  */
 export function getHighContrastThemes(): ThemeConfig[] {
   return Object.values(THEMES).filter(
-    (theme) => theme.category === "high-contrast"
+    theme => theme.category === 'high-contrast'
   );
 }
 
@@ -656,7 +656,7 @@ export function getHighContrastThemes(): ThemeConfig[] {
  * Apply theme CSS variables to document
  */
 export function applyThemeToDocument(theme: ThemeConfig): void {
-  if (typeof document === "undefined") return;
+  if (typeof document === 'undefined') return;
 
   const root = document.documentElement;
 
@@ -667,48 +667,48 @@ export function applyThemeToDocument(theme: ThemeConfig): void {
 
   // Apply accessibility properties
   root.style.setProperty(
-    "--focus-indicator-width",
+    '--focus-indicator-width',
     `${theme.accessibility.focusIndicatorWidth}px`
   );
   root.style.setProperty(
-    "--focus-indicator-offset",
+    '--focus-indicator-offset',
     `${theme.accessibility.focusIndicatorOffset}px`
   );
   root.style.setProperty(
-    "--minimum-touch-target",
+    '--minimum-touch-target',
     `${theme.accessibility.minimumTouchTarget}px`
   );
   root.style.setProperty(
-    "--animation-duration",
+    '--animation-duration',
     `${theme.accessibility.animationDuration}ms`
   );
   root.style.setProperty(
-    "--reduced-motion-duration",
+    '--reduced-motion-duration',
     `${theme.accessibility.reducedMotionDuration}ms`
   );
 
   // Apply child-friendly properties
   root.style.setProperty(
-    "--border-radius",
+    '--border-radius',
     `${theme.childFriendly.roundedCorners}px`
   );
   root.style.setProperty(
-    "--shadow-intensity",
+    '--shadow-intensity',
     theme.childFriendly.shadowIntensity.toString()
   );
   root.style.setProperty(
-    "--border-width",
+    '--border-width',
     `${theme.childFriendly.borderWidth}px`
   );
   root.style.setProperty(
-    "--extra-padding",
+    '--extra-padding',
     `${theme.childFriendly.extraPadding}px`
   );
 
   // Set theme class on body
   document.body.className = document.body.className
-    .replace(/theme-\w+/g, "")
-    .replace(/\s+/g, " ")
+    .replace(/theme-\w+/g, '')
+    .replace(/\s+/g, ' ')
     .concat(` theme-${theme.id}`)
     .trim();
 }

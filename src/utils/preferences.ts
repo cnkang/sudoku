@@ -131,15 +131,24 @@ const normalizeProgressStats = (value: unknown): ProgressStats => {
     achievements: normalizeAchievements(candidate.achievements),
     streakCount: normalizeNumber(candidate.streakCount, defaults.streakCount),
     lastPlayed: normalizeDate(candidate.lastPlayed),
-    longestStreak: normalizeNumber(candidate.longestStreak, defaults.longestStreak),
-    perfectGames: normalizeNumber(candidate.perfectGames, defaults.perfectGames),
+    longestStreak: normalizeNumber(
+      candidate.longestStreak,
+      defaults.longestStreak
+    ),
+    perfectGames: normalizeNumber(
+      candidate.perfectGames,
+      defaults.perfectGames
+    ),
     dailyStreak: normalizeNumber(candidate.dailyStreak, defaults.dailyStreak),
     weeklyGoalProgress: normalizeNumber(
       candidate.weeklyGoalProgress,
       defaults.weeklyGoalProgress
     ),
     starsEarned: normalizeNumber(candidate.starsEarned, defaults.starsEarned),
-    badgesEarned: normalizeNumber(candidate.badgesEarned, defaults.badgesEarned),
+    badgesEarned: normalizeNumber(
+      candidate.badgesEarned,
+      defaults.badgesEarned
+    ),
     stickersEarned: normalizeNumber(
       candidate.stickersEarned,
       defaults.stickersEarned
