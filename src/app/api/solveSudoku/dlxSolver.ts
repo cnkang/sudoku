@@ -1,5 +1,5 @@
-import type { GridConfig } from "@/types";
-import { validateMove } from "@/utils/gridConfig";
+import type { GridConfig } from '@/types';
+import { validateMove } from '@/utils/gridConfig';
 
 export async function solveSudoku(
   board: number[][],
@@ -9,7 +9,7 @@ export async function solveSudoku(
 ): Promise<boolean> {
   // For non-9x9 grids, always use custom backtracking solver
   if (config && config.size !== 9) {
-    const boardCopy = board.map((row) => row.slice());
+    const boardCopy = board.map(row => row.slice());
     return solveWithBacktracking(boardCopy, config, solutions, maxSolutions);
   }
 
@@ -17,7 +17,7 @@ export async function solveSudoku(
   try {
     // Dynamic import to avoid module loading issues
     const { solveSudoku: solverSolveSudoku } = await import(
-      "fast-sudoku-solver"
+      'fast-sudoku-solver'
     );
     const [isSolvable, solution] = solverSolveSudoku(board);
     if (isSolvable) {
@@ -42,7 +42,7 @@ export async function solveSudoku(
       },
     };
 
-    const boardCopy = board.map((row) => row.slice());
+    const boardCopy = board.map(row => row.slice());
     return solveWithBacktracking(boardCopy, config9x9, solutions, maxSolutions);
   }
 }
@@ -57,7 +57,7 @@ function solveWithBacktracking(
   const emptyCell = findEmptyCell(board, config);
   if (!emptyCell) {
     // Board is complete, add to solutions
-    solutions.push(board.map((row) => row.slice()));
+    solutions.push(board.map(row => row.slice()));
     return solutions.length >= maxSolutions;
   }
 
