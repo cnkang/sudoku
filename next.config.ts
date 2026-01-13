@@ -1,48 +1,47 @@
-import type { NextConfig } from 'next';
+import type { NextConfig } from "next";
 
 const reactCompilerOptions: Record<string, unknown> = {
-  compilationMode: 'annotation',
+  compilationMode: "annotation",
   enableTreatRefLikeIdentifierInHoist: true,
   enableTreatFunctionDepsAsConditional: true,
   enablePreserveExistingMemoizationGuarantees: true,
   enableReactiveScopesInHIR: true,
-  target: '19',
+  target: "19",
 };
 
 const experimentalOptions: Record<string, unknown> = {
-  optimizePackageImports: ['lodash', 'fast-sudoku-solver', 'fast-check'],
+  optimizePackageImports: ["lodash", "fast-check"],
   optimizeCss: true,
-  serverComponentsExternalPackages: ['winston', 'fast-sudoku-solver'],
-  bundlePagesRouterDependencies: true,
   optimizeServerReact: true,
-  viewTransitions: true,
 };
 
 const nextConfig: NextConfig = {
   // Turbopack configuration (stable in Next.js 16)
   turbopack: {
     rules: {
-      '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.js',
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*.js",
       },
     },
   },
   // Enhanced React Compiler configuration for React 19
   reactCompiler: reactCompilerOptions as NonNullable<
-    NextConfig['reactCompiler']
+    NextConfig["reactCompiler"]
   >,
-  experimental: experimentalOptions as NonNullable<NextConfig['experimental']>,
+  experimental: experimentalOptions as NonNullable<NextConfig["experimental"]>,
   // Server external packages (moved from experimental)
-  serverExternalPackages: ['winston'],
+  serverExternalPackages: ["winston"],
+  // Transpile packages for better compatibility
+  transpilePackages: ["lodash-es", "fast-sudoku-solver"],
   compiler: {
     // Enable React 19 compiler optimizations
-    reactRemoveProperties: process.env.NODE_ENV === 'production',
+    reactRemoveProperties: process.env.NODE_ENV === "production",
     // Remove development-only code in production
     removeConsole:
-      process.env.NODE_ENV === 'production'
+      process.env.NODE_ENV === "production"
         ? {
-            exclude: ['error', 'warn'],
+            exclude: ["error", "warn"],
           }
         : false,
   },
@@ -60,22 +59,22 @@ const nextConfig: NextConfig = {
           // Separate vendor chunks for better caching
           vendor: {
             test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
+            name: "vendors",
+            chunks: "all",
             priority: 10,
           },
           // Separate React chunks
           react: {
             test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-            name: 'react',
-            chunks: 'all',
+            name: "react",
+            chunks: "all",
             priority: 20,
           },
           // Separate utility chunks
           utils: {
             test: /[\\/]src[\\/]utils[\\/]/,
-            name: 'utils',
-            chunks: 'all',
+            name: "utils",
+            chunks: "all",
             priority: 5,
           },
         },
@@ -87,79 +86,79 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: '/sw.js',
-        destination: '/sw.js',
+        source: "/sw.js",
+        destination: "/sw.js",
       },
       {
-        source: '/manifest.json',
-        destination: '/manifest.json',
+        source: "/manifest.json",
+        destination: "/manifest.json",
       },
     ];
   },
   async headers() {
     return [
       {
-        source: '/sw.js',
+        source: "/sw.js",
         headers: [
           {
-            key: 'Cache-Control',
-            value: 'public, max-age=0, must-revalidate',
+            key: "Cache-Control",
+            value: "public, max-age=0, must-revalidate",
           },
           {
-            key: 'Service-Worker-Allowed',
-            value: '/',
+            key: "Service-Worker-Allowed",
+            value: "/",
           },
         ],
       },
       {
-        source: '/manifest.json',
+        source: "/manifest.json",
         headers: [
           {
-            key: 'Content-Type',
-            value: 'application/manifest+json',
+            key: "Content-Type",
+            value: "application/manifest+json",
           },
           {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },
       {
-        source: '/api/solveSudoku',
+        source: "/api/solveSudoku",
         headers: [
           {
-            key: 'Cache-Control',
-            value: 'public, max-age=60, s-maxage=60, stale-while-revalidate=30',
+            key: "Cache-Control",
+            value: "public, max-age=60, s-maxage=60, stale-while-revalidate=30",
           },
         ],
       },
       {
-        source: '/(.*)',
+        source: "/(.*)",
         headers: [
           {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
+            key: "X-Content-Type-Options",
+            value: "nosniff",
           },
           {
-            key: 'X-Frame-Options',
-            value: 'DENY',
+            key: "X-Frame-Options",
+            value: "DENY",
           },
           {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
+            key: "X-XSS-Protection",
+            value: "1; mode=block",
           },
           // Performance headers
           {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on',
+            key: "X-DNS-Prefetch-Control",
+            value: "on",
           },
         ],
       },
     ];
   },
   // Custom cache handler for performance monitoring
-  ...(process.env.NODE_ENV === 'production'
-    ? { cacheHandler: require.resolve('./cache-handler.ts') }
+  ...(process.env.NODE_ENV === "production"
+    ? { cacheHandler: require.resolve("./cache-handler.ts") }
     : {}),
 };
 
