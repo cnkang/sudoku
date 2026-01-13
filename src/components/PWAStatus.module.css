@@ -1,0 +1,288 @@
+/* PWA Status Component Styles */
+
+.container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 100;
+}
+
+/* Offline Indicator */
+.offlineIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  color: #856404;
+  font-size: 0.875rem;
+  font-weight: 500;
+  animation: slideIn 0.3s ease-out;
+}
+
+.offlineIcon {
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+.offlineText {
+  font-weight: 500;
+}
+
+/* Install Button */
+.installButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #0077be;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px; /* Accessibility: minimum touch target */
+  animation: slideIn 0.3s ease-out;
+}
+
+.installButton:hover:not(:disabled) {
+  background: #005a9e;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 119, 190, 0.3);
+}
+
+.installButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.installButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.installIcon {
+  font-size: 1rem;
+}
+
+/* Update Notification */
+.updateNotification {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease-out;
+  max-width: 320px;
+}
+
+.updateContent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.updateIcon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.updateText {
+  flex: 1;
+}
+
+.updateText strong {
+  color: #0077be;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.updateText p {
+  color: #666;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.updateActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.updateButton {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #0077be;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 36px;
+}
+
+.updateButton:hover:not(:disabled) {
+  background: #005a9e;
+}
+
+.updateButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.dismissButton {
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  color: #666;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 36px;
+}
+
+.dismissButton:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.dismissButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Spinner Animation */
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Slide In Animation */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Debug Info */
+.debugInfo {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #f3f4f6;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  color: #374151;
+}
+
+.debugInfo details {
+  cursor: pointer;
+}
+
+.debugInfo summary {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.debugInfo ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.debugInfo li {
+  padding: 0.125rem 0;
+  font-family: monospace;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 480px) {
+  .updateNotification {
+    max-width: none;
+    margin: 0 1rem;
+  }
+
+  .updateActions {
+    flex-direction: column;
+  }
+
+  .updateButton,
+  .dismissButton {
+    width: 100%;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .offlineIndicator {
+    border: 2px solid #856404;
+  }
+
+  .installButton {
+    border: 2px solid #0077be;
+  }
+
+  .updateNotification {
+    border: 2px solid #e5e7eb;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .offlineIndicator,
+  .installButton,
+  .updateNotification {
+    animation: none;
+  }
+
+  .installButton:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .spinner {
+    animation: none;
+  }
+}
+
+/* Focus Styles for Accessibility */
+.installButton:focus-visible,
+.updateButton:focus-visible,
+.dismissButton:focus-visible {
+  outline: 3px solid #ffd700;
+  outline-offset: 2px;
+}
