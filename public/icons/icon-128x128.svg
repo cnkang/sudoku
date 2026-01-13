@@ -1,0 +1,33 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0077BE;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#005a9e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="url(#bg)" stroke="#fff" stroke-width="2"/>
+  
+  <!-- Sudoku grid representation -->
+  <g transform="translate(25.6, 25.6)">
+    <!-- 3x3 grid -->
+    <rect x="0" y="0" width="76.8" height="76.8" fill="none" stroke="#fff" stroke-width="3" rx="4"/>
+    
+    <!-- Grid lines -->
+    <line x1="25.6" y1="0" x2="25.6" y2="76.8" stroke="#fff" stroke-width="1.5"/>
+    <line x1="51.2" y1="0" x2="51.2" y2="76.8" stroke="#fff" stroke-width="1.5"/>
+    <line x1="0" y1="25.6" x2="76.8" y2="25.6" stroke="#fff" stroke-width="1.5"/>
+    <line x1="0" y1="51.2" x2="76.8" y2="51.2" stroke="#fff" stroke-width="1.5"/>
+    
+    <!-- Sample numbers -->
+    <text x="12.8" y="19.2" fill="#fff" font-family="Arial, sans-serif" font-size="10.24" font-weight="bold" text-anchor="middle">5</text>
+    <text x="38.4" y="44.8" fill="#fff" font-family="Arial, sans-serif" font-size="10.24" font-weight="bold" text-anchor="middle">3</text>
+    <text x="64" y="70.4" fill="#fff" font-family="Arial, sans-serif" font-size="10.24" font-weight="bold" text-anchor="middle">7</text>
+  </g>
+  
+  <!-- Child-friendly sparkle -->
+  <g transform="translate(96, 32)">
+    <path d="M0,-8 L2,0 L8,0 L2,2 L0,8 L-2,2 L-8,0 L-2,0 Z" fill="#FFD700" opacity="0.9"/>
+  </g>
+</svg>

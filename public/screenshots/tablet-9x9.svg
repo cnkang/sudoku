@@ -1,0 +1,58 @@
+<svg width="1024" height="768" viewBox="0 0 1024 768" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1024" height="768" fill="#F0F8FF"/>
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="1024" height="100" fill="#9B59B6"/>
+  <text x="512" y="60" fill="white" font-family="Arial, sans-serif" font-size="28" font-weight="bold" text-anchor="middle">Sudoku Challenge - Traditional 9×9</text>
+  
+  <!-- 9x9 Grid -->
+  <g transform="translate(262, 150)">
+    <!-- Grid background -->
+    <rect x="0" y="0" width="450" height="450" fill="white" stroke="#9B59B6" stroke-width="4" rx="12"/>
+    
+    <!-- Grid lines -->
+    <line x1="50" y1="0" x2="50" y2="450" stroke="#9B59B6" stroke-width="1"/>
+              <line x1="0" y1="50" x2="450" y2="50" stroke="#9B59B6" stroke-width="1"/><line x1="100" y1="0" x2="100" y2="450" stroke="#9B59B6" stroke-width="1"/>
+              <line x1="0" y1="100" x2="450" y2="100" stroke="#9B59B6" stroke-width="1"/><line x1="150" y1="0" x2="150" y2="450" stroke="#9B59B6" stroke-width="3"/>
+              <line x1="0" y1="150" x2="450" y2="150" stroke="#9B59B6" stroke-width="3"/><line x1="200" y1="0" x2="200" y2="450" stroke="#9B59B6" stroke-width="1"/>
+              <line x1="0" y1="200" x2="450" y2="200" stroke="#9B59B6" stroke-width="1"/><line x1="250" y1="0" x2="250" y2="450" stroke="#9B59B6" stroke-width="1"/>
+              <line x1="0" y1="250" x2="450" y2="250" stroke="#9B59B6" stroke-width="1"/><line x1="300" y1="0" x2="300" y2="450" stroke="#9B59B6" stroke-width="3"/>
+              <line x1="0" y1="300" x2="450" y2="300" stroke="#9B59B6" stroke-width="3"/><line x1="350" y1="0" x2="350" y2="450" stroke="#9B59B6" stroke-width="1"/>
+              <line x1="0" y1="350" x2="450" y2="350" stroke="#9B59B6" stroke-width="1"/><line x1="400" y1="0" x2="400" y2="450" stroke="#9B59B6" stroke-width="1"/>
+              <line x1="0" y1="400" x2="450" y2="400" stroke="#9B59B6" stroke-width="1"/>
+    
+    <!-- Sample numbers in a classic Sudoku pattern -->
+    <text x="25" y="35" fill="#9B59B6" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle">5</text>
+    <text x="75" y="35" fill="#9B59B6" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle">3</text>
+    <text x="225" y="35" fill="#9B59B6" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle">7</text>
+    <text x="25" y="85" fill="#9B59B6" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle">6</text>
+    <text x="175" y="85" fill="#9B59B6" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle">1</text>
+    <text x="225" y="85" fill="#9B59B6" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle">9</text>
+    <text x="275" y="85" fill="#9B59B6" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle">5</text>
+    <text x="75" y="135" fill="#9B59B6" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle">9</text>
+    <text x="125" y="135" fill="#9B59B6" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle">8</text>
+    <text x="375" y="135" fill="#9B59B6" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle">6</text>
+  </g>
+  
+  <!-- Side panel with controls -->
+  <g transform="translate(750, 200)">
+    <rect x="0" y="0" width="200" height="300" fill="white" stroke="#E5E7EB" stroke-width="2" rx="12"/>
+    <text x="100" y="30" fill="#9B59B6" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle">Game Controls</text>
+    
+    <rect x="20" y="50" width="160" height="40" fill="#32CD32" rx="8"/>
+    <text x="100" y="75" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Smart Hint</text>
+    
+    <rect x="20" y="110" width="160" height="40" fill="#FF6B35" rx="8"/>
+    <text x="100" y="135" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Validate</text>
+    
+    <rect x="20" y="170" width="160" height="40" fill="#9B59B6" rx="8"/>
+    <text x="100" y="195" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle">New Puzzle</text>
+    
+    <text x="100" y="240" fill="#666" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">Difficulty: Expert</text>
+    <text x="100" y="260" fill="#666" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">Time: 12:34</text>
+    <text x="100" y="280" fill="#666" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">Hints: 2 used</text>
+  </g>
+  
+  <text x="512" y="650" fill="#666" font-family="Arial, sans-serif" font-size="18" text-anchor="middle">Challenge yourself with the classic 9×9 Sudoku! 🧠</text>
+</svg>

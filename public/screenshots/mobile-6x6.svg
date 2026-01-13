@@ -1,0 +1,50 @@
+<svg width="390" height="844" viewBox="0 0 390 844" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="390" height="844" fill="#F0F8FF"/>
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="390" height="80" fill="#FF6B35"/>
+  <text x="195" y="50" fill="white" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle">Sudoku Kids - Fun 6×6</text>
+  
+  <!-- 6x6 Grid -->
+  <g transform="translate(45, 120)">
+    <!-- Grid background -->
+    <rect x="0" y="0" width="300" height="300" fill="white" stroke="#FF6B35" stroke-width="3" rx="8"/>
+    
+    <!-- Grid lines -->
+    <line x1="50" y1="0" x2="50" y2="300" stroke="#FF6B35" stroke-width="1"/>
+    <line x1="100" y1="0" x2="100" y2="300" stroke="#FF6B35" stroke-width="3"/>
+    <line x1="150" y1="0" x2="150" y2="300" stroke="#FF6B35" stroke-width="1"/>
+    <line x1="200" y1="0" x2="200" y2="300" stroke="#FF6B35" stroke-width="3"/>
+    <line x1="250" y1="0" x2="250" y2="300" stroke="#FF6B35" stroke-width="1"/>
+    
+    <line x1="0" y1="50" x2="300" y2="50" stroke="#FF6B35" stroke-width="1"/>
+    <line x1="0" y1="100" x2="300" y2="100" stroke="#FF6B35" stroke-width="1"/>
+    <line x1="0" y1="150" x2="300" y2="150" stroke="#FF6B35" stroke-width="3"/>
+    <line x1="0" y1="200" x2="300" y2="200" stroke="#FF6B35" stroke-width="1"/>
+    <line x1="0" y1="250" x2="300" y2="250" stroke="#FF6B35" stroke-width="1"/>
+    
+    <!-- Sample numbers -->
+    <text x="25" y="35" fill="#FF6B35" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle">1</text>
+    <text x="125" y="35" fill="#FF6B35" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle">5</text>
+    <text x="225" y="35" fill="#FF6B35" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle">6</text>
+    <text x="75" y="85" fill="#FF6B35" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle">4</text>
+    <text x="175" y="135" fill="#FF6B35" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle">2</text>
+    <text x="25" y="185" fill="#FF6B35" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle">6</text>
+  </g>
+  
+  <!-- Controls -->
+  <g transform="translate(50, 480)">
+    <rect x="0" y="0" width="80" height="50" fill="#32CD32" rx="8"/>
+    <text x="40" y="30" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Magic</text>
+    <text x="40" y="45" fill="white" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">Wand ✨</text>
+    
+    <rect x="100" y="0" width="80" height="50" fill="#FF6B35" rx="8"/>
+    <text x="140" y="35" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Check</text>
+    
+    <rect x="200" y="0" width="90" height="50" fill="#9B59B6" rx="8"/>
+    <text x="245" y="35" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Celebrate</text>
+  </g>
+  
+  <text x="195" y="580" fill="#666" font-family="Arial, sans-serif" font-size="16" text-anchor="middle">You're doing amazing! 🎉</text>
+</svg>
