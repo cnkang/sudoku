@@ -3,10 +3,10 @@
  * Implements Requirements 8.2, 8.9 for React 19 performance optimization
  */
 
-import React, { lazy, Suspense, memo } from "react";
-import type { GridConfig, PWAGridSelectorProps } from "@/types";
-import type { AccessibilityControlsProps } from "./AccessibilityControls";
-import type { VisualFeedbackSystemProps } from "./VisualFeedbackSystem";
+import React, { lazy, Suspense, memo } from 'react';
+import type { GridConfig, PWAGridSelectorProps } from '@/types';
+import type { AccessibilityControlsProps } from './AccessibilityControls';
+import type { VisualFeedbackSystemProps } from './VisualFeedbackSystem';
 
 // Loading fallback component with modern CSS
 const GridLoadingFallback = memo(() => (
@@ -61,50 +61,50 @@ const GridLoadingFallback = memo(() => (
   </div>
 ));
 
-GridLoadingFallback.displayName = "GridLoadingFallback";
+GridLoadingFallback.displayName = 'GridLoadingFallback';
 
 // Lazy load grid size specific components
 const Grid4x4Component = lazy(() =>
-  import("./grids/Grid4x4").then((module) => ({ default: module.Grid4x4 }))
+  import('./grids/Grid4x4').then(module => ({ default: module.Grid4x4 }))
 );
 
 const Grid6x6Component = lazy(() =>
-  import("./grids/Grid6x6").then((module) => ({ default: module.Grid6x6 }))
+  import('./grids/Grid6x6').then(module => ({ default: module.Grid6x6 }))
 );
 
 const Grid9x9Component = lazy(() =>
-  import("./grids/Grid9x9").then((module) => ({ default: module.Grid9x9 }))
+  import('./grids/Grid9x9').then(module => ({ default: module.Grid9x9 }))
 );
 
 // Lazy load PWA components
 const PWAGridSelectorComponent = lazy(() =>
-  import("./PWAGridSelector").then((module) => ({ default: module.default }))
+  import('./PWAGridSelector').then(module => ({ default: module.default }))
 );
 
 const PWAInstallPromptComponent = lazy(() =>
-  import("./PWAInstallPrompt").then((module) => ({ default: module.default }))
+  import('./PWAInstallPrompt').then(module => ({ default: module.default }))
 );
 
 // Lazy load accessibility components
 const AccessibilityControlsComponent = lazy(() =>
-  import("./AccessibilityControls").then((module) => ({
+  import('./AccessibilityControls').then(module => ({
     default: module.default,
   }))
 );
 
 const VisualFeedbackSystemComponent = lazy(() =>
-  import("./VisualFeedbackSystem").then((module) => ({
+  import('./VisualFeedbackSystem').then(module => ({
     default: module.default,
   }))
 );
 
 // Lazy load theme components
 const ThemeSelectorComponent = lazy(() =>
-  import("./ThemeSelector").then((module) => ({ default: module.default }))
+  import('./ThemeSelector').then(module => ({ default: module.default }))
 );
 
 const ThemeProviderComponent = lazy(() =>
-  import("./ThemeProvider").then((module) => ({ default: module.default }))
+  import('./ThemeProvider').then(module => ({ default: module.default }))
 );
 
 // Props interfaces
@@ -136,7 +136,7 @@ type ThemeProviderProps = {
 // Grid size router with code splitting
 export const LazyGridRouter = memo<LazyGridProps>(
   ({ gridConfig, ...props }) => {
-    "use memo"; // React Compiler directive
+    'use memo'; // React Compiler directive
 
     const GridComponent = React.useMemo<
       React.ComponentType<LazyGridProps>
@@ -161,28 +161,24 @@ export const LazyGridRouter = memo<LazyGridProps>(
   }
 );
 
-LazyGridRouter.displayName = "LazyGridRouter";
+LazyGridRouter.displayName = 'LazyGridRouter';
 
 // PWA Components with lazy loading
-export const LazyPWAGridSelector = memo(
-  (props: PWAGridSelectorProps) => (
-    <Suspense fallback={<GridLoadingFallback />}>
-      <PWAGridSelectorComponent {...props} />
-    </Suspense>
-  )
-);
+export const LazyPWAGridSelector = memo((props: PWAGridSelectorProps) => (
+  <Suspense fallback={<GridLoadingFallback />}>
+    <PWAGridSelectorComponent {...props} />
+  </Suspense>
+));
 
-LazyPWAGridSelector.displayName = "LazyPWAGridSelector";
+LazyPWAGridSelector.displayName = 'LazyPWAGridSelector';
 
-export const LazyPWAInstallPrompt = memo(
-  (props: Record<string, never>) => (
-    <Suspense fallback={<div>Loading install prompt...</div>}>
-      <PWAInstallPromptComponent {...props} />
-    </Suspense>
-  )
-);
+export const LazyPWAInstallPrompt = memo((props: Record<string, never>) => (
+  <Suspense fallback={<div>Loading install prompt...</div>}>
+    <PWAInstallPromptComponent {...props} />
+  </Suspense>
+));
 
-LazyPWAInstallPrompt.displayName = "LazyPWAInstallPrompt";
+LazyPWAInstallPrompt.displayName = 'LazyPWAInstallPrompt';
 
 // Accessibility Components with lazy loading
 export const LazyAccessibilityControls = memo(
@@ -193,7 +189,7 @@ export const LazyAccessibilityControls = memo(
   )
 );
 
-LazyAccessibilityControls.displayName = "LazyAccessibilityControls";
+LazyAccessibilityControls.displayName = 'LazyAccessibilityControls';
 
 export const LazyVisualFeedbackSystem = memo(
   (props: VisualFeedbackSystemProps) => (
@@ -203,18 +199,16 @@ export const LazyVisualFeedbackSystem = memo(
   )
 );
 
-LazyVisualFeedbackSystem.displayName = "LazyVisualFeedbackSystem";
+LazyVisualFeedbackSystem.displayName = 'LazyVisualFeedbackSystem';
 
 // Theme Components with lazy loading
-export const LazyThemeSelector = memo(
-  (props: ThemeSelectorProps) => (
-    <Suspense fallback={<div>Loading theme selector...</div>}>
-      <ThemeSelectorComponent {...props} />
-    </Suspense>
-  )
-);
+export const LazyThemeSelector = memo((props: ThemeSelectorProps) => (
+  <Suspense fallback={<div>Loading theme selector...</div>}>
+    <ThemeSelectorComponent {...props} />
+  </Suspense>
+));
 
-LazyThemeSelector.displayName = "LazyThemeSelector";
+LazyThemeSelector.displayName = 'LazyThemeSelector';
 
 export const LazyThemeProvider = memo(
   ({ children, ...props }: ThemeProviderProps) => (
@@ -224,7 +218,7 @@ export const LazyThemeProvider = memo(
   )
 );
 
-LazyThemeProvider.displayName = "LazyThemeProvider";
+LazyThemeProvider.displayName = 'LazyThemeProvider';
 
 // Higher-order component for lazy loading with error boundary
 interface LazyWrapperProps {
@@ -267,9 +261,7 @@ class LazyErrorBoundary extends React.Component<
           <p>Something went wrong loading this component.</p>
           <button
             type="button"
-            onClick={() =>
-              this.setState({ hasError: false, error: undefined })
-            }
+            onClick={() => this.setState({ hasError: false, error: undefined })}
           >
             Try again
           </button>
@@ -305,39 +297,39 @@ export const withLazyLoading = <P extends object>(
 export const preloadGridComponent = (size: 4 | 6 | 9) => {
   switch (size) {
     case 4:
-      return import("./grids/Grid4x4");
+      return import('./grids/Grid4x4');
     case 6:
-      return import("./grids/Grid6x6");
+      return import('./grids/Grid6x6');
     case 9:
-      return import("./grids/Grid9x9");
+      return import('./grids/Grid9x9');
     default:
-      return import("./grids/Grid9x9");
+      return import('./grids/Grid9x9');
   }
 };
 
 export const preloadPWAComponents = () => {
   return Promise.all([
-    import("./PWAGridSelector"),
-    import("./PWAInstallPrompt"),
+    import('./PWAGridSelector'),
+    import('./PWAInstallPrompt'),
   ]);
 };
 
 export const preloadAccessibilityComponents = () => {
   return Promise.all([
-    import("./AccessibilityControls"),
-    import("./VisualFeedbackSystem"),
+    import('./AccessibilityControls'),
+    import('./VisualFeedbackSystem'),
   ]);
 };
 
 export const preloadThemeComponents = () => {
-  return Promise.all([import("./ThemeSelector"), import("./ThemeProvider")]);
+  return Promise.all([import('./ThemeSelector'), import('./ThemeProvider')]);
 };
 
 // Bundle size optimization utilities
 export const getComponentBundleSize = async (
   componentName: string
 ): Promise<number> => {
-  if (typeof window === "undefined") return 0;
+  if (typeof window === 'undefined') return 0;
 
   try {
     const entries = performance.getEntriesByName(componentName);
