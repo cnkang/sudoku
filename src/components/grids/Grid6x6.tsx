@@ -3,10 +3,10 @@
  * Implements Requirements 1.2, 3.1, 3.2 for 6x6 Sudoku with 2x3 sub-grids
  */
 
-import React, { memo, useMemo } from "react";
-import type { GridConfig } from "@/types";
-import { usePerformanceTracking } from "@/utils/performance-monitoring";
-import styles from "../SudokuGrid.module.css";
+import React, { memo, useMemo } from 'react';
+import type { GridConfig } from '@/types';
+import { usePerformanceTracking } from '@/utils/performance-monitoring';
+import styles from '../SudokuGrid.module.css';
 
 interface Grid6x6Props {
   gridConfig: GridConfig;
@@ -34,9 +34,9 @@ export const Grid6x6 = memo<Grid6x6Props>(
     childMode = true, // Default to child mode for 6x6
     accessibility = {},
   }) => {
-    "use memo"; // React Compiler directive
+    'use memo'; // React Compiler directive
 
-    const { trackRender } = usePerformanceTracking("Grid6x6");
+    const { trackRender } = usePerformanceTracking('Grid6x6');
 
     // Memoize grid configuration for 6x6
     const _grid6x6Config = useMemo(
@@ -85,11 +85,11 @@ export const Grid6x6 = memo<Grid6x6Props>(
 
         return {
           borderRight: isRightBorder
-            ? "3px solid #1f2937"
-            : "1px solid #d1d5db",
+            ? '3px solid #1f2937'
+            : '1px solid #d1d5db',
           borderBottom: isBottomBorder
-            ? "3px solid #1f2937"
-            : "1px solid #d1d5db",
+            ? '3px solid #1f2937'
+            : '1px solid #d1d5db',
         };
       },
       []
@@ -114,13 +114,13 @@ export const Grid6x6 = memo<Grid6x6Props>(
           const cellClasses = [
             styles.sudokuCell,
             isFixed ? styles.fixedCell : styles.editableCell,
-            isHinted ? styles.hinted : "",
-            childMode ? styles.childFriendlyCell : "",
-            accessibilitySettings.highContrast ? styles.highContrast : "",
-            accessibilitySettings.largeText ? styles.largeText : "",
+            isHinted ? styles.hinted : '',
+            childMode ? styles.childFriendlyCell : '',
+            accessibilitySettings.highContrast ? styles.highContrast : '',
+            accessibilitySettings.largeText ? styles.largeText : '',
           ]
             .filter(Boolean)
-            .join(" ");
+            .join(' ');
 
           rowCells.push(
             <td
@@ -138,8 +138,8 @@ export const Grid6x6 = memo<Grid6x6Props>(
                   type="number"
                   min="1"
                   max="6"
-                  value={userValue || ""}
-                  onChange={(e) => {
+                  value={userValue || ''}
+                  onChange={e => {
                     const value = parseInt(e.target.value, 10) || 0;
                     if (value >= 0 && value <= 6) {
                       onInputChange(row, col, value);
@@ -148,7 +148,7 @@ export const Grid6x6 = memo<Grid6x6Props>(
                   disabled={disabled}
                   className={styles.cellInput}
                   aria-label={`Row ${row + 1}, Column ${col + 1}`}
-                  aria-describedby={isHinted ? "hint-message" : undefined}
+                  aria-describedby={isHinted ? 'hint-message' : undefined}
                 />
               )}
             </td>
@@ -201,6 +201,6 @@ export const Grid6x6 = memo<Grid6x6Props>(
   }
 );
 
-Grid6x6.displayName = "Grid6x6";
+Grid6x6.displayName = 'Grid6x6';
 
 export default Grid6x6;
