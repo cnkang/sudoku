@@ -3,10 +3,10 @@
  * Implements Requirements 1.2, 2.1, 2.2 for child-friendly 4x4 Sudoku
  */
 
-import React, { memo, useMemo } from "react";
-import type { GridConfig } from "@/types";
-import { usePerformanceTracking } from "@/utils/performance-monitoring";
-import styles from "../SudokuGrid.module.css";
+import React, { memo, useMemo } from 'react';
+import type { GridConfig } from '@/types';
+import { usePerformanceTracking } from '@/utils/performance-monitoring';
+import styles from '../SudokuGrid.module.css';
 
 interface Grid4x4Props {
   gridConfig: GridConfig;
@@ -34,9 +34,9 @@ export const Grid4x4 = memo<Grid4x4Props>(
     childMode = true, // Default to child mode for 4x4
     accessibility = {},
   }) => {
-    "use memo"; // React Compiler directive
+    'use memo'; // React Compiler directive
 
-    const { trackRender } = usePerformanceTracking("Grid4x4");
+    const { trackRender } = usePerformanceTracking('Grid4x4');
 
     // Memoize grid configuration for 4x4
     const _grid4x4Config = useMemo(
@@ -95,13 +95,13 @@ export const Grid4x4 = memo<Grid4x4Props>(
           const cellClasses = [
             styles.sudokuCell,
             isFixed ? styles.fixedCell : styles.editableCell,
-            isHinted ? styles.hinted : "",
-            childMode ? styles.childFriendlyCell : "",
-            accessibilitySettings.highContrast ? styles.highContrast : "",
-            accessibilitySettings.largeText ? styles.largeText : "",
+            isHinted ? styles.hinted : '',
+            childMode ? styles.childFriendlyCell : '',
+            accessibilitySettings.highContrast ? styles.highContrast : '',
+            accessibilitySettings.largeText ? styles.largeText : '',
           ]
             .filter(Boolean)
-            .join(" ");
+            .join(' ');
 
           rowCells.push(
             <td
@@ -118,8 +118,8 @@ export const Grid4x4 = memo<Grid4x4Props>(
                   type="number"
                   min="1"
                   max="4"
-                  value={userValue || ""}
-                  onChange={(e) => {
+                  value={userValue || ''}
+                  onChange={e => {
                     const value = parseInt(e.target.value, 10) || 0;
                     if (value >= 0 && value <= 4) {
                       onInputChange(row, col, value);
@@ -128,7 +128,7 @@ export const Grid4x4 = memo<Grid4x4Props>(
                   disabled={disabled}
                   className={styles.cellInput}
                   aria-label={`Row ${row + 1}, Column ${col + 1}`}
-                  aria-describedby={isHinted ? "hint-message" : undefined}
+                  aria-describedby={isHinted ? 'hint-message' : undefined}
                 />
               )}
             </td>
@@ -179,6 +179,6 @@ export const Grid4x4 = memo<Grid4x4Props>(
   }
 );
 
-Grid4x4.displayName = "Grid4x4";
+Grid4x4.displayName = 'Grid4x4';
 
 export default Grid4x4;

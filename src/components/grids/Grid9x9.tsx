@@ -3,10 +3,10 @@
  * Implements Requirements 1.2, 7.1, 7.2 for standard 9x9 Sudoku
  */
 
-import React, { memo, useMemo } from "react";
-import type { GridConfig } from "@/types";
-import { usePerformanceTracking } from "@/utils/performance-monitoring";
-import styles from "../SudokuGrid.module.css";
+import React, { memo, useMemo } from 'react';
+import type { GridConfig } from '@/types';
+import { usePerformanceTracking } from '@/utils/performance-monitoring';
+import styles from '../SudokuGrid.module.css';
 
 interface Grid9x9Props {
   gridConfig: GridConfig;
@@ -34,9 +34,9 @@ export const Grid9x9 = memo<Grid9x9Props>(
     childMode = false, // Default to adult mode for 9x9
     accessibility = {},
   }) => {
-    "use memo"; // React Compiler directive
+    'use memo'; // React Compiler directive
 
-    const { trackRender } = usePerformanceTracking("Grid9x9");
+    const { trackRender } = usePerformanceTracking('Grid9x9');
 
     // Memoize grid configuration for 9x9
     const _grid9x9Config = useMemo(
@@ -85,11 +85,11 @@ export const Grid9x9 = memo<Grid9x9Props>(
 
         return {
           borderRight: isRightBorder
-            ? "3px solid #1f2937"
-            : "1px solid #d1d5db",
+            ? '3px solid #1f2937'
+            : '1px solid #d1d5db',
           borderBottom: isBottomBorder
-            ? "3px solid #1f2937"
-            : "1px solid #d1d5db",
+            ? '3px solid #1f2937'
+            : '1px solid #d1d5db',
         };
       },
       []
@@ -147,14 +147,14 @@ export const Grid9x9 = memo<Grid9x9Props>(
           const cellClasses = [
             styles.sudokuCell,
             isFixed ? styles.fixedCell : styles.editableCell,
-            isHinted ? styles.hinted : "",
-            hasError ? styles.error : "",
-            childMode ? styles.childFriendlyCell : "",
-            accessibilitySettings.highContrast ? styles.highContrast : "",
-            accessibilitySettings.largeText ? styles.largeText : "",
+            isHinted ? styles.hinted : '',
+            hasError ? styles.error : '',
+            childMode ? styles.childFriendlyCell : '',
+            accessibilitySettings.highContrast ? styles.highContrast : '',
+            accessibilitySettings.largeText ? styles.largeText : '',
           ]
             .filter(Boolean)
-            .join(" ");
+            .join(' ');
 
           rowCells.push(
             <td
@@ -172,8 +172,8 @@ export const Grid9x9 = memo<Grid9x9Props>(
                   type="number"
                   min="1"
                   max="9"
-                  value={userValue || ""}
-                  onChange={(e) => {
+                  value={userValue || ''}
+                  onChange={e => {
                     const value = parseInt(e.target.value, 10) || 0;
                     if (value >= 0 && value <= 9) {
                       onInputChange(row, col, value);
@@ -182,7 +182,7 @@ export const Grid9x9 = memo<Grid9x9Props>(
                   disabled={disabled}
                   className={styles.cellInput}
                   aria-label={`Row ${row + 1}, Column ${col + 1}`}
-                  aria-describedby={isHinted ? "hint-message" : undefined}
+                  aria-describedby={isHinted ? 'hint-message' : undefined}
                   aria-invalid={hasError}
                 />
               )}
@@ -238,6 +238,6 @@ export const Grid9x9 = memo<Grid9x9Props>(
   }
 );
 
-Grid9x9.displayName = "Grid9x9";
+Grid9x9.displayName = 'Grid9x9';
 
 export default Grid9x9;
