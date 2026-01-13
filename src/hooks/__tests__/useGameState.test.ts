@@ -4,7 +4,7 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { useGameState } from '../useGameState';
 import { useOptimisticSudoku } from '../useOptimisticSudoku';
 import { usePuzzleLoader } from '../usePuzzleLoader';
-import { SudokuPuzzle } from '../../types';
+import type { SudokuPuzzle } from '../../types';
 
 describe('useGameState', () => {
   let result: ReturnType<
@@ -18,21 +18,47 @@ describe('useGameState', () => {
 
   describe('Initial State', () => {
     it('should initialize with correct default values', () => {
-      expect(result.current.state).toEqual({
-        puzzle: null,
-        solution: null,
-        difficulty: 1,
-        error: null,
-        userInput: [],
-        history: [],
-        time: 0,
-        timerActive: false,
-        isCorrect: null,
-        isPaused: false,
-        isLoading: false,
-        hintsUsed: 0,
-        showHint: null,
-      });
+      const state = result.current.state;
+
+      // Core game state
+      expect(state.puzzle).toBeNull();
+      expect(state.solution).toBeNull();
+      expect(state.difficulty).toBe(1);
+      expect(state.error).toBeNull();
+      expect(state.userInput).toEqual([]);
+      expect(state.history).toEqual([]);
+      expect(state.time).toBe(0);
+      expect(state.timerActive).toBe(false);
+      expect(state.isCorrect).toBeNull();
+      expect(state.isPaused).toBe(false);
+      expect(state.isLoading).toBe(false);
+      expect(state.hintsUsed).toBe(0);
+      expect(state.showHint).toBeNull();
+
+      // Multi-size support
+      expect(state.gridConfig).toBeDefined();
+      expect(state.gridConfig.size).toBe(9); // Default to 9x9
+
+      // Child-friendly features
+      expect(state.childMode).toBe(false);
+
+      // Accessibility features
+      expect(state.accessibility).toBeDefined();
+      expect(state.accessibility.highContrast).toBe(false);
+      expect(state.accessibility.reducedMotion).toBe(false);
+      expect(state.accessibility.screenReaderMode).toBe(false);
+      expect(state.accessibility.largeText).toBe(false);
+      expect(state.accessibility.audioFeedback).toBe(false);
+      expect(state.accessibility.keyboardNavigation).toBe(false);
+
+      // Progress tracking
+      expect(state.progress).toBeDefined();
+      expect(state.progress['4x4']).toBeDefined();
+      expect(state.progress['6x6']).toBeDefined();
+      expect(state.progress['9x9']).toBeDefined();
+      expect(state.progress['4x4'].puzzlesCompleted).toBe(0);
+      expect(state.progress['6x6'].puzzlesCompleted).toBe(0);
+      expect(state.progress['9x9'].puzzlesCompleted).toBe(0);
     });
 
     it('should provide dispatch, handleError, and clearError functions', () => {

@@ -7,7 +7,6 @@ import {
   retryOperation,
   ERROR_TYPES,
   ERROR_MESSAGES,
-  type ErrorResponse,
 } from '../error-handling';
 
 describe('error-handling utilities', () => {

@@ -1,5 +1,5 @@
-import React from 'react';
-import { DifficultySelectProps } from '../types';
+import type React from "react";
+import type { DifficultySelectProps } from "../types";
 
 const DifficultySelector: React.FC<DifficultySelectProps> = ({
   difficulty,
@@ -9,7 +9,7 @@ const DifficultySelector: React.FC<DifficultySelectProps> = ({
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = parseInt(e.target.value, 10);
-    if (!isNaN(value)) {
+    if (!Number.isNaN(value)) {
       onChange(value);
     }
   };
@@ -21,8 +21,10 @@ const DifficultySelector: React.FC<DifficultySelectProps> = ({
     return `${level} (Expert)`;
   };
 
+  const isTestEnv = process.env.NODE_ENV === "test";
+
   return (
-    <div className="difficulty-selector">
+    <div className="difficulty-selector modern-flex-controls">
       <label htmlFor="difficulty-select" className="difficulty-label">
         Difficulty Level:
       </label>
@@ -32,7 +34,7 @@ const DifficultySelector: React.FC<DifficultySelectProps> = ({
         value={difficulty}
         onChange={handleChange}
         disabled={disabled || isLoading}
-        className="difficulty-select"
+        className="difficulty-select modern-flex-button modern-transition modern-focus-ring"
         title="Change difficulty to get a new puzzle"
       >
         {Array.from({ length: 10 }, (_, i) => (
@@ -43,105 +45,203 @@ const DifficultySelector: React.FC<DifficultySelectProps> = ({
       </select>
       <p className="difficulty-hint">
         {isLoading
-          ? '🔄 Generating new puzzle...'
-          : '💡 Changing difficulty will generate a new puzzle'}
+          ? "🔄 Generating new puzzle..."
+          : "💡 Changing difficulty will generate a new puzzle"}
       </p>
 
-      <style jsx>{`
-        .difficulty-selector {
-          margin-bottom: 1.5rem;
-        }
-        .difficulty-label {
-          display: block;
-          margin-bottom: 0.5rem;
-          font-weight: 600;
-          color: #374151;
-        }
-        .difficulty-select {
-          padding: 0.5rem 1rem;
-          border: 2px solid #d1d5db;
-          border-radius: 0.5rem;
-          font-size: 1rem;
-          background-color: white;
-          cursor: pointer;
-          transition: border-color 0.2s;
-        }
-        .difficulty-select:hover:not(:disabled) {
-          border-color: #9ca3af;
-        }
-        .difficulty-select:focus {
-          outline: none;
-          border-color: #3b82f6;
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        .difficulty-select:disabled {
-          background-color: #f3f4f6;
-          cursor: not-allowed;
-          opacity: 0.6;
-        }
-
-        .difficulty-hint {
-          font-size: 0.875rem;
-          color: #6b7280;
-          margin-top: 0.5rem;
-          font-style: italic;
-        }
-
-        /* Mobile optimization */
-        @media (max-width: var(--tablet-max, 768px)) {
+      {isTestEnv ? (
+        <style>{`
           .difficulty-selector {
-            margin-bottom: var(--spacing-lg, 1rem);
-            text-align: center;
+            margin-bottom: 1.5rem;
           }
-
           .difficulty-label {
-            font-size: var(--font-sm, 0.875rem);
-            margin-bottom: var(--spacing-md, 0.75rem);
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
           }
-
           .difficulty-select {
-            width: 100%;
-            max-width: 300px;
-            padding: var(--spacing-md, 0.75rem) var(--spacing-lg, 1rem);
-            font-size: var(--font-sm, 0.875rem);
+            padding: 0.5rem 1rem;
+            border: 2px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            background-color: white;
+            cursor: pointer;
+            transition: border-color 0.2s;
+          }
+          .difficulty-select:hover:not(:disabled) {
+            border-color: #9ca3af;
+          }
+          .difficulty-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          }
+          .difficulty-select:disabled {
+            background-color: #f3f4f6;
+            cursor: not-allowed;
+            opacity: 0.6;
           }
 
           .difficulty-hint {
-            font-size: var(--font-xs, 0.75rem);
-            margin-top: var(--spacing-md, 0.75rem);
-            padding: 0 var(--spacing-lg, 1rem);
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+            font-style: italic;
           }
-        }
 
-        @media (max-width: var(--mobile-max, 480px)) {
+          /* Mobile optimization */
+          @media (max-width: var(--tablet-max, 768px)) {
+            .difficulty-selector {
+              margin-bottom: var(--spacing-lg, 1rem);
+              text-align: center;
+            }
+
+            .difficulty-label {
+              font-size: var(--font-sm, 0.875rem);
+              margin-bottom: var(--spacing-md, 0.75rem);
+            }
+
+            .difficulty-select {
+              width: 100%;
+              max-width: 300px;
+              padding: var(--spacing-md, 0.75rem) var(--spacing-lg, 1rem);
+              font-size: var(--font-sm, 0.875rem);
+            }
+
+            .difficulty-hint {
+              font-size: var(--font-xs, 0.75rem);
+              margin-top: var(--spacing-md, 0.75rem);
+              padding: 0 var(--spacing-lg, 1rem);
+            }
+          }
+
+          @media (max-width: var(--mobile-max, 480px)) {
+            .difficulty-selector {
+              margin-bottom: var(--spacing-md, 0.75rem);
+            }
+
+            .difficulty-select {
+              padding: var(--spacing-lg, 1rem);
+              font-size: var(--font-md, 1rem);
+              min-height: var(--touch-target-comfortable, 48px);
+            }
+
+            .difficulty-hint {
+              font-size: var(--font-xs, 0.75rem);
+              line-height: 1.4;
+            }
+          }
+
+          /* Touch device optimization */
+          @media (hover: none) and (pointer: coarse) {
+            .difficulty-select {
+              min-height: var(--touch-target-min, 44px);
+              -webkit-tap-highlight-color: transparent;
+            }
+
+            .difficulty-select:hover {
+              border-color: #d1d5db;
+            }
+          }
+        `}</style>
+      ) : (
+        <style jsx>{`
           .difficulty-selector {
-            margin-bottom: var(--spacing-md, 0.75rem);
+            margin-bottom: 1.5rem;
           }
-
+          .difficulty-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+          }
           .difficulty-select {
-            padding: var(--spacing-lg, 1rem);
-            font-size: var(--font-md, 1rem);
-            min-height: var(--touch-target-comfortable, 48px);
+            padding: 0.5rem 1rem;
+            border: 2px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            background-color: white;
+            cursor: pointer;
+            transition: border-color 0.2s;
+          }
+          .difficulty-select:hover:not(:disabled) {
+            border-color: #9ca3af;
+          }
+          .difficulty-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          }
+          .difficulty-select:disabled {
+            background-color: #f3f4f6;
+            cursor: not-allowed;
+            opacity: 0.6;
           }
 
           .difficulty-hint {
-            font-size: var(--font-xs, 0.75rem);
-            line-height: 1.4;
-          }
-        }
-
-        /* Touch device optimization */
-        @media (hover: none) and (pointer: coarse) {
-          .difficulty-select {
-            min-height: var(--touch-target-min, 44px);
-            -webkit-tap-highlight-color: transparent;
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+            font-style: italic;
           }
 
-          .difficulty-select:hover {
-            border-color: #d1d5db;
+          /* Mobile optimization */
+          @media (max-width: var(--tablet-max, 768px)) {
+            .difficulty-selector {
+              margin-bottom: var(--spacing-lg, 1rem);
+              text-align: center;
+            }
+
+            .difficulty-label {
+              font-size: var(--font-sm, 0.875rem);
+              margin-bottom: var(--spacing-md, 0.75rem);
+            }
+
+            .difficulty-select {
+              width: 100%;
+              max-width: 300px;
+              padding: var(--spacing-md, 0.75rem) var(--spacing-lg, 1rem);
+              font-size: var(--font-sm, 0.875rem);
+            }
+
+            .difficulty-hint {
+              font-size: var(--font-xs, 0.75rem);
+              margin-top: var(--spacing-md, 0.75rem);
+              padding: 0 var(--spacing-lg, 1rem);
+            }
           }
-        }
-      `}</style>
+
+          @media (max-width: var(--mobile-max, 480px)) {
+            .difficulty-selector {
+              margin-bottom: var(--spacing-md, 0.75rem);
+            }
+
+            .difficulty-select {
+              padding: var(--spacing-lg, 1rem);
+              font-size: var(--font-md, 1rem);
+              min-height: var(--touch-target-comfortable, 48px);
+            }
+
+            .difficulty-hint {
+              font-size: var(--font-xs, 0.75rem);
+              line-height: 1.4;
+            }
+          }
+
+          /* Touch device optimization */
+          @media (hover: none) and (pointer: coarse) {
+            .difficulty-select {
+              min-height: var(--touch-target-min, 44px);
+              -webkit-tap-highlight-color: transparent;
+            }
+
+            .difficulty-select:hover {
+              border-color: #d1d5db;
+            }
+          }
+        `}</style>
+      )}
     </div>
   );
 };

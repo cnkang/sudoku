@@ -5,7 +5,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  ...(process.env.CI ? { workers: 1 } : {}),
 
   // Global timeout for CI
   globalTimeout: process.env.CI ? 600000 : 300000, // 10 minutes in CI, 5 minutes locally
@@ -81,12 +81,14 @@ export default defineConfig({
       ],
 
   // 开发服务器配置
-  webServer: process.env.CI
-    ? undefined
+  ...(process.env.CI
+    ? {}
     : {
-        command: 'pnpm dev',
-        url: 'http://localhost:3000',
-        reuseExistingServer: !process.env.CI,
-        timeout: 120000,
-      },
+        webServer: {
+          command: 'pnpm dev',
+          url: 'http://localhost:3000',
+          reuseExistingServer: !process.env.CI,
+          timeout: 120000,
+        },
+      }),
 });

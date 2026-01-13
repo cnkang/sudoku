@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { POST } from '../src/app/api/solveSudoku/route';
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 vi.mock('fast-sudoku-solver', () => ({
   solveSudoku: (board: number[][]) => {

@@ -1,7 +1,52 @@
 import { useReducer, useCallback } from 'react';
-import { GameState, GameAction } from '../types';
+import type {
+  GameState,
+  GameAction,
+  AccessibilitySettings,
+  ProgressStats,
+} from '../types';
+import { GRID_CONFIGS } from '../utils/gridConfig';
+import { usePreferences } from './usePreferences';
+
+const defaultAccessibilitySettings: AccessibilitySettings = {
+  highContrast: false,
+  reducedMotion: false,
+  screenReaderMode: false,
+  largeText: false,
+  audioFeedback: false,
+  keyboardNavigation: false,
+  voiceInput: false,
+  adaptiveTouchTargets: false,
+};
+
+const defaultProgressStats: ProgressStats = {
+  puzzlesCompleted: 0,
+  totalTime: 0,
+  averageTime: 0,
+  bestTime: 0,
+  hintsUsed: 0,
+  achievements: [],
+  streakCount: 0,
+  longestStreak: 0,
+  perfectGames: 0,
+  lastPlayed: null,
+  dailyStreak: 0,
+  weeklyGoalProgress: 0,
+  starsEarned: 0,
+  badgesEarned: 0,
+  stickersEarned: 0,
+  improvementRate: 0,
+  consistencyScore: 0,
+  difficultyProgression: 0,
+};
+
+const createDefaultProgressStats = (): ProgressStats => ({
+  ...defaultProgressStats,
+  achievements: [...defaultProgressStats.achievements],
+});
 
 const initialState: GameState = {
+  // Core game state
   puzzle: null,
   solution: null,
   difficulty: 1,
@@ -15,7 +60,28 @@ const initialState: GameState = {
   isLoading: false,
   hintsUsed: 0,
   showHint: null,
+
+  // Multi-size support - default to 9x9 for backward compatibility
+  gridConfig: GRID_CONFIGS[9],
+
+  // Child-friendly features
+  childMode: false,
+
+  // Accessibility features
+  accessibility: defaultAccessibilitySettings,
+
+  // Progress tracking per grid size
+  progress: {
+    '4x4': createDefaultProgressStats(),
+    '6x6': createDefaultProgressStats(),
+    '9x9': createDefaultProgressStats(),
+  },
 };
+
+const getProgressStats = (
+  progress: Record<string, ProgressStats>,
+  gridSize: string
+) => progress[gridSize] ?? createDefaultProgressStats();
 
 const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
@@ -98,12 +164,20 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       return {
         ...initialState,
         difficulty: state.difficulty,
+        gridConfig: state.gridConfig,
+        childMode: state.childMode,
+        accessibility: state.accessibility,
+        progress: state.progress,
       };
 
     case 'RESET_AND_FETCH':
       return {
         ...initialState,
         difficulty: state.difficulty,
+        gridConfig: state.gridConfig,
+        childMode: state.childMode,
+        accessibility: state.accessibility,
+        progress: state.progress,
         isLoading: true,
         error: null,
       };
@@ -114,7 +188,8 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
     case 'UNDO': {
       if (state.history.length <= 1) return state;
       const newHistory = state.history.slice(0, -1);
-      const previousState = newHistory[newHistory.length - 1];
+      const previousState = newHistory.at(-1);
+      if (!previousState) return state;
       return {
         ...state,
         userInput: previousState,
@@ -132,6 +207,126 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
     case 'CLEAR_HINT':
       return { ...state, showHint: null };
 
+    // Multi-size support actions
+    case 'CHANGE_GRID_SIZE': {
+      const newGridConfig = action.payload;
+      return {
+        ...initialState,
+        gridConfig: newGridConfig,
+        childMode: newGridConfig.childFriendly.enableAnimations
+          ? true
+          : state.childMode,
+        accessibility: state.accessibility,
+        progress: state.progress,
+        difficulty: Math.min(state.difficulty, newGridConfig.difficultyLevels),
+      };
+    }
+
+    case 'SET_GRID_CONFIG':
+      return { ...state, gridConfig: action.payload };
+
+    // Child-friendly feature actions
+    case 'TOGGLE_CHILD_MODE':
+      return { ...state, childMode: !state.childMode };
+
+    case 'SET_CHILD_MODE':
+      return { ...state, childMode: action.payload };
+
+    // Accessibility actions
+    case 'UPDATE_ACCESSIBILITY':
+      return {
+        ...state,
+        accessibility: { ...state.accessibility, ...action.payload },
+      };
+
+    case 'TOGGLE_HIGH_CONTRAST':
+      return {
+        ...state,
+        accessibility: {
+          ...state.accessibility,
+          highContrast: !state.accessibility.highContrast,
+        },
+      };
+
+    case 'TOGGLE_REDUCED_MOTION':
+      return {
+        ...state,
+        accessibility: {
+          ...state.accessibility,
+          reducedMotion: !state.accessibility.reducedMotion,
+        },
+      };
+
+    case 'TOGGLE_SCREEN_READER_MODE':
+      return {
+        ...state,
+        accessibility: {
+          ...state.accessibility,
+          screenReaderMode: !state.accessibility.screenReaderMode,
+        },
+      };
+
+    // Progress tracking actions
+    case 'UPDATE_PROGRESS': {
+      const { gridSize, stats } = action.payload;
+      const currentStats = getProgressStats(state.progress, gridSize);
+      return {
+        ...state,
+        progress: {
+          ...state.progress,
+          [gridSize]: { ...currentStats, ...stats },
+        },
+      };
+    }
+
+    case 'COMPLETE_PUZZLE': {
+      const { gridSize, time, hintsUsed } = action.payload;
+      const currentStats = getProgressStats(state.progress, gridSize);
+      const newPuzzlesCompleted = currentStats.puzzlesCompleted + 1;
+      const newTotalTime = currentStats.totalTime + time;
+      const newAverageTime = newTotalTime / newPuzzlesCompleted;
+      const newBestTime =
+        currentStats.bestTime === 0
+          ? time
+          : Math.min(currentStats.bestTime, time);
+      const newStreakCount = currentStats.streakCount + 1;
+
+      return {
+        ...state,
+        progress: {
+          ...state.progress,
+          [gridSize]: {
+            ...currentStats,
+            puzzlesCompleted: newPuzzlesCompleted,
+            totalTime: newTotalTime,
+            averageTime: newAverageTime,
+            bestTime: newBestTime,
+            hintsUsed: currentStats.hintsUsed + hintsUsed,
+            streakCount: newStreakCount,
+            lastPlayed: new Date(),
+          },
+        },
+      };
+    }
+
+    case 'ADD_ACHIEVEMENT': {
+      const { gridSize, achievement } = action.payload;
+      const currentStats = getProgressStats(state.progress, gridSize);
+      if (currentStats.achievements.includes(achievement)) {
+        return state; // Achievement already exists
+      }
+      return {
+        ...state,
+        progress: {
+          ...state.progress,
+          [gridSize]: {
+            ...currentStats,
+            achievements: [...currentStats.achievements, achievement],
+          },
+        },
+      };
+    }
+
     default:
       return state;
   }
@@ -139,6 +334,9 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
 
 export const useGameState = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
+
+  // Integrate preferences persistence
+  const { restorePreferences } = usePreferences(state, dispatch);
 
   const handleError = useCallback((err: unknown) => {
     if (err instanceof Error) {
@@ -157,5 +355,6 @@ export const useGameState = () => {
     dispatch,
     handleError,
     clearError,
+    restorePreferences,
   };
 };

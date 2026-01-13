@@ -1,33 +1,146 @@
+/* Modern CSS Page Layout with Container Queries and Viewport Units */
 .page {
   min-height: 100vh;
+  min-height: 100dvh; /* Modern dynamic viewport height */
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem 1rem;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 3vw, 2rem);
+  padding-block: clamp(1rem, 3vh, 2rem);
+  padding-inline: clamp(0.5rem, 2vw, 1rem);
+
+  /* Safe area support for mobile devices */
+  padding-top: max(1rem, env(safe-area-inset-top));
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  padding-left: max(0.5rem, env(safe-area-inset-left));
+  padding-right: max(0.5rem, env(safe-area-inset-right));
+
+  /* Container query setup */
+  container-type: inline-size;
+  container-name: page-container;
 }
 
 .main {
   background: var(--card-background);
-  border-radius: 1rem;
+  border-radius: clamp(0.5rem, 2vw, 1rem);
   box-shadow: var(--shadow-lg);
-  padding: 2rem;
-  max-width: 800px;
+  padding: clamp(1rem, 4vw, 2rem);
+  max-width: min(800px, 90vw);
   width: 100%;
-  min-height: 600px;
+  min-height: min(600px, 80vh);
+  min-height: min(600px, 80dvh); /* Modern dynamic viewport height */
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: clamp(1rem, 3vw, 1.5rem);
+
+  /* Modern CSS logical properties */
+  padding-inline: clamp(1rem, 4vw, 2rem);
+  padding-block: clamp(1rem, 3vh, 2rem);
+
+  /* Performance optimization */
+  contain: layout style;
+  will-change: transform;
 }
 
-@media (max-width: 768px) {
+/* Container Queries for Page Layout */
+@container page-container (max-width: 480px) {
+  .main {
+    border-radius: 0.5rem;
+    min-height: auto;
+    gap: 1rem;
+    padding: 1rem;
+    max-width: 100%;
+  }
+}
+
+@container page-container (min-width: 481px) and (max-width: 768px) {
+  .main {
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    gap: 1.25rem;
+  }
+}
+
+@container page-container (min-width: 769px) and (max-width: 1024px) {
+  .main {
+    border-radius: 1rem;
+    padding: 2rem;
+    gap: 1.5rem;
+    max-width: 700px;
+  }
+}
+
+@container page-container (min-width: 1025px) {
+  .main {
+    border-radius: 1.25rem;
+    padding: 2.5rem;
+    gap: 2rem;
+    max-width: 800px;
+  }
+}
+
+/* Modern Viewport Units Support */
+@supports (height: 100dvh) {
   .page {
-    padding: 1rem 0.5rem;
+    min-height: 100dvh;
   }
 
   .main {
-    padding: 1.5rem;
-    border-radius: 0.5rem;
+    min-height: min(600px, 80dvh);
+  }
+}
+
+@supports (height: 100svh) {
+  .page {
+    min-height: 100svh; /* Small viewport height for mobile */
+  }
+}
+
+@supports (height: 100lvh) {
+  .main {
+    max-height: 90lvh; /* Large viewport height for desktop */
+    overflow-y: auto;
+  }
+}
+
+/* Landscape Orientation with Modern CSS */
+@media (orientation: landscape) and (max-height: 600px) {
+  .page {
+    min-height: 100svh; /* Use small viewport height in landscape */
+    padding-block: 0.5rem;
+  }
+
+  .main {
+    min-height: auto;
+    max-height: 95svh;
+    overflow-y: auto;
+    gap: 0.75rem;
+    padding-block: 1rem;
+  }
+}
+
+/* Portrait Orientation Optimizations */
+@media (orientation: portrait) and (max-width: 480px) {
+  .page {
+    min-height: 100dvh; /* Use dynamic viewport height in portrait */
+  }
+
+  .main {
+    min-height: auto;
+    max-height: 90dvh;
+    overflow-y: auto;
+  }
+}
+
+/* Traditional Media Queries as Fallback */
+@media (max-width: 768px) {
+  .page {
+    padding: clamp(0.5rem, 2vw, 1rem);
+  }
+
+  .main {
+    padding: clamp(1rem, 3vw, 1.5rem);
+    border-radius: clamp(0.5rem, 1.5vw, 0.75rem);
     min-height: auto;
   }
 }
@@ -40,11 +153,99 @@
   .main {
     padding: 1rem;
     gap: 1rem;
+    border-radius: 0.5rem;
   }
 }
 
+/* Dark Mode with Modern CSS */
 @media (prefers-color-scheme: dark) {
   .page {
     background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  }
+
+  .main {
+    background: var(--card-background, #334155);
+    color: var(--foreground, #f1f5f9);
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .page {
+    background: #000;
+  }
+
+  .main {
+    background: #fff;
+    color: #000;
+    border: 3px solid #000;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .main {
+    will-change: auto;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .page {
+    background: white;
+    min-height: auto;
+    padding: 0;
+  }
+
+  .main {
+    box-shadow: none;
+    border: 1px solid #000;
+    padding: 1rem;
+    max-width: 100%;
+  }
+}
+
+/* Loading fallback styles */
+.grid-loading-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  min-height: 200px;
+  background: var(--card-background, white);
+  border-radius: var(--border-radius, 0.5rem);
+  box-shadow: var(--shadow-sm);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color, #e2e8f0);
+  border-top: 3px solid var(--primary-color, #3b82f6);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.grid-loading-fallback p {
+  color: var(--foreground, #1e293b);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner {
+    animation: none;
+    border-top-color: var(--primary-color, #3b82f6);
   }
 }

@@ -1,260 +1,173 @@
-'use client';
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
-import { useEffect, useCallback, useRef } from 'react';
-import SudokuGrid from '../components/SudokuGrid';
-import Timer from '../components/Timer';
-import DifficultySelector from '../components/DifficultySelector';
-import GameControls from '../components/GameControls';
-import { useGameState } from '../hooks/useGameState';
-import { SudokuPuzzle } from '../types';
-import { getHint } from '../utils/hints';
-import { updateStats } from '../utils/stats';
-import { fetchWithCache } from '../utils/apiCache';
-import styles from './page.module.css';
-import { pageStyles } from './page.styles';
+"use client";
+import "core-js/stable";
+import "regenerator-runtime/runtime";
+import { Suspense } from "react";
+import ModernSudokuApp from "../components/ModernSudokuApp";
+import { getPerformanceMonitor } from "../utils/performance-monitoring";
+import styles from "./page.module.css";
+import { pageStyles } from "./page.styles";
+import "../styles/modern-responsive.css";
+import "../styles/modern-layouts.css";
 
 /**
- * Main Sudoku game page component with enhanced features
+ * Main Sudoku game page component with modern architecture integration
+ * Uses the new ModernSudokuApp component that wires together all features
+ *
+ * Requirements: 1.2, 1.3, 7.3, 8.1
  */
 export default function Home() {
-  const { state, dispatch, handleError, clearError } = useGameState();
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const lastFetchTimeRef = useRef<number>(0);
-  const lastResetTimeRef = useRef<number>(0);
+  "use memo"; // React Compiler directive for automatic optimization
 
-  const fetchPuzzle = useCallback(
-    async (difficulty?: number, forceRefresh = false) => {
-      const now = Date.now();
-      // Debounce: check interval when not force refreshing
-      if (!forceRefresh && now - lastFetchTimeRef.current < 5000) {
-        return;
-      }
-      // Force refresh limit: 10 second interval
-      if (forceRefresh && now - lastResetTimeRef.current < 10000) {
-        handleError(new Error('Please wait 10 seconds before resetting'));
-        return;
-      }
-      lastFetchTimeRef.current = now;
-      if (forceRefresh) lastResetTimeRef.current = now;
+  // Initialize performance monitoring for the page
+  if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+    const monitor = getPerformanceMonitor();
+    const startTime = performance.now();
 
-      // Cancel previous request
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
+    // Track page load performance
+    window.addEventListener("load", () => {
+      const endTime = performance.now();
+      const _loadTime = endTime - startTime;
+      const meetsRequirements = monitor.meetsPerformanceRequirements();
+      void meetsRequirements;
+    });
+  }
 
-      // Create new AbortController
-      abortControllerRef.current = new AbortController();
-
-      try {
-        dispatch({ type: 'SET_LOADING', payload: true });
-        clearError();
-        const targetDifficulty = difficulty ?? state.difficulty;
-        const url = `${process.env.NEXT_PUBLIC_API_URL}?difficulty=${targetDifficulty}${forceRefresh ? '&force=true' : ''}`;
-        const data = await fetchWithCache(
-          url,
-          {
-            method: 'POST',
-            signal: abortControllerRef.current.signal,
-          },
-          forceRefresh
-        );
-        dispatch({ type: 'SET_PUZZLE', payload: data as SudokuPuzzle });
-      } catch (err) {
-        // Don't show error if request was cancelled
-        if (err instanceof Error && err.name === 'AbortError') {
-          return;
-        }
-        dispatch({ type: 'SET_LOADING', payload: false });
-        handleError(err);
-      } finally {
-        abortControllerRef.current = null;
-      }
-    },
-    [state.difficulty, handleError, clearError, dispatch]
-  );
-
-  useEffect(() => {
-    if (state.difficulty !== null && !state.puzzle && !state.isLoading) {
-      fetchPuzzle();
-    }
-  }, [state.difficulty, state.puzzle, state.isLoading, fetchPuzzle]);
-
-  useEffect(() => {
-    let timer: NodeJS.Timeout | undefined;
-    if (state.timerActive && !state.isPaused) {
-      timer = setInterval(() => {
-        dispatch({ type: 'TICK' });
-      }, 1000);
-    }
-    return () => {
-      if (timer) {
-        clearInterval(timer);
-      }
-    };
-  }, [state.timerActive, state.isPaused, dispatch]);
-
-  const handleDifficultyChange = useCallback(
-    (difficulty: number) => {
-      dispatch({ type: 'SET_DIFFICULTY', payload: difficulty });
-      // Automatically fetch new puzzle when difficulty changes, pass new difficulty directly
-      fetchPuzzle(difficulty);
-    },
-    [dispatch, fetchPuzzle]
-  );
-
-  const handleInputChange = useCallback(
-    (row: number, col: number, value: number) => {
-      if (state.userInput === null) {
-        handleError(
-          new Error('Cannot update user input when puzzle is not loaded')
-        );
-        return;
-      }
-
-      try {
-        dispatch({ type: 'UPDATE_USER_INPUT', payload: { row, col, value } });
-
-        // Clear hint if user filled the hinted cell
-        if (
-          state.showHint &&
-          state.showHint.row === row &&
-          state.showHint.col === col
-        ) {
-          dispatch({ type: 'CLEAR_HINT' });
-        }
-      } catch (err) {
-        handleError(err);
-      }
-    },
-    [state.userInput, state.showHint, handleError, dispatch]
-  );
-
-  const checkAnswer = useCallback(() => {
-    if (state.userInput === null || state.solution === null) {
-      handleError(new Error('Cannot check answer when puzzle is not loaded'));
-      return;
-    }
-
-    try {
-      dispatch({ type: 'CHECK_ANSWER' });
-
-      // Update stats
-      const isCorrect =
-        JSON.stringify(state.userInput) === JSON.stringify(state.solution);
-      updateStats(state.difficulty, state.time, isCorrect);
-    } catch (err) {
-      handleError(err);
-    }
-  }, [
-    state.userInput,
-    state.solution,
-    state.difficulty,
-    state.time,
-    handleError,
-    dispatch,
-  ]);
-
-  const resetGame = useCallback(() => {
-    dispatch({ type: 'RESET_AND_FETCH' });
-    // Force refresh when resetting
-    fetchPuzzle(undefined, true);
-  }, [fetchPuzzle, dispatch]);
-
-  const pauseResumeGame = useCallback(() => {
-    dispatch({ type: 'PAUSE_RESUME' });
-  }, [dispatch]);
-
-  const undoMove = useCallback(() => {
-    dispatch({ type: 'UNDO' });
-  }, [dispatch]);
-
-  const getGameHint = useCallback(() => {
-    if (!state.puzzle || !state.solution || !state.userInput) return;
-
-    const hint = getHint(state.puzzle, state.userInput, state.solution);
-    if (hint) {
-      dispatch({ type: 'USE_HINT' });
-      dispatch({
-        type: 'SHOW_HINT',
-        payload: {
-          row: hint.row,
-          col: hint.col,
-          message: hint.reason,
-        },
-      });
-    }
-  }, [state.puzzle, state.solution, state.userInput, dispatch]);
-
-  const isGameDisabled = state.isPaused || state.isCorrect === true;
+  const isTestEnv = process.env.NODE_ENV === "test";
 
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <header className="game-header">
-          <h1>Sudoku Challenge</h1>
-          <p className="game-subtitle">Test your logic and patience</p>
-        </header>
-
-        <DifficultySelector
-          difficulty={state.difficulty}
-          onChange={handleDifficultyChange}
-          disabled={false}
-          isLoading={state.isLoading}
-        />
-
-        {state.error && (
-          <div className="error-message">
-            <span>⚠️ {state.error}</span>
-            <button onClick={clearError} className="error-dismiss">
-              ×
-            </button>
-          </div>
-        )}
-
-        {state.puzzle ? (
-          <div className="game-area">
-            <Timer
-              time={state.time}
-              isActive={state.timerActive}
-              isPaused={state.isPaused}
-            />
-
-            <SudokuGrid
-              puzzle={state.puzzle}
-              userInput={state.userInput}
-              onInputChange={handleInputChange}
-              disabled={isGameDisabled}
-              hintCell={state.showHint}
-            />
-
-            {state.showHint && (
-              <div className="hint-message">💡 {state.showHint.message}</div>
-            )}
-
-            <GameControls
-              onSubmit={checkAnswer}
-              onReset={resetGame}
-              onPauseResume={pauseResumeGame}
-              onUndo={undoMove}
-              onHint={getGameHint}
-              isCorrect={state.isCorrect}
-              isPaused={state.isPaused}
-              disabled={!state.puzzle}
-              isLoading={state.isLoading}
-              canUndo={state.history.length > 1}
-              hintsUsed={state.hintsUsed}
-            />
-          </div>
-        ) : (
-          <div className="loading-state">
-            <div className="loading-spinner"></div>
-            <p>Generating your puzzle...</p>
-          </div>
-        )}
+    <div className={`${styles.page} container-query-root modern-grid-layout`}>
+      <main className={`${styles.main} modern-grid-main`}>
+        <Suspense
+          fallback={
+            <div className="app-loading-fallback">
+              <div className="loading-spinner" />
+              <h1>Loading Sudoku Challenge...</h1>
+              <p>Preparing your multi-size puzzle experience</p>
+            </div>
+          }
+        >
+          <ModernSudokuApp
+            initialGridSize={9} // Default to 9x9 for backward compatibility
+            initialChildMode={false}
+            enablePWA={true}
+            enableOfflineMode={true}
+          />
+        </Suspense>
       </main>
 
-      <style jsx>{pageStyles}</style>
+      {/* Inject styles for test environment compatibility */}
+      {isTestEnv ? (
+        <style>{pageStyles}</style>
+      ) : (
+        <style jsx>{pageStyles}</style>
+      )}
+
+      {/* Additional loading styles */}
+      {isTestEnv ? (
+        <style>{`
+          .app-loading-fallback {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100dvh;
+            gap: 1.5rem;
+            padding: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+          }
+
+          .app-loading-fallback .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          }
+
+          .app-loading-fallback h1 {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+          }
+
+          .app-loading-fallback p {
+            font-size: clamp(1rem, 2vw, 1.125rem);
+            color: #64748b;
+            margin: 0;
+          }
+
+          @keyframes spin {
+            0% {
+              transform: rotate(0deg);
+            }
+            100% {
+              transform: rotate(360deg);
+            }
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            .app-loading-fallback .loading-spinner {
+              animation: none;
+              border-top-color: #3b82f6;
+            }
+          }
+        `}</style>
+      ) : (
+        <style jsx>{`
+          .app-loading-fallback {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100dvh;
+            gap: 1.5rem;
+            padding: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+          }
+
+          .app-loading-fallback .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          }
+
+          .app-loading-fallback h1 {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+          }
+
+          .app-loading-fallback p {
+            font-size: clamp(1rem, 2vw, 1.125rem);
+            color: #64748b;
+            margin: 0;
+          }
+
+          @keyframes spin {
+            0% {
+              transform: rotate(0deg);
+            }
+            100% {
+              transform: rotate(360deg);
+            }
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            .app-loading-fallback .loading-spinner {
+              animation: none;
+              border-top-color: #3b82f6;
+            }
+          }
+        `}</style>
+      )}
     </div>
   );
 }

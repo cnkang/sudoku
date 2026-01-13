@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { GameControlsProps } from '../types';
+import type React from 'react';
+import { useState, useRef, useEffect } from 'react';
+import type { GameControlsProps } from '../types';
 import styles from './GameControls.module.css';
 
 const GameControls: React.FC<GameControlsProps> = ({
@@ -45,48 +46,53 @@ const GameControls: React.FC<GameControlsProps> = ({
     };
   }, []);
   return (
-    <div className={styles.gameControls} data-testid="game-controls">
-      <div className={styles.controlButtons} data-testid="control-buttons">
+    <div className={`${styles.gameControls} modern-flex-controls`} data-testid="game-controls">
+      <div className={`${styles.controlButtons} modern-flex-row`} data-testid="control-buttons">
         <button
+          type="button"
           onClick={onSubmit}
           disabled={disabled}
-          className={`${styles.btn} ${styles.btnPrimary}`}
+          className={`${styles.btn} ${styles.btnPrimary} modern-flex-button modern-transition modern-hover-lift modern-focus-ring`}
           aria-label="Check your solution"
         >
           Check Solution
         </button>
 
         <button
+          type="button"
           onClick={onPauseResume}
           disabled={disabled}
-          className={`${styles.btn} ${styles.btnSecondary}`}
+          className={`${styles.btn} ${styles.btnSecondary} modern-flex-button modern-transition modern-hover-lift modern-focus-ring`}
           aria-label={isPaused ? 'Resume game' : 'Pause game'}
         >
           {isPaused ? 'Resume' : 'Pause'}
         </button>
 
         <button
+          type="button"
           onClick={onUndo}
           disabled={disabled || !canUndo}
-          className={`${styles.btn} ${styles.btnWarning}`}
+          className={`${styles.btn} ${styles.btnWarning} modern-flex-button modern-transition modern-hover-lift modern-focus-ring`}
           aria-label="Undo last move"
         >
           Undo
         </button>
 
         <button
+          type="button"
           onClick={onHint}
           disabled={disabled}
-          className={`${styles.btn} ${styles.btnInfo}`}
+          className={`${styles.btn} ${styles.btnInfo} modern-flex-button modern-transition modern-hover-lift modern-focus-ring`}
           aria-label="Get a hint"
         >
           Hint ({hintsUsed})
         </button>
 
         <button
+          type="button"
           onClick={handleReset}
           disabled={isLoading || isResetCooldown}
-          className={`${styles.btn} ${styles.btnDanger}`}
+          className={`${styles.btn} ${styles.btnDanger} modern-flex-button modern-transition modern-hover-lift modern-focus-ring`}
           aria-label="Reset the game"
         >
           {isLoading

@@ -1,4 +1,4 @@
 {
-  "*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write"],
-  "*.{json,md,css,yml,yaml}": ["prettier --write"]
+  "*.{js,jsx,ts,tsx}": ["biome lint --write", "biome format --write"],
+  "*.{json,md,css,yml,yaml}": ["biome format --write"]
 }
