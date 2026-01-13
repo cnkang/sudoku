@@ -10,12 +10,11 @@ export default defineConfig({
   plugins: [
     react({
       babel: {
-        plugins: [
+        plugins:
           // Disable React Compiler in test environment to avoid JSX warnings
-          ...(process.env.NODE_ENV === 'test'
+          process.env.NODE_ENV === 'test'
             ? []
-            : ['babel-plugin-react-compiler']),
-        ],
+            : ['babel-plugin-react-compiler'],
       },
     }),
   ],
