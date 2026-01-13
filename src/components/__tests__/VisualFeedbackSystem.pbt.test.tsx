@@ -1,13 +1,13 @@
-import { render, fireEvent, cleanup } from "@testing-library/react";
-import { describe, it, vi, afterEach, beforeEach } from "vitest";
-import * as fc from "fast-check";
-import VisualFeedbackSystem from "../VisualFeedbackSystem";
-import { getAllThemes } from "@/utils/themes";
+import { render, fireEvent, cleanup } from '@testing-library/react';
+import { describe, it, vi, afterEach, beforeEach } from 'vitest';
+import * as fc from 'fast-check';
+import VisualFeedbackSystem from '../VisualFeedbackSystem';
+import { getAllThemes } from '@/utils/themes';
 
 // Enhanced cleanup for property-based testing
 afterEach(() => {
   cleanup();
-  document.body.innerHTML = "";
+  document.body.innerHTML = '';
   // Clear any remaining timeouts or animations
   vi.clearAllTimers();
 });
@@ -18,7 +18,7 @@ beforeEach(() => {
 
 // Mock navigator.vibrate for haptic feedback testing
 const mockVibrate = vi.fn();
-Object.defineProperty(navigator, "vibrate", {
+Object.defineProperty(navigator, 'vibrate', {
   value: mockVibrate,
   writable: true,
 });
@@ -27,24 +27,24 @@ Object.defineProperty(navigator, "vibrate", {
 const themeArb = fc.constantFrom(...getAllThemes());
 const booleanArb = fc.boolean();
 const feedbackTypeArb = fc.constantFrom(
-  "success",
-  "error",
-  "hint",
-  "celebration"
+  'success',
+  'error',
+  'hint',
+  'celebration'
 );
 
 // Generate unique test IDs to prevent collisions
 const uniqueIdArb = fc
   .integer({ min: 1000000, max: 9999999 })
-  .map((num) => `test-${Date.now()}-${num}`);
+  .map(num => `test-${Date.now()}-${num}`);
 
-describe("VisualFeedbackSystem Property-Based Tests", () => {
+describe('VisualFeedbackSystem Property-Based Tests', () => {
   /**
    * Feature: multi-size-sudoku, Property 9: Accessibility feature completeness
    * The system should provide basic accessibility structure for all configurations
    * Validates: Requirements 9.5, 9.8
    */
-  it("should provide basic accessibility structure", () => {
+  it('should provide basic accessibility structure', () => {
     fc.assert(
       fc.property(
         themeArb,
@@ -70,7 +70,7 @@ describe("VisualFeedbackSystem Property-Based Tests", () => {
 
             // Should have basic accessibility elements
             const hasAriaElements =
-              container.querySelectorAll("[aria-live], [role]").length > 0;
+              container.querySelectorAll('[aria-live], [role]').length > 0;
 
             // Child mode should have pattern legend
             const hasPatternLegend =
@@ -93,7 +93,7 @@ describe("VisualFeedbackSystem Property-Based Tests", () => {
    * Pattern-based visual cues should be available for colorblind accessibility
    * Validates: Requirements 9.5, 9.8
    */
-  it("should provide pattern-based visual cues", () => {
+  it('should provide pattern-based visual cues', () => {
     fc.assert(
       fc.property(
         themeArb,
@@ -103,17 +103,16 @@ describe("VisualFeedbackSystem Property-Based Tests", () => {
           const TestComponent = () => (
             <div data-testid={`container-${testId}`}>
               <VisualFeedbackSystem theme={theme} childMode={true}>
-                {(triggers) => (
+                {triggers => (
                   <button
                     type="button"
                     onClick={() => {
                       const actions = {
-                        success: () => triggers.showSuccess("Test message"),
+                        success: () => triggers.showSuccess('Test message'),
                         error: () =>
-                          triggers.showError("Test message", "gentle"),
-                        hint: () => triggers.showHint("Test message"),
-                        celebration: () =>
-                          triggers.showCelebration("confetti"),
+                          triggers.showError('Test message', 'gentle'),
+                        hint: () => triggers.showHint('Test message'),
+                        celebration: () => triggers.showCelebration('confetti'),
                       } as const;
 
                       actions[feedbackType]?.();
@@ -140,7 +139,7 @@ describe("VisualFeedbackSystem Property-Based Tests", () => {
 
             // Check for pattern-related elements (more lenient)
             const hasPatternElements =
-              container.querySelectorAll("[data-pattern]").length > 0;
+              container.querySelectorAll('[data-pattern]').length > 0;
             const hasPatternClasses =
               container.querySelector("[class*='Pattern']") !== null;
             const hasPatternLegend =
@@ -163,7 +162,7 @@ describe("VisualFeedbackSystem Property-Based Tests", () => {
    * High contrast mode should apply appropriate styling
    * Validates: Requirements 9.5, 9.8
    */
-  it("should support high contrast mode", () => {
+  it('should support high contrast mode', () => {
     fc.assert(
       fc.property(themeArb, uniqueIdArb, (theme, testId) => {
         const TestComponent = ({ highContrast }: { highContrast: boolean }) => (
@@ -184,7 +183,7 @@ describe("VisualFeedbackSystem Property-Based Tests", () => {
             '[data-testid="visual-feedback-system"]'
           );
           const normalHasHighContrast =
-            normalElement?.className.includes("highContrast") || false;
+            normalElement?.className.includes('highContrast') || false;
 
           // Test high contrast mode
           rerender(<TestComponent highContrast={true} />);
@@ -192,7 +191,7 @@ describe("VisualFeedbackSystem Property-Based Tests", () => {
             '[data-testid="visual-feedback-system"]'
           );
           const highContrastHasClass =
-            highContrastElement?.className.includes("highContrast") || false;
+            highContrastElement?.className.includes('highContrast') || false;
 
           // High contrast mode should apply different styling
           return !normalHasHighContrast && highContrastHasClass;
@@ -209,7 +208,7 @@ describe("VisualFeedbackSystem Property-Based Tests", () => {
    * Reduced motion preferences should be respected
    * Validates: Requirements 9.5, 9.8
    */
-  it("should respect reduced motion preferences", () => {
+  it('should respect reduced motion preferences', () => {
     fc.assert(
       fc.property(themeArb, uniqueIdArb, (theme, testId) => {
         const TestComponent = ({
@@ -232,7 +231,7 @@ describe("VisualFeedbackSystem Property-Based Tests", () => {
           const element = container.querySelector(
             '[data-testid="visual-feedback-system"]'
           );
-          return element?.className.includes("reducedMotion") || false;
+          return element?.className.includes('reducedMotion') || false;
         } finally {
           unmount();
         }
@@ -246,7 +245,7 @@ describe("VisualFeedbackSystem Property-Based Tests", () => {
    * Child mode should provide additional accessibility features
    * Validates: Requirements 9.5, 9.8
    */
-  it("should provide child-friendly accessibility features", () => {
+  it('should provide child-friendly accessibility features', () => {
     fc.assert(
       fc.property(themeArb, uniqueIdArb, (theme, testId) => {
         const TestComponent = ({ childMode }: { childMode: boolean }) => (
@@ -267,7 +266,7 @@ describe("VisualFeedbackSystem Property-Based Tests", () => {
             '[data-testid="visual-feedback-system"]'
           );
           const hasChildModeClass =
-            childElement?.className.includes("childMode") || false;
+            childElement?.className.includes('childMode') || false;
           const hasPatternLegend =
             container.querySelector('[data-testid="pattern-legend"]') !== null;
 
@@ -277,7 +276,7 @@ describe("VisualFeedbackSystem Property-Based Tests", () => {
             '[data-testid="visual-feedback-system"]'
           );
           const normalHasChildMode =
-            normalElement?.className.includes("childMode") || false;
+            normalElement?.className.includes('childMode') || false;
           const normalHasPatternLegend =
             container.querySelector('[data-testid="pattern-legend"]') !== null;
 
@@ -301,7 +300,7 @@ describe("VisualFeedbackSystem Property-Based Tests", () => {
    * Screen reader support should be comprehensive
    * Validates: Requirements 9.5, 9.8
    */
-  it("should provide screen reader support", () => {
+  it('should provide screen reader support', () => {
     fc.assert(
       fc.property(
         themeArb,
@@ -311,17 +310,16 @@ describe("VisualFeedbackSystem Property-Based Tests", () => {
           const TestComponent = () => (
             <div data-testid={`container-${testId}`}>
               <VisualFeedbackSystem theme={theme} childMode={true}>
-                {(triggers) => (
+                {triggers => (
                   <button
                     type="button"
                     onClick={() => {
                       const actions = {
-                        success: () => triggers.showSuccess("Test message"),
+                        success: () => triggers.showSuccess('Test message'),
                         error: () =>
-                          triggers.showError("Test message", "gentle"),
-                        hint: () => triggers.showHint("Test message"),
-                        celebration: () =>
-                          triggers.showCelebration("confetti"),
+                          triggers.showError('Test message', 'gentle'),
+                        hint: () => triggers.showHint('Test message'),
+                        celebration: () => triggers.showCelebration('confetti'),
                       } as const;
 
                       actions[feedbackType]?.();
@@ -340,7 +338,7 @@ describe("VisualFeedbackSystem Property-Based Tests", () => {
           try {
             // Should have basic screen reader elements
             const hasAriaLive =
-              container.querySelectorAll("[aria-live]").length > 0;
+              container.querySelectorAll('[aria-live]').length > 0;
             const hasRoleStatus =
               container.querySelectorAll("[role='status']").length > 0;
             const hasSrOnlyElements =
@@ -362,7 +360,7 @@ describe("VisualFeedbackSystem Property-Based Tests", () => {
    * Keyboard navigation should be supported
    * Validates: Requirements 9.5, 9.8
    */
-  it("should support keyboard navigation", () => {
+  it('should support keyboard navigation', () => {
     fc.assert(
       fc.property(themeArb, uniqueIdArb, (theme, testId) => {
         const mockToggle = vi.fn();
@@ -389,11 +387,11 @@ describe("VisualFeedbackSystem Property-Based Tests", () => {
           if (toggleButton) {
             // Should be focusable
             const isFocusable =
-              toggleButton.tagName === "BUTTON" ||
+              toggleButton.tagName === 'BUTTON' ||
               (toggleButton as HTMLElement).tabIndex >= 0;
 
             // Should have ARIA label
-            const hasAriaLabel = toggleButton.hasAttribute("aria-label");
+            const hasAriaLabel = toggleButton.hasAttribute('aria-label');
 
             return isFocusable && hasAriaLabel;
           }

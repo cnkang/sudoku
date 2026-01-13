@@ -108,44 +108,44 @@ describe('SudokuGrid Property-Based Tests', () => {
     largeText: fc.boolean(),
   });
 
-const childModeArb = fc.boolean();
+  const childModeArb = fc.boolean();
 
-const parseRunCount = (value: string | undefined, fallback: number) => {
-  if (!value) return fallback;
-  const parsed = Number(value);
-  if (Number.isNaN(parsed) || parsed < 1) return fallback;
+  const parseRunCount = (value: string | undefined, fallback: number) => {
+    if (!value) return fallback;
+    const parsed = Number(value);
+    if (Number.isNaN(parsed) || parsed < 1) return fallback;
 
-  return Math.min(parsed, 100);
-};
+    return Math.min(parsed, 100);
+  };
 
-const parseTimeLimitMs = (value: string | undefined, fallback: number) => {
-  if (!value) return fallback;
-  const parsed = Number(value);
-  if (Number.isNaN(parsed) || parsed < 100) return fallback;
+  const parseTimeLimitMs = (value: string | undefined, fallback: number) => {
+    if (!value) return fallback;
+    const parsed = Number(value);
+    if (Number.isNaN(parsed) || parsed < 100) return fallback;
 
-  return Math.min(parsed, 10000);
-};
+    return Math.min(parsed, 10000);
+  };
 
-const property6Runs = parseRunCount(
-  process.env.PBT_PROPERTY6_RUNS,
-  process.env.NODE_ENV === 'test' ? 12 : 20
-);
-const property7Runs = parseRunCount(
-  process.env.PBT_PROPERTY7_RUNS,
-  process.env.NODE_ENV === 'test' ? 8 : 15
-);
-const property18Runs = parseRunCount(
-  process.env.PBT_PROPERTY18_RUNS,
-  process.env.NODE_ENV === 'test' ? 8 : 15
-);
-const property4Runs = parseRunCount(
-  process.env.PBT_PROPERTY4_RUNS,
-  process.env.NODE_ENV === 'test' ? 10 : 20
-);
-const propertyTimeLimitMs = parseTimeLimitMs(
-  process.env.PBT_PROPERTY_TIME_LIMIT_MS,
-  2500
-);
+  const property6Runs = parseRunCount(
+    process.env.PBT_PROPERTY6_RUNS,
+    process.env.NODE_ENV === 'test' ? 12 : 20
+  );
+  const property7Runs = parseRunCount(
+    process.env.PBT_PROPERTY7_RUNS,
+    process.env.NODE_ENV === 'test' ? 8 : 15
+  );
+  const property18Runs = parseRunCount(
+    process.env.PBT_PROPERTY18_RUNS,
+    process.env.NODE_ENV === 'test' ? 8 : 15
+  );
+  const property4Runs = parseRunCount(
+    process.env.PBT_PROPERTY4_RUNS,
+    process.env.NODE_ENV === 'test' ? 10 : 20
+  );
+  const propertyTimeLimitMs = parseTimeLimitMs(
+    process.env.PBT_PROPERTY_TIME_LIMIT_MS,
+    2500
+  );
 
   const addFixedNumbers = (puzzle: number[][], gridSize: number) => {
     puzzle[0][0] = 1;
@@ -181,8 +181,8 @@ const propertyTimeLimitMs = parseTimeLimitMs(
         accessibility={accessibility}
         hintCell={hintCell}
       />,
-    container ? { container } : undefined
-  );
+      container ? { container } : undefined
+    );
 
   const sampleElements = <T extends Element>(
     elements: NodeListOf<T>,
@@ -296,14 +296,14 @@ const propertyTimeLimitMs = parseTimeLimitMs(
     sampleElements(inputs)
       .concat(sampleElements(fixedNumbers))
       .forEach(element => {
-      const style = window.getComputedStyle(element);
-      const fontSize = parseFloat(style.fontSize);
-      if (Number.isNaN(fontSize)) {
-        return;
-      }
-      expect(fontSize).toBeGreaterThanOrEqual(12);
-      expect(fontSize).toBeLessThanOrEqual(32);
-    });
+        const style = window.getComputedStyle(element);
+        const fontSize = parseFloat(style.fontSize);
+        if (Number.isNaN(fontSize)) {
+          return;
+        }
+        expect(fontSize).toBeGreaterThanOrEqual(12);
+        expect(fontSize).toBeLessThanOrEqual(32);
+      });
   };
 
   const assertGridAspectRatio = (container: HTMLElement) => {
