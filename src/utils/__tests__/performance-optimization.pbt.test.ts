@@ -4,15 +4,15 @@
  * Validates: Requirements 8.9
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import * as fc from "fast-check";
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import * as fc from 'fast-check';
 import {
   PERFORMANCE_THRESHOLDS,
   createLazyComponent,
   getBundleSize,
   getPerformanceMonitor,
   withPerformanceTracking,
-} from "../performance-monitoring";
+} from '../performance-monitoring';
 
 // Mock performance APIs for testing
 const mockPerformanceObserver = vi.fn();
@@ -29,17 +29,17 @@ beforeEach(() => {
   global.performance = mockPerformance as any;
 
   // Mock window and navigator
-  Object.defineProperty(global, "window", {
+  Object.defineProperty(global, 'window', {
     value: {
       addEventListener: vi.fn(),
-      location: { href: "http://localhost:3000" },
+      location: { href: 'http://localhost:3000' },
     },
     writable: true,
   });
 
-  Object.defineProperty(global, "navigator", {
+  Object.defineProperty(global, 'navigator', {
     value: {
-      userAgent: "test-agent",
+      userAgent: 'test-agent',
     },
     writable: true,
   });
@@ -49,17 +49,17 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("Performance Optimization Compliance Property Tests", () => {
+describe('Performance Optimization Compliance Property Tests', () => {
   /**
    * Property 19: Performance optimization compliance
    * Tests that performance thresholds are properly defined and monitoring works correctly
    */
 
-  it("should have properly defined performance thresholds", () => {
+  it('should have properly defined performance thresholds', () => {
     fc.assert(
       fc.property(
-        fc.constantFrom("LCP", "FID", "CLS", "FCP", "TTI"),
-        (metricName) => {
+        fc.constantFrom('LCP', 'FID', 'CLS', 'FCP', 'TTI'),
+        metricName => {
           const threshold =
             PERFORMANCE_THRESHOLDS[
               metricName as keyof typeof PERFORMANCE_THRESHOLDS
@@ -70,13 +70,13 @@ describe("Performance Optimization Compliance Property Tests", () => {
           expect(threshold.NEEDS_IMPROVEMENT).toBeGreaterThan(threshold.GOOD);
 
           // Verify thresholds match Web Vitals standards
-          if (metricName === "LCP") {
+          if (metricName === 'LCP') {
             expect(threshold.GOOD).toBe(2500);
             expect(threshold.NEEDS_IMPROVEMENT).toBe(4000);
-          } else if (metricName === "FID") {
+          } else if (metricName === 'FID') {
             expect(threshold.GOOD).toBe(100);
             expect(threshold.NEEDS_IMPROVEMENT).toBe(300);
-          } else if (metricName === "CLS") {
+          } else if (metricName === 'CLS') {
             expect(threshold.GOOD).toBe(0.1);
             expect(threshold.NEEDS_IMPROVEMENT).toBe(0.25);
           }
@@ -86,11 +86,11 @@ describe("Performance Optimization Compliance Property Tests", () => {
     );
   });
 
-  it("should correctly classify performance metrics", () => {
+  it('should correctly classify performance metrics', () => {
     fc.assert(
       fc.property(
         fc.record({
-          metricName: fc.constantFrom("LCP", "FID", "CLS"),
+          metricName: fc.constantFrom('LCP', 'FID', 'CLS'),
           value: fc.float({
             min: Math.fround(0),
             max: Math.fround(10000),
@@ -98,19 +98,19 @@ describe("Performance Optimization Compliance Property Tests", () => {
             noDefaultInfinity: true,
           }),
         }),
-        (testCase) => {
+        testCase => {
           const threshold =
             PERFORMANCE_THRESHOLDS[
               testCase.metricName as keyof typeof PERFORMANCE_THRESHOLDS
             ];
 
-          let expectedRating: "good" | "needs-improvement" | "poor";
+          let expectedRating: 'good' | 'needs-improvement' | 'poor';
           if (testCase.value <= threshold.GOOD) {
-            expectedRating = "good";
+            expectedRating = 'good';
           } else if (testCase.value <= threshold.NEEDS_IMPROVEMENT) {
-            expectedRating = "needs-improvement";
+            expectedRating = 'needs-improvement';
           } else {
-            expectedRating = "poor";
+            expectedRating = 'poor';
           }
 
           // This tests the internal rating logic would work correctly
@@ -121,7 +121,7 @@ describe("Performance Optimization Compliance Property Tests", () => {
     );
   });
 
-  it("should handle performance monitoring initialization gracefully", () => {
+  it('should handle performance monitoring initialization gracefully', () => {
     fc.assert(
       fc.property(
         fc.record({
@@ -129,22 +129,22 @@ describe("Performance Optimization Compliance Property Tests", () => {
           hasWindow: fc.boolean(),
           hasNavigator: fc.boolean(),
         }),
-        (_environment) => {
+        _environment => {
           // Test that performance monitor can be created in various environments
           const monitor = getPerformanceMonitor();
 
           expect(monitor).toBeDefined();
-          expect(typeof monitor.getMetrics).toBe("function");
-          expect(typeof monitor.meetsPerformanceRequirements).toBe("function");
-          expect(typeof monitor.trackReactOptimization).toBe("function");
-          expect(typeof monitor.disconnect).toBe("function");
+          expect(typeof monitor.getMetrics).toBe('function');
+          expect(typeof monitor.meetsPerformanceRequirements).toBe('function');
+          expect(typeof monitor.trackReactOptimization).toBe('function');
+          expect(typeof monitor.disconnect).toBe('function');
         }
       ),
       { numRuns: 50 }
     );
   });
 
-  it("should track React optimization metrics correctly", () => {
+  it('should track React optimization metrics correctly', () => {
     fc.assert(
       fc.property(
         fc.record({
@@ -157,7 +157,7 @@ describe("Performance Optimization Compliance Property Tests", () => {
           }),
           wasOptimized: fc.boolean(),
         }),
-        (testCase) => {
+        testCase => {
           const monitor = getPerformanceMonitor();
 
           // Track optimization
@@ -190,11 +190,11 @@ describe("Performance Optimization Compliance Property Tests", () => {
     );
   });
 
-  it("should create lazy components with proper structure", () => {
+  it('should create lazy components with proper structure', () => {
     fc.assert(
       fc.property(
         fc.string({ minLength: 1, maxLength: 20 }),
-        (_componentName) => {
+        _componentName => {
           const mockComponent = vi.fn(() => null);
           const mockImport = vi
             .fn()
@@ -203,7 +203,7 @@ describe("Performance Optimization Compliance Property Tests", () => {
           const LazyComponent = createLazyComponent(mockImport);
 
           expect(LazyComponent).toBeDefined();
-          expect(typeof LazyComponent).toBe("function");
+          expect(typeof LazyComponent).toBe('function');
 
           // Test that it can be called (returns a React element structure)
           const result = LazyComponent({});
@@ -214,13 +214,13 @@ describe("Performance Optimization Compliance Property Tests", () => {
     );
   });
 
-  it("should wrap components with performance tracking", () => {
+  it('should wrap components with performance tracking', () => {
     fc.assert(
       fc.property(
         fc
           .string({ minLength: 1, maxLength: 20 })
-          .filter((s) => s.trim().length > 0),
-        (componentName) => {
+          .filter(s => s.trim().length > 0),
+        componentName => {
           const mockComponent = vi.fn(() => null);
 
           const WrappedComponent = withPerformanceTracking(
@@ -237,14 +237,14 @@ describe("Performance Optimization Compliance Property Tests", () => {
     );
   });
 
-  it("should handle bundle size monitoring", () => {
+  it('should handle bundle size monitoring', () => {
     fc.assert(
       fc.property(
         fc.record({
           hasNavigationTiming: fc.boolean(),
           transferSize: fc.integer({ min: 0, max: 10000000 }), // 0-10MB
         }),
-        (testCase) => {
+        testCase => {
           if (testCase.hasNavigationTiming) {
             mockPerformance.getEntriesByType.mockReturnValue([
               { transferSize: testCase.transferSize },
@@ -254,7 +254,7 @@ describe("Performance Optimization Compliance Property Tests", () => {
           }
 
           // Test the function exists and can be called
-          expect(typeof getBundleSize).toBe("function");
+          expect(typeof getBundleSize).toBe('function');
 
           // Since getBundleSize is async, we just verify it returns a Promise
           const result = getBundleSize();
@@ -265,20 +265,20 @@ describe("Performance Optimization Compliance Property Tests", () => {
     );
   });
 
-  it("should validate performance requirements correctly", () => {
+  it('should validate performance requirements correctly', () => {
     fc.assert(
       fc.property(
         fc.record({
-          lcpRating: fc.constantFrom("good", "needs-improvement", "poor"),
-          fidRating: fc.constantFrom("good", "needs-improvement", "poor"),
-          clsRating: fc.constantFrom("good", "needs-improvement", "poor"),
+          lcpRating: fc.constantFrom('good', 'needs-improvement', 'poor'),
+          fidRating: fc.constantFrom('good', 'needs-improvement', 'poor'),
+          clsRating: fc.constantFrom('good', 'needs-improvement', 'poor'),
         }),
-        (_ratings) => {
+        _ratings => {
           const monitor = getPerformanceMonitor();
 
           // Test that the method exists and returns a boolean
           const meetsRequirements = monitor.meetsPerformanceRequirements();
-          expect(typeof meetsRequirements).toBe("boolean");
+          expect(typeof meetsRequirements).toBe('boolean');
 
           // Since we can't easily mock the internal state, just verify the method works
           expect(meetsRequirements).toBeDefined();
@@ -288,7 +288,7 @@ describe("Performance Optimization Compliance Property Tests", () => {
     );
   });
 
-  it("should handle edge cases in performance calculations", () => {
+  it('should handle edge cases in performance calculations', () => {
     fc.assert(
       fc.property(
         fc.record({
@@ -300,13 +300,13 @@ describe("Performance Optimization Compliance Property Tests", () => {
               noNaN: true,
               noDefaultInfinity: true,
             })
-            .filter((n) => !Number.isNaN(n)),
+            .filter(n => !Number.isNaN(n)),
           componentName: fc
             .string({ minLength: 1, maxLength: 100 })
-            .filter((s) => s.trim().length > 0),
+            .filter(s => s.trim().length > 0),
         }),
         // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: property test covers multiple branches
-        (testCase) => {
+        testCase => {
           const monitor = getPerformanceMonitor();
 
           // Test with edge case values
@@ -343,12 +343,12 @@ describe("Performance Optimization Compliance Property Tests", () => {
     );
   });
 
-  it("should maintain consistent API across different usage patterns", () => {
+  it('should maintain consistent API across different usage patterns', () => {
     fc.assert(
       fc.property(
         fc.array(
           fc.record({
-            action: fc.constantFrom("track", "getMetrics", "checkRequirements"),
+            action: fc.constantFrom('track', 'getMetrics', 'checkRequirements'),
             componentName: fc.string({ minLength: 1, maxLength: 20 }),
             renderTime: fc.float({
               min: Math.fround(0),
@@ -359,13 +359,13 @@ describe("Performance Optimization Compliance Property Tests", () => {
           }),
           { minLength: 1, maxLength: 10 }
         ),
-        (actions) => {
+        actions => {
           const monitor = getPerformanceMonitor();
 
           // Execute a sequence of actions
           for (const action of actions) {
             switch (action.action) {
-              case "track":
+              case 'track':
                 expect(() => {
                   monitor.trackReactOptimization(
                     action.componentName,
@@ -374,16 +374,16 @@ describe("Performance Optimization Compliance Property Tests", () => {
                   );
                 }).not.toThrow();
                 break;
-              case "getMetrics":
+              case 'getMetrics':
                 expect(() => {
                   const metrics = monitor.getMetrics();
                   expect(metrics).toBeInstanceOf(Map);
                 }).not.toThrow();
                 break;
-              case "checkRequirements":
+              case 'checkRequirements':
                 expect(() => {
                   const meets = monitor.meetsPerformanceRequirements();
-                  expect(typeof meets).toBe("boolean");
+                  expect(typeof meets).toBe('boolean');
                 }).not.toThrow();
                 break;
             }
@@ -396,28 +396,28 @@ describe("Performance Optimization Compliance Property Tests", () => {
 });
 
 // Test utilities for performance monitoring
-describe("Performance Monitoring Utilities", () => {
-  it("should track performance metrics accurately", () => {
+describe('Performance Monitoring Utilities', () => {
+  it('should track performance metrics accurately', () => {
     const monitor = getPerformanceMonitor();
     expect(monitor).toBeDefined();
-    expect(typeof monitor.getMetrics).toBe("function");
-    expect(typeof monitor.meetsPerformanceRequirements).toBe("function");
+    expect(typeof monitor.getMetrics).toBe('function');
+    expect(typeof monitor.meetsPerformanceRequirements).toBe('function');
   });
 
-  it("should create lazy components with proper error boundaries", () => {
+  it('should create lazy components with proper error boundaries', () => {
     const mockComponent = vi.fn(() => null);
     const mockImport = vi.fn().mockResolvedValue({ default: mockComponent });
 
     const LazyComponent = createLazyComponent(mockImport);
     expect(LazyComponent).toBeDefined();
-    expect(typeof LazyComponent).toBe("function");
+    expect(typeof LazyComponent).toBe('function');
   });
 
-  it("should wrap components with performance tracking", () => {
+  it('should wrap components with performance tracking', () => {
     const mockComponent = vi.fn(() => null);
     const WrappedComponent = withPerformanceTracking(
       mockComponent,
-      "TestComponent"
+      'TestComponent'
     );
 
     expect(WrappedComponent).toBeDefined();

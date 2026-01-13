@@ -4,8 +4,8 @@
  * Validates: Requirements 6.2, 8.3
  */
 
-import { describe, it, expect } from "vitest";
-import fc from "fast-check";
+import { describe, it, expect } from 'vitest';
+import fc from 'fast-check';
 
 // Mock DOM environment for CSS testing
 const _mockElement = (width: number, height: number) => ({
@@ -27,14 +27,14 @@ const _mockElement = (width: number, height: number) => ({
 // Mock CSS Container Query support
 const mockContainerQuery = (containerWidth: number) => {
   const queries = {
-    320: "xs",
-    480: "sm",
-    640: "md",
-    768: "lg",
-    1024: "xl",
+    320: 'xs',
+    480: 'sm',
+    640: 'md',
+    768: 'lg',
+    1024: 'xl',
   };
 
-  let matchedQuery = "xs";
+  let matchedQuery = 'xs';
   for (const [breakpoint, name] of Object.entries(queries)) {
     if (containerWidth >= parseInt(breakpoint, 10)) {
       matchedQuery = name;
@@ -67,7 +67,7 @@ const calculateModernViewportUnits = (
 const calculateGridLayout = (
   containerWidth: number,
   gridSize: 4 | 6 | 9,
-  deviceType: "mobile" | "tablet" | "desktop"
+  deviceType: 'mobile' | 'tablet' | 'desktop'
 ) => {
   const config = gridConfigs[gridSize];
   let cellSize = config.cellSize[deviceType];
@@ -117,19 +117,19 @@ const calculateFlexboxLayout = (
   let layout: string;
 
   if (containerWidth < 480 || totalWidth > availableWidth) {
-    layout = "column";
+    layout = 'column';
     // In column layout, buttons can use full available width
     buttonWidth = Math.max(80, availableWidth);
   } else if (containerWidth < 640) {
-    layout = "grid-2";
+    layout = 'grid-2';
   } else {
-    layout = "grid-3";
+    layout = 'grid-3';
   }
 
   return {
     buttonWidth,
-    totalWidth: layout === "column" ? buttonWidth : totalWidth,
-    fitsInContainer: layout === "column" || totalWidth <= availableWidth,
+    totalWidth: layout === 'column' ? buttonWidth : totalWidth,
+    fitsInContainer: layout === 'column' || totalWidth <= availableWidth,
     layout,
   };
 };
@@ -148,8 +148,8 @@ const validateTouchTargets = (
   };
 };
 
-describe("Modern CSS Responsiveness Property Tests", () => {
-  it("Property 18.1: Container queries should adapt grid cell sizes correctly across all breakpoints", () => {
+describe('Modern CSS Responsiveness Property Tests', () => {
+  it('Property 18.1: Container queries should adapt grid cell sizes correctly across all breakpoints', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 280, max: 1200 }), // Container width
@@ -160,10 +160,10 @@ describe("Modern CSS Responsiveness Property Tests", () => {
           const _containerQuery = mockContainerQuery(containerWidth);
 
           // Determine device type based on container width
-          let deviceType: "mobile" | "tablet" | "desktop";
-          if (containerWidth < 481) deviceType = "mobile";
-          else if (containerWidth < 769) deviceType = "tablet";
-          else deviceType = "desktop";
+          let deviceType: 'mobile' | 'tablet' | 'desktop';
+          if (containerWidth < 481) deviceType = 'mobile';
+          else if (containerWidth < 769) deviceType = 'tablet';
+          else deviceType = 'desktop';
 
           const layout = calculateGridLayout(
             containerWidth,
@@ -190,13 +190,13 @@ describe("Modern CSS Responsiveness Property Tests", () => {
           // Device-specific expectations only when container is large enough
           if (containerWidth >= 320) {
             // Only test device-specific sizes for reasonable containers
-            if (deviceType === "mobile") {
+            if (deviceType === 'mobile') {
               const expectedMin = Math.min(30, maxPossibleCellSize);
               expect(layout.cellSize).toBeGreaterThanOrEqual(
                 Math.max(absoluteMinCellSize, expectedMin)
               );
               expect(layout.cellSize).toBeLessThanOrEqual(60);
-            } else if (deviceType === "tablet") {
+            } else if (deviceType === 'tablet') {
               const expectedMin = Math.min(35, maxPossibleCellSize);
               expect(layout.cellSize).toBeGreaterThanOrEqual(
                 Math.max(absoluteMinCellSize, expectedMin)
@@ -212,7 +212,7 @@ describe("Modern CSS Responsiveness Property Tests", () => {
           }
 
           // Property: Child mode should not reduce cell sizes below minimum
-          if (childMode && deviceType === "mobile") {
+          if (childMode && deviceType === 'mobile') {
             // Child mode should maintain at least the absolute minimum
             expect(layout.cellSize).toBeGreaterThanOrEqual(absoluteMinCellSize);
           }
@@ -245,7 +245,7 @@ describe("Modern CSS Responsiveness Property Tests", () => {
     );
   });
 
-  it("Property 18.2: Modern viewport units should calculate correctly for mobile optimization", () => {
+  it('Property 18.2: Modern viewport units should calculate correctly for mobile optimization', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 568, max: 1024 }), // Viewport height
@@ -281,7 +281,7 @@ describe("Modern CSS Responsiveness Property Tests", () => {
     );
   });
 
-  it("Property 18.3: CSS Grid layouts should adapt correctly based on container size", () => {
+  it('Property 18.3: CSS Grid layouts should adapt correctly based on container size', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 320, max: 1200 }), // Container width
@@ -325,7 +325,7 @@ describe("Modern CSS Responsiveness Property Tests", () => {
     );
   });
 
-  it("Property 18.4: Flexbox layouts should adapt correctly for different screen sizes", () => {
+  it('Property 18.4: Flexbox layouts should adapt correctly for different screen sizes', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 280, max: 1200 }), // Container width
@@ -345,7 +345,7 @@ describe("Modern CSS Responsiveness Property Tests", () => {
           const _totalGapWidth = (buttonCount - 1) * 12;
 
           // For column layout, button width should be reasonable
-          if (layout.layout === "column") {
+          if (layout.layout === 'column') {
             expect(layout.buttonWidth).toBeGreaterThanOrEqual(80);
             expect(layout.buttonWidth).toBeLessThanOrEqual(availableWidth);
           } else {
@@ -356,13 +356,13 @@ describe("Modern CSS Responsiveness Property Tests", () => {
 
           // Property: Layout should adapt based on container width and content fit
           if (containerWidth < 480) {
-            expect(layout.layout).toBe("column");
+            expect(layout.layout).toBe('column');
           } else if (containerWidth < 640) {
             // Should be grid-2 unless content doesn't fit
-            expect(["grid-2", "column"]).toContain(layout.layout);
+            expect(['grid-2', 'column']).toContain(layout.layout);
           } else {
             // Should be grid-3 unless content doesn't fit
-            expect(["grid-3", "grid-2", "column"]).toContain(layout.layout);
+            expect(['grid-3', 'grid-2', 'column']).toContain(layout.layout);
           }
 
           // Property: Layout should be feasible for the given constraints
@@ -373,7 +373,7 @@ describe("Modern CSS Responsiveness Property Tests", () => {
     );
   });
 
-  it("Property 18.5: Touch targets should meet WCAG AAA requirements across all responsive breakpoints", () => {
+  it('Property 18.5: Touch targets should meet WCAG AAA requirements across all responsive breakpoints', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 280, max: 1200 }), // Screen width
@@ -394,13 +394,13 @@ describe("Modern CSS Responsiveness Property Tests", () => {
 
           // Test various UI elements
           const elements = [
-            { name: "button", size: baseTouchTarget },
-            { name: "grid-cell", size: baseTouchTarget },
-            { name: "select", size: baseTouchTarget },
-            { name: "link", size: baseTouchTarget },
+            { name: 'button', size: baseTouchTarget },
+            { name: 'grid-cell', size: baseTouchTarget },
+            { name: 'select', size: baseTouchTarget },
+            { name: 'link', size: baseTouchTarget },
           ];
 
-          elements.forEach((element) => {
+          elements.forEach(element => {
             const validation = validateTouchTargets(element.size, childMode);
 
             // Property: All touch targets should meet minimum requirements
@@ -425,36 +425,36 @@ describe("Modern CSS Responsiveness Property Tests", () => {
     );
   });
 
-  it("Property 18.6: CSS Container Queries should provide correct breakpoint classifications", () => {
+  it('Property 18.6: CSS Container Queries should provide correct breakpoint classifications', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 280, max: 1400 }), // Container width
         // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: property test covers multiple branches
-        (containerWidth) => {
+        containerWidth => {
           const query = mockContainerQuery(containerWidth);
 
           // Property: Container queries should classify widths correctly
           if (containerWidth < 320) {
-            expect(query).toBe("xs");
+            expect(query).toBe('xs');
           } else if (containerWidth < 480) {
-            expect(query).toBe("xs");
+            expect(query).toBe('xs');
           } else if (containerWidth < 640) {
-            expect(query).toBe("sm");
+            expect(query).toBe('sm');
           } else if (containerWidth < 768) {
-            expect(query).toBe("md");
+            expect(query).toBe('md');
           } else if (containerWidth < 1024) {
-            expect(query).toBe("lg");
+            expect(query).toBe('lg');
           } else {
-            expect(query).toBe("xl");
+            expect(query).toBe('xl');
           }
 
           // Property: Query result should be a valid breakpoint name
-          expect(["xs", "sm", "md", "lg", "xl"]).toContain(query);
+          expect(['xs', 'sm', 'md', 'lg', 'xl']).toContain(query);
 
           // Property: Larger containers should have same or larger breakpoint
           const largerWidth = containerWidth + 100;
           const largerQuery = mockContainerQuery(largerWidth);
-          const breakpointOrder = ["xs", "sm", "md", "lg", "xl"];
+          const breakpointOrder = ['xs', 'sm', 'md', 'lg', 'xl'];
           const currentIndex = breakpointOrder.indexOf(query);
           const largerIndex = breakpointOrder.indexOf(largerQuery);
           expect(largerIndex).toBeGreaterThanOrEqual(currentIndex);
@@ -464,7 +464,7 @@ describe("Modern CSS Responsiveness Property Tests", () => {
     );
   });
 
-  it("Property 18.7: Modern CSS features should degrade gracefully", () => {
+  it('Property 18.7: Modern CSS features should degrade gracefully', () => {
     fc.assert(
       fc.property(
         fc.boolean(), // Container query support

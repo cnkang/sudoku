@@ -4,8 +4,8 @@
  * Validates: Requirements 8.2
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import fc from "fast-check";
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import fc from 'fast-check';
 
 // Mock React Compiler optimization tracking
 interface ReactCompilerMetrics {
@@ -122,12 +122,12 @@ const simulateMemoryOptimization = (
   };
 };
 
-describe("React 19 Optimization Effectiveness Property Tests", () => {
+describe('React 19 Optimization Effectiveness Property Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("Property 20.1: React Compiler should automatically optimize components without manual intervention", () => {
+  it('Property 20.1: React Compiler should automatically optimize components without manual intervention', () => {
     fc.assert(
       fc.property(
         fc.array(fc.string({ minLength: 5, maxLength: 20 }), {
@@ -143,7 +143,7 @@ describe("React 19 Optimization Effectiveness Property Tests", () => {
             return true; // Skip this test case
           }
 
-          const metrics = componentNames.map((name) =>
+          const metrics = componentNames.map(name =>
             simulateReactCompilerOptimization(
               name,
               renderCount,
@@ -153,7 +153,7 @@ describe("React 19 Optimization Effectiveness Property Tests", () => {
           );
 
           // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: property test covers multiple branches
-          metrics.forEach((metric) => {
+          metrics.forEach(metric => {
             // Property: React Compiler should provide automatic optimizations
             // Only expect optimizations for valid component names and reasonable optimization levels
             if (
@@ -219,7 +219,7 @@ describe("React 19 Optimization Effectiveness Property Tests", () => {
 
           // Only expect optimization if we have valid component names
           const hasValidComponents = componentNames.some(
-            (name) => name.trim().length > 2
+            name => name.trim().length > 2
           );
           if (optimizationLevel > 0.5 && hasValidComponents) {
             expect(overallHitRate).toBeGreaterThan(0.3); // At least 30% optimization
@@ -230,7 +230,7 @@ describe("React 19 Optimization Effectiveness Property Tests", () => {
     );
   });
 
-  it("Property 20.2: React Compiler optimizations should scale efficiently with component complexity", () => {
+  it('Property 20.2: React Compiler optimizations should scale efficiently with component complexity', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 1, max: 50 }), // Component count
@@ -287,7 +287,7 @@ describe("React 19 Optimization Effectiveness Property Tests", () => {
     );
   });
 
-  it("Property 20.3: Bundle size impact should be minimal and justified by runtime performance gains", () => {
+  it('Property 20.3: Bundle size impact should be minimal and justified by runtime performance gains', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 100, max: 2000 }), // Original bundle size (KB)
@@ -333,7 +333,7 @@ describe("React 19 Optimization Effectiveness Property Tests", () => {
     );
   });
 
-  it("Property 20.4: Memory usage should decrease with React Compiler optimizations", () => {
+  it('Property 20.4: Memory usage should decrease with React Compiler optimizations', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 10, max: 200 }), // Base memory usage (MB)
@@ -386,7 +386,7 @@ describe("React 19 Optimization Effectiveness Property Tests", () => {
     );
   });
 
-  it("Property 20.5: React Compiler should maintain correctness while optimizing", () => {
+  it('Property 20.5: React Compiler should maintain correctness while optimizing', () => {
     fc.assert(
       fc.property(
         fc.array(fc.string({ minLength: 3, maxLength: 15 }), {
@@ -408,10 +408,10 @@ describe("React 19 Optimization Effectiveness Property Tests", () => {
           const optimizationLevel = hasSideEffects
             ? 0.3
             : hasComplexState
-            ? 0.6
-            : 0.8;
+              ? 0.6
+              : 0.8;
 
-          componentNames.forEach((componentName) => {
+          componentNames.forEach(componentName => {
             const metrics = simulateReactCompilerOptimization(
               componentName,
               renderCycles,
@@ -463,7 +463,7 @@ describe("React 19 Optimization Effectiveness Property Tests", () => {
     );
   });
 
-  it("Property 20.6: React Compiler should work effectively with modern React patterns", () => {
+  it('Property 20.6: React Compiler should work effectively with modern React patterns', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 1, max: 20 }), // Number of hooks used
@@ -490,7 +490,7 @@ describe("React 19 Optimization Effectiveness Property Tests", () => {
           const optimizationLevel = Math.min(1.0, baseOptimizationLevel);
 
           const metrics = simulateReactCompilerOptimization(
-            "ModernComponent",
+            'ModernComponent',
             renderCount,
             hookCount * 2, // More hooks = slower base render
             optimizationLevel
@@ -543,18 +543,18 @@ describe("React 19 Optimization Effectiveness Property Tests", () => {
     );
   });
 
-  it("Property 20.7: React Compiler optimizations should be consistent across different environments", () => {
+  it('Property 20.7: React Compiler optimizations should be consistent across different environments', () => {
     fc.assert(
       fc.property(
-        fc.constantFrom("development", "production", "test"), // Environment
+        fc.constantFrom('development', 'production', 'test'), // Environment
         fc.integer({ min: 10, max: 200 }), // Component count
         fc.integer({ min: 5, max: 100 }), // Renders per component
         (environment, componentCount, rendersPerComponent) => {
           // Optimization behavior should be consistent but may vary by environment
           const baseOptimizationLevel =
-            environment === "production" ? 0.8 : 0.6;
+            environment === 'production' ? 0.8 : 0.6;
           const environmentMultiplier =
-            environment === "development" ? 0.8 : 1.0;
+            environment === 'development' ? 0.8 : 1.0;
 
           const metrics = Array.from({ length: componentCount }, (_, i) =>
             simulateReactCompilerOptimization(
@@ -566,7 +566,7 @@ describe("React 19 Optimization Effectiveness Property Tests", () => {
           );
 
           // Property: Production should have highest optimization level
-          if (environment === "production") {
+          if (environment === 'production') {
             const avgHitRate =
               metrics.reduce((sum, m) => sum + m.memoizationHitRate, 0) /
               metrics.length;
@@ -574,7 +574,7 @@ describe("React 19 Optimization Effectiveness Property Tests", () => {
           }
 
           // Property: Development should still provide optimizations
-          if (environment === "development") {
+          if (environment === 'development') {
             const totalOptimizations = metrics.reduce(
               (sum, m) => sum + m.automaticOptimizations,
               0
@@ -583,13 +583,13 @@ describe("React 19 Optimization Effectiveness Property Tests", () => {
           }
 
           // Property: All environments should provide some optimization
-          metrics.forEach((metric) => {
+          metrics.forEach(metric => {
             expect(metric.automaticOptimizations).toBeGreaterThanOrEqual(0);
             expect(metric.memoizationHitRate).toBeGreaterThanOrEqual(0);
           });
 
           // Property: Optimization consistency across components
-          const hitRates = metrics.map((m) => m.memoizationHitRate);
+          const hitRates = metrics.map(m => m.memoizationHitRate);
           const avgHitRate =
             hitRates.reduce((sum, rate) => sum + rate, 0) / hitRates.length;
           const variance =
