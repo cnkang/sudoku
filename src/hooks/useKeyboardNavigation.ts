@@ -3,9 +3,9 @@
  * Provides logical tab order, arrow key navigation, and screen reader integration
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import type { GridConfig } from "@/types";
-import { getAccessibilityManager } from "@/utils/accessibilityManager";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { GridConfig } from '@/types';
+import { getAccessibilityManager } from '@/utils/accessibilityManager';
 
 export interface KeyboardNavigationOptions {
   gridConfig: GridConfig;
@@ -19,7 +19,7 @@ export interface KeyboardNavigationOptions {
 
 export interface KeyboardNavigationState {
   currentCell: { row: number; col: number } | null;
-  focusMode: "grid" | "controls";
+  focusMode: 'grid' | 'controls';
   isNavigating: boolean;
 }
 
@@ -36,7 +36,11 @@ export interface KeyboardNavigationHandlers {
   focusPreviousCell: () => void;
   focusFirstEditableCell: () => void;
   announceNavigation: (message: string) => void;
-  registerCellRef: (row: number, col: number, element: HTMLElement | null) => void;
+  registerCellRef: (
+    row: number,
+    col: number,
+    element: HTMLElement | null
+  ) => void;
   registerControlRef: (controlId: string, element: HTMLElement | null) => void;
 }
 
@@ -55,7 +59,7 @@ export const useKeyboardNavigation = (
 
   const [state, setState] = useState<KeyboardNavigationState>({
     currentCell: null,
-    focusMode: "grid",
+    focusMode: 'grid',
     isNavigating: false,
   });
 
@@ -84,7 +88,7 @@ export const useKeyboardNavigation = (
     (
       startRow: number,
       startCol: number,
-      direction: "forward" | "backward" = "forward"
+      direction: 'forward' | 'backward' = 'forward'
       // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: navigation scanning is complex
     ): { row: number; col: number } | null => {
       const { size } = gridConfig;
@@ -92,7 +96,7 @@ export const useKeyboardNavigation = (
       let col = startCol;
 
       // Start from next/previous position
-      if (direction === "forward") {
+      if (direction === 'forward') {
         col += 1;
         if (col >= size) {
           col = 0;
@@ -113,13 +117,13 @@ export const useKeyboardNavigation = (
           const cellElement = cellRefs.current.get(cellKey);
 
           // Check if cell is editable (has input element)
-          if (cellElement && cellElement.tagName === "INPUT") {
+          if (cellElement && cellElement.tagName === 'INPUT') {
             return { row, col };
           }
         }
 
         // Move to next position
-        if (direction === "forward") {
+        if (direction === 'forward') {
           col += 1;
           if (col >= size) {
             col = 0;
@@ -155,16 +159,16 @@ export const useKeyboardNavigation = (
 
       if (cellElement) {
         cellElement.focus();
-        setState((prev) => ({
+        setState(prev => ({
           ...prev,
           currentCell: { row, col },
-          focusMode: "grid",
+          focusMode: 'grid',
         }));
 
         // Update accessibility manager
         accessibilityManager.current.updateKeyboardNavigation({
           currentCell: { row, col },
-          navigationMode: "grid",
+          navigationMode: 'grid',
         });
 
         // Announce cell focus to screen readers
@@ -172,14 +176,14 @@ export const useKeyboardNavigation = (
           row,
           col,
           0, // Value will be read by input's aria-label
-          cellElement.tagName !== "INPUT",
+          cellElement.tagName !== 'INPUT',
           gridConfig
         );
 
         accessibilityManager.current.announce({
           message: cellDescription,
-          priority: "polite",
-          category: "navigation",
+          priority: 'polite',
+          category: 'navigation',
         });
 
         onCellFocus?.(row, col);
@@ -190,7 +194,7 @@ export const useKeyboardNavigation = (
 
   // Focus first editable cell
   const focusFirstEditableCell = useCallback(() => {
-    const firstCell = findNextEditableCell(-1, gridConfig.size - 1, "forward");
+    const firstCell = findNextEditableCell(-1, gridConfig.size - 1, 'forward');
     if (firstCell) {
       focusCell(firstCell.row, firstCell.col);
     }
@@ -206,13 +210,18 @@ export const useKeyboardNavigation = (
     const nextCell = findNextEditableCell(
       state.currentCell.row,
       state.currentCell.col,
-      "forward"
+      'forward'
     );
 
     if (nextCell) {
       focusCell(nextCell.row, nextCell.col);
     }
-  }, [state.currentCell, findNextEditableCell, focusCell, focusFirstEditableCell]);
+  }, [
+    state.currentCell,
+    findNextEditableCell,
+    focusCell,
+    focusFirstEditableCell,
+  ]);
 
   // Focus previous editable cell
   const focusPreviousCell = useCallback(() => {
@@ -224,13 +233,18 @@ export const useKeyboardNavigation = (
     const prevCell = findNextEditableCell(
       state.currentCell.row,
       state.currentCell.col,
-      "backward"
+      'backward'
     );
 
     if (prevCell) {
       focusCell(prevCell.row, prevCell.col);
     }
-  }, [state.currentCell, findNextEditableCell, focusCell, focusFirstEditableCell]);
+  }, [
+    state.currentCell,
+    findNextEditableCell,
+    focusCell,
+    focusFirstEditableCell,
+  ]);
 
   // Handle arrow key navigation within grid
   const handleArrowNavigation = useCallback(
@@ -241,16 +255,16 @@ export const useKeyboardNavigation = (
       let newCol = currentCol;
 
       switch (event.key) {
-        case "ArrowUp":
+        case 'ArrowUp':
           newRow = Math.max(0, currentRow - 1);
           break;
-        case "ArrowDown":
+        case 'ArrowDown':
           newRow = Math.min(gridConfig.size - 1, currentRow + 1);
           break;
-        case "ArrowLeft":
+        case 'ArrowLeft':
           newCol = Math.max(0, currentCol - 1);
           break;
-        case "ArrowRight":
+        case 'ArrowRight':
           newCol = Math.min(gridConfig.size - 1, currentCol + 1);
           break;
       }
@@ -282,8 +296,8 @@ export const useKeyboardNavigation = (
             message: `Number ${value} entered in row ${row + 1}, column ${
               col + 1
             }`,
-            priority: "polite",
-            category: "game-state",
+            priority: 'polite',
+            category: 'game-state',
           });
         } else if (value === 0) {
           // Clear cell
@@ -292,20 +306,20 @@ export const useKeyboardNavigation = (
 
           accessibilityManager.current.announce({
             message: `Cell cleared in row ${row + 1}, column ${col + 1}`,
-            priority: "polite",
-            category: "game-state",
+            priority: 'polite',
+            category: 'game-state',
           });
         }
       }
       // Handle deletion
-      else if (key === "Backspace" || key === "Delete") {
+      else if (key === 'Backspace' || key === 'Delete') {
         event.preventDefault();
         onValueInput?.(row, col, 0);
 
         accessibilityManager.current.announce({
           message: `Cell cleared in row ${row + 1}, column ${col + 1}`,
-          priority: "polite",
-          category: "game-state",
+          priority: 'polite',
+          category: 'game-state',
         });
       }
     },
@@ -321,13 +335,13 @@ export const useKeyboardNavigation = (
       const { key, ctrlKey, shiftKey } = event.nativeEvent;
 
       // Handle arrow navigation
-      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(key)) {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) {
         handleArrowNavigation(event.nativeEvent, row, col);
         return;
       }
 
       // Handle Tab navigation
-      if (key === "Tab") {
+      if (key === 'Tab') {
         if (shiftKey) {
           // Shift+Tab: go to previous cell or controls
           event.preventDefault();
@@ -341,16 +355,16 @@ export const useKeyboardNavigation = (
       }
 
       // Handle Enter/Space activation
-      if (key === "Enter" || key === " ") {
+      if (key === 'Enter' || key === ' ') {
         event.preventDefault();
         onCellActivate?.(row, col);
         return;
       }
 
       // Handle Escape - return to grid navigation
-      if (key === "Escape") {
+      if (key === 'Escape') {
         event.preventDefault();
-        setState((prev) => ({ ...prev, focusMode: "grid" }));
+        setState(prev => ({ ...prev, focusMode: 'grid' }));
         onNavigateToGrid?.();
         return;
       }
@@ -361,15 +375,15 @@ export const useKeyboardNavigation = (
       // Handle keyboard shortcuts
       if (ctrlKey) {
         switch (key.toLowerCase()) {
-          case "h":
+          case 'h':
             event.preventDefault();
             accessibilityManager.current.announce({
               message:
                 accessibilityManager.current.getKeyboardInstructions(
                   gridConfig
                 ),
-              priority: "polite",
-              category: "navigation",
+              priority: 'polite',
+              category: 'navigation',
             });
             break;
         }
@@ -392,20 +406,20 @@ export const useKeyboardNavigation = (
     (event: React.KeyboardEvent, controlId: string) => {
       const { key, shiftKey } = event.nativeEvent;
 
-      if (key === "Tab") {
+      if (key === 'Tab') {
         // Handle tab navigation between controls
         event.preventDefault();
 
         if (shiftKey) {
           // Navigate backwards
-          if (controlId === "first-control") {
+          if (controlId === 'first-control') {
             focusFirstEditableCell();
           }
         } else {
           // Navigate forwards
           // Implementation depends on control layout
         }
-      } else if (key === "Escape") {
+      } else if (key === 'Escape') {
         event.preventDefault();
         focusFirstEditableCell();
         onNavigateToGrid?.();
@@ -422,15 +436,15 @@ export const useKeyboardNavigation = (
       // Global shortcuts
       if (event.ctrlKey || event.metaKey) {
         switch (event.key.toLowerCase()) {
-          case "h":
+          case 'h':
             event.preventDefault();
             accessibilityManager.current.announce({
               message:
                 accessibilityManager.current.getKeyboardInstructions(
                   gridConfig
                 ),
-              priority: "assertive",
-              category: "navigation",
+              priority: 'assertive',
+              category: 'navigation',
             });
             break;
         }
@@ -443,8 +457,8 @@ export const useKeyboardNavigation = (
   const announceNavigation = useCallback((message: string) => {
     accessibilityManager.current.announce({
       message,
-      priority: "polite",
-      category: "navigation",
+      priority: 'polite',
+      category: 'navigation',
     });
   }, []);
 
@@ -476,10 +490,10 @@ export const useKeyboardNavigation = (
   useEffect(() => {
     if (disabled) return;
 
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [handleKeyDown, disabled]);
 
@@ -487,7 +501,7 @@ export const useKeyboardNavigation = (
   useEffect(() => {
     if (!disabled) {
       accessibilityManager.current.updateKeyboardNavigation({
-        navigationMode: "grid",
+        navigationMode: 'grid',
         tabOrder: [], // Will be populated as elements register
       });
     }

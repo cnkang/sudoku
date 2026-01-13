@@ -4,21 +4,21 @@ import {
   useCallback,
   useEffect,
   useState,
-} from "react";
-import type { ThemeConfig, ThemeContextValue } from "@/types";
+} from 'react';
+import type { ThemeConfig, ThemeContextValue } from '@/types';
 import {
   getDefaultTheme,
   getThemeById,
   getAllThemes,
   AccessibilityManager,
   applyThemeToDocument,
-} from "@/utils/themes";
+} from '@/utils/themes';
 
 /**
  * Theme storage key
  */
-const THEME_STORAGE_KEY = "sudoku-theme-preference";
-const HIGH_CONTRAST_STORAGE_KEY = "sudoku-high-contrast-mode";
+const THEME_STORAGE_KEY = 'sudoku-theme-preference';
+const HIGH_CONTRAST_STORAGE_KEY = 'sudoku-high-contrast-mode';
 
 /**
  * Theme Context
@@ -29,7 +29,7 @@ export const ThemeContext = createContext<ThemeContextValue | null>(null);
  * Get stored theme preference
  */
 function getStoredTheme(): string | null {
-  if (typeof window === "undefined") return null;
+  if (typeof window === 'undefined') return null;
 
   try {
     return localStorage.getItem(THEME_STORAGE_KEY);
@@ -42,7 +42,7 @@ function getStoredTheme(): string | null {
  * Store theme preference
  */
 function storeTheme(themeId: string): void {
-  if (typeof window === "undefined") return;
+  if (typeof window === 'undefined') return;
 
   try {
     localStorage.setItem(THEME_STORAGE_KEY, themeId);
@@ -55,11 +55,11 @@ function storeTheme(themeId: string): void {
  * Get stored high contrast preference
  */
 function getStoredHighContrast(): boolean {
-  if (typeof window === "undefined") return false;
+  if (typeof window === 'undefined') return false;
 
   try {
     const stored = localStorage.getItem(HIGH_CONTRAST_STORAGE_KEY);
-    return stored === "true";
+    return stored === 'true';
   } catch {
     return false;
   }
@@ -69,7 +69,7 @@ function getStoredHighContrast(): boolean {
  * Store high contrast preference
  */
 function storeHighContrast(enabled: boolean): void {
-  if (typeof window === "undefined") return;
+  if (typeof window === 'undefined') return;
 
   try {
     localStorage.setItem(HIGH_CONTRAST_STORAGE_KEY, enabled.toString());
@@ -82,10 +82,10 @@ function storeHighContrast(enabled: boolean): void {
  * Detect system high contrast preference
  */
 function detectSystemHighContrast(): boolean {
-  if (typeof window === "undefined") return false;
+  if (typeof window === 'undefined') return false;
 
   try {
-    return window.matchMedia("(prefers-contrast: high)").matches;
+    return window.matchMedia('(prefers-contrast: high)').matches;
   } catch {
     return false;
   }
@@ -155,12 +155,12 @@ export function useTheme(): ThemeContextValue {
 
   // Listen for system high contrast changes
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       return undefined;
     }
 
     try {
-      const mediaQuery = window.matchMedia("(prefers-contrast: high)");
+      const mediaQuery = window.matchMedia('(prefers-contrast: high)');
 
       const handleChange = (e: MediaQueryListEvent) => {
         // Only update if user hasn't explicitly set a preference
@@ -170,10 +170,10 @@ export function useTheme(): ThemeContextValue {
         }
       };
 
-      mediaQuery.addEventListener("change", handleChange);
+      mediaQuery.addEventListener('change', handleChange);
 
       return () => {
-        mediaQuery.removeEventListener("change", handleChange);
+        mediaQuery.removeEventListener('change', handleChange);
       };
     } catch {
       // Silently fail if media queries are not supported
@@ -197,7 +197,7 @@ export function useTheme(): ThemeContextValue {
 export function useThemeContext(): ThemeContextValue {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error("useThemeContext must be used within a ThemeProvider");
+    throw new Error('useThemeContext must be used within a ThemeProvider');
   }
   return context;
 }
@@ -231,7 +231,7 @@ export function useThemeChildFriendly() {
  */
 export function useIsChildFriendlyTheme(): boolean {
   const { currentTheme } = useThemeContext();
-  return currentTheme.category === "child-friendly";
+  return currentTheme.category === 'child-friendly';
 }
 
 /**
@@ -239,5 +239,5 @@ export function useIsChildFriendlyTheme(): boolean {
  */
 export function useIsHighContrastTheme(): boolean {
   const { currentTheme } = useThemeContext();
-  return currentTheme.category === "high-contrast";
+  return currentTheme.category === 'high-contrast';
 }

@@ -1,5 +1,5 @@
-import { useCallback, useRef } from "react";
-import type { FeedbackTriggers } from "@/components/VisualFeedbackSystem";
+import { useCallback, useRef } from 'react';
+import type { FeedbackTriggers } from '@/components/VisualFeedbackSystem';
 
 export interface VisualFeedbackConfig {
   childMode: boolean;
@@ -11,9 +11,9 @@ export interface VisualFeedbackConfig {
 
 export interface VisualFeedbackHook {
   triggerSuccess: (message?: string) => void;
-  triggerError: (message?: string, type?: "gentle" | "warning") => void;
+  triggerError: (message?: string, type?: 'gentle' | 'warning') => void;
   triggerEncouragement: (message?: string) => void;
-  triggerCelebration: (type?: "confetti" | "stars" | "rainbow") => void;
+  triggerCelebration: (type?: 'confetti' | 'stars' | 'rainbow') => void;
   triggerHint: (message?: string) => void;
   clearFeedback: () => void;
   setFeedbackTriggers: (triggers: FeedbackTriggers) => void;
@@ -30,10 +30,10 @@ export function useVisualFeedback(
 
   // Haptic feedback helper
   const triggerHapticFeedback = useCallback(
-    (type: "light" | "medium" | "heavy" = "light") => {
+    (type: 'light' | 'medium' | 'heavy' = 'light') => {
       if (!config.enableHapticFeedback) return;
 
-      if ("vibrate" in navigator) {
+      if ('vibrate' in navigator) {
         const patterns = {
           light: [10],
           medium: [20],
@@ -47,7 +47,7 @@ export function useVisualFeedback(
 
   // Audio feedback helper (placeholder for future implementation)
   const triggerAudioFeedback = useCallback(
-    (_type: "success" | "error" | "hint" | "celebration") => {
+    (_type: 'success' | 'error' | 'hint' | 'celebration') => {
       if (!config.enableSoundEffects) return;
 
       // Future: Implement audio feedback
@@ -66,8 +66,8 @@ export function useVisualFeedback(
     (message?: string) => {
       if (feedbackTriggersRef.current) {
         feedbackTriggersRef.current.showSuccess(message);
-        triggerHapticFeedback("light");
-        triggerAudioFeedback("success");
+        triggerHapticFeedback('light');
+        triggerAudioFeedback('success');
       }
     },
     [triggerHapticFeedback, triggerAudioFeedback]
@@ -75,12 +75,12 @@ export function useVisualFeedback(
 
   // Trigger error feedback with gentle approach
   const triggerError = useCallback(
-    (message?: string, type: "gentle" | "warning" = "gentle") => {
+    (message?: string, type: 'gentle' | 'warning' = 'gentle') => {
       if (feedbackTriggersRef.current) {
         feedbackTriggersRef.current.showError(message, type);
         // Use lighter haptic feedback for gentle errors
-        triggerHapticFeedback(type === "gentle" ? "light" : "medium");
-        triggerAudioFeedback("error");
+        triggerHapticFeedback(type === 'gentle' ? 'light' : 'medium');
+        triggerAudioFeedback('error');
       }
     },
     [triggerHapticFeedback, triggerAudioFeedback]
@@ -91,8 +91,8 @@ export function useVisualFeedback(
     (message?: string) => {
       if (feedbackTriggersRef.current) {
         feedbackTriggersRef.current.showEncouragement(message);
-        triggerHapticFeedback("medium");
-        triggerAudioFeedback("success");
+        triggerHapticFeedback('medium');
+        triggerAudioFeedback('success');
       }
     },
     [triggerHapticFeedback, triggerAudioFeedback]
@@ -100,11 +100,11 @@ export function useVisualFeedback(
 
   // Trigger celebration
   const triggerCelebration = useCallback(
-    (type: "confetti" | "stars" | "rainbow" = "confetti") => {
+    (type: 'confetti' | 'stars' | 'rainbow' = 'confetti') => {
       if (feedbackTriggersRef.current) {
         feedbackTriggersRef.current.showCelebration(type);
-        triggerHapticFeedback("heavy");
-        triggerAudioFeedback("celebration");
+        triggerHapticFeedback('heavy');
+        triggerAudioFeedback('celebration');
       }
     },
     [triggerHapticFeedback, triggerAudioFeedback]
@@ -115,8 +115,8 @@ export function useVisualFeedback(
     (message?: string) => {
       if (feedbackTriggersRef.current) {
         feedbackTriggersRef.current.showHint(message);
-        triggerHapticFeedback("light");
-        triggerAudioFeedback("hint");
+        triggerHapticFeedback('light');
+        triggerAudioFeedback('hint');
       }
     },
     [triggerHapticFeedback, triggerAudioFeedback]
@@ -145,45 +145,45 @@ export function useVisualFeedback(
  */
 export function getContextualFeedback(
   context:
-    | "puzzle_complete"
-    | "correct_move"
-    | "incorrect_move"
-    | "hint_used"
-    | "struggle_detected",
+    | 'puzzle_complete'
+    | 'correct_move'
+    | 'incorrect_move'
+    | 'hint_used'
+    | 'struggle_detected',
   childMode: boolean = true
 ): {
-  type: "success" | "error" | "encouragement" | "celebration" | "hint";
+  type: 'success' | 'error' | 'encouragement' | 'celebration' | 'hint';
   message?: string;
 } {
   const childFriendlyMessages = {
     puzzle_complete: {
-      type: "celebration" as const,
+      type: 'celebration' as const,
       message:
         "🎉 Amazing! You solved the whole puzzle! You're a Sudoku superstar! 🌟",
     },
     correct_move: {
-      type: "success" as const,
+      type: 'success' as const,
       message: childMode
-        ? "Great job! That number fits perfectly! ✨"
-        : "Correct!",
+        ? 'Great job! That number fits perfectly! ✨'
+        : 'Correct!',
     },
     incorrect_move: {
-      type: "error" as const,
+      type: 'error' as const,
       message: childMode
         ? "Oops! That number is already in this row. Let's try a different one! 😊"
-        : "Invalid move",
+        : 'Invalid move',
     },
     hint_used: {
-      type: "hint" as const,
+      type: 'hint' as const,
       message: childMode
         ? "Here's a helpful hint! You're doing great! 💡"
-        : "Hint provided",
+        : 'Hint provided',
     },
     struggle_detected: {
-      type: "encouragement" as const,
+      type: 'encouragement' as const,
       message: childMode
         ? "You're doing amazing! Take your time and keep trying! 💪"
-        : "Keep going!",
+        : 'Keep going!',
     },
   };
 
@@ -213,18 +213,18 @@ export function shouldShowEncouragement(
  */
 export function getCelebrationType(
   achievement:
-    | "first_puzzle"
-    | "fast_solve"
-    | "no_hints"
-    | "streak"
-    | "perfect_game"
-): "confetti" | "stars" | "rainbow" {
+    | 'first_puzzle'
+    | 'fast_solve'
+    | 'no_hints'
+    | 'streak'
+    | 'perfect_game'
+): 'confetti' | 'stars' | 'rainbow' {
   const celebrationTypes = {
-    first_puzzle: "confetti" as const,
-    fast_solve: "stars" as const,
-    no_hints: "rainbow" as const,
-    streak: "confetti" as const,
-    perfect_game: "rainbow" as const,
+    first_puzzle: 'confetti' as const,
+    fast_solve: 'stars' as const,
+    no_hints: 'rainbow' as const,
+    streak: 'confetti' as const,
+    perfect_game: 'rainbow' as const,
   };
 
   return celebrationTypes[achievement];

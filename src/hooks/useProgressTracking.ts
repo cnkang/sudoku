@@ -1,11 +1,11 @@
-import { useState, useCallback, useEffect } from "react";
-import type { GameState } from "@/types";
+import { useState, useCallback, useEffect } from 'react';
+import type { GameState } from '@/types';
 import type {
   Achievement,
   ProgressReward,
   CelebrationEffect,
   ProgressStats,
-} from "@/utils/progressTracking";
+} from '@/utils/progressTracking';
 import {
   checkForNewAchievements,
   generateCompletionReward,
@@ -13,7 +13,7 @@ import {
   getCelebrationMessage,
   updateProgressStats,
   calculateOverallProgress,
-} from "@/utils/progressTracking";
+} from '@/utils/progressTracking';
 
 interface UseProgressTrackingProps {
   gameState: GameState;
@@ -90,7 +90,7 @@ export const useProgressTracking = ({
     ) => {
       celebrations.forEach((celebration, index) => {
         setTimeout(() => {
-          setTrackingState((prev) => ({
+          setTrackingState(prev => ({
             ...prev,
             currentCelebration: celebration,
           }));
@@ -108,7 +108,7 @@ export const useProgressTracking = ({
 
           // Auto-hide celebration after effect duration
           setTimeout(() => {
-            setTrackingState((prev) => ({
+            setTrackingState(prev => ({
               ...prev,
               currentCelebration: null,
             }));
@@ -155,13 +155,13 @@ export const useProgressTracking = ({
       // Update reward counts based on reward type
       const rewardUpdates: Partial<ProgressStats> = {};
       switch (completionReward.type) {
-        case "star":
+        case 'star':
           rewardUpdates.starsEarned = (updatedStats.starsEarned || 0) + 1;
           break;
-        case "badge":
+        case 'badge':
           rewardUpdates.badgesEarned = (updatedStats.badgesEarned || 0) + 1;
           break;
-        case "sticker":
+        case 'sticker':
           rewardUpdates.stickersEarned = (updatedStats.stickersEarned || 0) + 1;
           break;
       }
@@ -169,7 +169,7 @@ export const useProgressTracking = ({
       const finalStats = { ...updatedStats, ...rewardUpdates };
 
       // Show completion reward
-      setTrackingState((prev) => ({
+      setTrackingState(prev => ({
         ...prev,
         currentReward: completionReward,
       }));
@@ -178,12 +178,12 @@ export const useProgressTracking = ({
 
       // Play reward sound
       if (soundEnabled && gameState.childMode) {
-        onPlaySound?.("reward");
+        onPlaySound?.('reward');
       }
 
       // Auto-hide reward after duration
       setTimeout(() => {
-        setTrackingState((prev) => ({
+        setTrackingState(prev => ({
           ...prev,
           currentReward: null,
         }));
@@ -191,14 +191,14 @@ export const useProgressTracking = ({
 
       // Handle new achievements
       if (newAchievements.length > 0) {
-        const celebrationQueue = newAchievements.map((achievement) => {
+        const celebrationQueue = newAchievements.map(achievement => {
           const celebrationEffect = generateCelebrationEffect(
             achievement,
             gameState.childMode
           );
           const celebrationMessage = getCelebrationMessage(
             achievement,
-            !currentStats.achievements.some((id) =>
+            !currentStats.achievements.some(id =>
               id.startsWith(achievement.category)
             )
           );
@@ -210,7 +210,7 @@ export const useProgressTracking = ({
           };
         });
 
-        setTrackingState((prev) => ({
+        setTrackingState(prev => ({
           ...prev,
           celebrationQueue: [...prev.celebrationQueue, ...celebrationQueue],
           recentAchievements: [
@@ -225,7 +225,7 @@ export const useProgressTracking = ({
         // Update achievement list in stats
         finalStats.achievements = [
           ...finalStats.achievements,
-          ...newAchievements.map((a) => a.id),
+          ...newAchievements.map(a => a.id),
         ];
       }
 
@@ -280,7 +280,7 @@ export const useProgressTracking = ({
 
   // Clear current displays
   const clearCurrentDisplays = useCallback(() => {
-    setTrackingState((prev) => ({
+    setTrackingState(prev => ({
       ...prev,
       currentReward: null,
       currentCelebration: null,
@@ -289,7 +289,7 @@ export const useProgressTracking = ({
 
   // Toggle sound effects
   const toggleSound = useCallback(() => {
-    setSoundEnabled((prev) => !prev);
+    setSoundEnabled(prev => !prev);
   }, []);
 
   // Get achievement progress for UI display
@@ -313,21 +313,21 @@ export const useProgressTracking = ({
 
     // Check if we just hit a milestone
     const currentMilestone = milestones.find(
-      (m) => overallProgress.totalPuzzles === m
+      m => overallProgress.totalPuzzles === m
     );
 
     if (currentMilestone) {
       // Create special milestone celebration
       const milestoneReward: ProgressReward = {
-        type: "crown",
-        color: "rainbow",
-        size: "large",
-        animation: "glow",
+        type: 'crown',
+        color: 'rainbow',
+        size: 'large',
+        animation: 'glow',
         message: `🎉 ${currentMilestone} Puzzles Milestone! 🎉`,
         duration: 5000,
       };
 
-      setTrackingState((prev) => ({
+      setTrackingState(prev => ({
         ...prev,
         currentReward: milestoneReward,
       }));
@@ -335,7 +335,7 @@ export const useProgressTracking = ({
       onShowReward?.(milestoneReward);
 
       if (soundEnabled) {
-        onPlaySound?.("celebration");
+        onPlaySound?.('celebration');
       }
     }
   }, [getOverallProgress, onShowReward, onPlaySound, soundEnabled]);
