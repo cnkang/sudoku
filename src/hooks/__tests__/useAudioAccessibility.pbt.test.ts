@@ -7,19 +7,19 @@
  * Validates: Requirements 10.7
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { renderHook, act } from "@testing-library/react";
-import fc from "fast-check";
-import { useAudioAccessibility } from "../useAudioAccessibility";
-import type { GridConfig } from "@/types";
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
+import fc from 'fast-check';
+import { useAudioAccessibility } from '../useAudioAccessibility';
+import type { GridConfig } from '@/types';
 
-vi.mock("@/utils/accessibilityManager", () => {
+vi.mock('@/utils/accessibilityManager', () => {
   const mockManager = {
     announce: vi.fn(),
-    describeGameStateChange: vi.fn(() => "Game state changed."),
-    getKeyboardInstructions: vi.fn(() => ""),
+    describeGameStateChange: vi.fn(() => 'Game state changed.'),
+    getKeyboardInstructions: vi.fn(() => ''),
     updateKeyboardNavigation: vi.fn(),
-    createGridAriaLabel: vi.fn(() => ""),
+    createGridAriaLabel: vi.fn(() => ''),
     announceGridSizeChange: vi.fn(),
     announceAccessibilityChange: vi.fn(),
     cleanup: vi.fn(),
@@ -35,7 +35,7 @@ vi.mock("@/utils/accessibilityManager", () => {
       ) => {
         const parts: string[] = [
           `Cell row ${row + 1}, column ${col + 1}`,
-          value > 0 ? `contains entered number ${value}` : "is empty",
+          value > 0 ? `contains entered number ${value}` : 'is empty',
         ];
 
         if (isFixed && value > 0) {
@@ -43,14 +43,14 @@ vi.mock("@/utils/accessibilityManager", () => {
         }
 
         if (hasConflict) {
-          parts.push("has conflict with other numbers");
+          parts.push('has conflict with other numbers');
         }
 
         if (isHinted) {
-          parts.push("is highlighted as a hint");
+          parts.push('is highlighted as a hint');
         }
 
-        return `${parts.join(", ")}.`;
+        return `${parts.join(', ')}.`;
       }
     ),
   };
@@ -82,7 +82,7 @@ const mockSpeechSynthesisUtterance = vi.fn(function (this: any, text: string) {
   this.volume = 1;
   this.rate = 1;
   this.pitch = 1;
-  this.lang = "en-US";
+  this.lang = 'en-US';
   this.onstart = null;
   this.onend = null;
   this.onerror = null;
@@ -186,15 +186,15 @@ const cellInfoArb = fc.record({
   isHinted: fc.boolean(),
 });
 
-describe("useAudioAccessibility - Property-based tests", () => {
+describe('useAudioAccessibility - Property-based tests', () => {
   beforeEach(() => {
     // Mock Web Speech API
-    Object.defineProperty(window, "speechSynthesis", {
+    Object.defineProperty(window, 'speechSynthesis', {
       value: mockSpeechSynthesis,
       writable: true,
       configurable: true,
     });
-    Object.defineProperty(window, "SpeechSynthesisUtterance", {
+    Object.defineProperty(window, 'SpeechSynthesisUtterance', {
       value: mockSpeechSynthesisUtterance,
       writable: true,
       configurable: true,
@@ -208,7 +208,7 @@ describe("useAudioAccessibility - Property-based tests", () => {
     vi.restoreAllMocks();
   });
 
-  it("Property 15.1: Audio descriptions are provided for cell descriptions when audio feedback is enabled", () => {
+  it('Property 15.1: Audio descriptions are provided for cell descriptions when audio feedback is enabled', () => {
     fc.assert(
       fc.property(
         gridConfigArb,
@@ -280,7 +280,7 @@ describe("useAudioAccessibility - Property-based tests", () => {
     );
   });
 
-  it("Property 15.2: Audio descriptions are not provided when audio feedback is disabled", () => {
+  it('Property 15.2: Audio descriptions are not provided when audio feedback is disabled', () => {
     fc.assert(
       fc.property(
         gridConfigArb,
@@ -312,7 +312,7 @@ describe("useAudioAccessibility - Property-based tests", () => {
     );
   });
 
-  it("Property 15.3: Move announcements provide appropriate feedback for correct and incorrect moves", () => {
+  it('Property 15.3: Move announcements provide appropriate feedback for correct and incorrect moves', () => {
     fc.assert(
       fc.property(
         gridConfigArb,
@@ -370,7 +370,7 @@ describe("useAudioAccessibility - Property-based tests", () => {
     );
   });
 
-  it("Property 15.4: Error messages are spoken with appropriate tone for child mode", () => {
+  it('Property 15.4: Error messages are spoken with appropriate tone for child mode', () => {
     fc.assert(
       fc.property(
         fc.string({ minLength: 1, maxLength: 100 }),
@@ -415,7 +415,7 @@ describe("useAudioAccessibility - Property-based tests", () => {
     );
   });
 
-  it("Property 15.5: Game state changes trigger appropriate audio announcements", () => {
+  it('Property 15.5: Game state changes trigger appropriate audio announcements', () => {
     fc.assert(
       fc.property(
         gridConfigArb,
@@ -438,7 +438,7 @@ describe("useAudioAccessibility - Property-based tests", () => {
           act(() => {
             result.current[1].speakGameState(gridConfig, {
               clueCount: 15,
-              difficulty: "medium",
+              difficulty: 'medium',
             });
           });
 
@@ -461,7 +461,7 @@ describe("useAudioAccessibility - Property-based tests", () => {
     );
   });
 
-  it("Property 15.6: Audio settings can be updated and persist correctly", () => {
+  it('Property 15.6: Audio settings can be updated and persist correctly', () => {
     fc.assert(
       fc.property(
         accessibilitySettingsArb,
@@ -535,17 +535,17 @@ describe("useAudioAccessibility - Property-based tests", () => {
     );
   });
 
-  it("Property 15.7: Audio accessibility gracefully handles Web Speech API unavailability", () => {
+  it('Property 15.7: Audio accessibility gracefully handles Web Speech API unavailability', () => {
     const originalSpeechSynthesis = window.speechSynthesis;
     const originalUtterance = window.SpeechSynthesisUtterance;
 
     try {
-      Object.defineProperty(window, "speechSynthesis", {
+      Object.defineProperty(window, 'speechSynthesis', {
         value: undefined,
         writable: true,
         configurable: true,
       });
-      Object.defineProperty(window, "SpeechSynthesisUtterance", {
+      Object.defineProperty(window, 'SpeechSynthesisUtterance', {
         value: undefined,
         writable: true,
         configurable: true,
@@ -583,12 +583,12 @@ describe("useAudioAccessibility - Property-based tests", () => {
       expect(mockSpeechSynthesis.speak).not.toHaveBeenCalled();
       expect(mockSpeechSynthesisUtterance).not.toHaveBeenCalled();
     } finally {
-      Object.defineProperty(window, "speechSynthesis", {
+      Object.defineProperty(window, 'speechSynthesis', {
         value: originalSpeechSynthesis,
         writable: true,
         configurable: true,
       });
-      Object.defineProperty(window, "SpeechSynthesisUtterance", {
+      Object.defineProperty(window, 'SpeechSynthesisUtterance', {
         value: originalUtterance,
         writable: true,
         configurable: true,
