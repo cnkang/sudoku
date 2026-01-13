@@ -1,7 +1,7 @@
-import type React from "react";
-import { useState, useCallback, useRef, useEffect } from "react";
-import type { GridConfig } from "../types";
-import styles from "./TouchOptimizedControls.module.css";
+import type React from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import type { GridConfig } from '../types';
+import styles from './TouchOptimizedControls.module.css';
 
 export interface TouchOptimizedControlsProps {
   onHint: () => void;
@@ -19,7 +19,7 @@ export interface TouchOptimizedControlsProps {
     hint: () => void;
   };
   gestureHandlers?: {
-    onSwipe: (direction: "up" | "down" | "left" | "right") => void;
+    onSwipe: (direction: 'up' | 'down' | 'left' | 'right') => void;
     onLongPress: () => void;
     onPinch: (scale: number) => void;
   };
@@ -42,11 +42,11 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
   reducedMotion = false,
   highContrast = false,
 }) => {
-  "use memo";
+  'use memo';
 
   const [isAnimating, setIsAnimating] = useState(false);
   const [showSparkles, setShowSparkles] = useState(false);
-  const [encouragementMessage, setEncouragementMessage] = useState<string>("");
+  const [encouragementMessage, setEncouragementMessage] = useState<string>('');
   const [celebrationActive, setCelebrationActive] = useState(false);
 
   const magicWandRef = useRef<HTMLButtonElement>(null);
@@ -57,33 +57,33 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
   const encouragementMessages = [
     "You're doing great! Keep going! 🌟",
     "Almost there! You've got this! 💪",
-    "Fantastic work! Try the next one! ✨",
+    'Fantastic work! Try the next one! ✨',
     "You're a Sudoku star! ⭐",
-    "Keep up the amazing work! 🎉",
+    'Keep up the amazing work! 🎉',
     "You're getting better and better! 🚀",
-    "What a smart cookie! 🍪",
+    'What a smart cookie! 🍪',
     "You're on fire! Keep it up! 🔥",
   ];
 
   // Celebration messages for different achievements
   // Haptic feedback helper
   const triggerHaptic = useCallback(
-    (type: "success" | "error" | "hint") => {
+    (type: 'success' | 'error' | 'hint') => {
       const handler = hapticFeedback?.[type];
       if (handler) {
         handler();
       }
 
       // Fallback to navigator.vibrate if available
-      if ("vibrate" in navigator) {
+      if ('vibrate' in navigator) {
         switch (type) {
-          case "success":
+          case 'success':
             navigator.vibrate([100, 50, 100]);
             break;
-          case "hint":
+          case 'hint':
             navigator.vibrate([50]);
             break;
-          case "error":
+          case 'error':
             navigator.vibrate([200]);
             break;
         }
@@ -98,7 +98,7 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
 
     setIsAnimating(true);
     setShowSparkles(true);
-    triggerHaptic("hint");
+    triggerHaptic('hint');
 
     // Clear existing timeout
     if (sparkleTimeoutRef.current) {
@@ -128,7 +128,7 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
       ];
 
     setEncouragementMessage(randomMessage ?? "You're doing great!");
-    triggerHaptic("success");
+    triggerHaptic('success');
     onEncourage();
 
     // Clear existing timeout
@@ -138,14 +138,14 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
 
     // Hide encouragement message after delay
     encouragementTimeoutRef.current = setTimeout(() => {
-      setEncouragementMessage("");
+      setEncouragementMessage('');
     }, 3000);
   }, [onEncourage, triggerHaptic]);
 
   // Celebration handler
   const handleCelebration = useCallback(() => {
     setCelebrationActive(true);
-    triggerHaptic("success");
+    triggerHaptic('success');
     onCelebrate();
 
     // Reset celebration after animation
@@ -194,7 +194,7 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
     gridConfig.childFriendly.useExtraLargeTargets && styles.extraLargeTargets,
   ]
     .filter(Boolean)
-    .join(" ");
+    .join(' ');
 
   return (
     <div className={controlsClassName} data-testid="touch-optimized-controls">
@@ -206,7 +206,7 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
           onClick={handleMagicWandHint}
           disabled={disabled || hintsRemaining <= 0}
           className={`${styles.magicWandButton} ${
-            isAnimating ? styles.animating : ""
+            isAnimating ? styles.animating : ''
           }`}
           aria-label={`Magic wand hint (${hintsRemaining} remaining)`}
           aria-describedby="magic-wand-description"
@@ -247,7 +247,7 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
         onClick={handleCelebration}
         disabled={disabled}
         className={`${styles.celebrationButton} ${
-          celebrationActive ? styles.celebrating : ""
+          celebrationActive ? styles.celebrating : ''
         }`}
         aria-label="Celebrate success"
       >
@@ -278,7 +278,7 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
                 styles[`confetti${(i % 5) + 1}`]
               }`}
             >
-              {["🎉", "⭐", "🌟", "🎊", "✨"][i % 5]}
+              {['🎉', '⭐', '🌟', '🎊', '✨'][i % 5]}
             </div>
           ))}
         </div>
@@ -286,8 +286,8 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
 
       {/* Screen reader announcements */}
       <output className={styles.srOnly} aria-live="polite">
-        {showSparkles && "Magic wand activated with sparkles!"}
-        {celebrationActive && "Celebration time! Confetti everywhere!"}
+        {showSparkles && 'Magic wand activated with sparkles!'}
+        {celebrationActive && 'Celebration time! Confetti everywhere!'}
       </output>
     </div>
   );
