@@ -1,15 +1,15 @@
-import { type NextRequest, NextResponse } from "next/server";
-import type { SudokuPuzzle } from "./types";
-import { generateSudokuPuzzle } from "./sudokuGenerator";
-import { puzzleCache } from "./cache";
-import { validateDifficulty } from "@/utils/validation";
-import { getConfig } from "@/utils/gridConfig";
+import { type NextRequest, NextResponse } from 'next/server';
+import type { SudokuPuzzle } from './types';
+import { generateSudokuPuzzle } from './sudokuGenerator';
+import { puzzleCache } from './cache';
+import { validateDifficulty } from '@/utils/validation';
+import { getConfig } from '@/utils/gridConfig';
 import {
   createErrorResponse,
   ERROR_MESSAGES,
   ERROR_TYPES,
-} from "@/utils/error-handling";
-import { BackwardCompatibility } from "@/utils/backwardCompatibility";
+} from '@/utils/error-handling';
+import { BackwardCompatibility } from '@/utils/backwardCompatibility';
 
 /**
  * Validates and parses grid size parameter
@@ -22,7 +22,7 @@ function validateGridSize(gridSizeParam: string | null): 4 | 6 | 9 {
   const gridSize = parseInt(gridSizeParam, 10);
 
   if (![4, 6, 9].includes(gridSize)) {
-    throw new Error("Invalid grid size. Must be 4, 6, or 9.");
+    throw new Error('Invalid grid size. Must be 4, 6, or 9.');
   }
 
   return gridSize as 4 | 6 | 9;
@@ -40,17 +40,17 @@ export async function POST(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     // Parse and validate grid size (with backward compatibility)
-    const gridSize = validateGridSize(searchParams.get("gridSize"));
+    const gridSize = validateGridSize(searchParams.get('gridSize'));
     const config = getConfig(gridSize);
 
     // Validate difficulty with grid-specific constraints
     const difficulty = validateDifficulty(
-      searchParams.get("difficulty"),
+      searchParams.get('difficulty'),
       config
     );
 
-    const seed = searchParams.get("seed") || "default";
-    const forceRefresh = searchParams.get("force") === "true";
+    const seed = searchParams.get('seed') || 'default';
+    const forceRefresh = searchParams.get('force') === 'true';
 
     // Include grid size in cache key for proper separation
     const cacheKey = `sudoku-${gridSize}x${gridSize}-${difficulty}-${seed}`;
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
           {
             status: 200,
             headers: {
-              "Cache-Control": "public, max-age=30, s-maxage=30",
+              'Cache-Control': 'public, max-age=30, s-maxage=30',
               ETag: `"${cacheKey}-${Date.now()}"`,
             },
           }
@@ -108,12 +108,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(compatibleResponse, {
       status: 200,
       headers: {
-        "Cache-Control": "public, max-age=30, s-maxage=30",
+        'Cache-Control': 'public, max-age=30, s-maxage=30',
         ETag: `"${cacheKey}-${Date.now()}"`,
         // Add backward compatibility headers
-        "X-Sudoku-Version": "3.0.0",
-        "X-Grid-Size": gridSize.toString(),
-        "X-Backward-Compatible": "true",
+        'X-Sudoku-Version': '3.0.0',
+        'X-Grid-Size': gridSize.toString(),
+        'X-Backward-Compatible': 'true',
       },
     });
   } catch (error) {

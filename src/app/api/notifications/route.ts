@@ -3,9 +3,9 @@
  * Handles notification subscriptions and sending push notifications
  */
 
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-import { z } from "zod";
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
 // Push subscription validation schema
 const PushSubscriptionSchema = z.object({
@@ -40,26 +40,26 @@ const subscriptions = new Set<string>();
 export async function POST(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const action = searchParams.get("action");
+    const action = searchParams.get('action');
 
-    if (action === "subscribe") {
+    if (action === 'subscribe') {
       return handleSubscribe(request);
-    } else if (action === "send") {
+    } else if (action === 'send') {
       return handleSendNotification(request);
     } else {
       return NextResponse.json(
         {
           success: false,
-          error: "Invalid action. Use ?action=subscribe or ?action=send",
+          error: 'Invalid action. Use ?action=subscribe or ?action=send',
         },
         { status: 400 }
       );
     }
-  } catch (_error) {
+  } catch {
     return NextResponse.json(
       {
         success: false,
-        error: "Internal server error",
+        error: 'Internal server error',
       },
       { status: 500 }
     );
@@ -77,7 +77,7 @@ async function handleSubscribe(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Push notification subscription registered successfully",
+      message: 'Push notification subscription registered successfully',
       subscriptionId: `${subscriptionKey.substring(0, 16)}...`,
       timestamp: Date.now(),
     });
@@ -86,7 +86,7 @@ async function handleSubscribe(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: "Invalid subscription format",
+          error: 'Invalid subscription format',
           details: error.issues,
         },
         { status: 400 }
@@ -96,7 +96,7 @@ async function handleSubscribe(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to register subscription",
+        error: 'Failed to register subscription',
       },
       { status: 500 }
     );
@@ -118,19 +118,19 @@ async function handleSendNotification(request: NextRequest) {
     const notificationResults = Array.from(subscriptions).map(
       (subscription, _index) => ({
         subscriptionId: `${subscription.substring(0, 16)}...`,
-        status: Math.random() > 0.1 ? "delivered" : "failed", // 90% success rate
+        status: Math.random() > 0.1 ? 'delivered' : 'failed', // 90% success rate
         timestamp: Date.now(),
       })
     );
 
     const successCount = notificationResults.filter(
-      (r) => r.status === "delivered"
+      r => r.status === 'delivered'
     ).length;
     const failureCount = notificationResults.length - successCount;
 
     return NextResponse.json({
       success: true,
-      message: "Notifications sent successfully",
+      message: 'Notifications sent successfully',
       results: {
         total: subscriptions.size,
         delivered: successCount,
@@ -150,7 +150,7 @@ async function handleSendNotification(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: "Invalid notification payload",
+          error: 'Invalid notification payload',
           details: error.issues,
         },
         { status: 400 }
@@ -160,7 +160,7 @@ async function handleSendNotification(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to send notifications",
+        error: 'Failed to send notifications',
       },
       { status: 500 }
     );
@@ -179,16 +179,16 @@ export async function GET(_request: NextRequest) {
     },
     recentNotifications: [
       {
-        id: "notif-1",
-        title: "Great job! 🎉",
-        body: "You completed 5 puzzles today!",
+        id: 'notif-1',
+        title: 'Great job! 🎉',
+        body: 'You completed 5 puzzles today!',
         sentAt: Date.now() - 3600000, // 1 hour ago
         delivered: true,
       },
       {
-        id: "notif-2",
-        title: "New challenge! 🧩",
-        body: "Try a harder 6×6 puzzle!",
+        id: 'notif-2',
+        title: 'New challenge! 🧩',
+        body: 'Try a harder 6×6 puzzle!',
         sentAt: Date.now() - 7200000, // 2 hours ago
         delivered: true,
       },
@@ -214,8 +214,8 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: wasRemoved
-        ? "Subscription removed successfully"
-        : "Subscription not found",
+        ? 'Subscription removed successfully'
+        : 'Subscription not found',
       removed: wasRemoved,
       remainingSubscriptions: subscriptions.size,
       timestamp: Date.now(),
@@ -225,7 +225,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: "Invalid subscription format",
+          error: 'Invalid subscription format',
           details: error.issues,
         },
         { status: 400 }
@@ -235,7 +235,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to unsubscribe",
+        error: 'Failed to unsubscribe',
       },
       { status: 500 }
     );

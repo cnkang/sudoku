@@ -22,7 +22,7 @@ export function solveSudoku(
       solutions.push(solution);
     }
     return solutions.length >= maxSolutions;
-  } catch (_error) {
+  } catch {
     // Fallback to custom solver for 9x9
     const config9x9: GridConfig = {
       size: 9,

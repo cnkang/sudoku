@@ -3,13 +3,13 @@
  * Handles achievement data and triggers notifications
  */
 
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-import { z } from "zod";
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
 // Achievement data validation schema
 const AchievementDataSchema = z.object({
-  type: z.enum(["completion", "streak", "speed", "perfect"]),
+  type: z.enum(['completion', 'streak', 'speed', 'perfect']),
   gridSize: z.union([z.literal(4), z.literal(6), z.literal(9)]),
   value: z.number().positive(),
   timestamp: z.number().positive(),
@@ -20,34 +20,34 @@ const AchievementArraySchema = z.array(AchievementDataSchema);
 // Achievement definitions for child-friendly messaging
 const ACHIEVEMENT_DEFINITIONS = {
   completion: {
-    title: "Puzzle Master! 🧩",
+    title: 'Puzzle Master! 🧩',
     getMessage: (value: number, gridSize: number) =>
       `Amazing! You've completed ${value} ${gridSize}×${gridSize} puzzles! Keep up the great work!`,
-    icon: "🎉",
-    color: "#32CD32",
+    icon: '🎉',
+    color: '#32CD32',
   },
   streak: {
-    title: "Streak Champion! 🔥",
+    title: 'Streak Champion! 🔥',
     getMessage: (value: number, gridSize: number) =>
       `Wow! ${value} puzzles in a row on ${gridSize}×${gridSize}! You're on fire!`,
-    icon: "🔥",
-    color: "#FF6B35",
+    icon: '🔥',
+    color: '#FF6B35',
   },
   speed: {
-    title: "Speed Demon! ⚡",
+    title: 'Speed Demon! ⚡',
     getMessage: (value: number, gridSize: number) =>
       `Lightning fast! You solved a ${gridSize}×${gridSize} puzzle in just ${Math.floor(
         value / 1000
       )} seconds!`,
-    icon: "⚡",
-    color: "#FFD700",
+    icon: '⚡',
+    color: '#FFD700',
   },
   perfect: {
-    title: "Perfect Solver! ⭐",
+    title: 'Perfect Solver! ⭐',
     getMessage: (_value: number, gridSize: number) =>
       `Incredible! You solved a ${gridSize}×${gridSize} puzzle without any hints! You're a true puzzle master!`,
-    icon: "⭐",
-    color: "#9B59B6",
+    icon: '⭐',
+    color: '#9B59B6',
   },
 } as const;
 
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     );
 
     // Process each achievement
-    const processedAchievements = achievementData.map((achievement) => {
+    const processedAchievements = achievementData.map(achievement => {
       const definition = ACHIEVEMENT_DEFINITIONS[achievement.type];
 
       return {
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
     // 4. Update user's achievement progress
 
     // For demonstration, we'll simulate sending notifications
-    const notifications = processedAchievements.map((achievement) => ({
+    const notifications = processedAchievements.map(achievement => ({
       title: achievement.notification.title,
       body: achievement.notification.body,
       data: {
@@ -95,12 +95,12 @@ export async function POST(request: NextRequest) {
       },
       actions: [
         {
-          action: "play",
-          title: "Play More!",
+          action: 'play',
+          title: 'Play More!',
         },
         {
-          action: "share",
-          title: "Share Achievement",
+          action: 'share',
+          title: 'Share Achievement',
         },
       ],
     }));
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: "Invalid achievement data format",
+          error: 'Invalid achievement data format',
           details: error.issues,
         },
         { status: 400 }
@@ -134,8 +134,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: "Internal server error",
-        message: "Failed to process achievement data",
+        error: 'Internal server error',
+        message: 'Failed to process achievement data',
       },
       { status: 500 }
     );
@@ -145,57 +145,52 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   // Get user achievements (for future implementation)
   const { searchParams } = new URL(request.url);
-  const gridSizeParam = searchParams.get("gridSize");
-  const type = searchParams.get("type");
-  const parsedLimit = Number.parseInt(
-    searchParams.get("limit") ?? "20",
-    10
-  );
+  const gridSizeParam = searchParams.get('gridSize');
+  const type = searchParams.get('type');
+  const parsedLimit = Number.parseInt(searchParams.get('limit') ?? '20', 10);
   const limit = Number.isNaN(parsedLimit) ? 20 : parsedLimit;
   const parsedGridSize = gridSizeParam
     ? Number.parseInt(gridSizeParam, 10)
     : null;
-  const gridSizeFilter = Number.isNaN(parsedGridSize)
-    ? null
-    : parsedGridSize;
+  const gridSizeFilter = Number.isNaN(parsedGridSize) ? null : parsedGridSize;
 
   // Mock achievement data
   const mockAchievements = [
     {
-      id: "achievement-1",
-      type: "completion",
+      id: 'achievement-1',
+      type: 'completion',
       gridSize: 4,
       value: 10,
-      title: "First Steps!",
-      description: "Completed 10 beginner puzzles",
+      title: 'First Steps!',
+      description: 'Completed 10 beginner puzzles',
       points: 100,
       unlockedAt: Date.now() - 86400000, // 1 day ago
-      icon: "🎉",
+      icon: '🎉',
     },
     {
-      id: "achievement-2",
-      type: "streak",
+      id: 'achievement-2',
+      type: 'streak',
       gridSize: 6,
       value: 5,
-      title: "Getting Warmed Up!",
-      description: "Solved 5 puzzles in a row",
+      title: 'Getting Warmed Up!',
+      description: 'Solved 5 puzzles in a row',
       points: 150,
       unlockedAt: Date.now() - 3600000, // 1 hour ago
-      icon: "🔥",
+      icon: '🔥',
     },
     {
-      id: "achievement-3",
-      type: "speed",
+      id: 'achievement-3',
+      type: 'speed',
       gridSize: 4,
       value: 45000, // 45 seconds
-      title: "Lightning Fast!",
-      description: "Solved a 4×4 puzzle in under 1 minute",
+      title: 'Lightning Fast!',
+      description: 'Solved a 4×4 puzzle in under 1 minute',
       points: 200,
       unlockedAt: Date.now() - 1800000, // 30 minutes ago
-      icon: "⚡",
+      icon: '⚡',
     },
   ]
-    .filter((achievement) => {
+    .filter(achievement => {
       if (gridSizeFilter && achievement.gridSize !== gridSizeFilter) {
         return false;
       }
@@ -209,11 +204,10 @@ export async function GET(request: NextRequest) {
     totalPoints: mockAchievements.reduce((sum, a) => sum + a.points, 0),
     recentAchievements: mockAchievements.slice(0, 5),
     categories: {
-      completion: mockAchievements.filter((a) => a.type === "completion")
-        .length,
-      streak: mockAchievements.filter((a) => a.type === "streak").length,
-      speed: mockAchievements.filter((a) => a.type === "speed").length,
-      perfect: mockAchievements.filter((a) => a.type === "perfect").length,
+      completion: mockAchievements.filter(a => a.type === 'completion').length,
+      streak: mockAchievements.filter(a => a.type === 'streak').length,
+      speed: mockAchievements.filter(a => a.type === 'speed').length,
+      perfect: mockAchievements.filter(a => a.type === 'perfect').length,
     },
   };
 
@@ -250,17 +244,17 @@ function calculateAchievementPoints(
   // Add bonus points based on achievement value
   let bonus = 0;
   switch (achievement.type) {
-    case "completion":
+    case 'completion':
       bonus = Math.floor(achievement.value / 10) * 25; // 25 points per 10 completions
       break;
-    case "streak":
+    case 'streak':
       bonus = achievement.value * 10; // 10 points per streak
       break;
-    case "speed":
+    case 'speed':
       // Bonus for faster times (inverse relationship)
       bonus = Math.max(0, 100 - Math.floor(achievement.value / 1000)); // Less time = more points
       break;
-    case "perfect":
+    case 'perfect':
       bonus = 50; // Fixed bonus for perfect solve
       break;
   }
