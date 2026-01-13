@@ -1,8 +1,8 @@
 // vitest.config.ts
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -29,6 +29,8 @@ export default defineConfig({
     environment: 'happy-dom',
     testTimeout: 15000,
     hookTimeout: 15000,
+    // Vitest 4.0+ thread configuration (moved from poolOptions)
+    pool: 'threads',
     // Include all test files in src directory
     include: [
       'src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
@@ -36,7 +38,15 @@ export default defineConfig({
     ],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'lcov'],
+      reporter: ['text', 'lcov', 'html'],
+      thresholds: {
+        global: {
+          branches: 87.5,
+          functions: 87.5,
+          lines: 87.5,
+          statements: 87.5,
+        },
+      },
       exclude: [
         'node_modules/**',
         'coverage/**',
@@ -54,11 +64,20 @@ export default defineConfig({
         'src/app/layout.tsx',
         // Exclude other configuration-only files
         'src/app/**/layout.tsx',
+        // Exclude Biome and other config files
+        'biome.json',
+        'eslint.config.mjs',
+        '.prettierrc',
       ],
       include: ['src/**/*.{ts,tsx}'],
-      all: true,
       skipFull: false,
     },
     setupFiles: ['./src/test-setup.ts'],
+    // Modern Vitest 4.0+ features
+    typecheck: {
+      enabled: false, // We use tsc for type checking
+    },
+    ui: process.env.VITEST_UI === 'true',
+    open: false,
   },
 });

@@ -17,8 +17,16 @@
     "incremental": true,
     "outDir": "dist",
     // Enhanced for React 19 and React Compiler
-    "exactOptionalPropertyTypes": false,
-    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    // TypeScript 5.9+ optimizations
+    "verbatimModuleSyntax": true,
+    "useDefineForClassFields": true,
     "plugins": [
       {
         "name": "next"
