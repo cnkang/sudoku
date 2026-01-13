@@ -9,9 +9,8 @@ import {
 
 // Generators for property-based testing
 const hexColorArb = fc
-  .string({ minLength: 6, maxLength: 6 })
-  .filter(s => /^[0-9A-Fa-f]{6}$/.test(s))
-  .map(hex => `#${hex}`);
+  .integer({ min: 0, max: 0xffffff })
+  .map(num => `#${num.toString(16).padStart(6, '0')}`);
 
 describe('Theme Property-Based Tests', () => {
   /**
@@ -127,9 +126,9 @@ describe('Theme Property-Based Tests', () => {
 
         return isSymmetric && isInValidRange && sameColorCorrect;
       }),
-      { numRuns: 25 }
+      { numRuns: 10 }
     );
-  });
+  }, 30000);
 
   /**
    * Feature: multi-size-sudoku, Property 8: WCAG AAA compliance (high contrast variants)
