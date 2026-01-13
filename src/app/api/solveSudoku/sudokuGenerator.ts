@@ -1,14 +1,14 @@
-import winston from "winston";
-import type { SudokuPuzzle } from "./types";
-import type { GridConfig } from "@/types";
-import { solveSudoku } from "./dlxSolver";
-import { shuffle } from "lodash";
-import crypto from "node:crypto";
-import { getConfig, validateMove } from "@/utils/gridConfig";
+import winston from 'winston';
+import type { SudokuPuzzle } from './types';
+import type { GridConfig } from '@/types';
+import { solveSudoku } from './dlxSolver';
+import { shuffle } from 'lodash';
+import crypto from 'node:crypto';
+import { getConfig, validateMove } from '@/utils/gridConfig';
 
 // Configure logging
 const logger = winston.createLogger({
-  level: process.env.NODE_ENV === "production" ? "info" : "debug",
+  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.printf(({ timestamp, level, message }) => {
@@ -116,7 +116,7 @@ async function removeNumbers(
   difficulty: number,
   config: GridConfig
 ): Promise<number[][]> {
-  const puzzle = board.map((row) => row.slice());
+  const puzzle = board.map(row => row.slice());
   const totalCells = config.size * config.size;
   const cluesCount = getCluesCount(difficulty, config);
   let cellsToRemove = totalCells - cluesCount;
@@ -137,7 +137,7 @@ async function removeNumbers(
     const backup = cellValue;
     puzzleRow[col] = 0;
 
-    const puzzleCopy = puzzle.map((r) => r.slice());
+    const puzzleCopy = puzzle.map(r => r.slice());
     const solutions: number[][][] = [];
     await solveSudoku(puzzleCopy, solutions, 2, config);
 
