@@ -1,0 +1,532 @@
+/* PWA Grid Selector - Modern Mobile-First Design with WCAG AAA Compliance */
+
+.gridSelector {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* PWA Status Bar */
+.pwaStatus {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 0.75rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.offlineIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #059669;
+  font-weight: 600;
+}
+
+.installButton {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px; /* WCAG AAA touch target */
+}
+
+.installButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.installButton:focus {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+.installedIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #059669;
+  font-weight: 600;
+}
+
+/* Header Section */
+.selectorHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Grid Options Container */
+.gridOptions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.gridOptions.childMode {
+  gap: 2rem;
+}
+
+/* Individual Grid Option */
+.gridOption {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1.5rem;
+  background: white;
+  border: 3px solid #e2e8f0;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 200px;
+  text-align: center;
+
+  /* WCAG AAA touch target */
+  min-width: 50px;
+  min-height: 50px;
+}
+
+.gridOption:hover:not(:disabled) {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  border-color: var(--option-color, #3b82f6);
+}
+
+.gridOption:focus {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+.gridOption:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.gridOption.selected {
+  border-color: var(--option-color, #3b82f6);
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.05) 0%,
+    rgba(59, 130, 246, 0.1) 100%
+  );
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
+}
+
+.gridOption.childOption {
+  border-radius: 1.5rem;
+  padding: 2.5rem 2rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.gridOption.childFriendly {
+  animation: gentle-pulse 3s ease-in-out infinite;
+}
+
+.gridOption.transitioning {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* Option Content */
+.optionIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  line-height: 1;
+}
+
+.optionContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.optionTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.optionDescription {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.optionMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.difficulty {
+  font-weight: 600;
+  color: var(--option-color, #3b82f6);
+}
+
+.clueRange {
+  font-style: italic;
+}
+
+/* Grid Preview */
+.gridPreview {
+  margin-top: 1rem;
+  opacity: 0.7;
+}
+
+.previewGrid {
+  display: grid;
+  gap: 1px;
+  width: 60px;
+  height: 60px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.previewCell {
+  background: white;
+  transition: background-color 0.2s;
+}
+
+.previewCell.filled {
+  background: var(--option-color, #3b82f6);
+  opacity: 0.3;
+}
+
+/* Selected Indicator */
+.selectedIndicator {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2rem;
+  height: 2rem;
+  background: var(--option-color, #3b82f6);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Child-Friendly Features */
+.childFeatures {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.featureList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #92400e;
+}
+
+.featureIcon {
+  font-size: 1.5rem;
+}
+
+/* Accessibility */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Animations */
+@keyframes gentle-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+/* View Transitions API Support */
+@supports (view-transition-name: auto) {
+  .gridOption {
+    view-transition-name: var(--grid-option-transition);
+  }
+}
+
+/* Container Queries for Responsive Design */
+@container (max-width: 600px) {
+  .gridOptions {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .gridOption {
+    min-height: 160px;
+    padding: 1.5rem 1rem;
+  }
+
+  .optionIcon {
+    font-size: 2.5rem;
+  }
+
+  .optionTitle {
+    font-size: 1.125rem;
+  }
+}
+
+/* Mobile Optimization */
+@media (max-width: 768px) {
+  .gridSelector {
+    padding: 1rem 0.75rem;
+    border-radius: 0.75rem;
+  }
+
+  .pwaStatus {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+  }
+
+  .gridOptions {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .gridOption {
+    padding: 2rem 1.5rem;
+    min-height: 180px;
+  }
+
+  .featureList {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .gridSelector {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .gridOption {
+    padding: 1.5rem 1rem;
+    min-height: 160px;
+  }
+
+  .optionIcon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .optionTitle {
+    font-size: 1rem;
+  }
+
+  .optionDescription {
+    font-size: 0.8125rem;
+  }
+
+  .childFeatures {
+    padding: 1rem;
+  }
+
+  .featureList {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .gridOption {
+    border-width: 4px;
+    border-color: #000;
+  }
+
+  .gridOption.selected {
+    background: #000;
+    color: #fff;
+  }
+
+  .title,
+  .optionTitle {
+    color: #000;
+  }
+
+  .subtitle,
+  .optionDescription {
+    color: #333;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .gridOption {
+    transition: none;
+  }
+
+  .gridOption:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .childFriendly {
+    animation: none;
+  }
+
+  .installButton:hover {
+    transform: none;
+  }
+}
+
+/* Touch Device Optimization */
+@media (hover: none) and (pointer: coarse) {
+  .gridOption {
+    min-height: 50px; /* WCAG AAA minimum */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .gridOption:hover {
+    transform: none;
+  }
+
+  .gridOption:active {
+    transform: scale(0.98);
+  }
+
+  .installButton {
+    min-height: 50px;
+    padding: 0.75rem 1.25rem;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .gridSelector {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: #f1f5f9;
+  }
+
+  .pwaStatus {
+    background: rgba(30, 41, 59, 0.8);
+    border-color: rgba(148, 163, 184, 0.2);
+  }
+
+  .gridOption {
+    background: #334155;
+    border-color: #475569;
+    color: #f1f5f9;
+  }
+
+  .gridOption.selected {
+    background: linear-gradient(
+      135deg,
+      rgba(59, 130, 246, 0.2) 0%,
+      rgba(59, 130, 246, 0.3) 100%
+    );
+  }
+
+  .title,
+  .optionTitle {
+    color: #f1f5f9;
+  }
+
+  .subtitle,
+  .optionDescription {
+    color: #cbd5e1;
+  }
+
+  .previewCell {
+    background: #475569;
+  }
+
+  .childFeatures {
+    background: linear-gradient(135deg, #451a03 0%, #78350f 100%);
+  }
+
+  .feature {
+    color: #fbbf24;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .gridSelector {
+    background: white;
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+
+  .pwaStatus {
+    display: none;
+  }
+
+  .childFeatures {
+    background: white;
+    border: 1px solid #000;
+  }
+}

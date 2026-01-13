@@ -1,0 +1,601 @@
+/* Touch Optimized Controls - Child-Friendly Design */
+
+.touchControls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  position: relative;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Child Mode Enhancements */
+.childMode {
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 123, 255, 0.1);
+}
+
+/* Extra Large Touch Targets for Accessibility */
+.extraLargeTargets button {
+  min-height: 60px;
+  min-width: 200px;
+  font-size: 1.1rem;
+}
+
+/* High Contrast Mode */
+.highContrast {
+  background: #000000;
+  border: 3px solid #ffffff;
+}
+
+.highContrast button {
+  border: 2px solid #ffffff;
+  font-weight: bold;
+}
+
+/* Magic Wand Container */
+.magicWandContainer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+/* Magic Wand Button */
+.magicWandButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 50px;
+  min-width: 180px;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  border: none;
+  border-radius: 25px;
+  color: #8b4513;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.magicWandButton:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 25px rgba(255, 215, 0, 0.4);
+  background: linear-gradient(135deg, #ffed4e 0%, #ffd700 100%);
+}
+
+.magicWandButton:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+  transition: all 0.1s;
+}
+
+.magicWandButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  background: #d3d3d3;
+  color: #888888;
+}
+
+/* Magic Wand Animation */
+.magicWandButton.animating {
+  animation: magicPulse 0.6s ease-in-out;
+}
+
+@keyframes magicPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1) rotate(5deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Wand Icon */
+.wandIcon {
+  font-size: 1.5rem;
+  animation: wandFloat 2s ease-in-out infinite;
+}
+
+@keyframes wandFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(5deg);
+  }
+}
+
+/* Button Text */
+.buttonText {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Hints Counter */
+.hintsCounter {
+  background: rgba(139, 69, 19, 0.2);
+  color: #8b4513;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  min-width: 24px;
+  text-align: center;
+}
+
+/* Encouragement Button */
+.encouragementButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 50px;
+  min-width: 180px;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+  border: none;
+  border-radius: 25px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.encouragementButton:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 25px rgba(255, 107, 107, 0.4);
+  background: linear-gradient(135deg, #ff8e8e 0%, #ff6b6b 100%);
+}
+
+.encouragementButton:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+  transition: all 0.1s;
+}
+
+.encouragementButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  background: #d3d3d3;
+}
+
+/* Encouragement Icon */
+.encouragementIcon {
+  font-size: 1.5rem;
+  animation: bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Celebration Button */
+.celebrationButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 50px;
+  min-width: 180px;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  border: none;
+  border-radius: 25px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.celebrationButton:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 25px rgba(78, 205, 196, 0.4);
+  background: linear-gradient(135deg, #44a08d 0%, #4ecdc4 100%);
+}
+
+.celebrationButton:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+  transition: all 0.1s;
+}
+
+.celebrationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  background: #d3d3d3;
+}
+
+/* Celebration Animation */
+.celebrationButton.celebrating {
+  animation: celebrate 0.8s ease-in-out;
+}
+
+@keyframes celebrate {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+  50% {
+    transform: scale(1.15) rotate(5deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(-2deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Celebration Icon */
+.celebrationIcon {
+  font-size: 1.5rem;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Sparkle Container */
+.sparkleContainer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Individual Sparkles */
+.sparkle {
+  position: absolute;
+  font-size: 1.2rem;
+  animation: sparkleFloat 1.5s ease-out forwards;
+  pointer-events: none;
+}
+
+/* Sparkle Positions and Animations */
+.sparkle1 {
+  animation-delay: 0s;
+}
+.sparkle2 {
+  animation-delay: 0.1s;
+}
+.sparkle3 {
+  animation-delay: 0.2s;
+}
+.sparkle4 {
+  animation-delay: 0.3s;
+}
+.sparkle5 {
+  animation-delay: 0.4s;
+}
+.sparkle6 {
+  animation-delay: 0.5s;
+}
+.sparkle7 {
+  animation-delay: 0.6s;
+}
+.sparkle8 {
+  animation-delay: 0.7s;
+}
+
+@keyframes sparkleFloat {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(var(--sparkle-x, 0), var(--sparkle-y, 0)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--sparkle-x, 0), var(--sparkle-y, 0)) scale(0.5);
+  }
+}
+
+/* Sparkle position variables */
+.sparkle1 {
+  --sparkle-x: -30px;
+  --sparkle-y: -30px;
+}
+.sparkle2 {
+  --sparkle-x: 30px;
+  --sparkle-y: -30px;
+}
+.sparkle3 {
+  --sparkle-x: -30px;
+  --sparkle-y: 30px;
+}
+.sparkle4 {
+  --sparkle-x: 30px;
+  --sparkle-y: 30px;
+}
+.sparkle5 {
+  --sparkle-x: -45px;
+  --sparkle-y: 0px;
+}
+.sparkle6 {
+  --sparkle-x: 45px;
+  --sparkle-y: 0px;
+}
+.sparkle7 {
+  --sparkle-x: 0px;
+  --sparkle-y: -45px;
+}
+.sparkle8 {
+  --sparkle-x: 0px;
+  --sparkle-y: 45px;
+}
+
+/* Encouragement Message */
+.encouragementMessage {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  color: #856404;
+  padding: 1rem 1.5rem;
+  border-radius: 20px;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: 2px solid #ffd93d;
+  box-shadow: 0 4px 15px rgba(255, 217, 61, 0.2);
+  animation: messageSlideIn 0.3s ease-out;
+  margin-top: 1rem;
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Confetti Container */
+.confettiContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 20;
+  overflow: hidden;
+}
+
+/* Individual Confetti */
+.confetti {
+  position: absolute;
+  font-size: 1.5rem;
+  animation: confettiFall 3s ease-out forwards;
+  pointer-events: none;
+}
+
+/* Confetti Animations */
+.confetti1 {
+  left: 10%;
+  animation-delay: 0s;
+}
+.confetti2 {
+  left: 20%;
+  animation-delay: 0.2s;
+}
+.confetti3 {
+  left: 30%;
+  animation-delay: 0.4s;
+}
+.confetti4 {
+  left: 40%;
+  animation-delay: 0.6s;
+}
+.confetti5 {
+  left: 50%;
+  animation-delay: 0.8s;
+}
+
+@keyframes confettiFall {
+  0% {
+    opacity: 1;
+    transform: translateY(-100px) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(400px) rotate(720deg);
+  }
+}
+
+/* Screen Reader Only */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  .touchControls {
+    gap: 1rem;
+    padding: 1rem;
+    max-width: 100%;
+  }
+
+  .childMode {
+    gap: 1.25rem;
+    padding: 1.25rem;
+    border-radius: 15px;
+  }
+
+  .magicWandButton,
+  .encouragementButton,
+  .celebrationButton {
+    min-height: 50px;
+    min-width: 160px;
+    font-size: 0.9rem;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .extraLargeTargets button {
+    min-height: 56px;
+    min-width: 180px;
+  }
+}
+
+/* Small Mobile Devices */
+@media (max-width: 480px) {
+  .touchControls {
+    gap: 0.875rem;
+    padding: 0.875rem;
+  }
+
+  .magicWandButton,
+  .encouragementButton,
+  .celebrationButton {
+    min-height: 48px;
+    min-width: 140px;
+    font-size: 0.875rem;
+    padding: 0.625rem 1rem;
+    gap: 0.5rem;
+  }
+
+  .wandIcon,
+  .encouragementIcon,
+  .celebrationIcon {
+    font-size: 1.25rem;
+  }
+
+  .encouragementMessage {
+    font-size: 1rem;
+    padding: 0.875rem 1.25rem;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .magicWandButton,
+  .encouragementButton,
+  .celebrationButton {
+    transition: none;
+  }
+
+  .wandIcon,
+  .encouragementIcon,
+  .celebrationIcon {
+    animation: none;
+  }
+
+  .sparkle,
+  .confetti {
+    animation: none;
+    display: none;
+  }
+
+  .magicWandButton.animating,
+  .celebrationButton.celebrating {
+    animation: none;
+  }
+
+  .encouragementMessage {
+    animation: none;
+  }
+}
+
+/* High Contrast Adjustments */
+.highContrast .magicWandButton {
+  background: #ffff00;
+  color: #000000;
+  border: 3px solid #000000;
+}
+
+.highContrast .encouragementButton {
+  background: #ff0000;
+  color: #ffffff;
+  border: 3px solid #ffffff;
+}
+
+.highContrast .celebrationButton {
+  background: #00ff00;
+  color: #000000;
+  border: 3px solid #000000;
+}
+
+.highContrast .encouragementMessage {
+  background: #ffff00;
+  color: #000000;
+  border: 3px solid #000000;
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .magicWandButton:hover,
+  .encouragementButton:hover,
+  .celebrationButton:hover {
+    transform: none;
+  }
+
+  .magicWandButton:active,
+  .encouragementButton:active,
+  .celebrationButton:active {
+    transform: scale(0.95);
+    transition: transform 0.1s;
+  }
+}
+
+/* Focus Styles for Keyboard Navigation */
+.magicWandButton:focus-visible,
+.encouragementButton:focus-visible,
+.celebrationButton:focus-visible {
+  outline: 3px solid #0066cc;
+  outline-offset: 2px;
+}
+
+.highContrast .magicWandButton:focus-visible,
+.highContrast .encouragementButton:focus-visible,
+.highContrast .celebrationButton:focus-visible {
+  outline: 4px solid #ffffff;
+  outline-offset: 3px;
+}
