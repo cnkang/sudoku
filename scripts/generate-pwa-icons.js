@@ -3,20 +3,20 @@
 // Simple PWA icon generator for Multi-Size Sudoku
 // Creates basic SVG-based icons for different sizes
 
-import { writeFileSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
 
 const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
-const publicDir = "public/icons";
+const publicDir = 'public/icons';
 
 // Ensure icons directory exists
 try {
   mkdirSync(publicDir, { recursive: true });
-} catch (_error) {
+} catch {
   // Directory already exists
 }
 
-const writeLine = (message) => {
+const writeLine = message => {
   process.stdout.write(`${message}\n`);
 };
 
@@ -39,39 +39,39 @@ function generateSVGIcon(size) {
   <g transform="translate(${size * 0.2}, ${size * 0.2})">
     <!-- 3x3 grid -->
     <rect x="0" y="0" width="${size * 0.6}" height="${
-    size * 0.6
-  }" fill="none" stroke="#fff" stroke-width="3" rx="4"/>
+      size * 0.6
+    }" fill="none" stroke="#fff" stroke-width="3" rx="4"/>
     
     <!-- Grid lines -->
     <line x1="${size * 0.2}" y1="0" x2="${size * 0.2}" y2="${
-    size * 0.6
-  }" stroke="#fff" stroke-width="1.5"/>
+      size * 0.6
+    }" stroke="#fff" stroke-width="1.5"/>
     <line x1="${size * 0.4}" y1="0" x2="${size * 0.4}" y2="${
-    size * 0.6
-  }" stroke="#fff" stroke-width="1.5"/>
+      size * 0.6
+    }" stroke="#fff" stroke-width="1.5"/>
     <line x1="0" y1="${size * 0.2}" x2="${size * 0.6}" y2="${
-    size * 0.2
-  }" stroke="#fff" stroke-width="1.5"/>
+      size * 0.2
+    }" stroke="#fff" stroke-width="1.5"/>
     <line x1="0" y1="${size * 0.4}" x2="${size * 0.6}" y2="${
-    size * 0.4
-  }" stroke="#fff" stroke-width="1.5"/>
+      size * 0.4
+    }" stroke="#fff" stroke-width="1.5"/>
     
     <!-- Sample numbers -->
     <text x="${size * 0.1}" y="${
-    size * 0.15
-  }" fill="#fff" font-family="Arial, sans-serif" font-size="${
-    size * 0.08
-  }" font-weight="bold" text-anchor="middle">5</text>
+      size * 0.15
+    }" fill="#fff" font-family="Arial, sans-serif" font-size="${
+      size * 0.08
+    }" font-weight="bold" text-anchor="middle">5</text>
     <text x="${size * 0.3}" y="${
-    size * 0.35
-  }" fill="#fff" font-family="Arial, sans-serif" font-size="${
-    size * 0.08
-  }" font-weight="bold" text-anchor="middle">3</text>
+      size * 0.35
+    }" fill="#fff" font-family="Arial, sans-serif" font-size="${
+      size * 0.08
+    }" font-weight="bold" text-anchor="middle">3</text>
     <text x="${size * 0.5}" y="${
-    size * 0.55
-  }" fill="#fff" font-family="Arial, sans-serif" font-size="${
-    size * 0.08
-  }" font-weight="bold" text-anchor="middle">7</text>
+      size * 0.55
+    }" fill="#fff" font-family="Arial, sans-serif" font-size="${
+      size * 0.08
+    }" font-weight="bold" text-anchor="middle">7</text>
   </g>
   
   <!-- Child-friendly sparkle -->
@@ -82,7 +82,7 @@ function generateSVGIcon(size) {
 }
 
 // Generate icons for all sizes
-iconSizes.forEach((size) => {
+iconSizes.forEach(size => {
   const svgContent = generateSVGIcon(size);
   const filename = join(publicDir, `icon-${size}x${size}.svg`);
 
@@ -92,12 +92,12 @@ iconSizes.forEach((size) => {
 
 // Generate shortcut icons
 const shortcuts = [
-  { name: "4x4", color: "#32CD32", number: "4" },
-  { name: "6x6", color: "#FF6B35", number: "6" },
-  { name: "9x9", color: "#9B59B6", number: "9" },
+  { name: '4x4', color: '#32CD32', number: '4' },
+  { name: '6x6', color: '#FF6B35', number: '6' },
+  { name: '9x9', color: '#9B59B6', number: '9' },
 ];
 
-shortcuts.forEach((shortcut) => {
+shortcuts.forEach(shortcut => {
   const svgContent = `<svg width="96" height="96" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="bg-${shortcut.name}" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -123,15 +123,15 @@ shortcuts.forEach((shortcut) => {
 
 // Generate action icons
 const actions = [
-  { name: "play-action", path: "M20,12 L50,30 L20,48 Z", color: "#32CD32" },
+  { name: 'play-action', path: 'M20,12 L50,30 L20,48 Z', color: '#32CD32' },
   {
-    name: "dismiss-action",
-    path: "M20,20 L44,44 M44,20 L20,44",
-    color: "#666",
+    name: 'dismiss-action',
+    path: 'M20,20 L44,44 M44,20 L20,44',
+    color: '#666',
   },
 ];
 
-actions.forEach((action) => {
+actions.forEach(action => {
   const svgContent = `<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
     <circle cx="32" cy="32" r="28" fill="${action.color}" opacity="0.1"/>
     <path d="${action.path}" fill="none" stroke="${action.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
@@ -148,11 +148,11 @@ const badgeContent = `<svg width="72" height="72" viewBox="0 0 72 72" xmlns="htt
   <text x="36" y="44" fill="#fff" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle">S</text>
 </svg>`;
 
-writeFileSync(join(publicDir, "badge-72x72.svg"), badgeContent);
-writeLine("Generated badge-72x72.svg");
+writeFileSync(join(publicDir, 'badge-72x72.svg'), badgeContent);
+writeLine('Generated badge-72x72.svg');
 
-writeLine("");
-writeLine("All PWA icons generated successfully!");
+writeLine('');
+writeLine('All PWA icons generated successfully!');
 writeLine(
-  "Note: For production, consider converting SVG icons to PNG format for better browser compatibility."
+  'Note: For production, consider converting SVG icons to PNG format for better browser compatibility.'
 );

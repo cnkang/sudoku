@@ -1,39 +1,43 @@
 // Multi-Size Sudoku PWA Service Worker
 // Provides offline support, puzzle caching, and background sync
 
-const CACHE_NAME = "sudoku-pwa-v1";
-const STATIC_CACHE_NAME = "sudoku-static-v1";
-const PUZZLE_CACHE_NAME = "sudoku-puzzles-v1";
-const RUNTIME_CACHE_NAME = "sudoku-runtime-v1";
+const CACHE_NAME = 'sudoku-pwa-v1';
+const STATIC_CACHE_NAME = 'sudoku-static-v1';
+const PUZZLE_CACHE_NAME = 'sudoku-puzzles-v1';
+const RUNTIME_CACHE_NAME = 'sudoku-runtime-v1';
 
 // Static assets to cache immediately
 const STATIC_ASSETS = [
-  "/",
-  "/manifest.json",
-  "/offline.html",
-  "/_next/static/css/",
-  "/_next/static/js/",
+  '/',
+  '/manifest.json',
+  '/offline.html',
+  '/_next/static/css/',
+  '/_next/static/js/',
 ];
 
 const swLog = (..._args) => {};
 const swError = (..._args) => {};
 
 // Install event - cache static assets
-self.addEventListener("install", (event) => {
-  swLog("[SW] Installing Service Worker");
+self.addEventListener('install', event => {
+  swLog('[SW] Installing Service Worker');
 
   event.waitUntil(
     Promise.all([
       // Cache static assets
-      caches.open(STATIC_CACHE_NAME).then((cache) => {
-        swLog("[SW] Caching static assets");
-        return cache.addAll(STATIC_ASSETS);
-      }),
+      caches
+        .open(STATIC_CACHE_NAME)
+        .then(cache => {
+          swLog('[SW] Caching static assets');
+          return cache.addAll(STATIC_ASSETS);
+        }),
       // Initialize puzzle cache
-      caches.open(PUZZLE_CACHE_NAME).then((cache) => {
-        swLog("[SW] Initializing puzzle cache");
-        return cache.put("/puzzles/init", new Response("{}"));
-      }),
+      caches
+        .open(PUZZLE_CACHE_NAME)
+        .then(cache => {
+          swLog('[SW] Initializing puzzle cache');
+          return cache.put('/puzzles/init', new Response('{}'));
+        }),
       // Skip waiting to activate immediately
       self.skipWaiting(),
     ])
@@ -41,27 +45,29 @@ self.addEventListener("install", (event) => {
 });
 
 // Activate event - clean up old caches
-self.addEventListener("activate", (event) => {
-  swLog("[SW] Activating Service Worker");
+self.addEventListener('activate', event => {
+  swLog('[SW] Activating Service Worker');
 
   event.waitUntil(
     Promise.all([
       // Clean up old caches
-      caches.keys().then((cacheNames) => {
-        const deletions = [];
-        for (const cacheName of cacheNames) {
-          if (
-            cacheName !== CACHE_NAME &&
-            cacheName !== STATIC_CACHE_NAME &&
-            cacheName !== PUZZLE_CACHE_NAME &&
-            cacheName !== RUNTIME_CACHE_NAME
-          ) {
-            swLog("[SW] Deleting old cache:", cacheName);
-            deletions.push(caches.delete(cacheName));
+      caches
+        .keys()
+        .then(cacheNames => {
+          const deletions = [];
+          for (const cacheName of cacheNames) {
+            if (
+              cacheName !== CACHE_NAME &&
+              cacheName !== STATIC_CACHE_NAME &&
+              cacheName !== PUZZLE_CACHE_NAME &&
+              cacheName !== RUNTIME_CACHE_NAME
+            ) {
+              swLog('[SW] Deleting old cache:', cacheName);
+              deletions.push(caches.delete(cacheName));
+            }
           }
-        }
-        return Promise.all(deletions);
-      }),
+          return Promise.all(deletions);
+        }),
       // Take control of all clients
       self.clients.claim(),
     ])
@@ -69,19 +75,19 @@ self.addEventListener("activate", (event) => {
 });
 
 // Fetch event - handle requests with caching strategies
-self.addEventListener("fetch", (event) => {
+self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
 
   // Handle different types of requests
-  if (request.method === "GET") {
-    if (url.pathname.startsWith("/api/solveSudoku")) {
+  if (request.method === 'GET') {
+    if (url.pathname.startsWith('/api/solveSudoku')) {
       // Puzzle generation API - cache with network first strategy
       event.respondWith(handlePuzzleRequest(request));
-    } else if (url.pathname.startsWith("/api/")) {
+    } else if (url.pathname.startsWith('/api/')) {
       // Other APIs - network first with cache fallback
       event.respondWith(handleApiRequest(request));
-    } else if (url.pathname.startsWith("/_next/static/")) {
+    } else if (url.pathname.startsWith('/_next/static/')) {
       // Static assets - cache first strategy
       event.respondWith(handleStaticRequest(request));
     } else {
@@ -111,16 +117,16 @@ async function handlePuzzleRequest(request) {
         statusText: responseClone.statusText,
         headers: {
           ...Object.fromEntries(responseClone.headers.entries()),
-          "sw-cached-at": Date.now().toString(),
-          "sw-cache-key": cacheKey,
+          'sw-cached-at': Date.now().toString(),
+          'sw-cache-key': cacheKey,
         },
       });
 
       await cache.put(cacheKey, responseWithMeta);
       return networkResponse;
     }
-  } catch (_error) {
-    swLog("[SW] Network failed for puzzle request, trying cache");
+  } catch {
+    swLog('[SW] Network failed for puzzle request, trying cache');
   }
 
   // Fallback to cache
@@ -146,8 +152,8 @@ async function handleApiRequest(request) {
       await cache.put(request, networkResponse.clone());
       return networkResponse;
     }
-  } catch (_error) {
-    swLog("[SW] Network failed for API request, trying cache");
+  } catch {
+    swLog('[SW] Network failed for API request, trying cache');
   }
 
   // Fallback to cache
@@ -160,10 +166,10 @@ async function handleApiRequest(request) {
 
   // Return offline response
   return new Response(
-    JSON.stringify({ error: "Offline - please try again when connected" }),
+    JSON.stringify({ error: 'Offline - please try again when connected' }),
     {
       status: 503,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     }
   );
 }
@@ -183,12 +189,12 @@ async function handleStaticRequest(request) {
       await cache.put(request, networkResponse.clone());
       return networkResponse;
     }
-  } catch (_error) {
-    swLog("[SW] Failed to fetch static asset:", request.url);
+  } catch {
+    swLog('[SW] Failed to fetch static asset:', request.url);
   }
 
   // Return empty response for missing static assets
-  return new Response("", { status: 404 });
+  return new Response('', { status: 404 });
 }
 
 // Handle page requests
@@ -202,8 +208,8 @@ async function handlePageRequest(request) {
       await cache.put(request, networkResponse.clone());
       return networkResponse;
     }
-  } catch (_error) {
-    swLog("[SW] Network failed for page request, trying cache");
+  } catch {
+    swLog('[SW] Network failed for page request, trying cache');
   }
 
   // Try cache first
@@ -216,7 +222,7 @@ async function handlePageRequest(request) {
 
   // Fallback to offline page
   const offlineCache = await caches.open(STATIC_CACHE_NAME);
-  const offlineResponse = await offlineCache.match("/offline.html");
+  const offlineResponse = await offlineCache.match('/offline.html');
 
   if (offlineResponse) {
     return offlineResponse;
@@ -271,17 +277,17 @@ async function handlePageRequest(request) {
     </html>`,
     {
       status: 200,
-      headers: { "Content-Type": "text/html" },
+      headers: { 'Content-Type': 'text/html' },
     }
   );
 }
 
 // Generate simple offline puzzles
 function generateOfflinePuzzle(searchParams) {
-  const sizeParam = searchParams.get("size");
-  const difficultyParam = searchParams.get("difficulty");
-  const size = Number.parseInt(sizeParam ?? "9", 10) || 9;
-  const difficulty = Number.parseInt(difficultyParam ?? "1", 10) || 1;
+  const sizeParam = searchParams.get('size');
+  const difficultyParam = searchParams.get('difficulty');
+  const size = Number.parseInt(sizeParam ?? '9', 10) || 9;
+  const difficulty = Number.parseInt(difficultyParam ?? '1', 10) || 1;
 
   // Simple offline puzzle templates
   const templates = {
@@ -351,25 +357,25 @@ function generateOfflinePuzzle(searchParams) {
     difficulty: difficulty,
     size: size,
     offline: true,
-    message: "Playing offline - limited puzzle variety available",
+    message: 'Playing offline - limited puzzle variety available',
   };
 
   return new Response(JSON.stringify(response), {
     status: 200,
     headers: {
-      "Content-Type": "application/json",
-      "sw-offline-generated": "true",
+      'Content-Type': 'application/json',
+      'sw-offline-generated': 'true',
     },
   });
 }
 
 // Background sync for progress tracking
-self.addEventListener("sync", (event) => {
-  swLog("[SW] Background sync triggered:", event.tag);
+self.addEventListener('sync', event => {
+  swLog('[SW] Background sync triggered:', event.tag);
 
-  if (event.tag === "progress-sync") {
+  if (event.tag === 'progress-sync') {
     event.waitUntil(syncProgress());
-  } else if (event.tag === "achievement-sync") {
+  } else if (event.tag === 'achievement-sync') {
     event.waitUntil(syncAchievements());
   }
 });
@@ -379,26 +385,26 @@ async function syncProgress() {
   try {
     // Get stored progress data
     const cache = await caches.open(PUZZLE_CACHE_NAME);
-    const progressData = await cache.match("/progress/pending");
+    const progressData = await cache.match('/progress/pending');
 
     if (progressData) {
       const data = await progressData.json();
 
       // Send to server
-      const response = await fetch("/api/progress", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
 
       if (response.ok) {
         // Clear pending data
-        await cache.delete("/progress/pending");
-        swLog("[SW] Progress synced successfully");
+        await cache.delete('/progress/pending');
+        swLog('[SW] Progress synced successfully');
       }
     }
   } catch (error) {
-    swError("[SW] Failed to sync progress:", error);
+    swError('[SW] Failed to sync progress:', error);
   }
 }
 
@@ -407,52 +413,52 @@ async function syncAchievements() {
   try {
     // Get stored achievement data
     const cache = await caches.open(PUZZLE_CACHE_NAME);
-    const achievementData = await cache.match("/achievements/pending");
+    const achievementData = await cache.match('/achievements/pending');
 
     if (achievementData) {
       const data = await achievementData.json();
 
       // Send to server
-      const response = await fetch("/api/achievements", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/achievements', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
 
       if (response.ok) {
         // Clear pending data
-        await cache.delete("/achievements/pending");
-        swLog("[SW] Achievements synced successfully");
+        await cache.delete('/achievements/pending');
+        swLog('[SW] Achievements synced successfully');
       }
     }
   } catch (error) {
-    swError("[SW] Failed to sync achievements:", error);
+    swError('[SW] Failed to sync achievements:', error);
   }
 }
 
 // Handle push notifications for achievements
-self.addEventListener("push", (event) => {
-  swLog("[SW] Push notification received");
+self.addEventListener('push', event => {
+  swLog('[SW] Push notification received');
 
   if (event.data) {
     const data = event.data.json();
 
     const options = {
-      body: data.body || "Great job solving puzzles!",
-      icon: "/icons/icon-192x192.png",
-      badge: "/icons/badge-72x72.png",
-      tag: data.tag || "achievement",
+      body: data.body || 'Great job solving puzzles!',
+      icon: '/icons/icon-192x192.png',
+      badge: '/icons/badge-72x72.png',
+      tag: data.tag || 'achievement',
       data: data.data || {},
       actions: [
         {
-          action: "play",
-          title: "Play Now",
-          icon: "/icons/play-action.png",
+          action: 'play',
+          title: 'Play Now',
+          icon: '/icons/play-action.png',
         },
         {
-          action: "dismiss",
-          title: "Later",
-          icon: "/icons/dismiss-action.png",
+          action: 'dismiss',
+          title: 'Later',
+          icon: '/icons/dismiss-action.png',
         },
       ],
       vibrate: [200, 100, 200],
@@ -461,7 +467,7 @@ self.addEventListener("push", (event) => {
 
     event.waitUntil(
       self.registration.showNotification(
-        data.title || "Sudoku Achievement!",
+        data.title || 'Sudoku Achievement!',
         options
       )
     );
@@ -469,40 +475,40 @@ self.addEventListener("push", (event) => {
 });
 
 // Handle notification clicks
-self.addEventListener("notificationclick", (event) => {
-  swLog("[SW] Notification clicked:", event.action);
+self.addEventListener('notificationclick', event => {
+  swLog('[SW] Notification clicked:', event.action);
 
   event.notification.close();
 
-  if (event.action === "play") {
+  if (event.action === 'play') {
     // Open the app to play
-    event.waitUntil(clients.openWindow("/"));
-  } else if (event.action === "dismiss") {
+    event.waitUntil(clients.openWindow('/'));
+  } else if (event.action === 'dismiss') {
     // Just close the notification
     return;
   } else {
     // Default action - open the app
-    event.waitUntil(clients.openWindow("/"));
+    event.waitUntil(clients.openWindow('/'));
   }
 });
 
 // Message handling for communication with main thread
-self.addEventListener("message", (event) => {
-  swLog("[SW] Message received:", event.data);
+self.addEventListener('message', event => {
+  swLog('[SW] Message received:', event.data);
 
   if (event.data?.type) {
     switch (event.data.type) {
-      case "SKIP_WAITING":
+      case 'SKIP_WAITING':
         self.skipWaiting();
         break;
-      case "CACHE_PROGRESS":
+      case 'CACHE_PROGRESS':
         cacheProgressData(event.data.payload);
         break;
-      case "CACHE_ACHIEVEMENT":
+      case 'CACHE_ACHIEVEMENT':
         cacheAchievementData(event.data.payload);
         break;
-      case "GET_CACHE_STATUS":
-        getCacheStatus().then((status) => {
+      case 'GET_CACHE_STATUS':
+        getCacheStatus().then(status => {
           event.ports[0].postMessage(status);
         });
         break;
@@ -515,19 +521,19 @@ async function cacheProgressData(progressData) {
   try {
     const cache = await caches.open(PUZZLE_CACHE_NAME);
     await cache.put(
-      "/progress/pending",
+      '/progress/pending',
       new Response(JSON.stringify(progressData))
     );
 
     // Register for background sync
     if (
-      "serviceWorker" in navigator &&
-      "sync" in window.ServiceWorkerRegistration.prototype
+      'serviceWorker' in navigator &&
+      'sync' in window.ServiceWorkerRegistration.prototype
     ) {
-      await self.registration.sync.register("progress-sync");
+      await self.registration.sync.register('progress-sync');
     }
   } catch (error) {
-    swError("[SW] Failed to cache progress data:", error);
+    swError('[SW] Failed to cache progress data:', error);
   }
 }
 
@@ -536,19 +542,19 @@ async function cacheAchievementData(achievementData) {
   try {
     const cache = await caches.open(PUZZLE_CACHE_NAME);
     await cache.put(
-      "/achievements/pending",
+      '/achievements/pending',
       new Response(JSON.stringify(achievementData))
     );
 
     // Register for background sync
     if (
-      "serviceWorker" in navigator &&
-      "sync" in window.ServiceWorkerRegistration.prototype
+      'serviceWorker' in navigator &&
+      'sync' in window.ServiceWorkerRegistration.prototype
     ) {
-      await self.registration.sync.register("achievement-sync");
+      await self.registration.sync.register('achievement-sync');
     }
   } catch (error) {
-    swError("[SW] Failed to cache achievement data:", error);
+    swError('[SW] Failed to cache achievement data:', error);
   }
 }
 
@@ -573,10 +579,10 @@ async function getCacheStatus() {
       }
     }
   } catch (error) {
-    swError("[SW] Failed to get cache status:", error);
+    swError('[SW] Failed to get cache status:', error);
   }
 
   return status;
 }
 
-swLog("[SW] Service Worker loaded successfully");
+swLog('[SW] Service Worker loaded successfully');
