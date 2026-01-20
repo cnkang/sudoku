@@ -3,7 +3,7 @@
  * Implements Requirements 1.2, 2.1, 2.2 for child-friendly 4x4 Sudoku
  */
 
-import React, { memo, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import type { GridConfig } from '@/types';
 import { usePerformanceTracking } from '@/utils/performance-monitoring';
 import styles from '../SudokuGrid.module.css';
@@ -37,6 +37,7 @@ export const Grid4x4 = memo<Grid4x4Props>(
     'use memo'; // React Compiler directive
 
     const { trackRender } = usePerformanceTracking('Grid4x4');
+    const gridSize = 4;
 
     // Memoize grid configuration for 4x4
     const _grid4x4Config = useMemo(
@@ -77,81 +78,101 @@ export const Grid4x4 = memo<Grid4x4Props>(
       trackRender(renderTime, true); // Assume optimized due to memoization
     });
 
-    // Render 4x4 grid with child-friendly enhancements
-    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: grid rendering is complex
-    const renderGrid = useMemo(() => {
-      const grid = [];
-
-      for (let row = 0; row < 4; row++) {
-        const rowCells = [];
-
-        for (let col = 0; col < 4; col++) {
-          const puzzleValue = puzzle[row]?.[col] || 0;
-          const userValue = userInput[row]?.[col] || 0;
-          const isFixed = puzzleValue !== 0;
-          const isHinted = hintCell?.row === row && hintCell?.col === col;
-
-          // Child-friendly cell classes
-          const cellClasses = [
-            styles.sudokuCell,
-            isFixed ? styles.fixedCell : styles.editableCell,
-            isHinted ? styles.hinted : '',
-            childMode ? styles.childFriendlyCell : '',
-            accessibilitySettings.highContrast ? styles.highContrast : '',
-            accessibilitySettings.largeText ? styles.largeText : '',
-          ]
-            .filter(Boolean)
-            .join(' ');
-
-          rowCells.push(
-            <td
-              key={`${row}-${col}`}
-              className={cellClasses}
-              data-row={row}
-              data-col={col}
-              data-grid-size="4"
-            >
-              {isFixed ? (
-                <div className={styles.fixedNumber}>{puzzleValue}</div>
-              ) : (
-                <input
-                  type="number"
-                  min="1"
-                  max="4"
-                  value={userValue || ''}
-                  onChange={e => {
-                    const value = parseInt(e.target.value, 10) || 0;
-                    if (value >= 0 && value <= 4) {
-                      onInputChange(row, col, value);
-                    }
-                  }}
-                  disabled={disabled}
-                  className={styles.cellInput}
-                  aria-label={`Row ${row + 1}, Column ${col + 1}`}
-                  aria-describedby={isHinted ? 'hint-message' : undefined}
-                />
-              )}
-            </td>
-          );
+    const handleCellChange = useCallback(
+      (row: number, col: number, value: string) => {
+        const parsed = Number.parseInt(value, 10);
+        if (Number.isNaN(parsed)) {
+          onInputChange(row, col, 0);
+          return;
         }
 
-        grid.push(
-          <tr key={row} className={styles.sudokuRow}>
-            {rowCells}
-          </tr>
-        );
-      }
+        if (parsed < 0 || parsed > gridSize) {
+          return;
+        }
 
-      return grid;
-    }, [
-      puzzle,
-      userInput,
-      onInputChange,
-      disabled,
-      hintCell,
-      childMode,
-      accessibilitySettings,
-    ]);
+        onInputChange(row, col, parsed);
+      },
+      [onInputChange]
+    );
+
+    const getCellClassName = useCallback(
+      (isFixed: boolean, isHinted: boolean) =>
+        [
+          styles.sudokuCell,
+          isFixed ? styles.fixedCell : styles.editableCell,
+          isHinted ? styles.hinted : '',
+          childMode ? styles.childFriendlyCell : '',
+          accessibilitySettings.highContrast ? styles.highContrast : '',
+          accessibilitySettings.largeText ? styles.largeText : '',
+        ]
+          .filter(Boolean)
+          .join(' '),
+      [
+        childMode,
+        accessibilitySettings.highContrast,
+        accessibilitySettings.largeText,
+      ]
+    );
+
+    const renderCell = useCallback(
+      (row: number, col: number) => {
+        const puzzleValue = puzzle[row]?.[col] || 0;
+        const userValue = userInput[row]?.[col] || 0;
+        const isFixed = puzzleValue !== 0;
+        const isHinted = hintCell?.row === row && hintCell?.col === col;
+        const cellClasses = getCellClassName(isFixed, isHinted);
+
+        return (
+          <td
+            key={`${row}-${col}`}
+            className={cellClasses}
+            data-row={row}
+            data-col={col}
+            data-grid-size="4"
+          >
+            {isFixed ? (
+              <div className={styles.fixedNumber}>{puzzleValue}</div>
+            ) : (
+              <input
+                type="number"
+                min="1"
+                max="4"
+                value={userValue || ''}
+                onChange={event =>
+                  handleCellChange(row, col, event.target.value)
+                }
+                disabled={disabled}
+                className={styles.cellInput}
+                aria-label={`Row ${row + 1}, Column ${col + 1}`}
+                aria-describedby={isHinted ? 'hint-message' : undefined}
+              />
+            )}
+          </td>
+        );
+      },
+      [
+        puzzle,
+        userInput,
+        hintCell,
+        disabled,
+        getCellClassName,
+        handleCellChange,
+      ]
+    );
+
+    const renderRow = useCallback(
+      (row: number) => (
+        <tr key={row} className={styles.sudokuRow}>
+          {Array.from({ length: gridSize }, (_, col) => renderCell(row, col))}
+        </tr>
+      ),
+      [renderCell]
+    );
+
+    const renderGrid = useMemo(
+      () => Array.from({ length: gridSize }, (_, row) => renderRow(row)),
+      [renderRow]
+    );
 
     return (
       <div

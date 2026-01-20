@@ -125,7 +125,7 @@ const SudokuCell = React.memo(
       (e: React.ChangeEvent<HTMLInputElement>) => {
         if (disabled || isFixed) return;
 
-        const newValue = parseInt(e.target.value, 10);
+        const newValue = Number.parseInt(e.target.value, 10);
         if (
           !Number.isNaN(newValue) &&
           newValue >= 1 &&

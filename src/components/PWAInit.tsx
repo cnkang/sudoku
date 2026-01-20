@@ -9,7 +9,7 @@
 import { useEffect } from 'react';
 
 const dispatchUpdateAvailable = (registration: ServiceWorkerRegistration) => {
-  window.dispatchEvent(
+  globalThis.dispatchEvent(
     new CustomEvent('sw-update-available', {
       detail: { registration },
     })
@@ -20,11 +20,7 @@ const handleWorkerStateChange = (
   registration: ServiceWorkerRegistration,
   worker: ServiceWorker
 ) => {
-  if (
-    worker.state === 'installed' &&
-    navigator.serviceWorker &&
-    navigator.serviceWorker.controller
-  ) {
+  if (worker.state === 'installed' && navigator.serviceWorker?.controller) {
     dispatchUpdateAvailable(registration);
   }
 };
@@ -44,7 +40,7 @@ const attachUpdateFoundHandler = (registration: ServiceWorkerRegistration) => {
 };
 
 const handleControllerChange = () => {
-  window.location.reload();
+  globalThis.location.reload();
 };
 
 const handleRegistration = (registration: ServiceWorkerRegistration) => {
@@ -87,7 +83,7 @@ const registerBackgroundSync = async (): Promise<void> => {
 export default function PWAInit() {
   useEffect(() => {
     // Only run in browser environment
-    if (typeof window === 'undefined') return;
+    if (typeof globalThis.window === 'undefined') return;
 
     // Register service worker
     if ('serviceWorker' in navigator) {
@@ -111,22 +107,25 @@ export default function PWAInit() {
       event.preventDefault();
 
       // Dispatch custom event for install prompt
-      window.dispatchEvent(
+      globalThis.dispatchEvent(
         new CustomEvent('pwa-install-prompt', {
           detail: { event },
         })
       );
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    globalThis.addEventListener(
+      'beforeinstallprompt',
+      handleBeforeInstallPrompt
+    );
 
     // Handle app installation
     const handleAppInstalled = () => {
       // Dispatch custom event for installation success
-      window.dispatchEvent(new CustomEvent('pwa-installed'));
+      globalThis.dispatchEvent(new CustomEvent('pwa-installed'));
     };
 
-    window.addEventListener('appinstalled', handleAppInstalled);
+    globalThis.addEventListener('appinstalled', handleAppInstalled);
 
     // Handle online/offline events
     const handleOnline = () => {
@@ -136,8 +135,8 @@ export default function PWAInit() {
 
     const handleOffline = () => {};
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    globalThis.addEventListener('online', handleOnline);
+    globalThis.addEventListener('offline', handleOffline);
 
     // Handle visibility change for background sync
     const handleVisibilityChange = () => {
@@ -151,13 +150,13 @@ export default function PWAInit() {
 
     // Cleanup event listeners
     return () => {
-      window.removeEventListener(
+      globalThis.removeEventListener(
         'beforeinstallprompt',
         handleBeforeInstallPrompt
       );
-      window.removeEventListener('appinstalled', handleAppInstalled);
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      globalThis.removeEventListener('appinstalled', handleAppInstalled);
+      globalThis.removeEventListener('online', handleOnline);
+      globalThis.removeEventListener('offline', handleOffline);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.removeEventListener(

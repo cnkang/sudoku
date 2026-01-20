@@ -17,11 +17,13 @@ import {
   startTransition,
   Suspense,
 } from 'react';
-import { LazyGridRouter } from './LazyGridComponents';
-import { LazyPWAGridSelector } from './LazyGridComponents';
-import { LazyAccessibilityControls } from './LazyGridComponents';
-import { LazyVisualFeedbackSystem } from './LazyGridComponents';
-import { LazyThemeProvider } from './LazyGridComponents';
+import {
+  LazyGridRouter,
+  LazyPWAGridSelector,
+  LazyAccessibilityControls,
+  LazyVisualFeedbackSystem,
+  LazyThemeProvider,
+} from './LazyGridComponents';
 import Timer from './Timer';
 import DifficultySelector from './DifficultySelector';
 import GameControls from './GameControls';
@@ -69,7 +71,7 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
     usePerformanceTracking('ModernSudokuApp');
   const { status, installApp } = usePWA();
   const notificationPermission =
-    typeof Notification !== 'undefined' ? Notification.permission : 'default';
+    typeof Notification === 'undefined' ? 'default' : Notification.permission;
   const visualFeedback = useVisualFeedback({
     childMode: state.childMode,
     highContrast: state.accessibility.highContrast,

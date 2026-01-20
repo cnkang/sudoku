@@ -108,21 +108,24 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
     };
 
     // Check if already installed
-    const isStandalone = window.matchMedia(
+    const isStandalone = globalThis.matchMedia(
       '(display-mode: standalone)'
     ).matches;
-    const isInWebAppiOS = isNavigatorStandalone(window.navigator);
+    const isInWebAppiOS = isNavigatorStandalone(globalThis.navigator);
     setIsInstalled(isStandalone || isInWebAppiOS);
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    window.addEventListener('appinstalled', handleAppInstalled);
+    globalThis.addEventListener(
+      'beforeinstallprompt',
+      handleBeforeInstallPrompt
+    );
+    globalThis.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
-      window.removeEventListener(
+      globalThis.removeEventListener(
         'beforeinstallprompt',
         handleBeforeInstallPrompt
       );
-      window.removeEventListener('appinstalled', handleAppInstalled);
+      globalThis.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 

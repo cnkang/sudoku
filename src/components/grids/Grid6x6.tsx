@@ -3,7 +3,7 @@
  * Implements Requirements 1.2, 3.1, 3.2 for 6x6 Sudoku with 2x3 sub-grids
  */
 
-import React, { memo, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import type { GridConfig } from '@/types';
 import { usePerformanceTracking } from '@/utils/performance-monitoring';
 import styles from '../SudokuGrid.module.css';
@@ -37,6 +37,9 @@ export const Grid6x6 = memo<Grid6x6Props>(
     'use memo'; // React Compiler directive
 
     const { trackRender } = usePerformanceTracking('Grid6x6');
+    const gridSize = 6;
+    const rightBorders = new Set([2, 5]);
+    const bottomBorders = new Set([1, 3, 5]);
 
     // Memoize grid configuration for 6x6
     const _grid6x6Config = useMemo(
@@ -77,102 +80,116 @@ export const Grid6x6 = memo<Grid6x6Props>(
       trackRender(renderTime, true); // Assume optimized due to memoization
     });
 
-    // Calculate sub-grid borders for 2x3 layout
-    const getSubGridBorders = useMemo(
-      () => (row: number, col: number) => {
-        const isRightBorder = col === 2 || col === 5; // After columns 2 and 5
-        const isBottomBorder = row === 1 || row === 3 || row === 5; // After rows 1, 3, and 5
-
-        return {
-          borderRight: isRightBorder
-            ? '3px solid #1f2937'
-            : '1px solid #d1d5db',
-          borderBottom: isBottomBorder
-            ? '3px solid #1f2937'
-            : '1px solid #d1d5db',
-        };
-      },
-      []
-    );
-
-    // Render 6x6 grid with 2x3 sub-grids
-    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: grid rendering is complex
-    const renderGrid = useMemo(() => {
-      const grid = [];
-
-      for (let row = 0; row < 6; row++) {
-        const rowCells = [];
-
-        for (let col = 0; col < 6; col++) {
-          const puzzleValue = puzzle[row]?.[col] || 0;
-          const userValue = userInput[row]?.[col] || 0;
-          const isFixed = puzzleValue !== 0;
-          const isHinted = hintCell?.row === row && hintCell?.col === col;
-          const subGridBorders = getSubGridBorders(row, col);
-
-          // Cell classes for 6x6 grid
-          const cellClasses = [
-            styles.sudokuCell,
-            isFixed ? styles.fixedCell : styles.editableCell,
-            isHinted ? styles.hinted : '',
-            childMode ? styles.childFriendlyCell : '',
-            accessibilitySettings.highContrast ? styles.highContrast : '',
-            accessibilitySettings.largeText ? styles.largeText : '',
-          ]
-            .filter(Boolean)
-            .join(' ');
-
-          rowCells.push(
-            <td
-              key={`${row}-${col}`}
-              className={cellClasses}
-              data-row={row}
-              data-col={col}
-              data-grid-size="6"
-              style={subGridBorders}
-            >
-              {isFixed ? (
-                <div className={styles.fixedNumber}>{puzzleValue}</div>
-              ) : (
-                <input
-                  type="number"
-                  min="1"
-                  max="6"
-                  value={userValue || ''}
-                  onChange={e => {
-                    const value = parseInt(e.target.value, 10) || 0;
-                    if (value >= 0 && value <= 6) {
-                      onInputChange(row, col, value);
-                    }
-                  }}
-                  disabled={disabled}
-                  className={styles.cellInput}
-                  aria-label={`Row ${row + 1}, Column ${col + 1}`}
-                  aria-describedby={isHinted ? 'hint-message' : undefined}
-                />
-              )}
-            </td>
-          );
+    const handleCellChange = useCallback(
+      (row: number, col: number, value: string) => {
+        const parsed = Number.parseInt(value, 10);
+        if (Number.isNaN(parsed)) {
+          onInputChange(row, col, 0);
+          return;
         }
 
-        grid.push(
-          <tr key={row} className={styles.sudokuRow}>
-            {rowCells}
-          </tr>
-        );
-      }
+        if (parsed < 0 || parsed > gridSize) {
+          return;
+        }
 
-      return grid;
-    }, [
-      puzzle,
-      userInput,
-      onInputChange,
-      disabled,
-      hintCell,
-      childMode,
-      accessibilitySettings,
-      getSubGridBorders,
-    ]);
+        onInputChange(row, col, parsed);
+      },
+      [onInputChange]
+    );
+
+    const getSubGridBorders = useCallback(
+      (row: number, col: number) => ({
+        borderRight: rightBorders.has(col)
+          ? '3px solid #1f2937'
+          : '1px solid #d1d5db',
+        borderBottom: bottomBorders.has(row)
+          ? '3px solid #1f2937'
+          : '1px solid #d1d5db',
+      }),
+      [rightBorders, bottomBorders]
+    );
+
+    const getCellClassName = useCallback(
+      (isFixed: boolean, isHinted: boolean) =>
+        [
+          styles.sudokuCell,
+          isFixed ? styles.fixedCell : styles.editableCell,
+          isHinted ? styles.hinted : '',
+          childMode ? styles.childFriendlyCell : '',
+          accessibilitySettings.highContrast ? styles.highContrast : '',
+          accessibilitySettings.largeText ? styles.largeText : '',
+        ]
+          .filter(Boolean)
+          .join(' '),
+      [
+        childMode,
+        accessibilitySettings.highContrast,
+        accessibilitySettings.largeText,
+      ]
+    );
+
+    const renderCell = useCallback(
+      (row: number, col: number) => {
+        const puzzleValue = puzzle[row]?.[col] || 0;
+        const userValue = userInput[row]?.[col] || 0;
+        const isFixed = puzzleValue !== 0;
+        const isHinted = hintCell?.row === row && hintCell?.col === col;
+        const cellClasses = getCellClassName(isFixed, isHinted);
+        const subGridBorders = getSubGridBorders(row, col);
+
+        return (
+          <td
+            key={`${row}-${col}`}
+            className={cellClasses}
+            data-row={row}
+            data-col={col}
+            data-grid-size="6"
+            style={subGridBorders}
+          >
+            {isFixed ? (
+              <div className={styles.fixedNumber}>{puzzleValue}</div>
+            ) : (
+              <input
+                type="number"
+                min="1"
+                max="6"
+                value={userValue || ''}
+                onChange={event =>
+                  handleCellChange(row, col, event.target.value)
+                }
+                disabled={disabled}
+                className={styles.cellInput}
+                aria-label={`Row ${row + 1}, Column ${col + 1}`}
+                aria-describedby={isHinted ? 'hint-message' : undefined}
+              />
+            )}
+          </td>
+        );
+      },
+      [
+        puzzle,
+        userInput,
+        hintCell,
+        disabled,
+        getCellClassName,
+        getSubGridBorders,
+        handleCellChange,
+      ]
+    );
+
+    const renderRow = useCallback(
+      (row: number) => (
+        <tr key={row} className={styles.sudokuRow}>
+          {Array.from({ length: gridSize }, (_, col) => renderCell(row, col))}
+        </tr>
+      ),
+      [renderCell]
+    );
+
+    const renderGrid = useMemo(
+      () => Array.from({ length: gridSize }, (_, row) => renderRow(row)),
+      [renderRow]
+    );
 
     return (
       <div

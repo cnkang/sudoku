@@ -7,6 +7,11 @@ import {
 } from '@/utils/secureRandom';
 import styles from './VisualFeedbackSystem.module.css';
 
+type PatternFeedbackType = 'success' | 'error' | 'warning' | 'hint';
+type PatternFeedbackStyle = 'stripes' | 'dots' | 'waves' | 'stars';
+type PatternCueType = PatternFeedbackType | 'celebration';
+type PatternCueStyle = PatternFeedbackStyle | 'checkmarks';
+
 export interface VisualFeedbackProps {
   theme: ThemeConfig;
   childMode?: boolean;
@@ -16,8 +21,8 @@ export interface VisualFeedbackProps {
 }
 
 export interface PatternBasedCue {
-  type: 'success' | 'error' | 'warning' | 'hint' | 'celebration';
-  pattern: 'stripes' | 'dots' | 'waves' | 'stars' | 'checkmarks';
+  type: PatternCueType;
+  pattern: PatternCueStyle;
   color: string;
   backgroundColor: string;
   description: string;
@@ -32,9 +37,9 @@ export interface FeedbackTriggers {
   clearFeedback: () => void;
   // Enhanced pattern-based feedback
   showPatternFeedback: (
-    type: 'success' | 'error' | 'warning' | 'hint',
+    type: PatternFeedbackType,
     message?: string,
-    pattern?: 'stripes' | 'dots' | 'waves' | 'stars'
+    pattern?: PatternFeedbackStyle
   ) => void;
   // Gentle error highlighting
   highlightGentleError: (element: HTMLElement, duration?: number) => void;
@@ -62,7 +67,7 @@ interface FeedbackState {
   subtype?: string;
   isVisible: boolean;
   celebrationType?: 'confetti' | 'stars' | 'rainbow';
-  pattern?: 'stripes' | 'dots' | 'waves' | 'stars' | 'checkmarks';
+  pattern?: PatternCueStyle;
   patternColor?: string;
   duration?: number;
 }
