@@ -4,6 +4,7 @@ import { describe, it, vi, afterEach } from 'vitest';
 import * as fc from 'fast-check';
 import VisualFeedbackSystem from '../VisualFeedbackSystem';
 import { getChildFriendlyThemes } from '@/utils/themes';
+import { secureRandomId } from '@/utils/secureRandom';
 
 // Clean up after each test to prevent DOM pollution
 afterEach(() => {
@@ -21,6 +22,8 @@ Object.defineProperty(navigator, 'vibrate', {
 const childFriendlyThemeArb = fc.constantFrom(...getChildFriendlyThemes());
 const errorMessageArb = fc.string({ minLength: 1, maxLength: 100 });
 const errorTypeArb = fc.constantFrom('gentle', 'warning');
+
+const randomTestId = (prefix: string) => `${prefix}-${secureRandomId()}`;
 
 describe('Error Highlighting Consistency Property-Based Tests', () => {
   /**
@@ -47,9 +50,7 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
                     triggers.showError(errorMessage, errorType);
                     errorTriggered = true;
                   }}
-                  data-testid={`error-trigger-${Math.random()
-                    .toString(36)
-                    .substr(2, 9)}`}
+                  data-testid={randomTestId('error-trigger')}
                 >
                   Trigger Error
                 </button>
@@ -141,9 +142,7 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
                     triggers.showError(errorMessage, 'gentle');
                     gentleErrorTriggered = true;
                   }}
-                  data-testid={`gentle-error-${Math.random()
-                    .toString(36)
-                    .substr(2, 9)}`}
+                  data-testid={randomTestId('gentle-error')}
                 >
                   Invalid Move
                 </button>
@@ -226,9 +225,7 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
                     triggers.showError(errorMessage, 'warning');
                     warningErrorTriggered = true;
                   }}
-                  data-testid={`warning-error-${Math.random()
-                    .toString(36)
-                    .substr(2, 9)}`}
+                  data-testid={randomTestId('warning-error')}
                 >
                   Conflict Detected
                 </button>
@@ -316,9 +313,7 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
                     );
                     errorTriggered = true;
                   }}
-                  data-testid={`pattern-error-${Math.random()
-                    .toString(36)
-                    .substr(2, 9)}`}
+                  data-testid={randomTestId('pattern-error')}
                 >
                   Pattern Error
                 </button>
@@ -405,9 +400,7 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
                     triggers.showError(errorMessage, 'gentle');
                     errorTriggered = true;
                   }}
-                  data-testid={`theme-error-${Math.random()
-                    .toString(36)
-                    .substr(2, 9)}`}
+                  data-testid={randomTestId('theme-error')}
                 >
                   Theme Error Test
                 </button>
@@ -493,9 +486,7 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
                 <div>
                   <div
                     ref={setTargetElement}
-                    data-testid={`highlight-target-${Math.random()
-                      .toString(36)
-                      .substr(2, 9)}`}
+                    data-testid={randomTestId('highlight-target')}
                     style={{
                       width: '100px',
                       height: '100px',
@@ -513,9 +504,7 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
                         highlightApplied = true;
                       }
                     }}
-                    data-testid={`highlight-trigger-${Math.random()
-                      .toString(36)
-                      .substr(2, 9)}`}
+                    data-testid={randomTestId('highlight-trigger')}
                   >
                     Highlight Error
                   </button>

@@ -182,6 +182,8 @@ describe('Property 10: State persistence across grid changes', () => {
           expect(result.current.state.puzzle).not.toBeNull();
           expect(result.current.state.time).toBeGreaterThanOrEqual(0);
 
+          const difficultyBeforeChange = result.current.state.difficulty;
+
           // Change grid size
           act(() => {
             result.current.dispatch({
@@ -203,9 +205,9 @@ describe('Property 10: State persistence across grid changes', () => {
           expect(result.current.state.gridConfig).toEqual(newGrid);
 
           // Difficulty should be adjusted to new grid's max if necessary
-          const expectedDifficulty = Math.min(
-            difficulty,
-            newGrid.difficultyLevels
+          const expectedDifficulty = Math.max(
+            1,
+            Math.min(difficultyBeforeChange, newGrid.difficultyLevels)
           );
           expect(result.current.state.difficulty).toBe(expectedDifficulty);
         }

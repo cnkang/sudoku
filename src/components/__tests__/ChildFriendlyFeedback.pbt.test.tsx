@@ -3,6 +3,7 @@ import { describe, it, vi, afterEach } from 'vitest';
 import * as fc from 'fast-check';
 import VisualFeedbackSystem from '../VisualFeedbackSystem';
 import { getChildFriendlyThemes } from '@/utils/themes';
+import { secureRandomId } from '@/utils/secureRandom';
 
 // Clean up after each test to prevent DOM pollution
 afterEach(() => {
@@ -74,7 +75,7 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
   it('should provide gentle error feedback with encouraging language', () => {
     fc.assert(
       fc.property(childFriendlyThemeArb, theme => {
-        const uniqueId = Math.random().toString(36).substr(2, 9);
+        const uniqueId = secureRandomId();
         const TestComponent = () => (
           <VisualFeedbackSystem theme={theme} childMode={true}>
             {triggers => (
