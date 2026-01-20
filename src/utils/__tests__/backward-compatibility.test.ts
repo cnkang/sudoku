@@ -12,6 +12,25 @@ import type { SudokuPuzzle } from '@/types';
 import { GRID_CONFIGS } from '../gridConfig';
 import { secureRandomInt } from '@/utils/secureRandom';
 
+const createGrid = (
+  rows: number,
+  cols: number,
+  value: number | (() => number)
+) => {
+  const grid: number[][] = [];
+  for (let row = 0; row < rows; row++) {
+    const rowValues: number[] = [];
+    for (let col = 0; col < cols; col++) {
+      rowValues.push(typeof value === 'function' ? value() : value);
+    }
+    grid.push(rowValues);
+  }
+  return grid;
+};
+
+const createRandomGrid = (size: number, maxValue: number) =>
+  createGrid(size, size, () => secureRandomInt(maxValue));
+
 // Mock localStorage for testing
 const mockLocalStorage = {
   store: new Map<string, string>(),
@@ -121,17 +140,15 @@ describe('Backward Compatibility Layer', () => {
     });
 
     it('should validate legacy puzzle structure correctly', () => {
-      const validPuzzle = Array.from({ length: 9 }, () =>
-        Array.from({ length: 9 }, () => secureRandomInt(10))
-      );
+      const validPuzzle = createRandomGrid(9, 10);
 
       const invalidPuzzles = [
         // Wrong dimensions
-        Array.from({ length: 8 }, () => Array.from({ length: 9 }, () => 5)),
-        Array.from({ length: 9 }, () => Array.from({ length: 8 }, () => 5)),
+        createGrid(8, 9, 5),
+        createGrid(9, 8, 5),
         // Invalid values
-        Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => 10)),
-        Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => -1)),
+        createGrid(9, 9, 10),
+        createGrid(9, 9, -1),
         // Not an array
         null,
         undefined,
@@ -280,23 +297,15 @@ describe('Backward Compatibility Layer', () => {
   describe('Legacy Detection', () => {
     it('should correctly identify legacy puzzles', () => {
       const legacyPuzzle = {
-        puzzle: Array.from({ length: 9 }, () =>
-          Array.from({ length: 9 }, () => 0)
-        ),
-        solution: Array.from({ length: 9 }, () =>
-          Array.from({ length: 9 }, () => 1)
-        ),
+        puzzle: createGrid(9, 9, 0),
+        solution: createGrid(9, 9, 1),
         difficulty: 5,
         solved: true,
       };
 
       const modernPuzzle = {
-        puzzle: Array.from({ length: 4 }, () =>
-          Array.from({ length: 4 }, () => 0)
-        ),
-        solution: Array.from({ length: 4 }, () =>
-          Array.from({ length: 4 }, () => 1)
-        ),
+        puzzle: createGrid(4, 4, 0),
+        solution: createGrid(4, 4, 1),
         difficulty: 3,
         gridSize: 4,
       };
@@ -307,17 +316,13 @@ describe('Backward Compatibility Layer', () => {
 
     it('should correctly identify legacy game state', () => {
       const legacyState = {
-        puzzle: Array.from({ length: 9 }, () =>
-          Array.from({ length: 9 }, () => 0)
-        ),
+        puzzle: createGrid(9, 9, 0),
         difficulty: 5,
         time: 100,
       };
 
       const modernState = {
-        puzzle: Array.from({ length: 6 }, () =>
-          Array.from({ length: 6 }, () => 0)
-        ),
+        puzzle: createGrid(6, 6, 0),
         difficulty: 3,
         time: 50,
         gridConfig: GRID_CONFIGS[6],
@@ -354,12 +359,8 @@ describe('Backward Compatibility Layer', () => {
   describe('API Response Compatibility', () => {
     it('should ensure backward compatible response for 9x9 grids', () => {
       const response = {
-        puzzle: Array.from({ length: 9 }, () =>
-          Array.from({ length: 9 }, () => 0)
-        ),
-        solution: Array.from({ length: 9 }, () =>
-          Array.from({ length: 9 }, () => 1)
-        ),
+        puzzle: createGrid(9, 9, 0),
+        solution: createGrid(9, 9, 1),
         difficulty: 5,
         gridSize: 9,
       };
@@ -376,12 +377,8 @@ describe('Backward Compatibility Layer', () => {
 
     it('should not add legacy fields to non-9x9 responses', () => {
       const response = {
-        puzzle: Array.from({ length: 4 }, () =>
-          Array.from({ length: 4 }, () => 0)
-        ),
-        solution: Array.from({ length: 4 }, () =>
-          Array.from({ length: 4 }, () => 1)
-        ),
+        puzzle: createGrid(4, 4, 0),
+        solution: createGrid(4, 4, 1),
         difficulty: 3,
         gridSize: 4,
       };
@@ -576,12 +573,8 @@ describe('Integration with Modern System', () => {
   it('should ensure API contract compatibility', () => {
     // Test that legacy API calls still work
     const legacyApiResponse = {
-      puzzle: Array.from({ length: 9 }, () =>
-        Array.from({ length: 9 }, () => 0)
-      ),
-      solution: Array.from({ length: 9 }, () =>
-        Array.from({ length: 9 }, () => 1)
-      ),
+      puzzle: createGrid(9, 9, 0),
+      solution: createGrid(9, 9, 1),
       difficulty: 5,
     };
 

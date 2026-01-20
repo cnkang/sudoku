@@ -11,9 +11,11 @@ import { GRID_CONFIGS } from '@/utils/gridConfig';
 import type { GridConfig } from '@/types';
 import { secureRandomFraction } from '@/utils/secureRandom';
 
+type GridSize = 4 | 6 | 9;
+
 // Mock performance.now for consistent testing
 const mockPerformanceNow = vi.fn();
-Object.defineProperty(global, 'performance', {
+Object.defineProperty(globalThis, 'performance', {
   value: {
     now: mockPerformanceNow,
   },
@@ -22,7 +24,7 @@ Object.defineProperty(global, 'performance', {
 
 // Mock document.startViewTransition for testing
 const mockStartViewTransition = vi.fn();
-Object.defineProperty(global, 'document', {
+Object.defineProperty(globalThis, 'document', {
   value: {
     startViewTransition: mockStartViewTransition,
   },
@@ -63,8 +65,8 @@ class PerformanceTimer {
 
 // Simulate grid size transition with timing
 async function simulateGridTransition(
-  _fromSize: 4 | 6 | 9,
-  toSize: 4 | 6 | 9,
+  _fromSize: GridSize,
+  toSize: GridSize,
   useViewTransitions: boolean = true,
   simulatedDelay: number = 0
 ): Promise<number> {

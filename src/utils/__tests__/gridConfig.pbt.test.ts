@@ -3,7 +3,7 @@ import fc from 'fast-check';
 import { GridConfigManager } from '@/utils/gridConfig';
 
 const createEmptyGrid = (size: number) =>
-  Array.from({ length: size }, () => Array(size).fill(0));
+  Array.from({ length: size }, () => Array.from({ length: size }, () => 0));
 
 const isDimensionsMatch = (
   config: { size: number; maxValue: number; boxRows: number; boxCols: number },

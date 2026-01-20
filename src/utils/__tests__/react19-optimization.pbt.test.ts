@@ -136,7 +136,7 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
         }), // Component names
         fc.integer({ min: 10, max: 500 }), // Render count
         fc.integer({ min: 5, max: 50 }), // Base render time (ms)
-        fc.float({ min: Math.fround(0.1), max: Math.fround(1.0) }), // Optimization level
+        fc.float({ min: Math.fround(0.1), max: Math.fround(1) }), // Optimization level
         (componentNames, renderCount, baseRenderTime, optimizationLevel) => {
           // Skip test if optimizationLevel is NaN
           if (Number.isNaN(optimizationLevel)) {
@@ -188,7 +188,7 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
             const expectedHitRate = optimizationLevel * 0.8; // 80% of optimization level
             // For whitespace-only or very short component names, expect minimal optimization
             if (metric.componentName.trim().length <= 2) {
-              expect(metric.memoizationHitRate).toBeLessThanOrEqual(1.0); // Very lenient for invalid/minimal names
+              expect(metric.memoizationHitRate).toBeLessThanOrEqual(1); // Very lenient for invalid/minimal names
             } else if (optimizationLevel > 0.4) {
               // Use a range check instead of toBeCloseTo for better tolerance
               expect(metric.memoizationHitRate).toBeGreaterThanOrEqual(
@@ -238,7 +238,7 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
         fc.integer({ min: 10, max: 1000 }), // Renders per component
         (componentCount, complexity, rendersPerComponent) => {
           const baseRenderTime = complexity * 2; // More complex = slower
-          const optimizationLevel = Math.min(1.0, 0.3 + complexity * 0.1); // More complex = more optimization potential
+          const optimizationLevel = Math.min(1, 0.3 + complexity * 0.1); // More complex = more optimization potential
 
           const metrics = Array.from({ length: componentCount }, (_, i) =>
             simulateReactCompilerOptimization(
@@ -292,7 +292,7 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
       fc.property(
         fc.integer({ min: 100, max: 2000 }), // Original bundle size (KB)
         fc.integer({ min: 5, max: 100 }), // Component count
-        fc.float({ min: Math.fround(0.2), max: Math.fround(1.0) }), // Optimization level
+        fc.float({ min: Math.fround(0.2), max: Math.fround(1) }), // Optimization level
         (originalSizeKB, componentCount, optimizationLevel) => {
           const originalSize = originalSizeKB * 1024; // Convert to bytes
           const bundleImpact = simulateBundleSizeImpact(
@@ -338,7 +338,7 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
       fc.property(
         fc.integer({ min: 10, max: 200 }), // Base memory usage (MB)
         fc.integer({ min: 50, max: 2000 }), // Render count
-        fc.float({ min: Math.fround(0.1), max: Math.fround(1.0) }), // Optimization level
+        fc.float({ min: Math.fround(0.1), max: Math.fround(1) }), // Optimization level
         (baseMemoryMB, renderCount, optimizationLevel) => {
           const baseMemoryUsage = baseMemoryMB * 1024 * 1024; // Convert to bytes
           const memoryOptimization = simulateMemoryOptimization(
@@ -405,11 +405,12 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
           hasComplexState
         ) => {
           // Simulate different component patterns that React Compiler must handle correctly
-          const optimizationLevel = hasSideEffects
-            ? 0.3
-            : hasComplexState
-              ? 0.6
-              : 0.8;
+          let optimizationLevel = 0.8;
+          if (hasSideEffects) {
+            optimizationLevel = 0.3;
+          } else if (hasComplexState) {
+            optimizationLevel = 0.6;
+          }
 
           componentNames.forEach(componentName => {
             const metrics = simulateReactCompilerOptimization(
@@ -487,7 +488,7 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
           if (usesConcurrent) baseOptimizationLevel += 0.1;
           if (hookCount > 5) baseOptimizationLevel += 0.1;
 
-          const optimizationLevel = Math.min(1.0, baseOptimizationLevel);
+          const optimizationLevel = Math.min(1, baseOptimizationLevel);
 
           const metrics = simulateReactCompilerOptimization(
             'ModernComponent',
@@ -553,8 +554,7 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
           // Optimization behavior should be consistent but may vary by environment
           const baseOptimizationLevel =
             environment === 'production' ? 0.8 : 0.6;
-          const environmentMultiplier =
-            environment === 'development' ? 0.8 : 1.0;
+          const environmentMultiplier = environment === 'development' ? 0.8 : 1;
 
           const metrics = Array.from({ length: componentCount }, (_, i) =>
             simulateReactCompilerOptimization(

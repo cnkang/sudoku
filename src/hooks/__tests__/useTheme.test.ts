@@ -14,6 +14,19 @@ const mockLocalStorage = {
 // Mock matchMedia
 const mockMatchMedia = vi.fn();
 
+const renderThemeHook = () => renderHook(() => useTheme());
+
+const setThemeSafe = (
+  result: ReturnType<
+    typeof renderHook<ReturnType<typeof useTheme>, unknown>
+  >['result'],
+  themeId: string
+) => {
+  act(() => {
+    result.current.setTheme(themeId);
+  });
+};
+
 describe('useTheme', () => {
   beforeEach(() => {
     // Reset mocks
@@ -258,7 +271,7 @@ describe('useTheme', () => {
         throw new Error('Media queries not supported');
       });
 
-      expect(() => renderHook(() => useTheme())).not.toThrow();
+      expect(() => renderThemeHook()).not.toThrow();
     });
   });
 
@@ -278,9 +291,7 @@ describe('useTheme', () => {
 
       // Should not throw when setting theme
       expect(() => {
-        act(() => {
-          result.current.setTheme('forest');
-        });
+        setThemeSafe(result, 'forest');
       }).not.toThrow();
     });
   });

@@ -25,11 +25,11 @@ const mockPerformance = {
 // Setup mocks
 beforeEach(() => {
   vi.clearAllMocks();
-  global.PerformanceObserver = mockPerformanceObserver as any;
-  global.performance = mockPerformance as any;
+  globalThis.PerformanceObserver = mockPerformanceObserver as any;
+  globalThis.performance = mockPerformance as any;
 
   // Mock window and navigator
-  Object.defineProperty(global, 'window', {
+  Object.defineProperty(globalThis, 'window', {
     value: {
       addEventListener: vi.fn(),
       location: { href: 'http://localhost:3000' },
@@ -37,7 +37,7 @@ beforeEach(() => {
     writable: true,
   });
 
-  Object.defineProperty(global, 'navigator', {
+  Object.defineProperty(globalThis, 'navigator', {
     value: {
       userAgent: 'test-agent',
     },

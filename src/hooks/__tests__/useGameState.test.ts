@@ -6,6 +6,15 @@ import { useOptimisticSudoku } from '../useOptimisticSudoku';
 import { usePuzzleLoader } from '../usePuzzleLoader';
 import type { SudokuPuzzle } from '../../types';
 
+const runPuzzleLoaderCase = (
+  difficulty: number,
+  shouldFetch: boolean,
+  expected: string | null
+) => {
+  const { result } = renderHook(() => usePuzzleLoader(difficulty, shouldFetch));
+  expect(result.current).toBe(expected);
+};
+
 describe('useGameState', () => {
   let result: ReturnType<
     typeof renderHook<ReturnType<typeof useGameState>, unknown>
@@ -630,10 +639,7 @@ describe('useGameState', () => {
       ];
 
       testCases.forEach(({ difficulty, shouldFetch, expected }) => {
-        const { result: _result } = renderHook(() =>
-          usePuzzleLoader(difficulty, shouldFetch)
-        );
-        expect(_result.current).toBe(expected);
+        runPuzzleLoaderCase(difficulty, shouldFetch, expected);
       });
     });
   });

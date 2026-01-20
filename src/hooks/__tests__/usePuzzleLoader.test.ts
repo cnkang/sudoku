@@ -3,6 +3,20 @@ import { usePuzzleLoader } from '../usePuzzleLoader';
 
 // Mock fetch
 const mockFetch = vi.fn();
+
+const assertPuzzleFetch = (difficulty: number) => {
+  mockFetch.mockResolvedValueOnce({
+    ok: true,
+    json: () => Promise.resolve({}),
+  });
+
+  renderHook(() => usePuzzleLoader(difficulty, true, false));
+
+  expect(mockFetch).toHaveBeenCalledWith(
+    `/api/solveSudoku?difficulty=${difficulty}`,
+    { method: 'POST' }
+  );
+};
 global.fetch = mockFetch;
 
 // Mock React's use hook since it's experimental
@@ -79,17 +93,7 @@ describe('usePuzzleLoader', () => {
       const difficulties = [1, 2, 3, 4];
 
       difficulties.forEach(difficulty => {
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve({}),
-        });
-
-        renderHook(() => usePuzzleLoader(difficulty, true, false));
-
-        expect(mockFetch).toHaveBeenCalledWith(
-          `/api/solveSudoku?difficulty=${difficulty}`,
-          { method: 'POST' }
-        );
+        assertPuzzleFetch(difficulty);
       });
     });
   });

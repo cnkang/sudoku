@@ -96,7 +96,7 @@ describe('normalizeDifficulty - Protective Clamping', () => {
 
     it('should default NaN to minimum difficulty', () => {
       const config = getConfig(9);
-      expect(normalizeDifficulty(NaN, config)).toBe(1);
+      expect(normalizeDifficulty(Number.NaN, config)).toBe(1);
     });
 
     it('should default objects to minimum difficulty', () => {
