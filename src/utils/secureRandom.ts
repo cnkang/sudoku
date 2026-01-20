@@ -19,7 +19,9 @@ const getCrypto = (): Crypto | null => {
 const getRandomUint32 = (): number => {
   const crypto = getCrypto();
   if (!crypto) {
-    throw new Error('Secure random values are not available in this environment');
+    throw new Error(
+      'Secure random values are not available in this environment'
+    );
   }
 
   const array = new Uint32Array(1);

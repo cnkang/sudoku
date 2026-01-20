@@ -238,8 +238,7 @@ export const useAdaptiveTouchTargets = (): [
       );
 
       if (filteredHistory.length !== prev.interactionHistory.length) {
-        const newAdaptationLevel =
-          analyzeInteractionPatterns(filteredHistory);
+        const newAdaptationLevel = analyzeInteractionPatterns(filteredHistory);
         const motorDifficultiesDetected = newAdaptationLevel !== 'none';
 
         return {

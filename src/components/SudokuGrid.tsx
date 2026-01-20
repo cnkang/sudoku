@@ -78,6 +78,59 @@ const triggerHapticFeedback = (
 
 const generateCellKey = (row: number, col: number) => `cell-${row}-${col}`;
 
+const getCellAriaLabel = ({
+  rowIndex,
+  colIndex,
+  currentValue,
+  maxValue,
+  hasError,
+  isHinted,
+}: {
+  rowIndex: number;
+  colIndex: number;
+  currentValue: number;
+  maxValue: number;
+  hasError: boolean;
+  isHinted: boolean;
+}) => {
+  const valueText = currentValue
+    ? `Current value: ${currentValue}`
+    : 'Empty cell';
+  const errorText = hasError
+    ? 'This cell has a conflict with other numbers.'
+    : '';
+  const hintText = isHinted ? 'This cell is highlighted as a hint.' : '';
+
+  return `Editable cell in row ${rowIndex + 1}, column ${
+    colIndex + 1
+  }. Enter numbers 1 to ${maxValue}. ${valueText}. ${errorText} ${hintText}`.trim();
+};
+
+const getCellDescription = ({
+  rowIndex,
+  colIndex,
+  gridConfig,
+  hasError,
+  isHinted,
+}: {
+  rowIndex: number;
+  colIndex: number;
+  gridConfig: GridConfig;
+  hasError: boolean;
+  isHinted: boolean;
+}) => {
+  const subGridRow = Math.floor(rowIndex / gridConfig.boxRows) + 1;
+  const subGridCol = Math.floor(colIndex / gridConfig.boxCols) + 1;
+  const conflictText = hasError
+    ? 'Conflict detected with other numbers in row, column, or sub-grid.'
+    : '';
+  const hintText = isHinted
+    ? 'This cell is suggested as a good next move.'
+    : '';
+
+  return `Cell in ${gridConfig.size}×${gridConfig.size} Sudoku grid. Sub-grid ${subGridRow}, ${subGridCol}. ${conflictText} ${hintText}`.trim();
+};
+
 const getCellBorderStyle = (
   row: number,
   col: number,
@@ -205,7 +258,7 @@ const useCellTouchHandlers = ({
 }: {
   disabled: boolean;
   isFixed: boolean;
-  onLongPress?: (row: number, col: number) => void;
+  onLongPress: ((row: number, col: number) => void) | undefined;
   reducedMotion: boolean;
   rowIndex: number;
   colIndex: number;
@@ -445,7 +498,7 @@ const handlePuzzleCompletionFeedback = ({
   screenReaderMode: boolean;
   audioHandlers: AudioHandlers;
   accessibilityManager: React.MutableRefObject<AccessibilityManager>;
-  onPuzzleComplete?: () => void;
+  onPuzzleComplete: (() => void) | undefined;
 }) => {
   visualFeedback.triggerCelebration('confetti');
 
@@ -704,11 +757,14 @@ const SudokuCell = ({
             className={`${styles.cellInput} ${
               accessibility.largeText ? styles.largeText : ''
             }`}
-            aria-label={`Editable cell in row ${rowIndex + 1}, column ${colIndex + 1}. ${
-              currentValue ? `Current value: ${currentValue}` : 'Empty cell'
-            }. Enter numbers 1 to ${maxValue}. ${
-              hasError ? 'This cell has a conflict with other numbers.' : ''
-            } ${isHinted ? 'This cell is highlighted as a hint.' : ''}`}
+            aria-label={getCellAriaLabel({
+              rowIndex,
+              colIndex,
+              currentValue,
+              maxValue,
+              hasError,
+              isHinted,
+            })}
             aria-describedby={`${cellKey}-description`}
             aria-invalid={hasError}
             aria-required="false"
@@ -722,13 +778,13 @@ const SudokuCell = ({
             className={styles.srOnly}
             aria-hidden="true"
           >
-            {`Cell in ${gridConfig.size}×${gridConfig.size} Sudoku grid. Sub-grid ${
-              Math.floor(rowIndex / gridConfig.boxRows) + 1
-            }, ${Math.floor(colIndex / gridConfig.boxCols) + 1}. ${
-              hasError
-                ? 'Conflict detected with other numbers in row, column, or sub-grid.'
-                : ''
-            } ${isHinted ? 'This cell is suggested as a good next move.' : ''}`}
+            {getCellDescription({
+              rowIndex,
+              colIndex,
+              gridConfig,
+              hasError,
+              isHinted,
+            })}
           </div>
         </>
       )}
@@ -987,8 +1043,6 @@ const SudokuGrid = memo<SudokuGridProps>(
         audioFeedback,
         screenReaderMode,
         audioHandlers,
-        accessibilityManager,
-        cellRefs,
       ]
     );
 

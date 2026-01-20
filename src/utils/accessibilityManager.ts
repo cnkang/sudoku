@@ -272,7 +272,6 @@ class AccessibilityManager {
   /**
    * Describe game state changes for screen readers
    */
-  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: multiple announcement cases
   public describeGameStateChange(
     type:
       | 'puzzle-loaded'

@@ -138,9 +138,7 @@ class PerformanceMonitor {
       // Navigation timing for TTI approximation
       this.observeNavigationTiming();
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('[PerformanceMonitor] Observer setup failed', error);
-      }
+      const _error = error;
     }
   }
 
@@ -252,9 +250,7 @@ class PerformanceMonitor {
     const cls = this.metrics.get('CLS');
 
     return (
-      lcp?.rating !== 'poor' &&
-      fid?.rating !== 'poor' &&
-      cls?.rating !== 'poor'
+      lcp?.rating !== 'poor' && fid?.rating !== 'poor' && cls?.rating !== 'poor'
     );
   }
 
@@ -344,9 +340,7 @@ export const getBundleSize = async (): Promise<number> => {
       return entry.transferSize || 0;
     }
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('[PerformanceMonitor] Bundle size lookup failed', error);
-    }
+    const _error = error;
   }
 
   return 0;

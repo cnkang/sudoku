@@ -55,11 +55,7 @@ export default function Home() {
       </main>
 
       {/* Inject styles for test environment compatibility */}
-      {isTestEnv ? (
-        <style>{pageStyles}</style>
-      ) : (
-        <style>{pageStyles}</style>
-      )}
+      {isTestEnv ? <style>{pageStyles}</style> : <style>{pageStyles}</style>}
 
       {/* Additional loading styles */}
       {isTestEnv ? (

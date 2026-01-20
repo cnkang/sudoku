@@ -97,7 +97,7 @@ describe('SudokuGrid Property-Based Tests', () => {
     GRID_CONFIGS[gridSize as GridSize];
 
   const createEmptyGrid = (size: number) =>
-    Array.from({ length: size }, () => new Array(size).fill(0));
+    Array.from({ length: size }, () => Array.from({ length: size }, () => 0));
 
   // Arbitraries for generating test data
   const gridSizeArb = fc.constantFrom(4, 6, 9);

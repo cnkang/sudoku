@@ -194,7 +194,9 @@ const assertValidPuzzleStructure = async (): Promise<void> =>
         }
 
         // Check that puzzle has fewer filled cells than solution
-        const puzzleFilledCells = puzzle.flat().filter(cell => cell !== 0).length;
+        const puzzleFilledCells = puzzle
+          .flat()
+          .filter(cell => cell !== 0).length;
         const solutionFilledCells = solution
           .flat()
           .filter(cell => cell !== 0).length;

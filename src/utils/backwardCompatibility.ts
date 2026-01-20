@@ -390,9 +390,7 @@ export const LegacyDataMigrator = {
       // Mark migration as complete
       localStorage.setItem('sudoku-migration-complete', 'true');
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('[BackwardCompatibility] Migration failed', error);
-      }
+      const _error = error;
     }
   },
 
@@ -420,9 +418,7 @@ export const LegacyDataMigrator = {
         localStorage.removeItem(key);
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('[BackwardCompatibility] Cleanup failed', error);
-      }
+      const _error = error;
     }
   },
 };

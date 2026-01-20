@@ -1,27 +1,27 @@
-import React from "react";
-import type { DifficultySelectProps } from "../types";
-import { getConfig } from "@/utils/gridConfig";
+import React from 'react';
+import type { DifficultySelectProps } from '../types';
+import { getConfig } from '@/utils/gridConfig';
 
 const DIFFICULTY_LABEL_RANGES: Record<
   4 | 6 | 9,
   Array<{ max: number; label: string }>
 > = {
   4: [
-    { max: 2, label: "Easy" },
-    { max: 3, label: "Medium" },
-    { max: Infinity, label: "Hard" },
+    { max: 2, label: 'Easy' },
+    { max: 3, label: 'Medium' },
+    { max: Infinity, label: 'Hard' },
   ],
   6: [
-    { max: 2, label: "Easy" },
-    { max: 4, label: "Medium" },
-    { max: 6, label: "Hard" },
-    { max: Infinity, label: "Expert" },
+    { max: 2, label: 'Easy' },
+    { max: 4, label: 'Medium' },
+    { max: 6, label: 'Hard' },
+    { max: Infinity, label: 'Expert' },
   ],
   9: [
-    { max: 2, label: "Easy" },
-    { max: 5, label: "Medium" },
-    { max: 8, label: "Hard" },
-    { max: Infinity, label: "Expert" },
+    { max: 2, label: 'Easy' },
+    { max: 5, label: 'Medium' },
+    { max: 8, label: 'Hard' },
+    { max: Infinity, label: 'Expert' },
   ],
 };
 
@@ -41,7 +41,7 @@ const DifficultySelector: React.FC<DifficultySelectProps> = ({
 
   // Normalize difficulty value with protective clamping
   const normalizedDifficulty = React.useMemo(() => {
-    if (typeof difficulty !== "number" || Number.isNaN(difficulty)) {
+    if (typeof difficulty !== 'number' || Number.isNaN(difficulty)) {
       return minDifficulty;
     }
     const rounded = Math.round(difficulty);
@@ -65,13 +65,13 @@ const DifficultySelector: React.FC<DifficultySelectProps> = ({
 
   const getDifficultyLabel = (level: number): string => {
     const pool = DIFFICULTY_LABEL_RANGES[gridSizeKey];
-    const fallback = pool.at(-1) ?? { max: Infinity, label: "Expert" };
-    const foundRange = pool.find((range) => level <= range.max);
+    const fallback = pool.at(-1) ?? { max: Infinity, label: 'Expert' };
+    const foundRange = pool.find(range => level <= range.max);
     const range = foundRange ?? fallback;
     return `${level} (${range.label})`;
   };
 
-  const isTestEnv = process.env.NODE_ENV === "test";
+  const isTestEnv = process.env.NODE_ENV === 'test';
 
   return (
     <div className="difficulty-selector modern-flex-controls">
@@ -95,8 +95,8 @@ const DifficultySelector: React.FC<DifficultySelectProps> = ({
       </select>
       <p className="difficulty-hint">
         {isLoading
-          ? "🔄 Generating new puzzle..."
-          : "💡 Changing difficulty will generate a new puzzle"}
+          ? '🔄 Generating new puzzle...'
+          : '💡 Changing difficulty will generate a new puzzle'}
       </p>
 
       {isTestEnv ? (
