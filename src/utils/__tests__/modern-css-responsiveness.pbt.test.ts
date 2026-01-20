@@ -6,6 +6,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
+import { secureRandomChance } from '@/utils/secureRandom';
 
 // Mock DOM environment for CSS testing
 const _mockElement = (width: number, height: number) => ({
@@ -474,8 +475,8 @@ describe('Modern CSS Responsiveness Property Tests', () => {
         (hasContainerQueries, hasCSSGrid, hasFlexbox, hasModernViewport) => {
           // In modern browsers, at least one layout method is always available
           // Flexbox has 98%+ support, CSS Grid has 95%+ support
-          const actualFlexbox = hasFlexbox || Math.random() > 0.02; // 98% chance
-          const actualCSSGrid = hasCSSGrid || Math.random() > 0.05; // 95% chance
+          const actualFlexbox = hasFlexbox || secureRandomChance(0.98); // 98% chance
+          const actualCSSGrid = hasCSSGrid || secureRandomChance(0.95); // 95% chance
 
           // Property: System should work with any realistic combination of feature support
           const features = {

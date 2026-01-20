@@ -10,6 +10,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { BackwardCompatibility } from '../backwardCompatibility';
 import type { SudokuPuzzle } from '@/types';
 import { GRID_CONFIGS } from '../gridConfig';
+import { secureRandomInt } from '@/utils/secureRandom';
 
 // Mock localStorage for testing
 const mockLocalStorage = {
@@ -121,7 +122,7 @@ describe('Backward Compatibility Layer', () => {
 
     it('should validate legacy puzzle structure correctly', () => {
       const validPuzzle = Array.from({ length: 9 }, () =>
-        Array.from({ length: 9 }, () => Math.floor(Math.random() * 10))
+        Array.from({ length: 9 }, () => secureRandomInt(10))
       );
 
       const invalidPuzzles = [

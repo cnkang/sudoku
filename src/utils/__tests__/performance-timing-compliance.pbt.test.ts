@@ -9,6 +9,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fc from 'fast-check';
 import { GRID_CONFIGS } from '@/utils/gridConfig';
 import type { GridConfig } from '@/types';
+import { secureRandomFraction } from '@/utils/secureRandom';
 
 // Mock performance.now for consistent testing
 const mockPerformanceNow = vi.fn();
@@ -138,7 +139,7 @@ async function simulateApiCall(
 
   let _sum = 0;
   for (let i = 0; i < generationWork; i++) {
-    _sum += Math.random();
+    _sum += secureRandomFraction();
   }
 
   return timer.end();
@@ -493,7 +494,7 @@ describe('Performance Timing Integration Tests', () => {
   it('should maintain performance under memory pressure simulation', async () => {
     // Simulate memory pressure by creating large objects
     const memoryPressure = Array.from({ length: 1000 }, () =>
-      Array.from({ length: 100 }, () => Math.random())
+      Array.from({ length: 100 }, () => secureRandomFraction())
     );
 
     let time = 0;

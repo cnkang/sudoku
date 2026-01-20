@@ -1,8 +1,8 @@
-import { describe, it } from 'vitest';
 import * as fc from 'fast-check';
+import { describe, it } from 'vitest';
 import {
-  calculateContrastRatio,
   AccessibilityManager,
+  calculateContrastRatio,
   getAllThemes,
   getChildFriendlyThemes,
 } from '../themes';
