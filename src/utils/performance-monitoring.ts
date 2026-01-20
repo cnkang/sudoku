@@ -59,8 +59,9 @@ export interface ReactOptimizationMetric {
 
 // Performance observer for Core Web Vitals
 class PerformanceMonitor {
-  private metrics: Map<string, PerformanceMetric> = new Map();
-  private reactMetrics: Map<string, ReactOptimizationMetric> = new Map();
+  private readonly metrics: Map<string, PerformanceMetric> = new Map();
+  private readonly reactMetrics: Map<string, ReactOptimizationMetric> =
+    new Map();
   private observers: PerformanceObserver[] = [];
 
   constructor() {
@@ -137,7 +138,9 @@ class PerformanceMonitor {
       // Navigation timing for TTI approximation
       this.observeNavigationTiming();
     } catch (error) {
-      void error;
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[PerformanceMonitor] Observer setup failed', error);
+      }
     }
   }
 
@@ -249,9 +252,9 @@ class PerformanceMonitor {
     const cls = this.metrics.get('CLS');
 
     return (
-      (!lcp || lcp.rating !== 'poor') &&
-      (!fid || fid.rating !== 'poor') &&
-      (!cls || cls.rating !== 'poor')
+      lcp?.rating !== 'poor' &&
+      fid?.rating !== 'poor' &&
+      cls?.rating !== 'poor'
     );
   }
 
@@ -341,7 +344,9 @@ export const getBundleSize = async (): Promise<number> => {
       return entry.transferSize || 0;
     }
   } catch (error) {
-    void error;
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[PerformanceMonitor] Bundle size lookup failed', error);
+    }
   }
 
   return 0;

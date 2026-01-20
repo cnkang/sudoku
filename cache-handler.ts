@@ -15,7 +15,7 @@ interface CacheContext {
 const cache = new Map<string, CacheEntry>();
 
 export default class CacheHandler {
-  private options: CacheHandlerOptions;
+  private readonly options: CacheHandlerOptions;
 
   constructor(options: CacheHandlerOptions) {
     this.options = options;
