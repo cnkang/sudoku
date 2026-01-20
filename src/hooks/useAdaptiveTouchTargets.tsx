@@ -327,12 +327,8 @@ export const withAdaptiveTouchTargets = <
             return; // Can't calculate accuracy
           }
 
-          const distance = Math.sqrt(
-            (clientX - centerX) ** 2 + (clientY - centerY) ** 2
-          );
-          const maxDistance = Math.sqrt(
-            (rect.width / 2) ** 2 + (rect.height / 2) ** 2
-          );
+          const distance = Math.hypot(clientX - centerX, clientY - centerY);
+          const maxDistance = Math.hypot(rect.width / 2, rect.height / 2);
           const accuracy = Math.max(0, 1 - distance / maxDistance);
 
           touchHandlers.recordInteraction({

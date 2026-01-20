@@ -187,7 +187,7 @@ export const useVoiceInput = (
       }
 
       // Check for direct number input
-      const directNumber = parseInt(transcript, 10);
+      const directNumber = Number.parseInt(transcript, 10);
       if (
         !Number.isNaN(directNumber) &&
         directNumber >= 0 &&
@@ -237,7 +237,7 @@ export const useVoiceInput = (
         const match = transcript.match(pattern);
         if (match?.[1]) {
           const word = match[1];
-          const number = NUMBER_WORDS[word] ?? parseInt(word, 10);
+          const number = NUMBER_WORDS[word] ?? Number.parseInt(word, 10);
           if (
             !Number.isNaN(number) &&
             number >= 0 &&
