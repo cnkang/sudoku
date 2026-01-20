@@ -13,9 +13,17 @@
   width: 100%;
   min-height: 100dvh;
   padding: clamp(0.5rem, 2vw, 1.5rem);
+  padding-inline: clamp(0.5rem, 2vw, 1.5rem);
+  padding-block: clamp(0.5rem, 2vw, 1.5rem);
   background: var(--background, #f8fafc);
+  background: color-mix(in srgb, var(--background, #f8fafc) 95%, transparent);
   color: var(--foreground, #1e293b);
   position: relative;
+
+  /* CSS Custom Properties for theming */
+  --border-radius: 0.75rem;
+  --transition-duration: 0.2s;
+  --transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Tablet Layout - Two Column with Sidebar */
@@ -221,7 +229,7 @@
 
 .childError {
   background: linear-gradient(135deg, #fff4e6 0%, #ffe4b5 100%);
-  color: #d2691e;
+  color: #8a3b00;
   border-color: #deb887;
   font-size: clamp(1rem, 2.5vw, 1.125rem);
   border-radius: 12px;
@@ -267,7 +275,7 @@
 
 .childHint {
   background: linear-gradient(135deg, #fffacd 0%, #f0e68c 100%);
-  color: #b8860b;
+  color: #7a5d00;
   border-color: #ddd700;
   font-size: clamp(1rem, 2.5vw, 1.125rem);
   border-radius: 12px;
@@ -458,21 +466,6 @@
 
 .childMode:focus-within {
   --focus-color: #0077be;
-}
-
-/* Modern CSS Features */
-.modernApp {
-  /* CSS Logical Properties */
-  padding-inline: clamp(0.5rem, 2vw, 1.5rem);
-  padding-block: clamp(0.5rem, 2vw, 1.5rem);
-
-  /* CSS Custom Properties for theming */
-  --border-radius: 0.75rem;
-  --transition-duration: 0.2s;
-  --transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
-
-  /* Modern color functions */
-  background: color-mix(in srgb, var(--background, #f8fafc) 95%, transparent);
 }
 
 /* View Transitions API Support */

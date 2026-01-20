@@ -24,9 +24,9 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
   if (!r || !g || !b) return null;
 
   return {
-    r: parseInt(r, 16),
-    g: parseInt(g, 16),
-    b: parseInt(b, 16),
+    r: Number.parseInt(r, 16),
+    g: Number.parseInt(g, 16),
+    b: Number.parseInt(b, 16),
   };
 }
 
