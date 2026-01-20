@@ -285,7 +285,7 @@ export const useKeyboardNavigation = (
       // Check for valid number input
       const numberMatch = key.match(/^[0-9]$/);
       if (numberMatch) {
-        const value = parseInt(key, 10);
+        const value = Number.parseInt(key, 10);
 
         if (value >= 1 && value <= maxValue) {
           event.preventDefault();
