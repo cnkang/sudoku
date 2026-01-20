@@ -230,6 +230,30 @@ export const useAdaptiveTouchTargets = (): [
     resetAdaptation();
   }, [updateSettings, resetAdaptation]);
 
+  const cleanupOldInteractions = useCallback(() => {
+    setState(prev => {
+      const cutoffTime = Date.now() - prev.settings.trackingDuration;
+      const filteredHistory = prev.interactionHistory.filter(
+        i => i.timestamp > cutoffTime
+      );
+
+      if (filteredHistory.length !== prev.interactionHistory.length) {
+        const newAdaptationLevel =
+          analyzeInteractionPatterns(filteredHistory);
+        const motorDifficultiesDetected = newAdaptationLevel !== 'none';
+
+        return {
+          ...prev,
+          interactionHistory: filteredHistory,
+          adaptationLevel: newAdaptationLevel,
+          motorDifficultiesDetected,
+        };
+      }
+
+      return prev;
+    });
+  }, [analyzeInteractionPatterns]);
+
   // Cleanup old interactions periodically
   useEffect(() => {
     if (cleanupTimeoutRef.current) {
@@ -237,27 +261,7 @@ export const useAdaptiveTouchTargets = (): [
     }
 
     cleanupTimeoutRef.current = setTimeout(() => {
-      setState(prev => {
-        const cutoffTime = Date.now() - prev.settings.trackingDuration;
-        const filteredHistory = prev.interactionHistory.filter(
-          i => i.timestamp > cutoffTime
-        );
-
-        if (filteredHistory.length !== prev.interactionHistory.length) {
-          const newAdaptationLevel =
-            analyzeInteractionPatterns(filteredHistory);
-          const motorDifficultiesDetected = newAdaptationLevel !== 'none';
-
-          return {
-            ...prev,
-            interactionHistory: filteredHistory,
-            adaptationLevel: newAdaptationLevel,
-            motorDifficultiesDetected,
-          };
-        }
-
-        return prev;
-      });
+      cleanupOldInteractions();
     }, 5000); // Cleanup every 5 seconds
 
     return () => {
@@ -265,7 +269,7 @@ export const useAdaptiveTouchTargets = (): [
         clearTimeout(cleanupTimeoutRef.current);
       }
     };
-  }, [analyzeInteractionPatterns]);
+  }, [cleanupOldInteractions]);
 
   return [
     state,

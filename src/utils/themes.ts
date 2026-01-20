@@ -565,7 +565,12 @@ export class AccessibilityManager {
     const scaleFactor = Math.min(2.0, Math.max(1.0, screenWidth / 400));
 
     // Grid factor for child-friendly sizing
-    const gridFactor = gridSize <= 4 ? 1.2 : gridSize <= 6 ? 1.1 : 1.0;
+    let gridFactor = 1.0;
+    if (gridSize <= 4) {
+      gridFactor = 1.2;
+    } else if (gridSize <= 6) {
+      gridFactor = 1.1;
+    }
 
     // Calculate font size with reasonable bounds
     const calculatedSize = Math.round(baseSize * scaleFactor * gridFactor);

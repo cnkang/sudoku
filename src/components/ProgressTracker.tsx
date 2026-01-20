@@ -39,6 +39,63 @@ interface DisplayedAchievement {
   celebrationEffect: CelebrationEffect;
 }
 
+const scheduleRewardRemoval = (
+  setDisplayedRewards: React.Dispatch<React.SetStateAction<DisplayedReward[]>>,
+  rewardId: string,
+  duration: number
+) => {
+  setTimeout(() => {
+    setDisplayedRewards(prev => prev.filter(reward => reward.id !== rewardId));
+  }, duration);
+};
+
+const scheduleAchievementRemoval = (
+  setDisplayedAchievements: React.Dispatch<
+    React.SetStateAction<DisplayedAchievement[]>
+  >,
+  achievementId: string,
+  duration: number
+) => {
+  setTimeout(() => {
+    setDisplayedAchievements(prev =>
+      prev.filter(achievement => achievement.id !== achievementId)
+    );
+  }, duration + 2000);
+};
+
+const scheduleAchievementDisplay = (
+  achievement: Achievement,
+  index: number,
+  childMode: boolean,
+  setDisplayedAchievements: React.Dispatch<
+    React.SetStateAction<DisplayedAchievement[]>
+  >,
+  onAchievementUnlocked?: (achievement: Achievement) => void,
+  onCelebrationTriggered?: (effect: CelebrationEffect) => void
+) => {
+  setTimeout(() => {
+    const celebrationEffect = generateCelebrationEffect(achievement, childMode);
+    const achievementId = `achievement-${achievement.id}-${Date.now()}`;
+
+    const newDisplayedAchievement: DisplayedAchievement = {
+      id: achievementId,
+      achievement,
+      timestamp: Date.now(),
+      celebrationEffect,
+    };
+
+    setDisplayedAchievements(prev => [...prev, newDisplayedAchievement]);
+    onAchievementUnlocked?.(achievement);
+    onCelebrationTriggered?.(celebrationEffect);
+
+    scheduleAchievementRemoval(
+      setDisplayedAchievements,
+      achievementId,
+      celebrationEffect.duration
+    );
+  }, index * 1000);
+};
+
 export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
   currentStats,
   gridSize,
@@ -97,37 +154,22 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
       onRewardEarned?.(completionReward);
 
       // Auto-remove reward after duration
-      setTimeout(() => {
-        setDisplayedRewards(prev => prev.filter(r => r.id !== rewardId));
-      }, completionReward.duration);
+      scheduleRewardRemoval(
+        setDisplayedRewards,
+        rewardId,
+        completionReward.duration
+      );
 
       // Handle new achievements
       newAchievements.forEach((achievement, index) => {
-        setTimeout(() => {
-          const celebrationEffect = generateCelebrationEffect(
-            achievement,
-            childMode
-          );
-          const achievementId = `achievement-${achievement.id}-${Date.now()}`;
-
-          const newDisplayedAchievement: DisplayedAchievement = {
-            id: achievementId,
-            achievement,
-            timestamp: Date.now(),
-            celebrationEffect,
-          };
-
-          setDisplayedAchievements(prev => [...prev, newDisplayedAchievement]);
-          onAchievementUnlocked?.(achievement);
-          onCelebrationTriggered?.(celebrationEffect);
-
-          // Auto-remove achievement display after celebration
-          setTimeout(() => {
-            setDisplayedAchievements(prev =>
-              prev.filter(a => a.id !== achievementId)
-            );
-          }, celebrationEffect.duration + 2000);
-        }, index * 1000); // Stagger multiple achievements
+        scheduleAchievementDisplay(
+          achievement,
+          index,
+          childMode,
+          setDisplayedAchievements,
+          onAchievementUnlocked,
+          onCelebrationTriggered
+        );
       });
     },
     [
