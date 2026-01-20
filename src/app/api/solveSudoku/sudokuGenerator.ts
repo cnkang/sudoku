@@ -1,14 +1,14 @@
-import winston from 'winston';
-import type { SudokuPuzzle } from './types';
-import type { GridConfig } from '@/types';
-import { solveSudoku } from './dlxSolver';
-import { shuffle } from 'lodash';
-import crypto from 'node:crypto';
-import { getConfig, validateMove } from '@/utils/gridConfig';
+import winston from "winston";
+import type { SudokuPuzzle } from "./types";
+import type { GridConfig } from "@/types";
+import { solveSudoku } from "./dlxSolver";
+import { shuffle } from "lodash";
+import crypto from "node:crypto";
+import { getConfig, validateMove } from "@/utils/gridConfig";
 
 // Configure logging
 const logger = winston.createLogger({
-  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+  level: process.env.NODE_ENV === "production" ? "info" : "debug",
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.printf(({ timestamp, level, message }) => {
@@ -116,12 +116,23 @@ async function removeNumbers(
   difficulty: number,
   config: GridConfig
 ): Promise<number[][]> {
-  const puzzle = board.map(row => row.slice());
+  const puzzle = board.map((row) => row.slice());
   const totalCells = config.size * config.size;
   const cluesCount = getCluesCount(difficulty, config);
   let cellsToRemove = totalCells - cluesCount;
 
-  while (cellsToRemove > 0) {
+  // Add safety limits to prevent infinite loops
+  const maxAttempts = totalCells * 10; // Maximum attempts to remove a cell
+  let attempts = 0;
+  let consecutiveFailures = 0;
+  const maxConsecutiveFailures = totalCells; // Stop if we fail too many times in a row
+
+  while (
+    cellsToRemove > 0 &&
+    attempts < maxAttempts &&
+    consecutiveFailures < maxConsecutiveFailures
+  ) {
+    attempts++;
     const row = crypto.randomInt(0, config.size);
     const col = crypto.randomInt(0, config.size);
     const puzzleRow = puzzle[row];
@@ -137,7 +148,7 @@ async function removeNumbers(
     const backup = cellValue;
     puzzleRow[col] = 0;
 
-    const puzzleCopy = puzzle.map(r => r.slice());
+    const puzzleCopy = puzzle.map((r) => r.slice());
     const solutions: number[][][] = [];
     await solveSudoku(puzzleCopy, solutions, 2, config);
 
@@ -146,12 +157,22 @@ async function removeNumbers(
         `Removed number at (${row}, ${col}) - Unique solution preserved for ${config.size}×${config.size} grid`
       );
       cellsToRemove--;
+      consecutiveFailures = 0; // Reset failure counter on success
     } else {
       logger.debug(
         `Restoring number at (${row}, ${col}) - Multiple solutions for ${config.size}×${config.size} grid`
       );
       puzzleRow[col] = backup;
+      consecutiveFailures++;
     }
+  }
+
+  // Log if we couldn't remove all desired cells
+  if (cellsToRemove > 0) {
+    logger.warn(
+      `Could not remove all desired cells for ${config.size}×${config.size} grid difficulty ${difficulty}. ` +
+        `Remaining cells to remove: ${cellsToRemove}, Attempts: ${attempts}, Consecutive failures: ${consecutiveFailures}`
+    );
   }
 
   logger.debug(
