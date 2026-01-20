@@ -115,8 +115,9 @@ const HighlightErrorTrigger = ({
   theme: ChildFriendlyTheme;
   onTriggered: () => void;
 }) => {
-  const [targetElement, setTargetElement] =
-    React.useState<HTMLElement | null>(null);
+  const [targetElement, setTargetElement] = React.useState<HTMLElement | null>(
+    null
+  );
 
   return (
     <VisualFeedbackSystem theme={theme} childMode={true}>

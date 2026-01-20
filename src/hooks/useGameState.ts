@@ -1,13 +1,13 @@
-import { useReducer, useCallback } from "react";
+import { useReducer, useCallback } from 'react';
 import type {
   GameState,
   GameAction,
   AccessibilitySettings,
   ProgressStats,
-} from "../types";
-import { GRID_CONFIGS } from "../utils/gridConfig";
-import { usePreferences } from "./usePreferences";
-import { normalizeDifficulty } from "../utils/validation";
+} from '../types';
+import { GRID_CONFIGS } from '../utils/gridConfig';
+import { usePreferences } from './usePreferences';
+import { normalizeDifficulty } from '../utils/validation';
 
 const defaultAccessibilitySettings: AccessibilitySettings = {
   highContrast: false,
@@ -73,9 +73,9 @@ const initialState: GameState = {
 
   // Progress tracking per grid size
   progress: {
-    "4x4": createDefaultProgressStats(),
-    "6x6": createDefaultProgressStats(),
-    "9x9": createDefaultProgressStats(),
+    '4x4': createDefaultProgressStats(),
+    '6x6': createDefaultProgressStats(),
+    '9x9': createDefaultProgressStats(),
   },
 };
 
@@ -89,10 +89,10 @@ const handlePuzzleLifecycle = (
   action: GameAction
 ): GameState | undefined => {
   switch (action.type) {
-    case "SET_PUZZLE": {
+    case 'SET_PUZZLE': {
       const { puzzle, solution } = action.payload;
-      const initialUserInput = puzzle.map((row) =>
-        row.map((val) => (val === 0 ? 0 : val))
+      const initialUserInput = puzzle.map(row =>
+        row.map(val => (val === 0 ? 0 : val))
       );
       return {
         ...state,
@@ -111,16 +111,16 @@ const handlePuzzleLifecycle = (
       };
     }
 
-    case "SET_ERROR":
+    case 'SET_ERROR':
       return { ...state, error: action.payload };
 
-    case "CLEAR_ERROR":
+    case 'CLEAR_ERROR':
       return { ...state, error: null };
 
-    case "SET_LOADING":
+    case 'SET_LOADING':
       return { ...state, isLoading: action.payload };
 
-    case "RESET":
+    case 'RESET':
       return {
         ...initialState,
         difficulty: state.difficulty,
@@ -130,7 +130,7 @@ const handlePuzzleLifecycle = (
         progress: state.progress,
       };
 
-    case "RESET_AND_FETCH":
+    case 'RESET_AND_FETCH':
       return {
         ...initialState,
         difficulty: state.difficulty,
@@ -152,7 +152,7 @@ const handleUserInteraction = (
   action: GameAction
 ): GameState | undefined => {
   switch (action.type) {
-    case "UPDATE_USER_INPUT": {
+    case 'UPDATE_USER_INPUT': {
       const { row, col, value } = action.payload;
       const newUserInput = state.userInput.map((r, i) =>
         i === row ? r.map((val, j) => (j === col ? value : val)) : r
@@ -161,7 +161,7 @@ const handleUserInteraction = (
       return { ...state, userInput: newUserInput, history: newHistory };
     }
 
-    case "SET_DIFFICULTY": {
+    case 'SET_DIFFICULTY': {
       const normalizedDifficulty = normalizeDifficulty(
         action.payload,
         state.gridConfig
@@ -182,7 +182,7 @@ const handleUserInteraction = (
       };
     }
 
-    case "CHECK_ANSWER": {
+    case 'CHECK_ANSWER': {
       const isSolvedCorrectly =
         JSON.stringify(state.userInput) === JSON.stringify(state.solution);
       return {
@@ -193,18 +193,18 @@ const handleUserInteraction = (
       };
     }
 
-    case "TICK":
+    case 'TICK':
       return state.timerActive && !state.isPaused
         ? { ...state, time: state.time + 1 }
         : state;
 
-    case "PAUSE_RESUME":
+    case 'PAUSE_RESUME':
       return {
         ...state,
         isPaused: !state.isPaused,
       };
 
-    case "UNDO": {
+    case 'UNDO': {
       if (state.history.length <= 1) return state;
       const newHistory = state.history.slice(0, -1);
       const previousState = newHistory.at(-1);
@@ -217,13 +217,13 @@ const handleUserInteraction = (
       };
     }
 
-    case "USE_HINT":
+    case 'USE_HINT':
       return { ...state, hintsUsed: state.hintsUsed + 1 };
 
-    case "SHOW_HINT":
+    case 'SHOW_HINT':
       return { ...state, showHint: action.payload };
 
-    case "CLEAR_HINT":
+    case 'CLEAR_HINT':
       return { ...state, showHint: null };
 
     default:
@@ -236,7 +236,7 @@ const handleGridSupport = (
   action: GameAction
 ): GameState | undefined => {
   switch (action.type) {
-    case "CHANGE_GRID_SIZE": {
+    case 'CHANGE_GRID_SIZE': {
       const newGridConfig = action.payload;
       return {
         ...initialState,
@@ -250,7 +250,7 @@ const handleGridSupport = (
       };
     }
 
-    case "SET_GRID_CONFIG":
+    case 'SET_GRID_CONFIG':
       return { ...state, gridConfig: action.payload };
 
     default:
@@ -263,10 +263,10 @@ const handleChildFriendly = (
   action: GameAction
 ): GameState | undefined => {
   switch (action.type) {
-    case "TOGGLE_CHILD_MODE":
+    case 'TOGGLE_CHILD_MODE':
       return { ...state, childMode: !state.childMode };
 
-    case "SET_CHILD_MODE":
+    case 'SET_CHILD_MODE':
       return { ...state, childMode: action.payload };
 
     default:
@@ -279,13 +279,13 @@ const handleAccessibility = (
   action: GameAction
 ): GameState | undefined => {
   switch (action.type) {
-    case "UPDATE_ACCESSIBILITY":
+    case 'UPDATE_ACCESSIBILITY':
       return {
         ...state,
         accessibility: { ...state.accessibility, ...action.payload },
       };
 
-    case "TOGGLE_HIGH_CONTRAST":
+    case 'TOGGLE_HIGH_CONTRAST':
       return {
         ...state,
         accessibility: {
@@ -294,7 +294,7 @@ const handleAccessibility = (
         },
       };
 
-    case "TOGGLE_REDUCED_MOTION":
+    case 'TOGGLE_REDUCED_MOTION':
       return {
         ...state,
         accessibility: {
@@ -303,7 +303,7 @@ const handleAccessibility = (
         },
       };
 
-    case "TOGGLE_SCREEN_READER_MODE":
+    case 'TOGGLE_SCREEN_READER_MODE':
       return {
         ...state,
         accessibility: {
@@ -312,7 +312,7 @@ const handleAccessibility = (
         },
       };
 
-    case "TOGGLE_VOICE_INPUT":
+    case 'TOGGLE_VOICE_INPUT':
       return {
         ...state,
         accessibility: {
@@ -321,7 +321,7 @@ const handleAccessibility = (
         },
       };
 
-    case "TOGGLE_ADAPTIVE_TOUCH_TARGETS":
+    case 'TOGGLE_ADAPTIVE_TOUCH_TARGETS':
       return {
         ...state,
         accessibility: {
@@ -340,7 +340,7 @@ const handleProgressUpdates = (
   action: GameAction
 ): GameState | undefined => {
   switch (action.type) {
-    case "UPDATE_PROGRESS": {
+    case 'UPDATE_PROGRESS': {
       const { gridSize, stats } = action.payload;
       const currentStats = getProgressStats(state.progress, gridSize);
       return {
@@ -352,7 +352,7 @@ const handleProgressUpdates = (
       };
     }
 
-    case "COMPLETE_PUZZLE": {
+    case 'COMPLETE_PUZZLE': {
       const { gridSize, time, hintsUsed } = action.payload;
       const currentStats = getProgressStats(state.progress, gridSize);
       const newPuzzlesCompleted = currentStats.puzzlesCompleted + 1;
@@ -382,7 +382,7 @@ const handleProgressUpdates = (
       };
     }
 
-    case "ADD_ACHIEVEMENT": {
+    case 'ADD_ACHIEVEMENT': {
       const { gridSize, achievement } = action.payload;
       const currentStats = getProgressStats(state.progress, gridSize);
       if (currentStats.achievements.includes(achievement)) {
@@ -425,14 +425,14 @@ export const useGameState = () => {
 
   const handleError = useCallback((err: unknown) => {
     if (err instanceof Error) {
-      dispatch({ type: "SET_ERROR", payload: err.message });
+      dispatch({ type: 'SET_ERROR', payload: err.message });
     } else {
-      dispatch({ type: "SET_ERROR", payload: "An unexpected error occurred" });
+      dispatch({ type: 'SET_ERROR', payload: 'An unexpected error occurred' });
     }
   }, []);
 
   const clearError = useCallback(() => {
-    dispatch({ type: "CLEAR_ERROR" });
+    dispatch({ type: 'CLEAR_ERROR' });
   }, []);
 
   return {

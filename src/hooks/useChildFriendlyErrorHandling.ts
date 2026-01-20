@@ -213,7 +213,7 @@ export const useChildFriendlyErrorHandling = ({
    * Handle progress milestones
    */
   const handleProgress = useCallback(
-    (progressType: 'good_progress' | 'puzzle_complete' | 'milestone') => {
+    (_progressType: 'good_progress' | 'puzzle_complete' | 'milestone') => {
       if (!gameState.childMode) return;
 
       const encouragement = getEncouragementMessage('GOOD_PROGRESS', {

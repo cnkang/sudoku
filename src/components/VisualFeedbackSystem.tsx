@@ -1,7 +1,10 @@
 import type React from 'react';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import type { ThemeConfig } from '@/types';
-import { pickSecureRandomElement, secureRandomFraction } from '@/utils/secureRandom';
+import {
+  pickSecureRandomElement,
+  secureRandomFraction,
+} from '@/utils/secureRandom';
 import styles from './VisualFeedbackSystem.module.css';
 
 export interface VisualFeedbackProps {

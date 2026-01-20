@@ -2,8 +2,8 @@
  * Centralized validation utilities to reduce duplication
  */
 
-import type { GridConfig } from "@/types";
-import { GridConfigManager } from "@/utils/gridConfig";
+import type { GridConfig } from '@/types';
+import { GridConfigManager } from '@/utils/gridConfig';
 
 /**
  * Common validation constants - now parameterized for multi-size support
@@ -48,26 +48,26 @@ export const validateDifficulty = (
     config?.difficultyLevels ?? VALIDATION_CONSTANTS.MAX_DIFFICULTY;
 
   if (difficulty === null || difficulty === undefined) {
-    throw new Error("Difficulty must be a valid number.");
+    throw new Error('Difficulty must be a valid number.');
   }
 
-  if (typeof difficulty === "string") {
+  if (typeof difficulty === 'string') {
     if (!POSITIVE_INTEGER_PATTERN.test(difficulty)) {
-      throw new Error("Difficulty must be a positive integer.");
+      throw new Error('Difficulty must be a positive integer.');
     }
     const parsed = Number.parseInt(difficulty, 10);
     if (parsed < minDifficulty || parsed > maxDifficulty) {
-      throw new Error("Invalid difficulty level. Must be between 1 and 10.");
+      throw new Error('Invalid difficulty level. Must be between 1 and 10.');
     }
     return parsed;
   }
 
-  if (typeof difficulty !== "number" || Number.isNaN(difficulty)) {
-    throw new Error("Difficulty must be a valid number.");
+  if (typeof difficulty !== 'number' || Number.isNaN(difficulty)) {
+    throw new Error('Difficulty must be a valid number.');
   }
 
   if (difficulty < minDifficulty || difficulty > maxDifficulty) {
-    throw new Error("Invalid difficulty level. Must be between 1 and 10.");
+    throw new Error('Invalid difficulty level. Must be between 1 and 10.');
   }
 
   return difficulty;
@@ -87,7 +87,7 @@ export const normalizeDifficulty = (
 
   let normalizedValue: unknown = difficulty;
 
-  if (typeof normalizedValue === "string") {
+  if (typeof normalizedValue === 'string') {
     const trimmed = normalizedValue.trim();
     if (!SAFE_NUMBER_PATTERN.test(trimmed)) {
       return minDifficulty;
@@ -95,7 +95,7 @@ export const normalizeDifficulty = (
     normalizedValue = Number.parseFloat(trimmed);
   }
 
-  if (typeof normalizedValue !== "number" || Number.isNaN(normalizedValue)) {
+  if (typeof normalizedValue !== 'number' || Number.isNaN(normalizedValue)) {
     return minDifficulty;
   }
 
@@ -168,7 +168,7 @@ export const validateSudokuGrid = (
       } catch (error) {
         throw new Error(
           `Invalid cell at [${rowIndex}, ${colIndex}]: ${
-            error instanceof Error ? error.message : "Unknown error"
+            error instanceof Error ? error.message : 'Unknown error'
           }`
         );
       }
@@ -257,7 +257,7 @@ export const detectConflicts = (
   col: number,
   value: number,
   config: GridConfig
-): { hasConflict: boolean; conflictType?: "row" | "column" | "box" } => {
+): { hasConflict: boolean; conflictType?: 'row' | 'column' | 'box' } => {
   const isValid = GridConfigManager.validateMove(config, grid, row, col, value);
 
   if (isValid || value === 0) {
@@ -265,15 +265,15 @@ export const detectConflicts = (
   }
 
   if (hasRowConflict(grid, row, col, value, config.size)) {
-    return { hasConflict: true, conflictType: "row" };
+    return { hasConflict: true, conflictType: 'row' };
   }
 
   if (hasColumnConflict(grid, row, col, value, config.size)) {
-    return { hasConflict: true, conflictType: "column" };
+    return { hasConflict: true, conflictType: 'column' };
   }
 
   if (hasBoxConflict(grid, row, col, value, config)) {
-    return { hasConflict: true, conflictType: "box" };
+    return { hasConflict: true, conflictType: 'box' };
   }
 
   return { hasConflict: true };

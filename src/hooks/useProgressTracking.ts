@@ -44,8 +44,10 @@ const scheduleCelebration = ({
   };
   index: number;
   setTrackingState: React.Dispatch<React.SetStateAction<ProgressTrackingState>>;
-  onShowCelebration?: (effect: CelebrationEffect, message: string) => void;
-  onPlaySound?: (soundType: string) => void;
+  onShowCelebration:
+    | ((effect: CelebrationEffect, message: string) => void)
+    | undefined;
+  onPlaySound: ((soundType: string) => void) | undefined;
   soundEnabled: boolean;
   childMode: boolean;
 }) => {

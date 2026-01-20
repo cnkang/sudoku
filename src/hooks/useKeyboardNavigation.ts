@@ -126,12 +126,7 @@ export const useKeyboardNavigation = (
       direction: 'forward' | 'backward' = 'forward'
     ): { row: number; col: number } | null => {
       const { size } = gridConfig;
-      let { row, col } = advancePosition(
-        startRow,
-        startCol,
-        size,
-        direction
-      );
+      let { row, col } = advancePosition(startRow, startCol, size, direction);
 
       // Search for editable cell
       for (let attempts = 0; attempts < size * size; attempts++) {

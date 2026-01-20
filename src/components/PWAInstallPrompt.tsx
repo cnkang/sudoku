@@ -78,15 +78,12 @@ export default function PWAInstallPrompt() {
           >
             {isInstalling ? (
               <>
-                <span className={styles.spinner} aria-hidden="true" />
-                {' '}
+                <span className={styles.spinner} aria-hidden="true" />{' '}
                 Installing...
               </>
             ) : (
               <>
-                <span className={styles.buttonIcon}>⬇️</span>
-                {' '}
-                Install App
+                <span className={styles.buttonIcon}>⬇️</span> Install App
               </>
             )}
           </button>
