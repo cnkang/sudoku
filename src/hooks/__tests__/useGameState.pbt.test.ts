@@ -5,6 +5,233 @@ import { useGameState } from '../useGameState';
 import { GRID_CONFIGS } from '../../utils/gridConfig';
 import type { AccessibilitySettings, ProgressStats } from '../../types';
 
+const setAccessibility = (
+  result: ReturnType<typeof renderHook<typeof useGameState>>['result'],
+  accessibilitySettings: AccessibilitySettings
+) => {
+  act(() => {
+    result.current.dispatch({
+      type: 'UPDATE_ACCESSIBILITY',
+      payload: accessibilitySettings,
+    });
+  });
+};
+
+const setGridConfig = (
+  result: ReturnType<typeof renderHook<typeof useGameState>>['result'],
+  gridConfig: (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS]
+) => {
+  act(() => {
+    result.current.dispatch({
+      type: 'SET_GRID_CONFIG',
+      payload: gridConfig,
+    });
+  });
+};
+
+const changeGridSize = (
+  result: ReturnType<typeof renderHook<typeof useGameState>>['result'],
+  gridConfig: (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS]
+) => {
+  act(() => {
+    result.current.dispatch({
+      type: 'CHANGE_GRID_SIZE',
+      payload: gridConfig,
+    });
+  });
+};
+
+const setChildMode = (
+  result: ReturnType<typeof renderHook<typeof useGameState>>['result'],
+  childMode: boolean
+) => {
+  act(() => {
+    result.current.dispatch({
+      type: 'SET_CHILD_MODE',
+      payload: childMode,
+    });
+  });
+};
+
+const setDifficulty = (
+  result: ReturnType<typeof renderHook<typeof useGameState>>['result'],
+  difficulty: number
+) => {
+  act(() => {
+    result.current.dispatch({
+      type: 'SET_DIFFICULTY',
+      payload: difficulty,
+    });
+  });
+};
+
+const setProgressData = (
+  result: ReturnType<typeof renderHook<typeof useGameState>>['result'],
+  progressData: Record<string, ProgressStats>
+) => {
+  act(() => {
+    Object.entries(progressData).forEach(([gridSize, stats]) => {
+      result.current.dispatch({
+        type: 'UPDATE_PROGRESS',
+        payload: { gridSize, stats },
+      });
+    });
+  });
+};
+
+const buildFilledGrid = (size: number, value: number) =>
+  Array.from({ length: size }, () => Array.from({ length: size }, () => value));
+
+const setPuzzleInProgress = (
+  result: ReturnType<typeof renderHook<typeof useGameState>>['result'],
+  gridSize: number
+) => {
+  act(() => {
+    result.current.dispatch({
+      type: 'SET_PUZZLE',
+      payload: {
+        puzzle: buildFilledGrid(gridSize, 0),
+        solution: buildFilledGrid(gridSize, 1),
+        difficulty: 1,
+      },
+    });
+  });
+};
+
+const assertChildModeForGridChange = (
+  initialChildMode: boolean,
+  childFriendlyGrid: (typeof GRID_CONFIGS)[4],
+  adultGrid: (typeof GRID_CONFIGS)[9],
+  result: ReturnType<typeof renderHook<typeof useGameState>>['result']
+) => {
+  changeGridSize(result, childFriendlyGrid);
+
+  if (childFriendlyGrid.childFriendly.enableAnimations) {
+    expect(result.current.state.childMode).toBe(true);
+  }
+
+  setChildMode(result, initialChildMode);
+  changeGridSize(result, adultGrid);
+
+  if (!adultGrid.childFriendly.enableAnimations) {
+    expect(result.current.state.childMode).toBe(initialChildMode);
+  }
+};
+
+const assertSequencePersistence = (
+  gridSequence: Array<(typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS]>,
+  result: ReturnType<typeof renderHook<typeof useGameState>>['result']
+) => {
+  const initialAccessibility = result.current.state.accessibility;
+  const initialProgress = result.current.state.progress;
+
+  gridSequence.forEach(grid => {
+    changeGridSize(result, grid);
+    expect(result.current.state.accessibility).toEqual(initialAccessibility);
+    expect(result.current.state.progress).toEqual(initialProgress);
+    expect(result.current.state.gridConfig).toEqual(grid);
+  });
+};
+
+const assertAccessibilityPreserved = (
+  initialGrid: (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS],
+  newGrid: (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS],
+  accessibilitySettings: AccessibilitySettings
+) => {
+  const { result } = renderHook(() => useGameState());
+
+  setAccessibility(result, accessibilitySettings);
+  setGridConfig(result, initialGrid);
+
+  const accessibilityBeforeChange = result.current.state.accessibility;
+  changeGridSize(result, newGrid);
+  const accessibilityAfterChange = result.current.state.accessibility;
+
+  expect(accessibilityAfterChange).toEqual(accessibilityBeforeChange);
+};
+
+const assertProgressPreserved = (
+  initialGrid: (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS],
+  newGrid: (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS],
+  progressData: Record<string, ProgressStats>
+) => {
+  const { result } = renderHook(() => useGameState());
+
+  setProgressData(result, progressData);
+  setGridConfig(result, initialGrid);
+
+  const progressBeforeChange = result.current.state.progress;
+  act(() => {
+    result.current.dispatch({
+      type: 'CHANGE_GRID_SIZE',
+      payload: newGrid,
+    });
+  });
+  const progressAfterChange = result.current.state.progress;
+
+  expect(progressAfterChange).toEqual(progressBeforeChange);
+};
+
+const assertStateResetOnGridChange = (
+  initialGrid: (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS],
+  newGrid: (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS],
+  childModePreference: boolean,
+  difficulty: number
+) => {
+  const { result } = renderHook(() => useGameState());
+
+  setChildMode(result, childModePreference);
+  setDifficulty(result, difficulty);
+  setGridConfig(result, initialGrid);
+  setPuzzleInProgress(result, initialGrid.size);
+
+  expect(result.current.state.puzzle).not.toBeNull();
+  expect(result.current.state.time).toBeGreaterThanOrEqual(0);
+
+  const difficultyBeforeChange = result.current.state.difficulty;
+  changeGridSize(result, newGrid);
+
+  expect(result.current.state.puzzle).toBeNull();
+  expect(result.current.state.solution).toBeNull();
+  expect(result.current.state.time).toBe(0);
+  expect(result.current.state.userInput).toEqual([]);
+  expect(result.current.state.history).toEqual([]);
+  expect(result.current.state.isCorrect).toBeNull();
+  expect(result.current.state.hintsUsed).toBe(0);
+  expect(result.current.state.gridConfig).toEqual(newGrid);
+
+  const expectedDifficulty = Math.max(
+    1,
+    Math.min(difficultyBeforeChange, newGrid.difficultyLevels)
+  );
+  expect(result.current.state.difficulty).toBe(expectedDifficulty);
+};
+
+const assertChildModeHandling = (initialChildMode: boolean) => {
+  const { result } = renderHook(() => useGameState());
+
+  setChildMode(result, initialChildMode);
+
+  const childFriendlyGrid = GRID_CONFIGS[4];
+  const adultGrid = GRID_CONFIGS[9];
+  assertChildModeForGridChange(
+    initialChildMode,
+    childFriendlyGrid,
+    adultGrid,
+    result
+  );
+};
+
+const assertStateConsistency = (
+  gridSequence: Array<(typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS]>,
+  accessibilitySettings: AccessibilitySettings
+) => {
+  const { result } = renderHook(() => useGameState());
+
+  setAccessibility(result, accessibilitySettings);
+  assertSequencePersistence(gridSequence, result);
+};
+
 /**
  * Property 10: State persistence across grid changes
  * Validates: Requirements 8.1
@@ -46,40 +273,7 @@ describe('Property 10: State persistence across grid changes', () => {
         gridConfigArbitrary,
         gridConfigArbitrary,
         accessibilityArbitrary,
-        (initialGrid, newGrid, accessibilitySettings) => {
-          const { result } = renderHook(() => useGameState());
-
-          // Set initial accessibility settings
-          act(() => {
-            result.current.dispatch({
-              type: 'UPDATE_ACCESSIBILITY',
-              payload: accessibilitySettings,
-            });
-          });
-
-          // Set initial grid config
-          act(() => {
-            result.current.dispatch({
-              type: 'SET_GRID_CONFIG',
-              payload: initialGrid,
-            });
-          });
-
-          const accessibilityBeforeChange = result.current.state.accessibility;
-
-          // Change grid size
-          act(() => {
-            result.current.dispatch({
-              type: 'CHANGE_GRID_SIZE',
-              payload: newGrid,
-            });
-          });
-
-          const accessibilityAfterChange = result.current.state.accessibility;
-
-          // Accessibility settings should be preserved
-          expect(accessibilityAfterChange).toEqual(accessibilityBeforeChange);
-        }
+        assertAccessibilityPreserved
       ),
       { numRuns: 100 }
     );
@@ -95,42 +289,7 @@ describe('Property 10: State persistence across grid changes', () => {
           '6x6': progressStatsArbitrary,
           '9x9': progressStatsArbitrary,
         }),
-        (initialGrid, newGrid, progressData) => {
-          const { result } = renderHook(() => useGameState());
-
-          // Set initial progress data for all grid sizes
-          act(() => {
-            Object.entries(progressData).forEach(([gridSize, stats]) => {
-              result.current.dispatch({
-                type: 'UPDATE_PROGRESS',
-                payload: { gridSize, stats },
-              });
-            });
-          });
-
-          // Set initial grid config
-          act(() => {
-            result.current.dispatch({
-              type: 'SET_GRID_CONFIG',
-              payload: initialGrid,
-            });
-          });
-
-          const progressBeforeChange = result.current.state.progress;
-
-          // Change grid size
-          act(() => {
-            result.current.dispatch({
-              type: 'CHANGE_GRID_SIZE',
-              payload: newGrid,
-            });
-          });
-
-          const progressAfterChange = result.current.state.progress;
-
-          // Progress data should be preserved for all grid sizes
-          expect(progressAfterChange).toEqual(progressBeforeChange);
-        }
+        assertProgressPreserved
       ),
       { numRuns: 100 }
     );
@@ -143,130 +302,16 @@ describe('Property 10: State persistence across grid changes', () => {
         gridConfigArbitrary,
         fc.boolean(),
         fc.nat(10),
-        (initialGrid, newGrid, childModePreference, difficulty) => {
-          const { result } = renderHook(() => useGameState());
-
-          // Set initial state with game in progress
-          act(() => {
-            result.current.dispatch({
-              type: 'SET_CHILD_MODE',
-              payload: childModePreference,
-            });
-            result.current.dispatch({
-              type: 'SET_DIFFICULTY',
-              payload: difficulty,
-            });
-            result.current.dispatch({
-              type: 'SET_GRID_CONFIG',
-              payload: initialGrid,
-            });
-          });
-
-          // Simulate game in progress
-          act(() => {
-            result.current.dispatch({
-              type: 'SET_PUZZLE',
-              payload: {
-                puzzle: Array(initialGrid.size)
-                  .fill(null)
-                  .map(() => Array(initialGrid.size).fill(0)),
-                solution: Array(initialGrid.size)
-                  .fill(null)
-                  .map(() => Array(initialGrid.size).fill(1)),
-                difficulty: 1,
-              },
-            });
-          });
-
-          // Verify game state exists
-          expect(result.current.state.puzzle).not.toBeNull();
-          expect(result.current.state.time).toBeGreaterThanOrEqual(0);
-
-          const difficultyBeforeChange = result.current.state.difficulty;
-
-          // Change grid size
-          act(() => {
-            result.current.dispatch({
-              type: 'CHANGE_GRID_SIZE',
-              payload: newGrid,
-            });
-          });
-
-          // Game state should be reset
-          expect(result.current.state.puzzle).toBeNull();
-          expect(result.current.state.solution).toBeNull();
-          expect(result.current.state.time).toBe(0);
-          expect(result.current.state.userInput).toEqual([]);
-          expect(result.current.state.history).toEqual([]);
-          expect(result.current.state.isCorrect).toBeNull();
-          expect(result.current.state.hintsUsed).toBe(0);
-
-          // Grid config should be updated
-          expect(result.current.state.gridConfig).toEqual(newGrid);
-
-          // Difficulty should be adjusted to new grid's max if necessary
-          const expectedDifficulty = Math.max(
-            1,
-            Math.min(difficultyBeforeChange, newGrid.difficultyLevels)
-          );
-          expect(result.current.state.difficulty).toBe(expectedDifficulty);
-        }
+        assertStateResetOnGridChange
       ),
       { numRuns: 100 }
     );
   });
 
   it('should handle child mode appropriately when changing to child-friendly grids', () => {
-    fc.assert(
-      fc.property(fc.boolean(), initialChildMode => {
-        const { result } = renderHook(() => useGameState());
-
-        // Set initial child mode
-        act(() => {
-          result.current.dispatch({
-            type: 'SET_CHILD_MODE',
-            payload: initialChildMode,
-          });
-        });
-
-        // Change to 4x4 grid (child-friendly)
-        const childFriendlyGrid = GRID_CONFIGS[4];
-        act(() => {
-          result.current.dispatch({
-            type: 'CHANGE_GRID_SIZE',
-            payload: childFriendlyGrid,
-          });
-        });
-
-        // Child mode should be enabled for child-friendly grids
-        if (childFriendlyGrid.childFriendly.enableAnimations) {
-          expect(result.current.state.childMode).toBe(true);
-        }
-
-        // Reset child mode to initial preference before testing 9x9
-        act(() => {
-          result.current.dispatch({
-            type: 'SET_CHILD_MODE',
-            payload: initialChildMode,
-          });
-        });
-
-        // Change to 9x9 grid (not child-friendly by default)
-        const adultGrid = GRID_CONFIGS[9];
-        act(() => {
-          result.current.dispatch({
-            type: 'CHANGE_GRID_SIZE',
-            payload: adultGrid,
-          });
-        });
-
-        // Child mode should preserve user preference for non-child-friendly grids
-        if (!adultGrid.childFriendly.enableAnimations) {
-          expect(result.current.state.childMode).toBe(initialChildMode);
-        }
-      }),
-      { numRuns: 100 }
-    );
+    fc.assert(fc.property(fc.boolean(), assertChildModeHandling), {
+      numRuns: 100,
+    });
   });
 
   it('should maintain state consistency across multiple grid changes', () => {
@@ -274,37 +319,7 @@ describe('Property 10: State persistence across grid changes', () => {
       fc.property(
         fc.array(gridConfigArbitrary, { minLength: 2, maxLength: 5 }),
         accessibilityArbitrary,
-        (gridSequence, accessibilitySettings) => {
-          const { result } = renderHook(() => useGameState());
-
-          // Set initial accessibility settings
-          act(() => {
-            result.current.dispatch({
-              type: 'UPDATE_ACCESSIBILITY',
-              payload: accessibilitySettings,
-            });
-          });
-
-          const initialAccessibility = result.current.state.accessibility;
-          const initialProgress = result.current.state.progress;
-
-          // Apply sequence of grid changes
-          gridSequence.forEach(grid => {
-            act(() => {
-              result.current.dispatch({
-                type: 'CHANGE_GRID_SIZE',
-                payload: grid,
-              });
-            });
-
-            // After each change, verify persistence
-            expect(result.current.state.accessibility).toEqual(
-              initialAccessibility
-            );
-            expect(result.current.state.progress).toEqual(initialProgress);
-            expect(result.current.state.gridConfig).toEqual(grid);
-          });
-        }
+        assertStateConsistency
       ),
       { numRuns: 50 }
     );

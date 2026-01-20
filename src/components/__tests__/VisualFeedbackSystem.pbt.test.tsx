@@ -132,22 +132,6 @@ const ReducedMotionContainer = ({
   </div>
 );
 
-const ChildModeContainer = ({
-  theme,
-  childMode,
-  testId,
-}: {
-  theme: Theme;
-  childMode: boolean;
-  testId: string;
-}) => (
-  <div data-testid={`container-${testId}`}>
-    <VisualFeedbackSystem theme={theme} childMode={childMode}>
-      {() => <div>Test content</div>}
-    </VisualFeedbackSystem>
-  </div>
-);
-
 const ScreenReaderContainer = ({
   theme,
   feedbackType,
@@ -372,7 +356,11 @@ describe('VisualFeedbackSystem Property-Based Tests', () => {
       fc.property(themeArb, uniqueIdArb, (theme, testId) => {
         // Test child mode
         const { rerender, container, unmount } = render(
-          <ChildModeContainer theme={theme} childMode={true} testId={testId} />
+          <AccessibilityContainer
+            theme={theme}
+            childMode={true}
+            testId={testId}
+          />
         );
 
         try {
@@ -386,7 +374,7 @@ describe('VisualFeedbackSystem Property-Based Tests', () => {
 
           // Test non-child mode
           rerender(
-            <ChildModeContainer
+            <AccessibilityContainer
               theme={theme}
               childMode={false}
               testId={testId}

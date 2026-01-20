@@ -57,6 +57,16 @@ const keyboardEventArbitrary = fc.record({
   shiftKey: fc.boolean(),
 });
 
+const invokeFocusCell = (
+  handlers: ReturnType<typeof useKeyboardNavigation>[1],
+  row: number,
+  col: number
+) => {
+  act(() => {
+    handlers.focusCell(row, col);
+  });
+};
+
 describe('useKeyboardNavigation Property-Based Tests', () => {
   let mockOnCellFocus: ReturnType<typeof vi.fn>;
   let mockOnCellActivate: ReturnType<typeof vi.fn>;
@@ -392,9 +402,7 @@ describe('useKeyboardNavigation Property-Based Tests', () => {
 
           // Test that calling focusCell with valid coordinates doesn't throw
           expect(() => {
-            act(() => {
-              handlers.focusCell(row, col);
-            });
+            invokeFocusCell(handlers, row, col);
           }).not.toThrow();
 
           // The callback won't be called without DOM elements, but the method

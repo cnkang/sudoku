@@ -115,13 +115,13 @@ beforeEach(() => {
     onLine: true,
   });
 
-  Object.defineProperty(global, 'window', {
+  Object.defineProperty(globalThis, 'window', {
     value: defaultWindow,
     writable: true,
     configurable: true,
   });
 
-  Object.defineProperty(global, 'navigator', {
+  Object.defineProperty(globalThis, 'navigator', {
     value: defaultNavigator,
     writable: true,
     configurable: true,
@@ -207,13 +207,13 @@ describe('PWA Functionality Property Tests', () => {
           });
 
           // Apply mocks
-          Object.defineProperty(global, 'window', {
+          Object.defineProperty(globalThis, 'window', {
             value: windowRef,
             writable: true,
             configurable: true,
           });
 
-          Object.defineProperty(global, 'navigator', {
+          Object.defineProperty(globalThis, 'navigator', {
             value: navigatorRef,
             writable: true,
             configurable: true,
@@ -260,13 +260,13 @@ describe('PWA Functionality Property Tests', () => {
             });
 
             // Apply mocks
-            Object.defineProperty(global, 'window', {
+            Object.defineProperty(globalThis, 'window', {
               value: windowRef,
               writable: true,
               configurable: true,
             });
 
-            Object.defineProperty(global, 'navigator', {
+            Object.defineProperty(globalThis, 'navigator', {
               value: navigatorRef,
               writable: true,
               configurable: true,
@@ -294,7 +294,7 @@ describe('PWA Functionality Property Tests', () => {
             onLine: onlineStatus,
           });
 
-          Object.defineProperty(global, 'navigator', {
+          Object.defineProperty(globalThis, 'navigator', {
             value: navigatorRef,
             writable: true,
             configurable: true,
@@ -330,7 +330,7 @@ describe('PWA Functionality Property Tests', () => {
           });
           navigatorRef.serviceWorker = mockServiceWorker;
 
-          Object.defineProperty(global, 'navigator', {
+          Object.defineProperty(globalThis, 'navigator', {
             value: navigatorRef,
             writable: true,
             configurable: true,
@@ -375,7 +375,7 @@ describe('PWA Functionality Property Tests', () => {
           });
           navigatorRef.serviceWorker = mockServiceWorker;
 
-          Object.defineProperty(global, 'navigator', {
+          Object.defineProperty(globalThis, 'navigator', {
             value: navigatorRef,
             writable: true,
             configurable: true,
@@ -413,7 +413,7 @@ describe('PWA Functionality Property Tests', () => {
           });
           windowRef.Notification = mockNotification;
 
-          Object.defineProperty(global, 'window', {
+          Object.defineProperty(globalThis, 'window', {
             value: windowRef,
             writable: true,
             configurable: true,
@@ -475,13 +475,13 @@ describe('PWA Functionality Property Tests', () => {
               hasNotification: true,
             });
 
-            Object.defineProperty(global, 'navigator', {
+            Object.defineProperty(globalThis, 'navigator', {
               value: navigatorRef,
               writable: true,
               configurable: true,
             });
 
-            Object.defineProperty(global, 'window', {
+            Object.defineProperty(globalThis, 'window', {
               value: windowRef,
               writable: true,
               configurable: true,
@@ -538,7 +538,7 @@ describe('PWA Functionality Property Tests', () => {
                 .mockResolvedValue(scenario.cacheOperationSuccess);
             }
 
-            Object.defineProperty(global, 'window', {
+            Object.defineProperty(globalThis, 'window', {
               value: windowRef,
               writable: true,
               configurable: true,
@@ -584,13 +584,13 @@ describe('PWA Functionality Property Tests', () => {
               hasNotification: true,
             });
 
-            Object.defineProperty(global, 'navigator', {
+            Object.defineProperty(globalThis, 'navigator', {
               value: navigatorRef,
               writable: true,
               configurable: true,
             });
 
-            Object.defineProperty(global, 'window', {
+            Object.defineProperty(globalThis, 'window', {
               value: windowRef,
               writable: true,
               configurable: true,

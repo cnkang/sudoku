@@ -37,7 +37,7 @@ const mockContainerQuery = (containerWidth: number) => {
 
   let matchedQuery = 'xs';
   for (const [breakpoint, name] of Object.entries(queries)) {
-    if (containerWidth >= parseInt(breakpoint, 10)) {
+    if (containerWidth >= Number.parseInt(breakpoint, 10)) {
       matchedQuery = name;
     }
   }
