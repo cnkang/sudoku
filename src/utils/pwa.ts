@@ -61,12 +61,16 @@ const getNotificationApi = (): typeof Notification | undefined => {
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-const logInfo = (..._args: unknown[]): void => {
-  void _args;
+const logInfo = (...args: unknown[]): void => {
+  if (!isTestEnv && args.length > 0) {
+    console.info(...args);
+  }
 };
 
-const logError = (..._args: unknown[]): void => {
-  void _args;
+const logError = (...args: unknown[]): void => {
+  if (!isTestEnv && args.length > 0) {
+    console.error(...args);
+  }
 };
 
 const isNavigatorStandalone = (navigatorRef?: Navigator): boolean => {
@@ -82,10 +86,12 @@ const isNavigatorStandalone = (navigatorRef?: Navigator): boolean => {
 class PWAManager {
   private serviceWorkerRegistration: ServiceWorkerRegistration | null = null;
   private installPromptEvent: BeforeInstallPromptEvent | null = null;
-  private statusCallbacks: ((status: PWAStatus) => void)[] = [];
+  private readonly statusCallbacks: ((status: PWAStatus) => void)[] = [];
 
-  constructor() {
-    this.initializePWA();
+  constructor() {}
+
+  public initialize(): void {
+    void this.initializePWA();
   }
 
   /**
@@ -511,6 +517,7 @@ class PWAManager {
 
 // Global PWA manager instance
 export const pwaManager = new PWAManager();
+pwaManager.initialize();
 
 // Utility functions
 export const isPWASupported = (): boolean => {
