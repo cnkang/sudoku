@@ -92,11 +92,13 @@ const NUMBER_WORDS: Record<string, number> = {
   nine: 9,
 };
 
-const SAFE_NUMBER_PATTERN = `(?:${Object.keys(NUMBER_WORDS).join('|')}|\\d{1,2})`;
+const SAFE_NUMBER_PATTERN = String.raw`(?:${Object.keys(NUMBER_WORDS).join('|')}|\d{1,2})`;
 
 const CONTEXT_NUMBER_PATTERNS = [
-  new RegExp(`\\b(?:enter|put|place|set)\\s+(${SAFE_NUMBER_PATTERN})\\b`),
-  new RegExp(`\\b(${SAFE_NUMBER_PATTERN})\\s+(?:please|now)\\b`),
+  new RegExp(
+    String.raw`\b(?:enter|put|place|set)\s+(${SAFE_NUMBER_PATTERN})\b`
+  ),
+  new RegExp(String.raw`\b(${SAFE_NUMBER_PATTERN})\s+(?:please|now)\b`),
 ];
 
 export const useVoiceInput = (
@@ -149,7 +151,7 @@ export const useVoiceInput = (
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       const result = event.results[event.resultIndex];
-      if (!result || !result[0]) return;
+      if (!result?.[0]) return;
       const transcript = result[0].transcript.trim().toLowerCase();
       const confidence = result[0].confidence;
 
