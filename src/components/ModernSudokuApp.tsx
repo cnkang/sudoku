@@ -63,8 +63,8 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
   "use memo"; // React Compiler directive for automatic optimization
 
   const { state, dispatch, handleError, clearError } = useGameState();
-  void initialGridSize;
-  void initialChildMode;
+  const _initialGridSize = initialGridSize;
+  const _initialChildMode = initialChildMode;
   const { trackRender, trackTransition } =
     usePerformanceTracking("ModernSudokuApp");
   const { status, installApp } = usePWA();
@@ -435,11 +435,6 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
       if (timer) clearInterval(timer);
     };
   }, [state.timerActive, state.isPaused, dispatch]);
-
-  // Performance monitoring
-  useEffect(() => {
-    void performanceMetrics;
-  }, [performanceMetrics]);
 
   const isGameDisabled = state.isPaused || state.isCorrect === true;
 

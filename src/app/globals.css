@@ -36,6 +36,12 @@
 
   /* Container query support detection */
   --container-query-support: false;
+  --mobile-padding: 0.5rem;
+  --tablet-padding: 1rem;
+  --desktop-padding: 2rem;
+  --mobile-font-size: 0.875rem;
+  --tablet-font-size: 1rem;
+  --desktop-font-size: 1.125rem;
 }
 
 /* Modern viewport units support detection */
@@ -148,16 +154,6 @@ input {
 }
 
 /* Mobile optimization styles */
-
-/* 基础响应式变量 */
-:root {
-  --mobile-padding: 0.5rem;
-  --tablet-padding: 1rem;
-  --desktop-padding: 2rem;
-  --mobile-font-size: 0.875rem;
-  --tablet-font-size: 1rem;
-  --desktop-font-size: 1.125rem;
-}
 
 /* Mobile-first media queries */
 @media (max-width: 480px) {

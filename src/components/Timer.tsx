@@ -11,6 +11,12 @@ const formatTime = (seconds: number): string => {
 const Timer: React.FC<TimerProps> = ({ time, isActive, isPaused }) => {
   'use memo';
   const isTestEnv = process.env.NODE_ENV === 'test';
+  let timerColor = '#6b7280';
+  if (isPaused) {
+    timerColor = '#f59e0b';
+  } else if (isActive) {
+    timerColor = '#10b981';
+  }
   return (
     <div className="timer">
       <span className="timer-label">Time: </span>
@@ -22,7 +28,7 @@ const Timer: React.FC<TimerProps> = ({ time, isActive, isPaused }) => {
             font-size: 1.2rem;
             font-weight: 600;
             margin: 1rem 0;
-            color: ${isPaused ? '#f59e0b' : isActive ? '#10b981' : '#6b7280'};
+            color: ${timerColor};
           }
           .timer-label {
             color: #374151;
@@ -83,12 +89,12 @@ const Timer: React.FC<TimerProps> = ({ time, isActive, isPaused }) => {
           }
         `}</style>
       ) : (
-        <style jsx>{`
+        <style>{`
           .timer {
             font-size: 1.2rem;
             font-weight: 600;
             margin: 1rem 0;
-            color: ${isPaused ? '#f59e0b' : isActive ? '#10b981' : '#6b7280'};
+            color: ${timerColor};
           }
           .timer-label {
             color: #374151;
