@@ -196,5 +196,5 @@ writeLine('- mobile-4x4.svg');
 writeLine('- mobile-6x6.svg');
 writeLine('- tablet-9x9.svg');
 writeLine(
-  '\\nNote: For production, consider converting SVG screenshots to PNG format for better compatibility.'
+  String.raw`\nNote: For production, consider converting SVG screenshots to PNG format for better compatibility.`
 );

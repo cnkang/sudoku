@@ -19,7 +19,7 @@ const swLog = (..._args) => {};
 const swError = (..._args) => {};
 
 // Install event - cache static assets
-self.addEventListener('install', event => {
+globalThis.addEventListener('install', event => {
   swLog('[SW] Installing Service Worker');
 
   event.waitUntil(
@@ -39,13 +39,13 @@ self.addEventListener('install', event => {
           return cache.put('/puzzles/init', new Response('{}'));
         }),
       // Skip waiting to activate immediately
-      self.skipWaiting(),
+      globalThis.skipWaiting(),
     ])
   );
 });
 
 // Activate event - clean up old caches
-self.addEventListener('activate', event => {
+globalThis.addEventListener('activate', event => {
   swLog('[SW] Activating Service Worker');
 
   event.waitUntil(
@@ -69,13 +69,13 @@ self.addEventListener('activate', event => {
           return Promise.all(deletions);
         }),
       // Take control of all clients
-      self.clients.claim(),
+      globalThis.clients.claim(),
     ])
   );
 });
 
 // Fetch event - handle requests with caching strategies
-self.addEventListener('fetch', event => {
+globalThis.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
 
@@ -271,7 +271,7 @@ async function handlePageRequest(request) {
         <div class="emoji">🧩</div>
         <h1>You're Offline!</h1>
         <p>Don't worry! You can still play Sudoku. Some features might be limited until you're back online.</p>
-        <button onclick="window.location.reload()">Try Again</button>
+        <button onclick="globalThis.location.reload()">Try Again</button>
       </div>
     </body>
     </html>`,
@@ -370,7 +370,7 @@ function generateOfflinePuzzle(searchParams) {
 }
 
 // Background sync for progress tracking
-self.addEventListener('sync', event => {
+globalThis.addEventListener('sync', event => {
   swLog('[SW] Background sync triggered:', event.tag);
 
   if (event.tag === 'progress-sync') {
@@ -437,7 +437,7 @@ async function syncAchievements() {
 }
 
 // Handle push notifications for achievements
-self.addEventListener('push', event => {
+globalThis.addEventListener('push', event => {
   swLog('[SW] Push notification received');
 
   if (event.data) {
@@ -466,7 +466,7 @@ self.addEventListener('push', event => {
     };
 
     event.waitUntil(
-      self.registration.showNotification(
+      globalThis.registration.showNotification(
         data.title || 'Sudoku Achievement!',
         options
       )
@@ -475,7 +475,7 @@ self.addEventListener('push', event => {
 });
 
 // Handle notification clicks
-self.addEventListener('notificationclick', event => {
+globalThis.addEventListener('notificationclick', event => {
   swLog('[SW] Notification clicked:', event.action);
 
   event.notification.close();
@@ -493,13 +493,13 @@ self.addEventListener('notificationclick', event => {
 });
 
 // Message handling for communication with main thread
-self.addEventListener('message', event => {
+globalThis.addEventListener('message', event => {
   swLog('[SW] Message received:', event.data);
 
   if (event.data?.type) {
     switch (event.data.type) {
       case 'SKIP_WAITING':
-        self.skipWaiting();
+        globalThis.skipWaiting();
         break;
       case 'CACHE_PROGRESS':
         cacheProgressData(event.data.payload);
@@ -528,9 +528,9 @@ async function cacheProgressData(progressData) {
     // Register for background sync
     if (
       'serviceWorker' in navigator &&
-      'sync' in window.ServiceWorkerRegistration.prototype
+      'sync' in globalThis.ServiceWorkerRegistration.prototype
     ) {
-      await self.registration.sync.register('progress-sync');
+      await globalThis.registration.sync.register('progress-sync');
     }
   } catch (error) {
     swError('[SW] Failed to cache progress data:', error);
@@ -549,9 +549,9 @@ async function cacheAchievementData(achievementData) {
     // Register for background sync
     if (
       'serviceWorker' in navigator &&
-      'sync' in window.ServiceWorkerRegistration.prototype
+      'sync' in globalThis.ServiceWorkerRegistration.prototype
     ) {
-      await self.registration.sync.register('achievement-sync');
+      await globalThis.registration.sync.register('achievement-sync');
     }
   } catch (error) {
     swError('[SW] Failed to cache achievement data:', error);

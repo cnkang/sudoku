@@ -31,8 +31,6 @@ export default function Home() {
     });
   }
 
-  const isTestEnv = process.env.NODE_ENV === 'test';
-
   return (
     <div className={`${styles.page} container-query-root modern-grid-layout`}>
       <main className={`${styles.main} modern-grid-main`}>
@@ -55,114 +53,60 @@ export default function Home() {
       </main>
 
       {/* Inject styles for test environment compatibility */}
-      {isTestEnv ? <style>{pageStyles}</style> : <style>{pageStyles}</style>}
+      <style>{pageStyles}</style>
 
       {/* Additional loading styles */}
-      {isTestEnv ? (
-        <style>{`
-          .app-loading-fallback {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100dvh;
-            gap: 1.5rem;
-            padding: 2rem;
-            text-align: center;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-          }
+      <style>{`
+        .app-loading-fallback {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 100dvh;
+          gap: 1.5rem;
+          padding: 2rem;
+          text-align: center;
+          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
 
+        .app-loading-fallback .loading-spinner {
+          width: 60px;
+          height: 60px;
+          border: 4px solid #e2e8f0;
+          border-top: 4px solid #3b82f6;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+
+        .app-loading-fallback h1 {
+          font-size: clamp(1.5rem, 4vw, 2.5rem);
+          font-weight: 700;
+          color: #1e293b;
+          margin: 0;
+        }
+
+        .app-loading-fallback p {
+          font-size: clamp(1rem, 2vw, 1.125rem);
+          color: #64748b;
+          margin: 0;
+        }
+
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
           .app-loading-fallback .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid #e2e8f0;
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: none;
+            border-top-color: #3b82f6;
           }
-
-          .app-loading-fallback h1 {
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
-            font-weight: 700;
-            color: #1e293b;
-            margin: 0;
-          }
-
-          .app-loading-fallback p {
-            font-size: clamp(1rem, 2vw, 1.125rem);
-            color: #64748b;
-            margin: 0;
-          }
-
-          @keyframes spin {
-            0% {
-              transform: rotate(0deg);
-            }
-            100% {
-              transform: rotate(360deg);
-            }
-          }
-
-          @media (prefers-reduced-motion: reduce) {
-            .app-loading-fallback .loading-spinner {
-              animation: none;
-              border-top-color: #3b82f6;
-            }
-          }
-        `}</style>
-      ) : (
-        <style>{`
-          .app-loading-fallback {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100dvh;
-            gap: 1.5rem;
-            padding: 2rem;
-            text-align: center;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-          }
-
-          .app-loading-fallback .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid #e2e8f0;
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-          }
-
-          .app-loading-fallback h1 {
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
-            font-weight: 700;
-            color: #1e293b;
-            margin: 0;
-          }
-
-          .app-loading-fallback p {
-            font-size: clamp(1rem, 2vw, 1.125rem);
-            color: #64748b;
-            margin: 0;
-          }
-
-          @keyframes spin {
-            0% {
-              transform: rotate(0deg);
-            }
-            100% {
-              transform: rotate(360deg);
-            }
-          }
-
-          @media (prefers-reduced-motion: reduce) {
-            .app-loading-fallback .loading-spinner {
-              animation: none;
-              border-top-color: #3b82f6;
-            }
-          }
-        `}</style>
-      )}
+        }
+      `}</style>
     </div>
   );
 }
