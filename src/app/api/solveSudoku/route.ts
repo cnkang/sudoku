@@ -19,7 +19,7 @@ function validateGridSize(gridSizeParam: string | null): 4 | 6 | 9 {
     return 9; // Default to 9x9 for backward compatibility
   }
 
-  const gridSize = parseInt(gridSizeParam, 10);
+  const gridSize = Number.parseInt(gridSizeParam, 10);
 
   if (![4, 6, 9].includes(gridSize)) {
     throw new Error('Invalid grid size. Must be 4, 6, or 9.');

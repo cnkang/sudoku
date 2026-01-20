@@ -200,11 +200,11 @@
 
     <script>
         function goHome() {
-            window.location.href = '/';
+            globalThis.location.href = '/';
         }
 
         function tryReconnect() {
-            window.location.reload();
+            globalThis.location.reload();
         }
 
         // Check connection status
@@ -222,17 +222,17 @@
         }
 
         // Listen for connection changes
-        window.addEventListener('online', updateConnectionStatus);
-        window.addEventListener('offline', updateConnectionStatus);
+        globalThis.addEventListener('online', updateConnectionStatus);
+        globalThis.addEventListener('offline', updateConnectionStatus);
 
         // Initial status check
         updateConnectionStatus();
 
         // Auto-refresh when back online
-        window.addEventListener('online', () => {
+        globalThis.addEventListener('online', () => {
             setTimeout(() => {
                 if (navigator.onLine) {
-                    window.location.reload();
+                    globalThis.location.reload();
                 }
             }, 2000);
         });
