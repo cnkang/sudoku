@@ -79,6 +79,26 @@ const defaultSettings: VoiceInputSettings = {
   confidence: 0.7,
 };
 
+const NUMBER_WORDS: Record<string, number> = {
+  zero: 0,
+  one: 1,
+  two: 2,
+  three: 3,
+  four: 4,
+  five: 5,
+  six: 6,
+  seven: 7,
+  eight: 8,
+  nine: 9,
+};
+
+const SAFE_NUMBER_PATTERN = `(?:${Object.keys(NUMBER_WORDS).join('|')}|\\d{1,2})`;
+
+const CONTEXT_NUMBER_PATTERNS = [
+  new RegExp(`\\b(?:enter|put|place|set)\\s+(${SAFE_NUMBER_PATTERN})\\b`),
+  new RegExp(`\\b(${SAFE_NUMBER_PATTERN})\\s+(?:please|now)\\b`),
+];
+
 export const useVoiceInput = (
   gridConfig: GridConfig,
   onNumberInput?: (value: number) => void,
@@ -164,20 +184,6 @@ export const useVoiceInput = (
         return; // Confidence too low
       }
 
-      // Number recognition patterns
-      const numberWords: Record<string, number> = {
-        zero: 0,
-        one: 1,
-        two: 2,
-        three: 3,
-        four: 4,
-        five: 5,
-        six: 6,
-        seven: 7,
-        eight: 8,
-        nine: 9,
-      };
-
       // Check for direct number input
       const directNumber = parseInt(transcript, 10);
       if (
@@ -190,7 +196,7 @@ export const useVoiceInput = (
       }
 
       // Check for spoken numbers
-      const spokenNumber = numberWords[transcript];
+      const spokenNumber = NUMBER_WORDS[transcript];
       if (
         spokenNumber !== undefined &&
         spokenNumber >= 0 &&
@@ -225,16 +231,11 @@ export const useVoiceInput = (
       }
 
       // Check for number with context (e.g., "enter five", "put three")
-      const contextPatterns = [
-        /(?:enter|put|place|set)\s+(\w+)/,
-        /(\w+)\s+(?:please|now)/,
-      ];
-
-      for (const pattern of contextPatterns) {
+      for (const pattern of CONTEXT_NUMBER_PATTERNS) {
         const match = transcript.match(pattern);
         if (match?.[1]) {
           const word = match[1];
-          const number = numberWords[word] ?? parseInt(word, 10);
+          const number = NUMBER_WORDS[word] ?? parseInt(word, 10);
           if (
             !Number.isNaN(number) &&
             number >= 0 &&
