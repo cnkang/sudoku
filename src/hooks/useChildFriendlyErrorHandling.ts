@@ -216,13 +216,7 @@ export const useChildFriendlyErrorHandling = ({
     (progressType: 'good_progress' | 'puzzle_complete' | 'milestone') => {
       if (!gameState.childMode) return;
 
-      let encouragementType = 'GOOD_PROGRESS';
-
-      if (progressType === 'puzzle_complete') {
-        encouragementType = 'GOOD_PROGRESS'; // Will be handled by celebration system
-      }
-
-      const encouragement = getEncouragementMessage(encouragementType, {
+      const encouragement = getEncouragementMessage('GOOD_PROGRESS', {
         gridSize: gameState.gridConfig.size,
         childMode: gameState.childMode,
       });

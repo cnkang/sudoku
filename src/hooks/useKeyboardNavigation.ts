@@ -7,6 +7,41 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GridConfig } from '@/types';
 import { getAccessibilityManager } from '@/utils/accessibilityManager';
 
+const advancePosition = (
+  row: number,
+  col: number,
+  size: number,
+  direction: 'forward' | 'backward'
+) => {
+  let nextRow = row;
+  let nextCol = col;
+
+  if (direction === 'forward') {
+    nextCol += 1;
+    if (nextCol >= size) {
+      nextCol = 0;
+      nextRow += 1;
+    }
+    if (nextRow >= size) {
+      nextRow = 0;
+    }
+  } else {
+    nextCol -= 1;
+    if (nextCol < 0) {
+      nextCol = size - 1;
+      nextRow -= 1;
+    }
+    if (nextRow < 0) {
+      nextRow = size - 1;
+    }
+  }
+
+  return { row: nextRow, col: nextCol };
+};
+
+const isEditableCell = (cellElement?: HTMLElement) =>
+  cellElement?.tagName === 'INPUT';
+
 export interface KeyboardNavigationOptions {
   gridConfig: GridConfig;
   disabled?: boolean;
@@ -89,26 +124,14 @@ export const useKeyboardNavigation = (
       startRow: number,
       startCol: number,
       direction: 'forward' | 'backward' = 'forward'
-      // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: navigation scanning is complex
     ): { row: number; col: number } | null => {
       const { size } = gridConfig;
-      let row = startRow;
-      let col = startCol;
-
-      // Start from next/previous position
-      if (direction === 'forward') {
-        col += 1;
-        if (col >= size) {
-          col = 0;
-          row += 1;
-        }
-      } else {
-        col -= 1;
-        if (col < 0) {
-          col = size - 1;
-          row -= 1;
-        }
-      }
+      let { row, col } = advancePosition(
+        startRow,
+        startCol,
+        size,
+        direction
+      );
 
       // Search for editable cell
       for (let attempts = 0; attempts < size * size; attempts++) {
@@ -117,31 +140,13 @@ export const useKeyboardNavigation = (
           const cellElement = cellRefs.current.get(cellKey);
 
           // Check if cell is editable (has input element)
-          if (cellElement && cellElement.tagName === 'INPUT') {
+          if (isEditableCell(cellElement)) {
             return { row, col };
           }
         }
 
         // Move to next position
-        if (direction === 'forward') {
-          col += 1;
-          if (col >= size) {
-            col = 0;
-            row += 1;
-          }
-          if (row >= size) {
-            row = 0; // Wrap to beginning
-          }
-        } else {
-          col -= 1;
-          if (col < 0) {
-            col = size - 1;
-            row -= 1;
-          }
-          if (row < 0) {
-            row = size - 1; // Wrap to end
-          }
-        }
+        ({ row, col } = advancePosition(row, col, size, direction));
       }
 
       return null; // No editable cell found
