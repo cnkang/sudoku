@@ -124,8 +124,7 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
   // Encouragement handler
   const handleEncouragement = useCallback(() => {
     const randomMessage =
-      pickSecureRandomElement(encouragementMessages) ??
-      "You're doing great!";
+      pickSecureRandomElement(encouragementMessages) ?? "You're doing great!";
 
     setEncouragementMessage(randomMessage ?? "You're doing great!");
     triggerHaptic('success');
@@ -178,7 +177,7 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
         {Array.from({ length: 8 }, (_, i) => (
           <div
             key={`sparkle-${i + 1}`}
-            className={`${styles.sparkle} ${styles[`sparkle${i + 1}`]}`}
+            className={[styles.sparkle, styles[`sparkle${i + 1}`]].join(' ')}
           >
             ✨
           </div>

@@ -30,7 +30,7 @@ const LazyPWAGridSelector = createLazyComponent<PWAGridSelectorProps>(
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .grid-selector-loading {
           width: 100%;
           max-width: 800px;

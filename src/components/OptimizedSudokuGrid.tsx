@@ -399,7 +399,6 @@ const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
         data-grid-size={gridConfig.size}
         aria-label={`${gridConfig.size}x${gridConfig.size} Sudoku puzzle`}
         onKeyDown={handleKeyDown}
-        tabIndex={-1}
       >
         <tbody>
           {gridData.map((rowData, rowIndex) => {

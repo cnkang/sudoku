@@ -27,8 +27,7 @@ export default function Home() {
     window.addEventListener('load', () => {
       const endTime = performance.now();
       const _loadTime = endTime - startTime;
-      const meetsRequirements = monitor.meetsPerformanceRequirements();
-      void meetsRequirements;
+      const _meetsRequirements = monitor.meetsPerformanceRequirements();
     });
   }
 
@@ -56,11 +55,7 @@ export default function Home() {
       </main>
 
       {/* Inject styles for test environment compatibility */}
-      {isTestEnv ? (
-        <style>{pageStyles}</style>
-      ) : (
-        <style jsx>{pageStyles}</style>
-      )}
+      {isTestEnv ? <style>{pageStyles}</style> : <style>{pageStyles}</style>}
 
       {/* Additional loading styles */}
       {isTestEnv ? (
@@ -116,7 +111,7 @@ export default function Home() {
           }
         `}</style>
       ) : (
-        <style jsx>{`
+        <style>{`
           .app-loading-fallback {
             display: flex;
             flex-direction: column;

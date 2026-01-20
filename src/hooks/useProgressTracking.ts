@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useState, useCallback, useEffect } from 'react';
 import type { GameState } from '@/types';
 import type {
@@ -14,6 +15,57 @@ import {
   updateProgressStats,
   calculateOverallProgress,
 } from '@/utils/progressTracking';
+
+const scheduleCelebrationRemoval = (
+  setTrackingState: React.Dispatch<React.SetStateAction<ProgressTrackingState>>,
+  duration: number
+) => {
+  setTimeout(() => {
+    setTrackingState(prev => ({
+      ...prev,
+      currentCelebration: null,
+    }));
+  }, duration + 1000);
+};
+
+const scheduleCelebration = ({
+  celebration,
+  index,
+  setTrackingState,
+  onShowCelebration,
+  onPlaySound,
+  soundEnabled,
+  childMode,
+}: {
+  celebration: {
+    achievement: Achievement;
+    effect: CelebrationEffect;
+    message: string;
+  };
+  index: number;
+  setTrackingState: React.Dispatch<React.SetStateAction<ProgressTrackingState>>;
+  onShowCelebration:
+    | ((effect: CelebrationEffect, message: string) => void)
+    | undefined;
+  onPlaySound: ((soundType: string) => void) | undefined;
+  soundEnabled: boolean;
+  childMode: boolean;
+}) => {
+  setTimeout(() => {
+    setTrackingState(prev => ({
+      ...prev,
+      currentCelebration: celebration,
+    }));
+
+    onShowCelebration?.(celebration.effect, celebration.message);
+
+    if (soundEnabled && childMode && celebration.effect.soundEffect) {
+      onPlaySound?.(celebration.effect.soundEffect);
+    }
+
+    scheduleCelebrationRemoval(setTrackingState, celebration.effect.duration);
+  }, index * 2000);
+};
 
 interface UseProgressTrackingProps {
   gameState: GameState;
@@ -88,33 +140,17 @@ export const useProgressTracking = ({
         message: string;
       }>
     ) => {
-      celebrations.forEach((celebration, index) => {
-        setTimeout(() => {
-          setTrackingState(prev => ({
-            ...prev,
-            currentCelebration: celebration,
-          }));
-
-          onShowCelebration?.(celebration.effect, celebration.message);
-
-          // Play achievement sound
-          if (
-            soundEnabled &&
-            gameState.childMode &&
-            celebration.effect.soundEffect
-          ) {
-            onPlaySound?.(celebration.effect.soundEffect);
-          }
-
-          // Auto-hide celebration after effect duration
-          setTimeout(() => {
-            setTrackingState(prev => ({
-              ...prev,
-              currentCelebration: null,
-            }));
-          }, celebration.effect.duration + 1000);
-        }, index * 2000); // Stagger celebrations by 2 seconds
-      });
+      for (const [index, celebration] of celebrations.entries()) {
+        scheduleCelebration({
+          celebration,
+          index,
+          setTrackingState,
+          onShowCelebration,
+          onPlaySound,
+          soundEnabled,
+          childMode: gameState.childMode,
+        });
+      }
     },
     [onShowCelebration, onPlaySound, soundEnabled, gameState.childMode]
   );

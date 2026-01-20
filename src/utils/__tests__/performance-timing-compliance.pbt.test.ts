@@ -304,7 +304,7 @@ describe('Performance Timing Compliance Property Tests', () => {
             // Property: Transition should work regardless of API availability
             // and still meet performance requirements
             expect(transitionTime).toBeLessThanOrEqual(200);
-            return true;
+            return transitionTime <= 200;
           } catch {
             // If View Transitions fail, fallback should still work
             const fallbackTime = await simulateGridTransition(
@@ -314,7 +314,7 @@ describe('Performance Timing Compliance Property Tests', () => {
             );
 
             expect(fallbackTime).toBeLessThanOrEqual(200);
-            return true;
+            return fallbackTime <= 200;
           }
         }
       ),
@@ -442,7 +442,7 @@ describe('Performance Timing Compliance Property Tests', () => {
             expect(transitionTime).toBeLessThanOrEqual(200);
           }
 
-          return true;
+          return reducedMotion ? transitionTime <= 150 : transitionTime <= 200;
         }
       ),
       {

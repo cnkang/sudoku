@@ -13,7 +13,7 @@ const GridLoadingFallback = memo(() => (
   <div className="grid-loading-fallback">
     <div className="loading-spinner" />
     <p>Loading grid...</p>
-    <style jsx>{`
+    <style>{`
       .grid-loading-fallback {
         display: flex;
         flex-direction: column;
@@ -246,8 +246,8 @@ class LazyErrorBoundary extends React.Component<
   }
 
   override componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    void error;
-    void errorInfo;
+    const _error = error;
+    const _errorInfo = errorInfo;
   }
 
   override render() {
@@ -338,7 +338,7 @@ export const getComponentBundleSize = async (
       return entry.transferSize || 0;
     }
   } catch (error) {
-    void error;
+    const _error = error;
   }
 
   return 0;
@@ -358,7 +358,7 @@ export const useLazyComponentTracking = (componentName: string) => {
       setLoadTime(duration);
       setIsLoaded(true);
 
-      void componentName;
+      const _componentName = componentName;
     };
 
     // Simulate component load completion

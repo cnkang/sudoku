@@ -25,6 +25,134 @@ const errorTypeArb = fc.constantFrom('gentle', 'warning');
 
 const randomTestId = (prefix: string) => `${prefix}-${secureRandomId()}`;
 
+type ChildFriendlyTheme = ReturnType<typeof getChildFriendlyThemes>[number];
+type ErrorType = 'gentle' | 'warning';
+type FeedbackTriggers = {
+  showError: (message: string, type: ErrorType) => void;
+  showPatternFeedback: (
+    feedbackType: 'error',
+    message: string,
+    pattern: 'dots' | 'stripes'
+  ) => void;
+  highlightGentleError: (element: HTMLElement, duration: number) => void;
+};
+
+const clickFirstMatch = (container: HTMLElement, selector: string) => {
+  const element = container.querySelector(selector);
+  if (element) {
+    fireEvent.click(element);
+    return true;
+  }
+  return false;
+};
+
+const ErrorTriggerButton = ({
+  theme,
+  errorMessage,
+  errorType,
+  testId,
+  onTriggered,
+}: {
+  theme: ChildFriendlyTheme;
+  errorMessage: string;
+  errorType: ErrorType;
+  testId: string;
+  onTriggered: () => void;
+}) => (
+  <VisualFeedbackSystem theme={theme} childMode={true}>
+    {(triggers: FeedbackTriggers) => (
+      <button
+        type="button"
+        onClick={() => {
+          triggers.showError(errorMessage, errorType);
+          onTriggered();
+        }}
+        data-testid={testId}
+      >
+        Trigger Error
+      </button>
+    )}
+  </VisualFeedbackSystem>
+);
+
+const PatternErrorTriggerButton = ({
+  theme,
+  errorMessage,
+  errorType,
+  testId,
+  onTriggered,
+}: {
+  theme: ChildFriendlyTheme;
+  errorMessage: string;
+  errorType: ErrorType;
+  testId: string;
+  onTriggered: () => void;
+}) => (
+  <VisualFeedbackSystem theme={theme} childMode={true}>
+    {(triggers: FeedbackTriggers) => (
+      <button
+        type="button"
+        onClick={() => {
+          triggers.showPatternFeedback(
+            'error',
+            errorMessage,
+            errorType === 'gentle' ? 'dots' : 'stripes'
+          );
+          onTriggered();
+        }}
+        data-testid={testId}
+      >
+        Pattern Error
+      </button>
+    )}
+  </VisualFeedbackSystem>
+);
+
+const HighlightErrorTrigger = ({
+  theme,
+  onTriggered,
+}: {
+  theme: ChildFriendlyTheme;
+  onTriggered: () => void;
+}) => {
+  const [targetElement, setTargetElement] = React.useState<HTMLElement | null>(
+    null
+  );
+
+  return (
+    <VisualFeedbackSystem theme={theme} childMode={true}>
+      {(triggers: FeedbackTriggers) => (
+        <div>
+          <div
+            ref={setTargetElement}
+            data-testid={randomTestId('highlight-target')}
+            style={{
+              width: '100px',
+              height: '100px',
+              backgroundColor: '#f0f0f0',
+              border: '1px solid #ccc',
+            }}
+          >
+            Target Element
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              if (targetElement) {
+                triggers.highlightGentleError(targetElement, 1000);
+                onTriggered();
+              }
+            }}
+            data-testid={randomTestId('highlight-trigger')}
+          >
+            Highlight Error
+          </button>
+        </div>
+      )}
+    </VisualFeedbackSystem>
+  );
+};
+
 describe('Error Highlighting Consistency Property-Based Tests', () => {
   /**
    * Feature: multi-size-sudoku, Property 5: Error highlighting consistency
@@ -40,33 +168,22 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
         errorTypeArb,
         (theme, errorMessage, errorType) => {
           let errorTriggered = false;
+          const onTriggered = () => {
+            errorTriggered = true;
+          };
 
-          const TestComponent = () => (
-            <VisualFeedbackSystem theme={theme} childMode={true}>
-              {triggers => (
-                <button
-                  type="button"
-                  onClick={() => {
-                    triggers.showError(errorMessage, errorType);
-                    errorTriggered = true;
-                  }}
-                  data-testid={randomTestId('error-trigger')}
-                >
-                  Trigger Error
-                </button>
-              )}
-            </VisualFeedbackSystem>
+          const { container } = render(
+            <ErrorTriggerButton
+              theme={theme}
+              errorMessage={errorMessage}
+              errorType={errorType as ErrorType}
+              testId={randomTestId('error-trigger')}
+              onTriggered={onTriggered}
+            />
           );
-
-          const { container } = render(<TestComponent />);
 
           // Find and click the trigger button
-          const triggerButton = container.querySelector(
-            'button[data-testid^="error-trigger-"]'
-          );
-          if (triggerButton) {
-            fireEvent.click(triggerButton);
-          }
+          clickFirstMatch(container, 'button[data-testid^="error-trigger-"]');
 
           if (!errorTriggered) {
             return false;
@@ -88,10 +205,10 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
           const hasAppropriateErrorClass = hasGentleClass || hasWarningClass;
 
           // Should have pattern-based visual cues for colorblind accessibility
-          const hasPattern = errorElement.hasAttribute('data-pattern');
+          const hasPattern = 'pattern' in errorElement.dataset;
 
           // Should use warm color patterns (dots for gentle errors, stripes for warnings)
-          const patternType = errorElement.getAttribute('data-pattern');
+          const patternType = errorElement.dataset.pattern;
           const hasWarmColorPattern =
             patternType === 'dots' || patternType === 'stripes';
 
@@ -132,33 +249,22 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
         errorMessageArb,
         (theme, errorMessage) => {
           let gentleErrorTriggered = false;
+          const onTriggered = () => {
+            gentleErrorTriggered = true;
+          };
 
-          const TestComponent = () => (
-            <VisualFeedbackSystem theme={theme} childMode={true}>
-              {triggers => (
-                <button
-                  type="button"
-                  onClick={() => {
-                    triggers.showError(errorMessage, 'gentle');
-                    gentleErrorTriggered = true;
-                  }}
-                  data-testid={randomTestId('gentle-error')}
-                >
-                  Invalid Move
-                </button>
-              )}
-            </VisualFeedbackSystem>
+          const { container } = render(
+            <ErrorTriggerButton
+              theme={theme}
+              errorMessage={errorMessage}
+              errorType="gentle"
+              testId={randomTestId('gentle-error')}
+              onTriggered={onTriggered}
+            />
           );
-
-          const { container } = render(<TestComponent />);
 
           // Find and click the trigger button
-          const triggerButton = container.querySelector(
-            'button[data-testid^="gentle-error-"]'
-          );
-          if (triggerButton) {
-            fireEvent.click(triggerButton);
-          }
+          clickFirstMatch(container, 'button[data-testid^="gentle-error-"]');
 
           if (!gentleErrorTriggered) {
             return false;
@@ -178,7 +284,7 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
           const hasGentleClass = errorElement.className.includes('gentle');
 
           // Should use dots pattern for gentle errors (warm orange visual cue)
-          const patternType = errorElement.getAttribute('data-pattern');
+          const patternType = errorElement.dataset.pattern;
           const hasDotsPattern = patternType === 'dots';
 
           // Should have encouraging, non-harsh language
@@ -215,33 +321,22 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
         errorMessageArb,
         (theme, errorMessage) => {
           let warningErrorTriggered = false;
+          const onTriggered = () => {
+            warningErrorTriggered = true;
+          };
 
-          const TestComponent = () => (
-            <VisualFeedbackSystem theme={theme} childMode={true}>
-              {triggers => (
-                <button
-                  type="button"
-                  onClick={() => {
-                    triggers.showError(errorMessage, 'warning');
-                    warningErrorTriggered = true;
-                  }}
-                  data-testid={randomTestId('warning-error')}
-                >
-                  Conflict Detected
-                </button>
-              )}
-            </VisualFeedbackSystem>
+          const { container } = render(
+            <ErrorTriggerButton
+              theme={theme}
+              errorMessage={errorMessage}
+              errorType="warning"
+              testId={randomTestId('warning-error')}
+              onTriggered={onTriggered}
+            />
           );
-
-          const { container } = render(<TestComponent />);
 
           // Find and click the trigger button
-          const triggerButton = container.querySelector(
-            'button[data-testid^="warning-error-"]'
-          );
-          if (triggerButton) {
-            fireEvent.click(triggerButton);
-          }
+          clickFirstMatch(container, 'button[data-testid^="warning-error-"]');
 
           if (!warningErrorTriggered) {
             return false;
@@ -261,7 +356,7 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
           const hasWarningClass = errorElement.className.includes('warning');
 
           // Should use stripes pattern for warnings (amber/yellow visual cue)
-          const patternType = errorElement.getAttribute('data-pattern');
+          const patternType = errorElement.dataset.pattern;
           const hasStripesPattern = patternType === 'stripes';
 
           // Should still maintain encouraging tone even for warnings
@@ -299,37 +394,22 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
         errorTypeArb,
         (theme, errorMessage, errorType) => {
           let errorTriggered = false;
+          const onTriggered = () => {
+            errorTriggered = true;
+          };
 
-          const TestComponent = () => (
-            <VisualFeedbackSystem theme={theme} childMode={true}>
-              {triggers => (
-                <button
-                  type="button"
-                  onClick={() => {
-                    triggers.showPatternFeedback(
-                      'error',
-                      errorMessage,
-                      errorType === 'gentle' ? 'dots' : 'stripes'
-                    );
-                    errorTriggered = true;
-                  }}
-                  data-testid={randomTestId('pattern-error')}
-                >
-                  Pattern Error
-                </button>
-              )}
-            </VisualFeedbackSystem>
+          const { container } = render(
+            <PatternErrorTriggerButton
+              theme={theme}
+              errorMessage={errorMessage}
+              errorType={errorType as ErrorType}
+              testId={randomTestId('pattern-error')}
+              onTriggered={onTriggered}
+            />
           );
-
-          const { container } = render(<TestComponent />);
 
           // Find and click the trigger button
-          const triggerButton = container.querySelector(
-            'button[data-testid^="pattern-error-"]'
-          );
-          if (triggerButton) {
-            fireEvent.click(triggerButton);
-          }
+          clickFirstMatch(container, 'button[data-testid^="pattern-error-"]');
 
           if (!errorTriggered) {
             return false;
@@ -346,8 +426,8 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
           }
 
           // Should have pattern attribute
-          const hasPattern = errorElement.hasAttribute('data-pattern');
-          const patternType = errorElement.getAttribute('data-pattern');
+          const hasPattern = 'pattern' in errorElement.dataset;
+          const patternType = errorElement.dataset.pattern;
 
           // Should have appropriate pattern for error type
           const hasCorrectPattern =
@@ -390,33 +470,22 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
         errorMessageArb,
         (theme, errorMessage) => {
           let errorTriggered = false;
+          const onTriggered = () => {
+            errorTriggered = true;
+          };
 
-          const TestComponent = () => (
-            <VisualFeedbackSystem theme={theme} childMode={true}>
-              {triggers => (
-                <button
-                  type="button"
-                  onClick={() => {
-                    triggers.showError(errorMessage, 'gentle');
-                    errorTriggered = true;
-                  }}
-                  data-testid={randomTestId('theme-error')}
-                >
-                  Theme Error Test
-                </button>
-              )}
-            </VisualFeedbackSystem>
+          const { container } = render(
+            <ErrorTriggerButton
+              theme={theme}
+              errorMessage={errorMessage}
+              errorType="gentle"
+              testId={randomTestId('theme-error')}
+              onTriggered={onTriggered}
+            />
           );
-
-          const { container } = render(<TestComponent />);
 
           // Find and click the trigger button
-          const triggerButton = container.querySelector(
-            'button[data-testid^="theme-error-"]'
-          );
-          if (triggerButton) {
-            fireEvent.click(triggerButton);
-          }
+          clickFirstMatch(container, 'button[data-testid^="theme-error-"]');
 
           if (!errorTriggered) {
             return false;
@@ -439,10 +508,10 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
           const hasGentleClass = errorElement.className.includes('gentle');
 
           // Should have pattern-based visual cues
-          const hasPattern = errorElement.hasAttribute('data-pattern');
+          const hasPattern = 'pattern' in errorElement.dataset;
 
           // Should have warm color pattern (dots for gentle errors)
-          const patternType = errorElement.getAttribute('data-pattern');
+          const patternType = errorElement.dataset.pattern;
           const hasWarmPattern = patternType === 'dots';
 
           // Should maintain theme consistency (theme colors should be used)
@@ -475,54 +544,16 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
     fc.assert(
       fc.property(childFriendlyThemeArb, theme => {
         let highlightApplied = false;
-
-        const TestComponent = () => {
-          const [targetElement, setTargetElement] =
-            React.useState<HTMLElement | null>(null);
-
-          return (
-            <VisualFeedbackSystem theme={theme} childMode={true}>
-              {triggers => (
-                <div>
-                  <div
-                    ref={setTargetElement}
-                    data-testid={randomTestId('highlight-target')}
-                    style={{
-                      width: '100px',
-                      height: '100px',
-                      backgroundColor: '#f0f0f0',
-                      border: '1px solid #ccc',
-                    }}
-                  >
-                    Target Element
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (targetElement) {
-                        triggers.highlightGentleError(targetElement, 1000);
-                        highlightApplied = true;
-                      }
-                    }}
-                    data-testid={randomTestId('highlight-trigger')}
-                  >
-                    Highlight Error
-                  </button>
-                </div>
-              )}
-            </VisualFeedbackSystem>
-          );
+        const onTriggered = () => {
+          highlightApplied = true;
         };
 
-        const { container } = render(<TestComponent />);
+        const { container } = render(
+          <HighlightErrorTrigger theme={theme} onTriggered={onTriggered} />
+        );
 
         // Find and click the trigger button
-        const triggerButton = container.querySelector(
-          'button[data-testid^="highlight-trigger-"]'
-        );
-        if (triggerButton) {
-          fireEvent.click(triggerButton);
-        }
+        clickFirstMatch(container, 'button[data-testid^="highlight-trigger-"]');
 
         if (!highlightApplied) {
           return false;

@@ -324,12 +324,12 @@ describe('/api/solveSudoku', () => {
       expect(data.error).toBe('Generator failed');
     });
 
-    it('should handle non-Error exceptions', async () => {
+    it('should handle thrown errors with string messages', async () => {
       const { generateSudokuPuzzle } = await import('../sudokuGenerator');
 
-      // Mock generator to throw non-Error
+      // Mock generator to throw an error
       vi.mocked(generateSudokuPuzzle).mockImplementationOnce(() => {
-        throw 'String error';
+        throw new Error('String error');
       });
 
       mockRequest = createMockRequest('5');

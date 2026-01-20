@@ -390,7 +390,7 @@ export const LegacyDataMigrator = {
       // Mark migration as complete
       localStorage.setItem('sudoku-migration-complete', 'true');
     } catch (error) {
-      void error;
+      const _error = error;
     }
   },
 
@@ -418,7 +418,7 @@ export const LegacyDataMigrator = {
         localStorage.removeItem(key);
       });
     } catch (error) {
-      void error;
+      const _error = error;
     }
   },
 };

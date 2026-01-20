@@ -20,6 +20,31 @@ type GameStateChangeDetails = {
   errorType?: string;
 };
 
+const describePuzzleLoaded = (details: GameStateChangeDetails) =>
+  `New ${details.gridSize}×${details.gridSize} Sudoku puzzle loaded with ${details.difficulty} difficulty. ${details.clueCount} numbers are provided as clues.`;
+
+const describeMoveMade = (details: GameStateChangeDetails) => {
+  const moveResult = details.isCorrect ? 'correct' : 'incorrect';
+  const row = typeof details.row === 'number' ? details.row + 1 : 'unknown';
+  const col = typeof details.col === 'number' ? details.col + 1 : 'unknown';
+  const value = typeof details.value === 'number' ? details.value : 'unknown';
+  return `Number ${value} entered in row ${row}, column ${col}. Move is ${moveResult}.`;
+};
+
+const describeHintUsed = (details: GameStateChangeDetails) => {
+  const row = typeof details.row === 'number' ? details.row + 1 : 'unknown';
+  const col = typeof details.col === 'number' ? details.col + 1 : 'unknown';
+  const value = typeof details.value === 'number' ? details.value : 'unknown';
+  const hintsRemaining =
+    typeof details.hintsRemaining === 'number'
+      ? `${details.hintsRemaining} hints remaining.`
+      : '';
+  return `Hint revealed: Number ${value} goes in row ${row}, column ${col}. ${hintsRemaining}`.trim();
+};
+
+const describeErrorOccurred = (details: GameStateChangeDetails) =>
+  `Error: ${details.message ?? 'An unexpected error occurred.'} Please try again.`;
+
 export interface ScreenReaderAnnouncement {
   message: string;
   priority: 'polite' | 'assertive';
@@ -247,7 +272,6 @@ class AccessibilityManager {
   /**
    * Describe game state changes for screen readers
    */
-  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: multiple announcement cases
   public describeGameStateChange(
     type:
       | 'puzzle-loaded'
@@ -259,39 +283,15 @@ class AccessibilityManager {
   ): string {
     switch (type) {
       case 'puzzle-loaded':
-        return `New ${details.gridSize}×${details.gridSize} Sudoku puzzle loaded with ${details.difficulty} difficulty. ${details.clueCount} numbers are provided as clues.`;
-
-      case 'move-made': {
-        const moveResult = details.isCorrect ? 'correct' : 'incorrect';
-        const row =
-          typeof details.row === 'number' ? details.row + 1 : 'unknown';
-        const col =
-          typeof details.col === 'number' ? details.col + 1 : 'unknown';
-        const value =
-          typeof details.value === 'number' ? details.value : 'unknown';
-        return `Number ${value} entered in row ${row}, column ${col}. Move is ${moveResult}.`;
-      }
-
+        return describePuzzleLoaded(details);
+      case 'move-made':
+        return describeMoveMade(details);
       case 'puzzle-completed':
         return `Congratulations! Puzzle completed successfully in ${details.timeFormatted}. You used ${details.hintsUsed} hints.`;
-
-      case 'hint-used': {
-        const row =
-          typeof details.row === 'number' ? details.row + 1 : 'unknown';
-        const col =
-          typeof details.col === 'number' ? details.col + 1 : 'unknown';
-        const value =
-          typeof details.value === 'number' ? details.value : 'unknown';
-        const hintsRemaining =
-          typeof details.hintsRemaining === 'number'
-            ? `${details.hintsRemaining} hints remaining.`
-            : '';
-        return `Hint revealed: Number ${value} goes in row ${row}, column ${col}. ${hintsRemaining}`.trim();
-      }
-
+      case 'hint-used':
+        return describeHintUsed(details);
       case 'error-occurred':
-        return `Error: ${details.message}. Please try again.`;
-
+        return describeErrorOccurred(details);
       default:
         return 'Game state changed.';
     }
@@ -415,9 +415,7 @@ class AccessibilityManager {
     this.announcementQueue = [];
     this.isProcessingQueue = false;
 
-    if (this.announcer?.parentNode) {
-      this.announcer.parentNode.removeChild(this.announcer);
-    }
+    this.announcer?.remove();
   }
 }
 

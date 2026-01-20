@@ -8,6 +8,82 @@
 
 import { useEffect } from 'react';
 
+const dispatchUpdateAvailable = (registration: ServiceWorkerRegistration) => {
+  window.dispatchEvent(
+    new CustomEvent('sw-update-available', {
+      detail: { registration },
+    })
+  );
+};
+
+const handleWorkerStateChange = (
+  registration: ServiceWorkerRegistration,
+  worker: ServiceWorker
+) => {
+  if (
+    worker.state === 'installed' &&
+    navigator.serviceWorker &&
+    navigator.serviceWorker.controller
+  ) {
+    dispatchUpdateAvailable(registration);
+  }
+};
+
+const attachUpdateFoundHandler = (registration: ServiceWorkerRegistration) => {
+  const handleUpdateFound = () => {
+    const newWorker = registration.installing;
+    if (!newWorker) return;
+
+    const handleStateChange = () =>
+      handleWorkerStateChange(registration, newWorker);
+
+    newWorker.addEventListener('statechange', handleStateChange);
+  };
+
+  registration.addEventListener('updatefound', handleUpdateFound);
+};
+
+const handleControllerChange = () => {
+  window.location.reload();
+};
+
+const handleRegistration = (registration: ServiceWorkerRegistration) => {
+  attachUpdateFoundHandler(registration);
+  registration.addEventListener('controllerchange', handleControllerChange);
+};
+
+const handleServiceWorkerMessage = (event: MessageEvent) => {
+  if (!event.data?.type) return;
+
+  switch (event.data.type) {
+    case 'CACHE_UPDATED':
+      break;
+    case 'OFFLINE_READY':
+      break;
+    case 'SYNC_COMPLETE':
+      break;
+  }
+};
+
+const registerBackgroundSync = async (): Promise<void> => {
+  if (!('serviceWorker' in navigator)) return;
+
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    const syncManager = (
+      registration as ServiceWorkerRegistration & {
+        sync?: { register: (tag: string) => Promise<void> };
+      }
+    ).sync;
+
+    if (!syncManager) return;
+
+    await syncManager.register('background-sync');
+  } catch {
+    // no-op
+  }
+};
+
 export default function PWAInit() {
   useEffect(() => {
     // Only run in browser environment
@@ -20,48 +96,14 @@ export default function PWAInit() {
           scope: '/',
           updateViaCache: 'none',
         })
-        .then(registration => {
-          // Check for updates
-          registration.addEventListener('updatefound', () => {
-            const newWorker = registration.installing;
-            if (newWorker) {
-              newWorker.addEventListener('statechange', () => {
-                if (
-                  newWorker.state === 'installed' &&
-                  navigator.serviceWorker.controller
-                ) {
-                  // Dispatch custom event for update notification
-                  window.dispatchEvent(
-                    new CustomEvent('sw-update-available', {
-                      detail: { registration },
-                    })
-                  );
-                }
-              });
-            }
-          });
-
-          // Listen for controlling service worker changes
-          registration.addEventListener('controllerchange', () => {
-            window.location.reload();
-          });
-        })
+        .then(handleRegistration)
         .catch(_error => {});
 
       // Listen for messages from service worker
-      navigator.serviceWorker.addEventListener('message', event => {
-        if (event.data?.type) {
-          switch (event.data.type) {
-            case 'CACHE_UPDATED':
-              break;
-            case 'OFFLINE_READY':
-              break;
-            case 'SYNC_COMPLETE':
-              break;
-          }
-        }
-      });
-    } else {
+      navigator.serviceWorker.addEventListener(
+        'message',
+        handleServiceWorkerMessage
+      );
     }
 
     // Handle app installation prompt
@@ -89,23 +131,7 @@ export default function PWAInit() {
     // Handle online/offline events
     const handleOnline = () => {
       // Trigger background sync if available
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.ready
-          .then(registration => {
-            const syncManager = (
-              registration as ServiceWorkerRegistration & {
-                sync?: { register: (tag: string) => Promise<void> };
-              }
-            ).sync;
-
-            if (!syncManager) {
-              return;
-            }
-
-            return syncManager.register('background-sync');
-          })
-          .catch(_error => {});
-      }
+      void registerBackgroundSync();
     };
 
     const handleOffline = () => {};
@@ -133,6 +159,12 @@ export default function PWAInit() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.removeEventListener(
+          'message',
+          handleServiceWorkerMessage
+        );
+      }
     };
   }, []);
 

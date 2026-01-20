@@ -5,6 +5,16 @@ import VisualFeedbackSystem from '../VisualFeedbackSystem';
 import { getChildFriendlyThemes } from '@/utils/themes';
 import { secureRandomId } from '@/utils/secureRandom';
 
+type ChildFriendlyTheme = ReturnType<typeof getChildFriendlyThemes>[number];
+type FeedbackType = 'success' | 'error' | 'encouragement' | 'hint';
+type FeedbackTriggers = {
+  showSuccess: (message: string) => void;
+  showError: (message: string, style: 'gentle') => void;
+  showEncouragement: (message: string) => void;
+  showHint: (message: string) => void;
+  showCelebration: (type: string) => void;
+};
+
 // Clean up after each test to prevent DOM pollution
 afterEach(() => {
   document.body.innerHTML = '';
@@ -26,6 +36,127 @@ const feedbackTypeArb = fc.constantFrom(
   'hint'
 );
 
+const getFeedbackSystem = (container: HTMLElement) =>
+  container.querySelector('[data-testid="visual-feedback-system"]');
+
+const hasChildModeClass = (container: HTMLElement) =>
+  getFeedbackSystem(container)?.className.includes('childMode') || false;
+
+const SuccessTrigger = ({ theme }: { theme: ChildFriendlyTheme }) => (
+  <VisualFeedbackSystem theme={theme} childMode={true}>
+    {(triggers: FeedbackTriggers) => (
+      <button
+        type="button"
+        onClick={() => triggers.showSuccess('Great job!')}
+        data-testid="success-trigger"
+      >
+        Valid Move
+      </button>
+    )}
+  </VisualFeedbackSystem>
+);
+
+const GentleErrorTrigger = ({
+  theme,
+  testId,
+}: {
+  theme: ChildFriendlyTheme;
+  testId: string;
+}) => (
+  <VisualFeedbackSystem theme={theme} childMode={true}>
+    {(triggers: FeedbackTriggers) => (
+      <button
+        type="button"
+        onClick={() => triggers.showError('Try again!', 'gentle')}
+        data-testid={testId}
+      >
+        Invalid Move
+      </button>
+    )}
+  </VisualFeedbackSystem>
+);
+
+const CelebrationTrigger = ({
+  theme,
+  celebrationType,
+}: {
+  theme: ChildFriendlyTheme;
+  celebrationType: string;
+}) => (
+  <VisualFeedbackSystem theme={theme} childMode={true} reducedMotion={false}>
+    {(triggers: FeedbackTriggers) => (
+      <button
+        type="button"
+        onClick={() => triggers.showCelebration(celebrationType)}
+        data-testid="celebration-trigger"
+      >
+        Complete Puzzle
+      </button>
+    )}
+  </VisualFeedbackSystem>
+);
+
+const EncouragementTrigger = ({ theme }: { theme: ChildFriendlyTheme }) => (
+  <VisualFeedbackSystem theme={theme} childMode={true}>
+    {(triggers: FeedbackTriggers) => (
+      <button
+        type="button"
+        onClick={() => triggers.showEncouragement('You can do it!')}
+        data-testid="encouragement-trigger"
+      >
+        Need Help
+      </button>
+    )}
+  </VisualFeedbackSystem>
+);
+
+const HintTrigger = ({ theme }: { theme: ChildFriendlyTheme }) => (
+  <VisualFeedbackSystem theme={theme} childMode={true}>
+    {(triggers: FeedbackTriggers) => (
+      <button
+        type="button"
+        onClick={() => triggers.showHint("Here's a helpful hint!")}
+        data-testid="hint-trigger"
+      >
+        Get Hint
+      </button>
+    )}
+  </VisualFeedbackSystem>
+);
+
+const PatternLegendTrigger = ({ theme }: { theme: ChildFriendlyTheme }) => (
+  <VisualFeedbackSystem theme={theme} childMode={true}>
+    {() => <div>Child mode interface</div>}
+  </VisualFeedbackSystem>
+);
+
+const feedbackActions = (triggers: FeedbackTriggers) => ({
+  success: () => triggers.showSuccess('Great job!'),
+  error: () => triggers.showError('Try again!', 'gentle'),
+  encouragement: () => triggers.showEncouragement('You can do it!'),
+  hint: () => triggers.showHint("Here's a hint!"),
+});
+
+const FeedbackTypeTrigger = ({
+  theme,
+  feedbackType,
+}: {
+  theme: ChildFriendlyTheme;
+  feedbackType: FeedbackType;
+}) => (
+  <VisualFeedbackSystem theme={theme} childMode={true}>
+    {(triggers: FeedbackTriggers) => (
+      <button
+        type="button"
+        onClick={() => feedbackActions(triggers)[feedbackType]?.()}
+        data-testid="feedback-trigger"
+      >
+        Trigger Feedback
+      </button>
+    )}
+  </VisualFeedbackSystem>
+);
+
 describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
   /**
    * Feature: multi-size-sudoku, Property 4: Child-friendly visual feedback
@@ -35,33 +166,15 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
   it('should provide positive visual feedback in child mode', () => {
     fc.assert(
       fc.property(childFriendlyThemeArb, theme => {
-        const TestComponent = () => (
-          <VisualFeedbackSystem theme={theme} childMode={true}>
-            {triggers => (
-              <button
-                type="button"
-                onClick={() => triggers.showSuccess('Great job!')}
-                data-testid="success-trigger"
-              >
-                Valid Move
-              </button>
-            )}
-          </VisualFeedbackSystem>
-        );
-
-        const { container } = render(<TestComponent />);
+        const { container } = render(<SuccessTrigger theme={theme} />);
 
         // Should have child mode styling
-        const feedbackSystem = container.querySelector(
-          '[data-testid="visual-feedback-system"]'
-        );
-        const hasChildModeClass =
-          feedbackSystem?.className.includes('childMode') || false;
+        const hasChildMode = hasChildModeClass(container);
 
         // Should be using a child-friendly theme
         const isChildFriendlyTheme = theme.category === 'child-friendly';
 
-        return hasChildModeClass && isChildFriendlyTheme;
+        return hasChildMode && isChildFriendlyTheme;
       }),
       { numRuns: 15 }
     );
@@ -76,42 +189,25 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
     fc.assert(
       fc.property(childFriendlyThemeArb, theme => {
         const uniqueId = secureRandomId();
-        const TestComponent = () => (
-          <VisualFeedbackSystem theme={theme} childMode={true}>
-            {triggers => (
-              <button
-                type="button"
-                onClick={() => triggers.showError('Try again!', 'gentle')}
-                data-testid={`gentle-error-trigger-${uniqueId}`}
-              >
-                Invalid Move
-              </button>
-            )}
-          </VisualFeedbackSystem>
+        const testId = `gentle-error-trigger-${uniqueId}`;
+        const { container } = render(
+          <GentleErrorTrigger theme={theme} testId={testId} />
         );
-
-        const { container } = render(<TestComponent />);
 
         // Trigger gentle error feedback
-        const button = container.querySelector(
-          `[data-testid="gentle-error-trigger-${uniqueId}"]`
-        );
+        const button = container.querySelector(`[data-testid="${testId}"]`);
         if (button) {
           fireEvent.click(button);
         }
 
         // Should have child mode and pattern support
-        const feedbackSystem = container.querySelector(
-          '[data-testid="visual-feedback-system"]'
-        );
-        const hasChildModeClass =
-          feedbackSystem?.className.includes('childMode') || false;
+        const hasChildMode = hasChildModeClass(container);
 
         // Should have pattern-based visual cues
         const hasPatternElements =
           container.querySelectorAll('[data-pattern]').length > 0;
 
-        return hasChildModeClass && hasPatternElements;
+        return hasChildMode && hasPatternElements;
       }),
       { numRuns: 15 }
     );
@@ -128,38 +224,21 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
         childFriendlyThemeArb,
         fc.constantFrom('confetti', 'stars', 'rainbow'),
         (theme, celebrationType) => {
-          const TestComponent = () => (
-            <VisualFeedbackSystem
+          const { container } = render(
+            <CelebrationTrigger
               theme={theme}
-              childMode={true}
-              reducedMotion={false}
-            >
-              {triggers => (
-                <button
-                  type="button"
-                  onClick={() => triggers.showCelebration(celebrationType)}
-                  data-testid="celebration-trigger"
-                >
-                  Complete Puzzle
-                </button>
-              )}
-            </VisualFeedbackSystem>
+              celebrationType={celebrationType}
+            />
           );
-
-          const { container } = render(<TestComponent />);
 
           // Should have child mode
-          const feedbackSystem = container.querySelector(
-            '[data-testid="visual-feedback-system"]'
-          );
-          const hasChildModeClass =
-            feedbackSystem?.className.includes('childMode') || false;
+          const hasChildMode = hasChildModeClass(container);
 
           // Should have pattern legend for child-friendly interface
           const hasPatternLegend =
             container.querySelector('[data-testid="pattern-legend"]') !== null;
 
-          return hasChildModeClass && hasPatternLegend;
+          return hasChildMode && hasPatternLegend;
         }
       ),
       { numRuns: 15 }
@@ -174,34 +253,16 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
   it('should provide encouraging feedback to maintain motivation', () => {
     fc.assert(
       fc.property(childFriendlyThemeArb, theme => {
-        const TestComponent = () => (
-          <VisualFeedbackSystem theme={theme} childMode={true}>
-            {triggers => (
-              <button
-                type="button"
-                onClick={() => triggers.showEncouragement('You can do it!')}
-                data-testid="encouragement-trigger"
-              >
-                Need Help
-              </button>
-            )}
-          </VisualFeedbackSystem>
-        );
-
-        const { container } = render(<TestComponent />);
+        const { container } = render(<EncouragementTrigger theme={theme} />);
 
         // Should have child mode and accessibility features
-        const feedbackSystem = container.querySelector(
-          '[data-testid="visual-feedback-system"]'
-        );
-        const hasChildModeClass =
-          feedbackSystem?.className.includes('childMode') || false;
+        const hasChildMode = hasChildModeClass(container);
 
         // Should have screen reader support
         const hasAriaElements =
           container.querySelectorAll('[aria-live], [role]').length > 0;
 
-        return hasChildModeClass && hasAriaElements;
+        return hasChildMode && hasAriaElements;
       }),
       { numRuns: 15 }
     );
@@ -215,34 +276,16 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
   it('should provide helpful hint feedback with child-friendly explanations', () => {
     fc.assert(
       fc.property(childFriendlyThemeArb, theme => {
-        const TestComponent = () => (
-          <VisualFeedbackSystem theme={theme} childMode={true}>
-            {triggers => (
-              <button
-                type="button"
-                onClick={() => triggers.showHint("Here's a helpful hint!")}
-                data-testid="hint-trigger"
-              >
-                Get Hint
-              </button>
-            )}
-          </VisualFeedbackSystem>
-        );
-
-        const { container } = render(<TestComponent />);
+        const { container } = render(<HintTrigger theme={theme} />);
 
         // Should have child mode
-        const feedbackSystem = container.querySelector(
-          '[data-testid="visual-feedback-system"]'
-        );
-        const hasChildModeClass =
-          feedbackSystem?.className.includes('childMode') || false;
+        const hasChildMode = hasChildModeClass(container);
 
         // Should have pattern legend (child-friendly feature)
         const hasPatternLegend =
           container.querySelector('[data-testid="pattern-legend"]') !== null;
 
-        return hasChildModeClass && hasPatternLegend;
+        return hasChildMode && hasPatternLegend;
       }),
       { numRuns: 15 }
     );
@@ -256,13 +299,7 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
   it('should provide pattern legend in child mode', () => {
     fc.assert(
       fc.property(childFriendlyThemeArb, theme => {
-        const TestComponent = () => (
-          <VisualFeedbackSystem theme={theme} childMode={true}>
-            {() => <div>Child mode interface</div>}
-          </VisualFeedbackSystem>
-        );
-
-        const { container } = render(<TestComponent />);
+        const { container } = render(<PatternLegendTrigger theme={theme} />);
 
         // Should have pattern legend
         const patternLegend = container.querySelector(
@@ -298,38 +335,15 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
         childFriendlyThemeArb,
         feedbackTypeArb,
         (theme, feedbackType) => {
-          const TestComponent = () => (
-            <VisualFeedbackSystem theme={theme} childMode={true}>
-              {triggers => (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const actions = {
-                      success: () => triggers.showSuccess('Great job!'),
-                      error: () => triggers.showError('Try again!', 'gentle'),
-                      encouragement: () =>
-                        triggers.showEncouragement('You can do it!'),
-                      hint: () => triggers.showHint("Here's a hint!"),
-                    } as const;
-
-                    actions[feedbackType]?.();
-                  }}
-                  data-testid="feedback-trigger"
-                >
-                  Trigger Feedback
-                </button>
-              )}
-            </VisualFeedbackSystem>
+          const { container } = render(
+            <FeedbackTypeTrigger
+              theme={theme}
+              feedbackType={feedbackType as FeedbackType}
+            />
           );
-
-          const { container } = render(<TestComponent />);
 
           // Should have child mode styling
-          const feedbackSystem = container.querySelector(
-            '[data-testid="visual-feedback-system"]'
-          );
-          const hasChildModeClass =
-            feedbackSystem?.className.includes('childMode') || false;
+          const hasChildMode = hasChildModeClass(container);
 
           // Should have pattern legend (child-friendly feature)
           const hasPatternLegend =
@@ -340,7 +354,7 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
             theme.category === 'child-friendly' &&
             theme.ageGroup === 'children';
 
-          return hasChildModeClass && hasPatternLegend && isChildFriendlyTheme;
+          return hasChildMode && hasPatternLegend && isChildFriendlyTheme;
         }
       ),
       { numRuns: 15 }

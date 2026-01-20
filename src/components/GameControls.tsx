@@ -45,6 +45,14 @@ const GameControls: React.FC<GameControlsProps> = ({
       }
     };
   }, []);
+
+  let resetLabel = 'Reset Game';
+  if (isLoading) {
+    resetLabel = 'Loading...';
+  } else if (isResetCooldown) {
+    resetLabel = 'Wait...';
+  }
+
   return (
     <div
       className={`${styles.gameControls} modern-flex-controls`}
@@ -101,11 +109,7 @@ const GameControls: React.FC<GameControlsProps> = ({
           className={`${styles.btn} ${styles.btnDanger} modern-flex-button modern-transition modern-hover-lift modern-focus-ring`}
           aria-label="Reset the game"
         >
-          {isLoading
-            ? 'Loading...'
-            : isResetCooldown
-              ? 'Wait...'
-              : 'Reset Game'}
+          {resetLabel}
         </button>
       </div>
 
