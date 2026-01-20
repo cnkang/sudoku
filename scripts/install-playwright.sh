@@ -5,7 +5,7 @@ set -e
 
 echo "🎭 Installing Playwright browsers..."
 
-if [ "$CI" = "true" ]; then
+if [[ "$CI" = "true" ]]; then
     echo "🔧 CI: Installing Chromium only..."
     pnpm exec playwright install --with-deps chromium
 else
