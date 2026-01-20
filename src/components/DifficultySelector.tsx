@@ -1,27 +1,77 @@
-import type React from 'react';
-import type { DifficultySelectProps } from '../types';
+import React from "react";
+import type { DifficultySelectProps } from "../types";
+import { getConfig } from "@/utils/gridConfig";
+
+const DIFFICULTY_LABEL_RANGES: Record<
+  4 | 6 | 9,
+  Array<{ max: number; label: string }>
+> = {
+  4: [
+    { max: 2, label: "Easy" },
+    { max: 3, label: "Medium" },
+    { max: Infinity, label: "Hard" },
+  ],
+  6: [
+    { max: 2, label: "Easy" },
+    { max: 4, label: "Medium" },
+    { max: 6, label: "Hard" },
+    { max: Infinity, label: "Expert" },
+  ],
+  9: [
+    { max: 2, label: "Easy" },
+    { max: 5, label: "Medium" },
+    { max: 8, label: "Hard" },
+    { max: Infinity, label: "Expert" },
+  ],
+};
 
 const DifficultySelector: React.FC<DifficultySelectProps> = ({
   difficulty,
   onChange,
   disabled = false,
   isLoading = false,
+  gridSize = 9, // Default to 9x9 for backward compatibility
 }) => {
+  const gridSizeKey = gridSize as 4 | 6 | 9;
+
+  // Get the configuration for the current grid size
+  const config = getConfig(gridSizeKey);
+  const minDifficulty = 1;
+  const maxDifficulty = config.difficultyLevels;
+
+  // Normalize difficulty value with protective clamping
+  const normalizedDifficulty = React.useMemo(() => {
+    if (typeof difficulty !== "number" || Number.isNaN(difficulty)) {
+      return minDifficulty;
+    }
+    const rounded = Math.round(difficulty);
+    if (rounded < minDifficulty || rounded > maxDifficulty) {
+      return minDifficulty;
+    }
+    return rounded;
+  }, [difficulty, maxDifficulty]);
+
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = parseInt(e.target.value, 10);
     if (!Number.isNaN(value)) {
-      onChange(value);
+      // Apply clamping before calling onChange
+      const clampedValue = Math.max(
+        minDifficulty,
+        Math.min(maxDifficulty, value)
+      );
+      onChange(clampedValue);
     }
   };
 
   const getDifficultyLabel = (level: number): string => {
-    if (level <= 2) return `${level} (Easy)`;
-    if (level <= 5) return `${level} (Medium)`;
-    if (level <= 8) return `${level} (Hard)`;
-    return `${level} (Expert)`;
+    const pool = DIFFICULTY_LABEL_RANGES[gridSizeKey];
+    const fallback = pool[pool.length - 1] ?? { max: Infinity, label: "Expert" };
+    const foundRange = pool.find((range) => level <= range.max);
+    const range = foundRange ?? fallback;
+    return `${level} (${range.label})`;
   };
 
-  const isTestEnv = process.env.NODE_ENV === 'test';
+  const isTestEnv = process.env.NODE_ENV === "test";
 
   return (
     <div className="difficulty-selector modern-flex-controls">
@@ -31,13 +81,13 @@ const DifficultySelector: React.FC<DifficultySelectProps> = ({
       <select
         id="difficulty-select"
         aria-label="Select difficulty level"
-        value={difficulty}
+        value={normalizedDifficulty}
         onChange={handleChange}
         disabled={disabled || isLoading}
         className="difficulty-select modern-flex-button modern-transition modern-focus-ring"
         title="Change difficulty to get a new puzzle"
       >
-        {Array.from({ length: 10 }, (_, i) => (
+        {Array.from({ length: maxDifficulty }, (_, i) => (
           <option key={`difficulty-${i + 1}`} value={i + 1}>
             {getDifficultyLabel(i + 1)}
           </option>
@@ -45,8 +95,8 @@ const DifficultySelector: React.FC<DifficultySelectProps> = ({
       </select>
       <p className="difficulty-hint">
         {isLoading
-          ? '🔄 Generating new puzzle...'
-          : '💡 Changing difficulty will generate a new puzzle'}
+          ? "🔄 Generating new puzzle..."
+          : "💡 Changing difficulty will generate a new puzzle"}
       </p>
 
       {isTestEnv ? (
