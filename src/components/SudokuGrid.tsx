@@ -229,7 +229,7 @@ const useCellInputHandler = (
         return;
       }
 
-      const numValue = value === '' ? 0 : parseInt(value, 10);
+      const numValue = value === '' ? 0 : Number.parseInt(value, 10);
       onInputChange(rowIndex, colIndex, numValue);
 
       if (numValue > 0 && !reducedMotion) {
@@ -1098,7 +1098,7 @@ const SudokuGrid = memo<SudokuGridProps>(
         // Handle number input with dynamic range
         if (new RegExp(`[1-${maxValue}]`).test(key)) {
           e.preventDefault();
-          const value = parseInt(key, 10);
+          const value = Number.parseInt(key, 10);
           handleInputChangeWithFeedback(row, col, value);
         }
         // Handle deletion

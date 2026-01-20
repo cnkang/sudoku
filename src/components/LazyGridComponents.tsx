@@ -223,7 +223,6 @@ LazyThemeProvider.displayName = 'LazyThemeProvider';
 // Higher-order component for lazy loading with error boundary
 interface LazyWrapperProps {
   children: React.ReactNode;
-  fallback?: React.ComponentType;
   errorFallback?: React.ComponentType<{ error: Error }>;
 }
 
@@ -282,10 +281,7 @@ export const withLazyLoading = <P extends object>(
   const FallbackComponent = fallback ?? GridLoadingFallback;
 
   return memo((props: P) => (
-    <LazyErrorBoundary
-      {...(fallback ? { fallback } : {})}
-      {...(errorFallback ? { errorFallback } : {})}
-    >
+    <LazyErrorBoundary {...(errorFallback ? { errorFallback } : {})}>
       <Suspense fallback={<FallbackComponent />}>
         <LazyComponent {...props} />
       </Suspense>
@@ -329,7 +325,7 @@ export const preloadThemeComponents = () => {
 export const getComponentBundleSize = async (
   componentName: string
 ): Promise<number> => {
-  if (typeof window === 'undefined') return 0;
+  if (typeof globalThis.window === 'undefined') return 0;
 
   try {
     const entries = performance.getEntriesByName(componentName);
