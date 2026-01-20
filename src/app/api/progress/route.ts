@@ -3,6 +3,7 @@
  * Handles progress data from offline gameplay
  */
 
+import { randomInt } from 'node:crypto';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -112,10 +113,10 @@ export async function GET(request: NextRequest) {
     recentGames: Array.from({ length: Math.min(limit, 5) }, (_, i) => ({
       id: `game-${i + 1}`,
       gridSize: [4, 6, 9][i % 3],
-      difficulty: Math.floor(Math.random() * 5) + 1,
-      completed: Math.random() > 0.1,
-      timeSpent: Math.floor(Math.random() * 300000) + 60000,
-      hintsUsed: Math.floor(Math.random() * 5),
+      difficulty: randomInt(1, 6),
+      completed: randomInt(100) >= 10,
+      timeSpent: randomInt(300000) + 60000,
+      hintsUsed: randomInt(5),
       timestamp: Date.now() - i * 3600000, // Hours ago
     })),
   };

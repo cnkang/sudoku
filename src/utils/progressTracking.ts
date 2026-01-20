@@ -3,6 +3,8 @@
  * Implements colorful rewards, separate tracking per grid size, and celebration animations
  */
 
+import { pickSecureRandomElement } from '@/utils/secureRandom';
+
 export interface Achievement {
   id: string;
   name: string;
@@ -544,7 +546,7 @@ export const getCelebrationMessage = (
       messages = CELEBRATION_MESSAGES.milestone;
   }
 
-  const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+  const randomMessage = pickSecureRandomElement(messages);
   return (
     randomMessage ||
     `Congratulations on earning "${achievement.name}"! ${achievement.icon}`

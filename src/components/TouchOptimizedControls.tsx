@@ -1,6 +1,7 @@
 import type React from 'react';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import type { GridConfig } from '../types';
+import { pickSecureRandomElement } from '@/utils/secureRandom';
 import styles from './TouchOptimizedControls.module.css';
 
 export interface TouchOptimizedControlsProps {
@@ -123,9 +124,8 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
   // Encouragement handler
   const handleEncouragement = useCallback(() => {
     const randomMessage =
-      encouragementMessages[
-        Math.floor(Math.random() * encouragementMessages.length)
-      ];
+      pickSecureRandomElement(encouragementMessages) ??
+      "You're doing great!";
 
     setEncouragementMessage(randomMessage ?? "You're doing great!");
     triggerHaptic('success');
