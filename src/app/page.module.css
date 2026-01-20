@@ -25,7 +25,10 @@
   border-radius: clamp(0.5rem, 2vw, 1rem);
   box-shadow: var(--shadow-lg);
   padding: clamp(1rem, 4vw, 2rem);
-  max-width: min(800px, 90vw);
+  max-width: min(
+    1200px,
+    95vw
+  ); /* Increased from 1400px to 1200px for better desktop layout */
   width: 100%;
   min-height: min(600px, 80vh);
   min-height: min(600px, 80dvh); /* Modern dynamic viewport height */
@@ -36,6 +39,10 @@
   /* Modern CSS logical properties */
   padding-inline: clamp(1rem, 4vw, 2rem);
   padding-block: clamp(1rem, 3vh, 2rem);
+
+  /* Container Query Support - set on parent */
+  container-type: inline-size;
+  container-name: sudoku-app;
 
   /* Performance optimization */
   contain: layout style;
@@ -66,7 +73,7 @@
     border-radius: 1rem;
     padding: 2rem;
     gap: 1.5rem;
-    max-width: 700px;
+    max-width: 900px;
   }
 }
 
@@ -75,7 +82,7 @@
     border-radius: 1.25rem;
     padding: 2.5rem;
     gap: 2rem;
-    max-width: 800px;
+    max-width: 1200px; /* Increased from 1400px to give more space */
   }
 }
 
