@@ -11,7 +11,7 @@ pnpm exec vitest run --reporter=verbose \
   "src/app/__tests__/*.responsive.test.tsx"
 
 # 检查测试结果
-if [ $? -eq 0 ]; then
+if [[ $? -eq 0 ]]; then
   echo "✅ All responsive tests passed!"
 else
   echo "❌ Some responsive tests failed!"
