@@ -58,6 +58,10 @@ interface TouchState {
   isLongPress: boolean;
 }
 
+type AudioHandlers = ReturnType<typeof useAudioAccessibility>[1];
+type VisualFeedbackHandlers = ReturnType<typeof useVisualFeedback>;
+type AccessibilityManager = ReturnType<typeof getAccessibilityManager>;
+
 // Haptic feedback support with React 19 optimization
 const triggerHapticFeedback = (
   type: 'light' | 'medium' | 'heavy' = 'light'
@@ -81,22 +85,14 @@ const getCellBorderStyle = (
 ) => {
   const { boxRows, boxCols, size } = gridConfig;
   const maxIndex = size - 1;
+  const isRightBorder = col === maxIndex || col % boxCols === boxCols - 1;
+  const isBottomBorder = row === maxIndex || row % boxRows === boxRows - 1;
 
   return {
     borderTop: row % boxRows === 0 ? '4px solid #1f2937' : '1px solid #d1d5db',
     borderLeft: col % boxCols === 0 ? '4px solid #1f2937' : '1px solid #d1d5db',
-    borderRight:
-      col === maxIndex
-        ? '4px solid #1f2937'
-        : col % boxCols === boxCols - 1
-          ? '4px solid #1f2937'
-          : '1px solid #d1d5db',
-    borderBottom:
-      row === maxIndex
-        ? '4px solid #1f2937'
-        : row % boxRows === boxRows - 1
-          ? '4px solid #1f2937'
-          : '1px solid #d1d5db',
+    borderRight: isRightBorder ? '4px solid #1f2937' : '1px solid #d1d5db',
+    borderBottom: isBottomBorder ? '4px solid #1f2937' : '1px solid #d1d5db',
   };
 };
 
@@ -161,6 +157,340 @@ const hasConflict = (
     hasColumnConflict(userInput, row, col, value, gridConfig) ||
     hasBoxConflict(userInput, row, col, value, gridConfig)
   );
+};
+
+const isValidCellInput = (value: string, maxValue: number) =>
+  value === '' || new RegExp(`^[1-${maxValue}]$`).test(value);
+
+const useCellInputHandler = (
+  maxValue: number,
+  onInputChange: (row: number, col: number, value: number) => void,
+  rowIndex: number,
+  colIndex: number,
+  reducedMotion: boolean
+) =>
+  useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = e.target;
+      if (!isValidCellInput(value, maxValue)) {
+        return;
+      }
+
+      const numValue = value === '' ? 0 : parseInt(value, 10);
+      onInputChange(rowIndex, colIndex, numValue);
+
+      if (numValue > 0 && !reducedMotion) {
+        triggerHapticFeedback('light');
+      }
+    },
+    [maxValue, onInputChange, rowIndex, colIndex, reducedMotion]
+  );
+
+const clearLongPressTimeout = (
+  timeoutRef: React.MutableRefObject<NodeJS.Timeout | null>
+) => {
+  if (!timeoutRef.current) return;
+  clearTimeout(timeoutRef.current);
+  timeoutRef.current = null;
+};
+
+const useCellTouchHandlers = ({
+  disabled,
+  isFixed,
+  onLongPress,
+  reducedMotion,
+  rowIndex,
+  colIndex,
+  onCellClick,
+}: {
+  disabled: boolean;
+  isFixed: boolean;
+  onLongPress?: (row: number, col: number) => void;
+  reducedMotion: boolean;
+  rowIndex: number;
+  colIndex: number;
+  onCellClick: (row: number, col: number) => void;
+}) => {
+  const [touchState, setTouchState] = useState<TouchState | null>(null);
+  const longPressTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (disabled || isFixed) return;
+
+      const touch = e.touches[0];
+      if (!touch) return;
+
+      const newTouchState: TouchState = {
+        startX: touch.clientX,
+        startY: touch.clientY,
+        startTime: Date.now(),
+        isLongPress: false,
+      };
+
+      setTouchState(newTouchState);
+
+      longPressTimeoutRef.current = setTimeout(() => {
+        if (onLongPress && !reducedMotion) {
+          triggerHapticFeedback('medium');
+          onLongPress(rowIndex, colIndex);
+          setTouchState(prev => (prev ? { ...prev, isLongPress: true } : null));
+        }
+      }, 500);
+
+      if (!reducedMotion) {
+        triggerHapticFeedback('light');
+      }
+    },
+    [disabled, isFixed, onLongPress, reducedMotion, rowIndex, colIndex]
+  );
+
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      clearLongPressTimeout(longPressTimeoutRef);
+
+      if (!touchState || touchState.isLongPress) {
+        setTouchState(null);
+        return;
+      }
+
+      const touch = e.changedTouches[0];
+      if (!touch) return;
+
+      const deltaX = Math.abs(touch.clientX - touchState.startX);
+      const deltaY = Math.abs(touch.clientY - touchState.startY);
+      const deltaTime = Date.now() - touchState.startTime;
+
+      if (deltaX < 10 && deltaY < 10 && deltaTime < 300) {
+        onCellClick(rowIndex, colIndex);
+        if (!reducedMotion) {
+          triggerHapticFeedback('light');
+        }
+      }
+
+      setTouchState(null);
+    },
+    [touchState, onCellClick, reducedMotion, rowIndex, colIndex]
+  );
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (!touchState) return;
+
+      const touch = e.touches[0];
+      if (!touch) return;
+
+      const deltaX = Math.abs(touch.clientX - touchState.startX);
+      const deltaY = Math.abs(touch.clientY - touchState.startY);
+
+      if (deltaX > 10 || deltaY > 10) {
+        clearLongPressTimeout(longPressTimeoutRef);
+      }
+    },
+    [touchState]
+  );
+
+  useEffect(() => {
+    return () => {
+      clearLongPressTimeout(longPressTimeoutRef);
+    };
+  }, []);
+
+  return { handleTouchStart, handleTouchEnd, handleTouchMove };
+};
+
+const getCellElement = (
+  cellRefs: React.MutableRefObject<Record<string, HTMLInputElement | null>>,
+  row: number,
+  col: number
+) => cellRefs.current[generateCellKey(row, col)];
+
+const applyIncorrectMoveStyles = (
+  cellElement: HTMLInputElement,
+  highContrast: boolean
+) => {
+  cellElement.style.backgroundColor = highContrast ? '#ffff00' : '#fff7ed';
+  cellElement.style.boxShadow = highContrast
+    ? '0 0 0 3px #000000'
+    : '0 0 0 2px #fb923c, 0 4px 12px rgba(251, 146, 60, 0.3)';
+  cellElement.style.transform = 'scale(1.02)';
+  cellElement.style.transition = 'all 0.3s ease';
+
+  setTimeout(() => {
+    cellElement.style.backgroundColor = '';
+    cellElement.style.boxShadow = '';
+    cellElement.style.transform = '';
+  }, 2000);
+};
+
+const triggerCorrectMoveAnimation = (
+  cellElement: HTMLInputElement,
+  childMode: boolean,
+  reducedMotion: boolean
+) => {
+  if (!childMode || reducedMotion) return;
+  cellElement.style.animation = 'gentleBounce 0.6s ease-in-out';
+  setTimeout(() => {
+    cellElement.style.animation = '';
+  }, 600);
+};
+
+const handleIncorrectMoveFeedback = ({
+  row,
+  col,
+  value,
+  childMode,
+  highContrast,
+  audioFeedback,
+  screenReaderMode,
+  visualFeedback,
+  audioHandlers,
+  accessibilityManager,
+  cellRefs,
+}: {
+  row: number;
+  col: number;
+  value: number;
+  childMode: boolean;
+  highContrast: boolean;
+  audioFeedback: boolean;
+  screenReaderMode: boolean;
+  visualFeedback: VisualFeedbackHandlers;
+  audioHandlers: AudioHandlers;
+  accessibilityManager: React.MutableRefObject<AccessibilityManager>;
+  cellRefs: React.MutableRefObject<Record<string, HTMLInputElement | null>>;
+}) => {
+  const feedback = getContextualFeedback('incorrect_move', childMode);
+  visualFeedback.triggerError(feedback.message, 'gentle');
+
+  if (audioFeedback) {
+    audioHandlers.speakMove(row, col, value, false);
+    audioHandlers.speakError(feedback.message ?? 'Invalid move.', childMode);
+  }
+
+  if (screenReaderMode) {
+    accessibilityManager.current.announce({
+      message: `Incorrect move: Number ${value} conflicts with other numbers in row ${
+        row + 1
+      }, column ${col + 1}`,
+      priority: 'assertive',
+      category: 'error',
+    });
+  }
+
+  const cellElement = getCellElement(cellRefs, row, col);
+  if (cellElement) {
+    applyIncorrectMoveStyles(cellElement, highContrast);
+  }
+};
+
+const handleCorrectMoveFeedback = ({
+  row,
+  col,
+  value,
+  childMode,
+  reducedMotion,
+  audioFeedback,
+  screenReaderMode,
+  visualFeedback,
+  audioHandlers,
+  accessibilityManager,
+  cellRefs,
+}: {
+  row: number;
+  col: number;
+  value: number;
+  childMode: boolean;
+  reducedMotion: boolean;
+  audioFeedback: boolean;
+  screenReaderMode: boolean;
+  visualFeedback: VisualFeedbackHandlers;
+  audioHandlers: AudioHandlers;
+  accessibilityManager: React.MutableRefObject<AccessibilityManager>;
+  cellRefs: React.MutableRefObject<Record<string, HTMLInputElement | null>>;
+}) => {
+  const feedback = getContextualFeedback('correct_move', childMode);
+  visualFeedback.triggerSuccess(feedback.message);
+
+  if (audioFeedback) {
+    audioHandlers.speakMove(row, col, value, true);
+  }
+
+  if (screenReaderMode) {
+    accessibilityManager.current.announce({
+      message: `Correct move: Number ${value} entered in row ${row + 1}, column ${
+        col + 1
+      }`,
+      priority: 'polite',
+      category: 'success',
+    });
+  }
+
+  const cellElement = getCellElement(cellRefs, row, col);
+  if (cellElement) {
+    triggerCorrectMoveAnimation(cellElement, childMode, reducedMotion);
+  }
+};
+
+const handlePuzzleCompletionFeedback = ({
+  visualFeedback,
+  audioFeedback,
+  screenReaderMode,
+  audioHandlers,
+  accessibilityManager,
+  onPuzzleComplete,
+}: {
+  visualFeedback: VisualFeedbackHandlers;
+  audioFeedback: boolean;
+  screenReaderMode: boolean;
+  audioHandlers: AudioHandlers;
+  accessibilityManager: React.MutableRefObject<AccessibilityManager>;
+  onPuzzleComplete?: () => void;
+}) => {
+  visualFeedback.triggerCelebration('confetti');
+
+  if (audioFeedback) {
+    const timeFormatted = '0 minutes and 0 seconds';
+    audioHandlers.speakPuzzleCompletion(timeFormatted, 0);
+  }
+
+  if (screenReaderMode) {
+    accessibilityManager.current.announce({
+      message: 'Congratulations! Puzzle completed successfully!',
+      priority: 'assertive',
+      category: 'success',
+    });
+  }
+
+  onPuzzleComplete?.();
+};
+
+const handleCellClearedFeedback = ({
+  row,
+  col,
+  audioFeedback,
+  screenReaderMode,
+  audioHandlers,
+  accessibilityManager,
+}: {
+  row: number;
+  col: number;
+  audioFeedback: boolean;
+  screenReaderMode: boolean;
+  audioHandlers: AudioHandlers;
+  accessibilityManager: React.MutableRefObject<AccessibilityManager>;
+}) => {
+  if (audioFeedback) {
+    audioHandlers.speakMove(row, col, 0, true);
+  }
+
+  if (screenReaderMode) {
+    accessibilityManager.current.announce({
+      message: `Cell cleared in row ${row + 1}, column ${col + 1}`,
+      priority: 'polite',
+      category: 'game-state',
+    });
+  }
 };
 
 const resolveCellValue = (
@@ -302,130 +632,27 @@ const SudokuCell = ({
   onInputBlur,
   onLongPress,
   setCellRef,
-  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: interactive cell logic is complex
 }: SudokuCellProps) => {
-  const [touchState, setTouchState] = useState<TouchState | null>(null);
-  const longPressTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
   const isFocusable = !isFixed && !disabled;
   const { maxValue } = gridConfig;
 
-  // Touch gesture handlers
-  const handleTouchStart = useCallback(
-    (e: React.TouchEvent) => {
-      if (disabled || isFixed) return;
-
-      const touch = e.touches[0];
-      if (!touch) return;
-
-      const newTouchState: TouchState = {
-        startX: touch.clientX,
-        startY: touch.clientY,
-        startTime: Date.now(),
-        isLongPress: false,
-      };
-
-      setTouchState(newTouchState);
-
-      // Set up long press detection
-      longPressTimeoutRef.current = setTimeout(() => {
-        if (onLongPress && !accessibility.reducedMotion) {
-          triggerHapticFeedback('medium');
-          onLongPress(rowIndex, colIndex);
-          setTouchState(prev => (prev ? { ...prev, isLongPress: true } : null));
-        }
-      }, 500); // 500ms for long press
-
-      // Light haptic feedback on touch start
-      if (!accessibility.reducedMotion) {
-        triggerHapticFeedback('light');
-      }
-    },
-    [
+  const { handleTouchStart, handleTouchEnd, handleTouchMove } =
+    useCellTouchHandlers({
       disabled,
       isFixed,
       onLongPress,
-      accessibility.reducedMotion,
+      reducedMotion: Boolean(accessibility.reducedMotion),
       rowIndex,
       colIndex,
-    ]
-  );
+      onCellClick,
+    });
 
-  const handleTouchEnd = useCallback(
-    (e: React.TouchEvent) => {
-      if (longPressTimeoutRef.current) {
-        clearTimeout(longPressTimeoutRef.current);
-        longPressTimeoutRef.current = null;
-      }
-
-      if (!touchState || touchState.isLongPress) {
-        setTouchState(null);
-        return;
-      }
-
-      const touch = e.changedTouches[0];
-      if (!touch) return;
-
-      const deltaX = Math.abs(touch.clientX - touchState.startX);
-      const deltaY = Math.abs(touch.clientY - touchState.startY);
-      const deltaTime = Date.now() - touchState.startTime;
-
-      // Check if it's a tap (not a swipe)
-      if (deltaX < 10 && deltaY < 10 && deltaTime < 300) {
-        onCellClick(rowIndex, colIndex);
-        if (!accessibility.reducedMotion) {
-          triggerHapticFeedback('light');
-        }
-      }
-
-      setTouchState(null);
-    },
-    [touchState, onCellClick, accessibility.reducedMotion, rowIndex, colIndex]
-  );
-
-  const handleTouchMove = useCallback(
-    (e: React.TouchEvent) => {
-      if (!touchState) return;
-
-      const touch = e.touches[0];
-      if (!touch) return;
-
-      const deltaX = Math.abs(touch.clientX - touchState.startX);
-      const deltaY = Math.abs(touch.clientY - touchState.startY);
-
-      // Cancel long press if user moves finger too much
-      if ((deltaX > 10 || deltaY > 10) && longPressTimeoutRef.current) {
-        clearTimeout(longPressTimeoutRef.current);
-        longPressTimeoutRef.current = null;
-      }
-    },
-    [touchState]
-  );
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (longPressTimeoutRef.current) {
-        clearTimeout(longPressTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  // Enhanced input validation for multi-size grids
-  const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { value } = e.target;
-      if (value === '' || new RegExp(`^[1-${maxValue}]$`).test(value)) {
-        const numValue = value === '' ? 0 : parseInt(value, 10);
-        onInputChange(rowIndex, colIndex, numValue);
-
-        // Haptic feedback for successful input
-        if (numValue > 0 && !accessibility.reducedMotion) {
-          triggerHapticFeedback('light');
-        }
-      }
-    },
-    [maxValue, onInputChange, rowIndex, colIndex, accessibility.reducedMotion]
+  const handleInputChange = useCellInputHandler(
+    maxValue,
+    onInputChange,
+    rowIndex,
+    colIndex,
+    Boolean(accessibility.reducedMotion)
   );
 
   return (
@@ -668,7 +895,6 @@ const SudokuGrid = memo<SudokuGridProps>(
 
     // Enhanced input change handler with visual feedback and React 19 transitions
     const handleInputChangeWithFeedback = useCallback(
-      // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: multi-branch feedback logic
       (row: number, col: number, value: number) => {
         const previousValue = userInput[row]?.[col] || 0;
 
@@ -678,9 +904,7 @@ const SudokuGrid = memo<SudokuGridProps>(
           onInputChange(row, col, value);
         });
 
-        // Only provide feedback for actual value changes (not clearing)
         if (value > 0 && value !== previousValue) {
-          // Check if the move creates a conflict
           const hasConflictAfterMove = hasConflict(
             userInput,
             row,
@@ -690,125 +914,62 @@ const SudokuGrid = memo<SudokuGridProps>(
           );
 
           if (hasConflictAfterMove) {
-            // Incorrect move - show gentle error feedback with pattern-based cues
-            const feedback = getContextualFeedback('incorrect_move', childMode);
-            visualFeedback.triggerError(feedback.message, 'gentle');
-
-            // Audio feedback for incorrect move
-            if (audioFeedback) {
-              audioHandlers.speakMove(row, col, value, false);
-              audioHandlers.speakError(
-                feedback.message ?? 'Invalid move.',
-                childMode
-              );
-            }
-
-            // Screen reader announcement
-            if (screenReaderMode) {
-              accessibilityManager.current.announce({
-                message: `Incorrect move: Number ${value} conflicts with other numbers in row ${
-                  row + 1
-                }, column ${col + 1}`,
-                priority: 'assertive',
-                category: 'error',
-              });
-            }
-
-            // Highlight the cell with gentle error styling
-            const cellElement = cellRefs.current[generateCellKey(row, col)];
-            if (cellElement) {
-              // Apply gentle warm highlighting with pattern overlay
-              cellElement.style.backgroundColor = highContrast
-                ? '#ffff00'
-                : '#fff7ed';
-              cellElement.style.boxShadow = highContrast
-                ? '0 0 0 3px #000000'
-                : '0 0 0 2px #fb923c, 0 4px 12px rgba(251, 146, 60, 0.3)';
-              cellElement.style.transform = 'scale(1.02)';
-              cellElement.style.transition = 'all 0.3s ease';
-
-              // Reset after 2 seconds
-              setTimeout(() => {
-                cellElement.style.backgroundColor = '';
-                cellElement.style.boxShadow = '';
-                cellElement.style.transform = '';
-              }, 2000);
-            }
-
+            handleIncorrectMoveFeedback({
+              row,
+              col,
+              value,
+              childMode,
+              highContrast,
+              audioFeedback,
+              screenReaderMode,
+              visualFeedback,
+              audioHandlers,
+              accessibilityManager,
+              cellRefs,
+            });
             setIncorrectMoveCount(prev => prev + 1);
             onIncorrectMove?.();
-          } else {
-            // Correct move - show success feedback with positive reinforcement
-            const feedback = getContextualFeedback('correct_move', childMode);
-            visualFeedback.triggerSuccess(feedback.message);
-
-            // Audio feedback for correct move
-            if (audioFeedback) {
-              audioHandlers.speakMove(row, col, value, true);
-            }
-
-            // Screen reader announcement
-            if (screenReaderMode) {
-              accessibilityManager.current.announce({
-                message: `Correct move: Number ${value} entered in row ${
-                  row + 1
-                }, column ${col + 1}`,
-                priority: 'polite',
-                category: 'success',
-              });
-            }
-
-            // Trigger positive reinforcement animation
-            const cellElement = cellRefs.current[generateCellKey(row, col)];
-            if (cellElement && !reducedMotion) {
-              // Add sparkle effect for correct moves in child mode
-              if (childMode) {
-                cellElement.style.animation = 'gentleBounce 0.6s ease-in-out';
-                setTimeout(() => {
-                  cellElement.style.animation = '';
-                }, 600);
-              }
-            }
-
-            setIncorrectMoveCount(0); // Reset incorrect move count
-            onCorrectMove?.();
-
-            // Check if puzzle is complete
-            const isComplete = isPuzzleComplete(userInput, puzzle, gridConfig);
-            if (isComplete) {
-              visualFeedback.triggerCelebration('confetti');
-
-              // Audio feedback for puzzle completion
-              if (audioFeedback) {
-                const timeFormatted = '0 minutes and 0 seconds'; // TODO: Replace with tracked completion time
-                audioHandlers.speakPuzzleCompletion(timeFormatted, 0); // TODO: Get actual hints used
-              }
-
-              // Screen reader announcement for completion
-              if (screenReaderMode) {
-                accessibilityManager.current.announce({
-                  message: 'Congratulations! Puzzle completed successfully!',
-                  priority: 'assertive',
-                  category: 'success',
-                });
-              }
-
-              onPuzzleComplete?.();
-            }
-          }
-        } else if (value === 0 && previousValue > 0) {
-          // Cell cleared - provide feedback
-          if (audioFeedback) {
-            audioHandlers.speakMove(row, col, 0, true);
+            return;
           }
 
-          if (screenReaderMode) {
-            accessibilityManager.current.announce({
-              message: `Cell cleared in row ${row + 1}, column ${col + 1}`,
-              priority: 'polite',
-              category: 'game-state',
+          handleCorrectMoveFeedback({
+            row,
+            col,
+            value,
+            childMode,
+            reducedMotion,
+            audioFeedback,
+            screenReaderMode,
+            visualFeedback,
+            audioHandlers,
+            accessibilityManager,
+            cellRefs,
+          });
+          setIncorrectMoveCount(0);
+          onCorrectMove?.();
+
+          if (isPuzzleComplete(userInput, puzzle, gridConfig)) {
+            handlePuzzleCompletionFeedback({
+              visualFeedback,
+              audioFeedback,
+              screenReaderMode,
+              audioHandlers,
+              accessibilityManager,
+              onPuzzleComplete,
             });
           }
+          return;
+        }
+
+        if (value === 0 && previousValue > 0) {
+          handleCellClearedFeedback({
+            row,
+            col,
+            audioFeedback,
+            screenReaderMode,
+            audioHandlers,
+            accessibilityManager,
+          });
         }
       },
       [
@@ -826,6 +987,8 @@ const SudokuGrid = memo<SudokuGridProps>(
         audioFeedback,
         screenReaderMode,
         audioHandlers,
+        accessibilityManager,
+        cellRefs,
       ]
     );
 

@@ -65,7 +65,7 @@ const DifficultySelector: React.FC<DifficultySelectProps> = ({
 
   const getDifficultyLabel = (level: number): string => {
     const pool = DIFFICULTY_LABEL_RANGES[gridSizeKey];
-    const fallback = pool[pool.length - 1] ?? { max: Infinity, label: "Expert" };
+    const fallback = pool.at(-1) ?? { max: Infinity, label: "Expert" };
     const foundRange = pool.find((range) => level <= range.max);
     const range = foundRange ?? fallback;
     return `${level} (${range.label})`;
@@ -196,7 +196,7 @@ const DifficultySelector: React.FC<DifficultySelectProps> = ({
           }
         `}</style>
       ) : (
-        <style jsx>{`
+        <style>{`
           .difficulty-selector {
             margin-bottom: 1.5rem;
           }
