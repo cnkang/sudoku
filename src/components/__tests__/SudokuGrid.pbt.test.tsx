@@ -97,7 +97,7 @@ describe('SudokuGrid Property-Based Tests', () => {
     GRID_CONFIGS[gridSize as GridSize];
 
   const createEmptyGrid = (size: number) =>
-    Array.from({ length: size }, () => Array(size).fill(0));
+    Array.from({ length: size }, () => new Array(size).fill(0));
 
   // Arbitraries for generating test data
   const gridSizeArb = fc.constantFrom(4, 6, 9);
@@ -190,11 +190,11 @@ describe('SudokuGrid Property-Based Tests', () => {
   ) => Array.from(elements).slice(0, Math.min(elements.length, max));
 
   const assertCellSizing = (cell: Element, expectedMinSize: number) => {
-    const computedStyle = window.getComputedStyle(cell);
-    const width = parseFloat(computedStyle.width);
-    const height = parseFloat(computedStyle.height);
-    const minWidth = parseFloat(computedStyle.minWidth);
-    const minHeight = parseFloat(computedStyle.minHeight);
+    const computedStyle = globalThis.getComputedStyle(cell);
+    const width = Number.parseFloat(computedStyle.width);
+    const height = Number.parseFloat(computedStyle.height);
+    const minWidth = Number.parseFloat(computedStyle.minWidth);
+    const minHeight = Number.parseFloat(computedStyle.minHeight);
 
     if (
       Number.isNaN(width) ||
@@ -202,7 +202,7 @@ describe('SudokuGrid Property-Based Tests', () => {
       Number.isNaN(minWidth) ||
       Number.isNaN(minHeight)
     ) {
-      expect(cell.getAttribute('data-cell-type')).toBeTruthy();
+      expect((cell as HTMLElement).dataset.cellType).toBeTruthy();
       return;
     }
 
@@ -214,7 +214,7 @@ describe('SudokuGrid Property-Based Tests', () => {
     const aspectRatio = width / height;
     expect(aspectRatio).toBeCloseTo(1, 1);
 
-    if (cell.getAttribute('data-cell-type') === 'editable') {
+    if ((cell as HTMLElement).dataset.cellType === 'editable') {
       expect(computedStyle.cursor).toBe('pointer');
     }
   };
@@ -229,8 +229,8 @@ describe('SudokuGrid Property-Based Tests', () => {
 
     if (!grid) return;
 
-    const gridStyle = window.getComputedStyle(grid);
-    const gridWidth = parseFloat(gridStyle.width);
+    const gridStyle = globalThis.getComputedStyle(grid);
+    const gridWidth = Number.parseFloat(gridStyle.width);
     if (Number.isNaN(gridWidth)) {
       return;
     }
@@ -246,7 +246,7 @@ describe('SudokuGrid Property-Based Tests', () => {
 
     if (!containerElem) return;
 
-    const containerStyle = window.getComputedStyle(containerElem);
+    const containerStyle = globalThis.getComputedStyle(containerElem);
     if (containerStyle.containerType) {
       expect(containerStyle.containerType).toBe('inline-size');
     }
@@ -263,8 +263,8 @@ describe('SudokuGrid Property-Based Tests', () => {
 
     if (!grid) return;
 
-    const gridStyle = window.getComputedStyle(grid);
-    const gridWidth = parseFloat(gridStyle.width);
+    const gridStyle = globalThis.getComputedStyle(grid);
+    const gridWidth = Number.parseFloat(gridStyle.width);
     if (Number.isNaN(gridWidth)) {
       return;
     }
@@ -273,8 +273,8 @@ describe('SudokuGrid Property-Based Tests', () => {
     const cells = container.querySelectorAll('[data-testid^="sudoku-cell-"]');
     if (cells.length === 0) return;
 
-    const cellStyle = window.getComputedStyle(cells[0]);
-    const cellWidth = parseFloat(cellStyle.width);
+    const cellStyle = globalThis.getComputedStyle(cells[0]);
+    const cellWidth = Number.parseFloat(cellStyle.width);
     if (Number.isNaN(cellWidth)) {
       return;
     }
@@ -296,8 +296,8 @@ describe('SudokuGrid Property-Based Tests', () => {
     sampleElements(inputs)
       .concat(sampleElements(fixedNumbers))
       .forEach(element => {
-        const style = window.getComputedStyle(element);
-        const fontSize = parseFloat(style.fontSize);
+        const style = globalThis.getComputedStyle(element);
+        const fontSize = Number.parseFloat(style.fontSize);
         if (Number.isNaN(fontSize)) {
           return;
         }
@@ -310,9 +310,9 @@ describe('SudokuGrid Property-Based Tests', () => {
     const grid = container.querySelector('[data-testid="sudoku-grid"]');
     if (!grid) return;
 
-    const gridStyle = window.getComputedStyle(grid);
-    const gridWidth = parseFloat(gridStyle.width);
-    const gridHeight = parseFloat(gridStyle.height);
+    const gridStyle = globalThis.getComputedStyle(grid);
+    const gridWidth = Number.parseFloat(gridStyle.width);
+    const gridHeight = Number.parseFloat(gridStyle.height);
     if (
       Number.isNaN(gridWidth) ||
       Number.isNaN(gridHeight) ||
@@ -335,7 +335,7 @@ describe('SudokuGrid Property-Based Tests', () => {
     expect(sudokuContainer).toBeTruthy();
 
     if (sudokuContainer) {
-      const containerStyle = window.getComputedStyle(sudokuContainer);
+      const containerStyle = globalThis.getComputedStyle(sudokuContainer);
       if (containerStyle.containerType) {
         expect(containerStyle.containerType).toBe('inline-size');
       }
@@ -343,12 +343,12 @@ describe('SudokuGrid Property-Based Tests', () => {
 
     const grid = container.querySelector('[data-testid="sudoku-grid"]');
     if (grid) {
-      expect(grid.getAttribute('data-grid-size')).toBe(gridSize.toString());
+      expect((grid as HTMLElement).dataset.gridSize).toBe(gridSize.toString());
     }
 
     const cells = container.querySelectorAll('[data-testid^="sudoku-cell-"]');
     sampleElements(cells).forEach(cell => {
-      const cellStyle = window.getComputedStyle(cell);
+      const cellStyle = globalThis.getComputedStyle(cell);
       if (cellStyle.boxSizing) {
         expect(cellStyle.boxSizing).toBe('border-box');
       }
@@ -360,7 +360,7 @@ describe('SudokuGrid Property-Based Tests', () => {
     });
 
     if (accessibility.highContrast) {
-      expect(sudokuContainer?.getAttribute('data-high-contrast')).toBe('true');
+      expect(sudokuContainer?.dataset.highContrast).toBe('true');
     }
   };
 
@@ -372,13 +372,13 @@ describe('SudokuGrid Property-Based Tests', () => {
     const sudokuContainer = container.querySelector(
       '[data-testid="sudoku-container"]'
     );
-    expect(sudokuContainer?.getAttribute('data-child-mode')).toBe('true');
+    expect(sudokuContainer?.dataset.childMode).toBe('true');
   };
 
   const assertErrorColors = (container: HTMLElement) => {
     const errorCells = container.querySelectorAll('[data-has-error="true"]');
     sampleElements(errorCells).forEach(cell => {
-      const style = window.getComputedStyle(cell);
+      const style = globalThis.getComputedStyle(cell);
       const bgColor = style.backgroundColor;
       if (!bgColor) {
         return;
@@ -391,7 +391,7 @@ describe('SudokuGrid Property-Based Tests', () => {
   const assertHintColors = (container: HTMLElement) => {
     const hintCells = container.querySelectorAll('[data-is-hinted="true"]');
     sampleElements(hintCells).forEach(cell => {
-      const style = window.getComputedStyle(cell);
+      const style = globalThis.getComputedStyle(cell);
       if (style.backgroundColor) {
         expect(style.backgroundColor).toMatch(/rgb\(236, 253, 245\)/);
       }
@@ -401,8 +401,8 @@ describe('SudokuGrid Property-Based Tests', () => {
   const assertEditableFeedback = (container: HTMLElement) => {
     const cells = container.querySelectorAll('[data-testid^="sudoku-cell-"]');
     sampleElements(cells).forEach(cell => {
-      if (cell.getAttribute('data-cell-type') === 'editable') {
-        const style = window.getComputedStyle(cell);
+      if ((cell as HTMLElement).dataset.cellType === 'editable') {
+        const style = globalThis.getComputedStyle(cell);
         if (style.cursor) {
           expect(style.cursor).toBe('pointer');
         }
@@ -504,7 +504,7 @@ describe('SudokuGrid Property-Based Tests', () => {
               assertGridAspectRatio(container);
             } finally {
               unmount();
-              document.body.removeChild(mockContainer);
+              mockContainer.remove();
             }
           }
         ),
