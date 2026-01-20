@@ -136,114 +136,118 @@ function countSolutions(board: number[][], config: TestConfig): number {
   return solutions.length;
 }
 
+const assertUniqueSolutionFor4x4 = async (): Promise<void> =>
+  fc.assert(
+    fc.asyncProperty(
+      fc.integer({ min: 1, max: 3 }), // Use lower difficulty for faster testing
+      async difficulty => {
+        const config = getConfig(4);
+        const adjustedDifficulty = Math.min(
+          difficulty,
+          config.difficultyLevels
+        );
+
+        const { puzzle } = await generateSudokuPuzzle(adjustedDifficulty, 4);
+
+        // Count solutions using our simple solver
+        const solutionCount = countSolutions(puzzle, config);
+
+        // The puzzle should have exactly one solution
+        expect(solutionCount).toBe(1);
+      }
+    ),
+    { numRuns: 5 } // Very few runs for this expensive test
+  );
+
+const assertValidPuzzleStructure = async (): Promise<void> =>
+  fc.assert(
+    fc.asyncProperty(
+      fc.constantFrom(4, 6, 9),
+      fc.integer({ min: 1, max: 3 }),
+      async (gridSize, difficulty) => {
+        const config = getConfig(gridSize);
+        const adjustedDifficulty = Math.min(
+          difficulty,
+          config.difficultyLevels
+        );
+
+        const { puzzle, solution } = await generateSudokuPuzzle(
+          adjustedDifficulty,
+          gridSize
+        );
+
+        // Check puzzle dimensions
+        expect(puzzle).toHaveLength(config.size);
+        expect(solution).toHaveLength(config.size);
+
+        for (let i = 0; i < config.size; i++) {
+          expect(puzzle[i]).toHaveLength(config.size);
+          expect(solution[i]).toHaveLength(config.size);
+
+          // Check that all values are within valid range
+          for (let j = 0; j < config.size; j++) {
+            expect(puzzle[i]?.[j]).toBeGreaterThanOrEqual(0);
+            expect(puzzle[i]?.[j]).toBeLessThanOrEqual(config.maxValue);
+            expect(solution[i]?.[j]).toBeGreaterThanOrEqual(1);
+            expect(solution[i]?.[j]).toBeLessThanOrEqual(config.maxValue);
+          }
+        }
+
+        // Check that puzzle has fewer filled cells than solution
+        const puzzleFilledCells = puzzle.flat().filter(cell => cell !== 0).length;
+        const solutionFilledCells = solution
+          .flat()
+          .filter(cell => cell !== 0).length;
+        expect(puzzleFilledCells).toBeLessThan(solutionFilledCells);
+        expect(solutionFilledCells).toBe(config.size * config.size);
+      }
+    ),
+    { numRuns: 20 }
+  );
+
+const assertClueCountsWithinDifficultyRange = async (): Promise<void> =>
+  fc.assert(
+    fc.asyncProperty(
+      fc.constantFrom(4, 6, 9),
+      fc.integer({ min: 1, max: 5 }),
+      async (gridSize, difficulty) => {
+        const config = getConfig(gridSize);
+        const adjustedDifficulty = Math.min(
+          difficulty,
+          config.difficultyLevels
+        );
+
+        const { puzzle } = await generateSudokuPuzzle(
+          adjustedDifficulty,
+          gridSize
+        );
+
+        // Count filled cells (clues)
+        const clueCount = puzzle.flat().filter(cell => cell !== 0).length;
+
+        // The clue count should be within the valid range for this grid size
+        expect(clueCount).toBeGreaterThanOrEqual(config.minClues);
+        expect(clueCount).toBeLessThanOrEqual(config.maxClues);
+      }
+    ),
+    { numRuns: 15 }
+  );
+
 describe('Sudoku Generator Property-Based Tests', () => {
   describe('Property 2: Unique solution guarantee', () => {
-    it('should generate puzzles with exactly one unique solution for 4x4 grids', () => {
+    it('should generate puzzles with exactly one unique solution for 4x4 grids', async () => {
       // Feature: multi-size-sudoku, Property 2: For any generated puzzle regardless of grid size, the puzzle should have exactly one valid solution
-      fc.assert(
-        fc.asyncProperty(
-          fc.integer({ min: 1, max: 3 }), // Use lower difficulty for faster testing
-          async difficulty => {
-            const config = getConfig(4);
-            const adjustedDifficulty = Math.min(
-              difficulty,
-              config.difficultyLevels
-            );
-
-            const { puzzle } = await generateSudokuPuzzle(
-              adjustedDifficulty,
-              4
-            );
-
-            // Count solutions using our simple solver
-            const solutionCount = countSolutions(puzzle, config);
-
-            // The puzzle should have exactly one solution
-            expect(solutionCount).toBe(1);
-          }
-        ),
-        { numRuns: 5 } // Very few runs for this expensive test
-      );
+      await assertUniqueSolutionFor4x4();
     });
 
-    it('should generate valid puzzle structure for all grid sizes', () => {
+    it('should generate valid puzzle structure for all grid sizes', async () => {
       // Test that generated puzzles have correct structure
-      fc.assert(
-        fc.asyncProperty(
-          fc.constantFrom(4, 6, 9),
-          fc.integer({ min: 1, max: 3 }),
-          async (gridSize, difficulty) => {
-            const config = getConfig(gridSize);
-            const adjustedDifficulty = Math.min(
-              difficulty,
-              config.difficultyLevels
-            );
-
-            const { puzzle, solution } = await generateSudokuPuzzle(
-              adjustedDifficulty,
-              gridSize
-            );
-
-            // Check puzzle dimensions
-            expect(puzzle).toHaveLength(config.size);
-            expect(solution).toHaveLength(config.size);
-
-            for (let i = 0; i < config.size; i++) {
-              expect(puzzle[i]).toHaveLength(config.size);
-              expect(solution[i]).toHaveLength(config.size);
-
-              // Check that all values are within valid range
-              for (let j = 0; j < config.size; j++) {
-                expect(puzzle[i]?.[j]).toBeGreaterThanOrEqual(0);
-                expect(puzzle[i]?.[j]).toBeLessThanOrEqual(config.maxValue);
-                expect(solution[i]?.[j]).toBeGreaterThanOrEqual(1);
-                expect(solution[i]?.[j]).toBeLessThanOrEqual(config.maxValue);
-              }
-            }
-
-            // Check that puzzle has fewer filled cells than solution
-            const puzzleFilledCells = puzzle
-              .flat()
-              .filter(cell => cell !== 0).length;
-            const solutionFilledCells = solution
-              .flat()
-              .filter(cell => cell !== 0).length;
-            expect(puzzleFilledCells).toBeLessThan(solutionFilledCells);
-            expect(solutionFilledCells).toBe(config.size * config.size);
-          }
-        ),
-        { numRuns: 20 }
-      );
+      await assertValidPuzzleStructure();
     });
 
-    it('should generate puzzles with clue counts within difficulty level ranges', () => {
+    it('should generate puzzles with clue counts within difficulty level ranges', async () => {
       // Feature: multi-size-sudoku, Property 3: For any grid size and difficulty level, generated puzzles should have clue counts within the specified ranges for that grid size
-      fc.assert(
-        fc.asyncProperty(
-          fc.constantFrom(4, 6, 9),
-          fc.integer({ min: 1, max: 5 }),
-          async (gridSize, difficulty) => {
-            const config = getConfig(gridSize);
-            const adjustedDifficulty = Math.min(
-              difficulty,
-              config.difficultyLevels
-            );
-
-            const { puzzle } = await generateSudokuPuzzle(
-              adjustedDifficulty,
-              gridSize
-            );
-
-            // Count filled cells (clues)
-            const clueCount = puzzle.flat().filter(cell => cell !== 0).length;
-
-            // The clue count should be within the valid range for this grid size
-            expect(clueCount).toBeGreaterThanOrEqual(config.minClues);
-            expect(clueCount).toBeLessThanOrEqual(config.maxClues);
-          }
-        ),
-        { numRuns: 15 }
-      );
+      await assertClueCountsWithinDifficultyRange();
     });
   });
 });

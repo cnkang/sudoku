@@ -387,9 +387,8 @@ describe('TouchOptimizedControls', () => {
       });
 
       // Should not throw error when haptic feedback is unavailable
-      await act(async () => {
-        expect(() => fireEvent.click(magicWandButton)).not.toThrow();
-      });
+      const triggerClick = () => fireEvent.click(magicWandButton);
+      expect(triggerClick).not.toThrow();
 
       // Should still call navigator.vibrate as fallback
       expect(mockVibrate).toHaveBeenCalledWith([50]);

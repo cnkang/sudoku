@@ -38,6 +38,156 @@ const uniqueIdArb = fc
   .integer({ min: 1000000, max: 9999999 })
   .map(num => `test-${Date.now()}-${num}`);
 
+type Theme = ReturnType<typeof getAllThemes>[number];
+type FeedbackType = 'success' | 'error' | 'hint' | 'celebration';
+
+const triggerFeedbackAction = (
+  triggers: {
+    showSuccess: (message: string) => void;
+    showError: (message: string, type: 'gentle') => void;
+    showHint: (message: string) => void;
+    showCelebration: (type: 'confetti') => void;
+  },
+  feedbackType: FeedbackType
+) => {
+  const actions = {
+    success: () => triggers.showSuccess('Test message'),
+    error: () => triggers.showError('Test message', 'gentle'),
+    hint: () => triggers.showHint('Test message'),
+    celebration: () => triggers.showCelebration('confetti'),
+  } as const;
+
+  actions[feedbackType]?.();
+};
+
+const AccessibilityContainer = ({
+  theme,
+  childMode,
+  testId,
+}: {
+  theme: Theme;
+  childMode: boolean;
+  testId: string;
+}) => (
+  <div data-testid={`container-${testId}`}>
+    <VisualFeedbackSystem theme={theme} childMode={childMode}>
+      {() => <div>Test content</div>}
+    </VisualFeedbackSystem>
+  </div>
+);
+
+const PatternFeedbackContainer = ({
+  theme,
+  feedbackType,
+  testId,
+}: {
+  theme: Theme;
+  feedbackType: FeedbackType;
+  testId: string;
+}) => (
+  <div data-testid={`container-${testId}`}>
+    <VisualFeedbackSystem theme={theme} childMode={true}>
+      {triggers => (
+        <button
+          type="button"
+          onClick={() => triggerFeedbackAction(triggers, feedbackType)}
+          data-testid={`trigger-button-${testId}`}
+        >
+          Trigger
+        </button>
+      )}
+    </VisualFeedbackSystem>
+  </div>
+);
+
+const HighContrastContainer = ({
+  theme,
+  highContrast,
+  testId,
+}: {
+  theme: Theme;
+  highContrast: boolean;
+  testId: string;
+}) => (
+  <div data-testid={`container-${testId}`}>
+    <VisualFeedbackSystem theme={theme} highContrast={highContrast}>
+      {() => <div>Test content</div>}
+    </VisualFeedbackSystem>
+  </div>
+);
+
+const ReducedMotionContainer = ({
+  theme,
+  reducedMotion,
+  testId,
+}: {
+  theme: Theme;
+  reducedMotion: boolean;
+  testId: string;
+}) => (
+  <div data-testid={`container-${testId}`}>
+    <VisualFeedbackSystem theme={theme} reducedMotion={reducedMotion}>
+      {() => <div>Test content</div>}
+    </VisualFeedbackSystem>
+  </div>
+);
+
+const ChildModeContainer = ({
+  theme,
+  childMode,
+  testId,
+}: {
+  theme: Theme;
+  childMode: boolean;
+  testId: string;
+}) => (
+  <div data-testid={`container-${testId}`}>
+    <VisualFeedbackSystem theme={theme} childMode={childMode}>
+      {() => <div>Test content</div>}
+    </VisualFeedbackSystem>
+  </div>
+);
+
+const ScreenReaderContainer = ({
+  theme,
+  feedbackType,
+  testId,
+}: {
+  theme: Theme;
+  feedbackType: FeedbackType;
+  testId: string;
+}) => (
+  <div data-testid={`container-${testId}`}>
+    <VisualFeedbackSystem theme={theme} childMode={true}>
+      {triggers => (
+        <button
+          type="button"
+          onClick={() => triggerFeedbackAction(triggers, feedbackType)}
+          data-testid={`sr-trigger-${testId}`}
+        >
+          Trigger
+        </button>
+      )}
+    </VisualFeedbackSystem>
+  </div>
+);
+
+const KeyboardNavigationContainer = ({
+  theme,
+  testId,
+  onToggle,
+}: {
+  theme: Theme;
+  testId: string;
+  onToggle: () => void;
+}) => (
+  <div data-testid={`container-${testId}`}>
+    <VisualFeedbackSystem theme={theme} onHighContrastToggle={onToggle}>
+      {() => <div>Test content</div>}
+    </VisualFeedbackSystem>
+  </div>
+);
+
 describe('VisualFeedbackSystem Property-Based Tests', () => {
   /**
    * Feature: multi-size-sudoku, Property 9: Accessibility feature completeness
@@ -51,15 +201,13 @@ describe('VisualFeedbackSystem Property-Based Tests', () => {
         booleanArb,
         uniqueIdArb,
         (theme, childMode, testId) => {
-          const TestComponent = () => (
-            <div data-testid={`container-${testId}`}>
-              <VisualFeedbackSystem theme={theme} childMode={childMode}>
-                {() => <div>Test content</div>}
-              </VisualFeedbackSystem>
-            </div>
+          const { container, unmount } = render(
+            <AccessibilityContainer
+              theme={theme}
+              childMode={childMode}
+              testId={testId}
+            />
           );
-
-          const { container, unmount } = render(<TestComponent />);
 
           try {
             // Should have the main feedback system container
@@ -100,33 +248,13 @@ describe('VisualFeedbackSystem Property-Based Tests', () => {
         feedbackTypeArb,
         uniqueIdArb,
         (theme, feedbackType, testId) => {
-          const TestComponent = () => (
-            <div data-testid={`container-${testId}`}>
-              <VisualFeedbackSystem theme={theme} childMode={true}>
-                {triggers => (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const actions = {
-                        success: () => triggers.showSuccess('Test message'),
-                        error: () =>
-                          triggers.showError('Test message', 'gentle'),
-                        hint: () => triggers.showHint('Test message'),
-                        celebration: () => triggers.showCelebration('confetti'),
-                      } as const;
-
-                      actions[feedbackType]?.();
-                    }}
-                    data-testid={`trigger-button-${testId}`}
-                  >
-                    Trigger
-                  </button>
-                )}
-              </VisualFeedbackSystem>
-            </div>
+          const { container, unmount } = render(
+            <PatternFeedbackContainer
+              theme={theme}
+              feedbackType={feedbackType as FeedbackType}
+              testId={testId}
+            />
           );
-
-          const { container, unmount } = render(<TestComponent />);
 
           try {
             // Trigger feedback
@@ -165,17 +293,13 @@ describe('VisualFeedbackSystem Property-Based Tests', () => {
   it('should support high contrast mode', () => {
     fc.assert(
       fc.property(themeArb, uniqueIdArb, (theme, testId) => {
-        const TestComponent = ({ highContrast }: { highContrast: boolean }) => (
-          <div data-testid={`container-${testId}`}>
-            <VisualFeedbackSystem theme={theme} highContrast={highContrast}>
-              {() => <div>Test content</div>}
-            </VisualFeedbackSystem>
-          </div>
-        );
-
         // Test normal mode
         const { rerender, container, unmount } = render(
-          <TestComponent highContrast={false} />
+          <HighContrastContainer
+            theme={theme}
+            highContrast={false}
+            testId={testId}
+          />
         );
 
         try {
@@ -186,7 +310,13 @@ describe('VisualFeedbackSystem Property-Based Tests', () => {
             normalElement?.className.includes('highContrast') || false;
 
           // Test high contrast mode
-          rerender(<TestComponent highContrast={true} />);
+          rerender(
+            <HighContrastContainer
+              theme={theme}
+              highContrast={true}
+              testId={testId}
+            />
+          );
           const highContrastElement = container.querySelector(
             '[data-testid="visual-feedback-system"]'
           );
@@ -211,20 +341,12 @@ describe('VisualFeedbackSystem Property-Based Tests', () => {
   it('should respect reduced motion preferences', () => {
     fc.assert(
       fc.property(themeArb, uniqueIdArb, (theme, testId) => {
-        const TestComponent = ({
-          reducedMotion,
-        }: {
-          reducedMotion: boolean;
-        }) => (
-          <div data-testid={`container-${testId}`}>
-            <VisualFeedbackSystem theme={theme} reducedMotion={reducedMotion}>
-              {() => <div>Test content</div>}
-            </VisualFeedbackSystem>
-          </div>
-        );
-
         const { container, unmount } = render(
-          <TestComponent reducedMotion={true} />
+          <ReducedMotionContainer
+            theme={theme}
+            reducedMotion={true}
+            testId={testId}
+          />
         );
 
         try {
@@ -248,17 +370,9 @@ describe('VisualFeedbackSystem Property-Based Tests', () => {
   it('should provide child-friendly accessibility features', () => {
     fc.assert(
       fc.property(themeArb, uniqueIdArb, (theme, testId) => {
-        const TestComponent = ({ childMode }: { childMode: boolean }) => (
-          <div data-testid={`container-${testId}`}>
-            <VisualFeedbackSystem theme={theme} childMode={childMode}>
-              {() => <div>Test content</div>}
-            </VisualFeedbackSystem>
-          </div>
-        );
-
         // Test child mode
         const { rerender, container, unmount } = render(
-          <TestComponent childMode={true} />
+          <ChildModeContainer theme={theme} childMode={true} testId={testId} />
         );
 
         try {
@@ -271,7 +385,13 @@ describe('VisualFeedbackSystem Property-Based Tests', () => {
             container.querySelector('[data-testid="pattern-legend"]') !== null;
 
           // Test non-child mode
-          rerender(<TestComponent childMode={false} />);
+          rerender(
+            <ChildModeContainer
+              theme={theme}
+              childMode={false}
+              testId={testId}
+            />
+          );
           const normalElement = container.querySelector(
             '[data-testid="visual-feedback-system"]'
           );
@@ -307,33 +427,13 @@ describe('VisualFeedbackSystem Property-Based Tests', () => {
         feedbackTypeArb,
         uniqueIdArb,
         (theme, feedbackType, testId) => {
-          const TestComponent = () => (
-            <div data-testid={`container-${testId}`}>
-              <VisualFeedbackSystem theme={theme} childMode={true}>
-                {triggers => (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const actions = {
-                        success: () => triggers.showSuccess('Test message'),
-                        error: () =>
-                          triggers.showError('Test message', 'gentle'),
-                        hint: () => triggers.showHint('Test message'),
-                        celebration: () => triggers.showCelebration('confetti'),
-                      } as const;
-
-                      actions[feedbackType]?.();
-                    }}
-                    data-testid={`sr-trigger-${testId}`}
-                  >
-                    Trigger
-                  </button>
-                )}
-              </VisualFeedbackSystem>
-            </div>
+          const { container, unmount } = render(
+            <ScreenReaderContainer
+              theme={theme}
+              feedbackType={feedbackType as FeedbackType}
+              testId={testId}
+            />
           );
-
-          const { container, unmount } = render(<TestComponent />);
 
           try {
             // Should have basic screen reader elements
@@ -365,18 +465,13 @@ describe('VisualFeedbackSystem Property-Based Tests', () => {
       fc.property(themeArb, uniqueIdArb, (theme, testId) => {
         const mockToggle = vi.fn();
 
-        const TestComponent = () => (
-          <div data-testid={`container-${testId}`}>
-            <VisualFeedbackSystem
-              theme={theme}
-              onHighContrastToggle={mockToggle}
-            >
-              {() => <div>Test content</div>}
-            </VisualFeedbackSystem>
-          </div>
+        const { container, unmount } = render(
+          <KeyboardNavigationContainer
+            theme={theme}
+            testId={testId}
+            onToggle={mockToggle}
+          />
         );
-
-        const { container, unmount } = render(<TestComponent />);
 
         try {
           // Should have high contrast toggle when callback provided
