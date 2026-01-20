@@ -3,6 +3,8 @@
  * Provides encouraging language and educational explanations for all error conditions
  */
 
+import { pickSecureRandomElement } from '@/utils/secureRandom';
+
 export interface ChildFriendlyError {
   type: 'validation' | 'conflict' | 'system' | 'network' | 'generation';
   severity: 'info' | 'warning' | 'error';
@@ -448,7 +450,7 @@ export const getEncouragementMessage = (
 ): EncouragementMessage => {
   const messages =
     ENCOURAGEMENT_MESSAGES[type] ?? ENCOURAGEMENT_MESSAGES.STRUGGLING ?? [];
-  const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+  const randomMessage = pickSecureRandomElement(messages);
 
   if (!randomMessage) {
     return {

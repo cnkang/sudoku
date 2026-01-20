@@ -3,6 +3,7 @@
  * Handles notification subscriptions and sending push notifications
  */
 
+import { randomInt } from 'node:crypto';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -36,6 +37,8 @@ const NotificationPayloadSchema = z.object({
 
 // Store subscriptions in memory (in production, use a database)
 const subscriptions = new Set<string>();
+
+const DELIVERY_SUCCESS_THRESHOLD = 90;
 
 export async function POST(request: NextRequest) {
   try {
@@ -118,7 +121,8 @@ async function handleSendNotification(request: NextRequest) {
     const notificationResults = Array.from(subscriptions).map(
       (subscription, _index) => ({
         subscriptionId: `${subscription.substring(0, 16)}...`,
-        status: Math.random() > 0.1 ? 'delivered' : 'failed', // 90% success rate
+        status:
+          randomInt(100) < DELIVERY_SUCCESS_THRESHOLD ? 'delivered' : 'failed',
         timestamp: Date.now(),
       })
     );

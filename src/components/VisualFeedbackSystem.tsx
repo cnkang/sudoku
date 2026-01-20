@@ -1,6 +1,7 @@
 import type React from 'react';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import type { ThemeConfig } from '@/types';
+import { pickSecureRandomElement, secureRandomFraction } from '@/utils/secureRandom';
 import styles from './VisualFeedbackSystem.module.css';
 
 export interface VisualFeedbackProps {
@@ -167,7 +168,7 @@ const FEEDBACK_MESSAGES = {
 };
 
 const pickRandomMessage = (messages: string[], fallback: string): string => {
-  return messages[Math.floor(Math.random() * messages.length)] ?? fallback;
+  return pickSecureRandomElement(messages) ?? fallback;
 };
 
 /**
@@ -266,8 +267,8 @@ function VisualFeedbackSystem({
             const sparkle = document.createElement('div');
             sparkle.className = styles.sparkleEffect ?? '';
             sparkle.style.position = 'absolute';
-            sparkle.style.left = `${Math.random() * 100}%`;
-            sparkle.style.top = `${Math.random() * 100}%`;
+            sparkle.style.left = `${secureRandomFraction() * 100}%`;
+            sparkle.style.top = `${secureRandomFraction() * 100}%`;
             sparkle.textContent = '✨';
             sparkle.style.fontSize = '1.5rem';
             sparkle.style.pointerEvents = 'none';

@@ -7,6 +7,7 @@
 
 import { useEffect, useState } from 'react';
 import { usePWA, useOfflineStatus } from '@/hooks/usePWA';
+import { secureRandomChance } from '@/utils/secureRandom';
 import styles from './PWAStatus.module.css';
 
 interface PWAStatusProps {
@@ -42,7 +43,7 @@ export default function PWAStatus({
     // In a real implementation, you'd listen for the 'updatefound' event
     // For now, we'll simulate it occasionally
     const updateCheckInterval = setInterval(() => {
-      if (Math.random() < 0.1) {
+      if (secureRandomChance(0.1)) {
         // 10% chance every 30 seconds
         handleUpdateAvailable();
         clearInterval(updateCheckInterval);
