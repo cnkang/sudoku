@@ -1,22 +1,48 @@
 /* Modern Sudoku App Styles with Container Queries and Modern CSS */
 
 .modernApp {
-  /* Modern CSS Grid Layout */
+  /* Modern CSS Grid Layout - Mobile First */
   display: grid;
   grid-template-areas:
     "pwa"
     "accessibility"
     "game";
   grid-template-rows: auto auto 1fr;
+  grid-template-columns: 1fr;
   gap: clamp(1rem, 2vw, 2rem);
-  min-height: 100dvh; /* Modern viewport units */
+  width: 100%;
+  min-height: 100dvh;
   padding: clamp(0.5rem, 2vw, 1.5rem);
   background: var(--background, #f8fafc);
   color: var(--foreground, #1e293b);
+  position: relative;
+}
 
-  /* Container Query Support */
-  container-type: inline-size;
-  container-name: sudoku-app;
+/* Tablet Layout - Two Column with Sidebar */
+@media (min-width: 768px) {
+  .modernApp {
+    /* Use simple column layout instead of grid-areas */
+    grid-template-areas:
+      "pwa game"
+      "accessibility game";
+    grid-template-rows: auto auto;
+    grid-template-columns: 280px 1fr;
+    gap: clamp(1rem, 2vw, 1.5rem);
+  }
+}
+
+/* Desktop Layout - Wider Sidebar */
+@media (min-width: 1024px) {
+  .modernApp {
+    grid-template-areas:
+      "pwa game"
+      "accessibility game";
+    grid-template-rows: auto auto;
+    grid-template-columns: 320px 1fr;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    max-width: 1600px;
+    margin: 0 auto;
+  }
 }
 
 /* Child Mode Styling */
@@ -33,14 +59,44 @@
   box-shadow: 0 4px 20px rgba(0, 119, 190, 0.1);
 }
 
-/* PWA Section */
+/* PWA Section - Compact on Desktop */
 .pwaSection {
   grid-area: pwa;
   background: var(--surface, white);
   border-radius: var(--border-radius, 0.75rem);
-  padding: clamp(1rem, 2vw, 1.5rem);
+  padding: clamp(0.75rem, 2vw, 1rem);
   box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
   border: 1px solid var(--border-color, #e2e8f0);
+  overflow: auto;
+  max-height: 80vh;
+}
+
+/* Desktop: More compact, fixed height */
+@media (min-width: 768px) {
+  .pwaSection {
+    max-height: 35vh;
+    padding: clamp(0.75rem, 1.5vw, 1rem);
+  }
+}
+
+/* Accessibility Section - Collapsible on Mobile */
+.accessibilitySection {
+  grid-area: accessibility;
+  background: var(--surface, white);
+  border-radius: var(--border-radius, 0.75rem);
+  padding: clamp(0.75rem, 2vw, 1rem);
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
+  border: 1px solid var(--border-color, #e2e8f0);
+  overflow: auto;
+  max-height: 60vh;
+}
+
+/* Desktop: Scrollable with max height */
+@media (min-width: 768px) {
+  .accessibilitySection {
+    max-height: calc(65vh - 2rem);
+    padding: clamp(0.75rem, 1.5vw, 1rem);
+  }
 }
 
 /* Game Area */
@@ -268,14 +324,15 @@
 }
 
 /* Container Query Responsive Design */
-@container sudoku-app (min-width: 768px) {
+@container sudoku-app (min-width: 600px) {
   .modernApp {
     grid-template-areas:
       "pwa accessibility"
       "game game";
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(280px, 0.8fr) minmax(400px, 1.2fr);
     grid-template-rows: auto 1fr;
-    max-width: 1200px;
+    gap: clamp(1.5rem, 2vw, 2rem);
+    max-width: 1400px;
     margin: 0 auto;
   }
 
@@ -283,18 +340,27 @@
     flex-wrap: nowrap;
     justify-content: space-between;
   }
-}
-
-@container sudoku-app (min-width: 1024px) {
-  .modernApp {
-    grid-template-areas:
-      "pwa pwa accessibility"
-      "game game game";
-    grid-template-columns: 1fr 1fr 1fr;
-  }
 
   .gameArea {
-    padding: clamp(1.5rem, 3vw, 2.5rem);
+    padding: clamp(1.5rem, 3vw, 2rem);
+  }
+}
+
+@container sudoku-app (min-width: 900px) {
+  .modernApp {
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(1.5rem, 2vw, 2.5rem);
+  }
+
+  .pwaSection {
+    min-height: 400px;
+  }
+}
+
+@container sudoku-app (min-width: 1200px) {
+  .modernApp {
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
   }
 }
 

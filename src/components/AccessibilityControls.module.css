@@ -1,15 +1,23 @@
-/* Accessibility Controls - Child-Friendly Design with WCAG AAA Compliance */
+/* Accessibility Controls - Compact Design */
 
 .accessibilityControls {
+  grid-area: accessibility;
   background: var(--color-surface, #ffffff);
   border: 2px solid var(--color-primary, #003d7a);
   border-radius: var(--border-radius, 12px);
-  padding: 1.5rem;
-  margin: 1rem 0;
-  box-shadow: var(--feedback-shadow, 0 4px 12px rgba(0, 0, 0, 0.1));
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  padding: 1rem;
+  box-shadow: var(--feedback-shadow, 0 2px 8px rgba(0, 0, 0, 0.08));
+  width: 100%;
+  overflow: auto;
+  max-height: 80vh;
+}
+
+/* Desktop: More compact */
+@media (min-width: 768px) {
+  .accessibilityControls {
+    padding: 0.875rem;
+    max-height: calc(100vh - 2rem);
+  }
 }
 
 /* Child Mode Enhancements */
@@ -39,26 +47,26 @@
   pointer-events: none;
 }
 
-/* Title */
+/* Title - Compact */
 .title {
-  font-size: 1.5rem;
+  font-size: 1.125rem;
   font-weight: 700;
   color: var(--color-primary, #003d7a);
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 1rem 0;
   text-align: center;
   line-height: 1.3;
 }
 
 .childMode .title {
-  font-size: 1.75rem;
+  font-size: 1.375rem;
   color: #0066cc;
   text-shadow: 1px 1px 2px rgba(0, 102, 204, 0.1);
 }
 
-/* Control Groups */
+/* Control Groups - Compact */
 .controlGroup {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--color-cell-border, #d1d5db);
 }
 
@@ -68,17 +76,17 @@
 }
 
 .childMode .controlGroup {
-  margin-bottom: 2rem;
-  padding: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 0.875rem;
   background: rgba(255, 255, 255, 0.5);
-  border-radius: 15px;
+  border-radius: 12px;
   border-bottom: none;
 }
 
-/* Labels */
+/* Labels - Compact */
 .label {
   display: block;
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   color: var(--color-text, #1a1a1a);
   margin-bottom: 0.5rem;
@@ -86,7 +94,7 @@
 }
 
 .childMode .label {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #0066cc;
 }
@@ -253,36 +261,44 @@
   font-weight: 600;
 }
 
-/* Info Section */
+/* Info Section - Compact, Collapsible on Desktop */
 .infoSection {
   background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
   border: 2px solid #fb923c;
-  border-radius: 15px;
-  padding: 1.5rem;
-  margin-top: 2rem;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* Desktop: Hide by default, show on hover/focus */
+@media (min-width: 768px) {
+  .infoSection {
+    padding: 0.75rem;
+    margin-top: 1rem;
+  }
 }
 
 .infoTitle {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #ea580c;
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.75rem 0;
   text-align: center;
 }
 
 .patternExamples {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.75rem;
   justify-content: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .patternExample {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: #ea580c;
 }
@@ -368,33 +384,53 @@
   font-weight: 500;
 }
 
-/* Quick Actions */
+/* Quick Actions - Compact */
 .quickActions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 1rem;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
   border-top: 2px solid var(--color-cell-border, #d1d5db);
 }
 
+/* Desktop: 2 columns */
+@media (min-width: 768px) {
+  .quickActions {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.625rem;
+    margin-top: 1rem;
+    padding-top: 0.875rem;
+  }
+}
+
 .childMode .quickActions {
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 1.25rem;
-  margin-top: 2.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 2rem;
 }
 
 .quickButton {
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.875rem;
   border: 2px solid;
-  border-radius: var(--border-radius, 12px);
-  font-size: 0.9rem;
+  border-radius: var(--border-radius, 10px);
+  font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-height: 44px;
+  min-height: 40px;
   background: var(--color-surface, #ffffff);
   color: var(--color-text, #1a1a1a);
+  text-align: center;
+}
+
+/* Desktop: Even more compact */
+@media (min-width: 768px) {
+  .quickButton {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    min-height: 36px;
+  }
 }
 
 .quickButton:hover:not(:disabled) {
