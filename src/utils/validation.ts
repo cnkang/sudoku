@@ -29,7 +29,7 @@ export const getValidationConstants = (config: GridConfig) => ({
   VALID_SUDOKU_VALUES: GridConfigManager.getValidValues(config),
 });
 
-const POSITIVE_INTEGER_PATTERN = /^[0-9]+$/;
+const POSITIVE_INTEGER_PATTERN = /^\d+$/;
 const SAFE_NUMBER_PATTERN = /^-?\d+(\.\d+)?$/;
 
 const clampToRange = (value: number, min: number, max: number) =>
@@ -48,12 +48,12 @@ export const validateDifficulty = (
     config?.difficultyLevels ?? VALIDATION_CONSTANTS.MAX_DIFFICULTY;
 
   if (difficulty === null || difficulty === undefined) {
-    throw new Error('Difficulty must be a valid number.');
+    throw new TypeError('Difficulty must be a valid number.');
   }
 
   if (typeof difficulty === 'string') {
     if (!POSITIVE_INTEGER_PATTERN.test(difficulty)) {
-      throw new Error('Difficulty must be a positive integer.');
+      throw new TypeError('Difficulty must be a positive integer.');
     }
     const parsed = Number.parseInt(difficulty, 10);
     if (parsed < minDifficulty || parsed > maxDifficulty) {
@@ -63,7 +63,7 @@ export const validateDifficulty = (
   }
 
   if (typeof difficulty !== 'number' || Number.isNaN(difficulty)) {
-    throw new Error('Difficulty must be a valid number.');
+    throw new TypeError('Difficulty must be a valid number.');
   }
 
   if (difficulty < minDifficulty || difficulty > maxDifficulty) {

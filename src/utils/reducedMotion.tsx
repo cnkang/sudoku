@@ -37,7 +37,7 @@ export const getMotionPreferences = (
   const settings = { ...defaultSettings, ...customSettings };
 
   // Check system preference
-  const systemPrefersReduced = window.matchMedia(
+  const systemPrefersReduced = globalThis.matchMedia(
     '(prefers-reduced-motion: reduce)'
   ).matches;
 
@@ -104,7 +104,9 @@ export const useMotionPreferences = (
   React.useEffect(() => {
     if (!settings.respectSystemPreference) return;
 
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mediaQuery = globalThis.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    );
     const handleChange = () => {
       const newPreferences = getMotionPreferences(settings);
       setPreferences(newPreferences);

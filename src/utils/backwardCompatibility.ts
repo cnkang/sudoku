@@ -315,7 +315,7 @@ export const LegacyDataMigrator = {
    * Checks if legacy data exists in localStorage
    */
   hasLegacyData(): boolean {
-    if (typeof window === 'undefined') return false;
+    if (typeof globalThis.window === 'undefined') return false;
 
     return LegacyDataMigrator.LEGACY_KEYS.some(key => {
       try {
@@ -331,7 +331,7 @@ export const LegacyDataMigrator = {
    */
   // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: migration logic is sequential
   async migrateLegacyData(): Promise<void> {
-    if (typeof window === 'undefined') return;
+    if (typeof globalThis.window === 'undefined') return;
 
     try {
       // Migrate game state
@@ -398,7 +398,7 @@ export const LegacyDataMigrator = {
    * Checks if migration has been completed
    */
   isMigrationComplete(): boolean {
-    if (typeof window === 'undefined') return true;
+    if (typeof globalThis.window === 'undefined') return true;
 
     try {
       return localStorage.getItem('sudoku-migration-complete') === 'true';
@@ -411,7 +411,7 @@ export const LegacyDataMigrator = {
    * Cleans up legacy data after successful migration
    */
   cleanupLegacyData(): void {
-    if (typeof window === 'undefined') return;
+    if (typeof globalThis.window === 'undefined') return;
 
     try {
       LegacyDataMigrator.LEGACY_KEYS.forEach(key => {
