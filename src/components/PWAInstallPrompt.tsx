@@ -17,11 +17,11 @@ export default function PWAInstallPrompt() {
   }
 
   return (
-    <div
+    <dialog
       className={styles.overlay}
-      role="dialog"
       aria-labelledby="install-title"
       aria-describedby="install-description"
+      open
     >
       <div className={styles.prompt}>
         <div className={styles.icon}>
@@ -79,11 +79,13 @@ export default function PWAInstallPrompt() {
             {isInstalling ? (
               <>
                 <span className={styles.spinner} aria-hidden="true" />
+                {' '}
                 Installing...
               </>
             ) : (
               <>
                 <span className={styles.buttonIcon}>⬇️</span>
+                {' '}
                 Install App
               </>
             )}
@@ -100,6 +102,6 @@ export default function PWAInstallPrompt() {
           </button>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }

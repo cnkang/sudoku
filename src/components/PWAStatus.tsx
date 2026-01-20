@@ -96,6 +96,7 @@ export default function PWAStatus({
           {isInstalling ? (
             <>
               <span className={styles.spinner} aria-hidden="true" />
+              {' '}
               Installing...
             </>
           ) : (
@@ -103,6 +104,7 @@ export default function PWAStatus({
               <span className={styles.installIcon} aria-hidden="true">
                 ⬇️
               </span>
+              {' '}
               Install App
             </>
           )}
@@ -131,6 +133,7 @@ export default function PWAStatus({
               {isUpdating ? (
                 <>
                   <span className={styles.spinner} aria-hidden="true" />
+                  {' '}
                   Updating...
                 </>
               ) : (
