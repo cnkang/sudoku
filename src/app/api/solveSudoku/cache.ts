@@ -5,7 +5,7 @@ interface CacheItem<T> {
 }
 
 class APICache<T> {
-  private cache = new Map<string, CacheItem<T>>();
+  private readonly cache = new Map<string, CacheItem<T>>();
   private readonly defaultTTL: number;
 
   constructor(defaultTTL = 30000) {
