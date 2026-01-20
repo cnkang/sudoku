@@ -103,6 +103,42 @@ const PATTERN_CUES = {
   },
 } satisfies Record<PatternBasedCue['type'], PatternBasedCue>;
 
+const getFeedbackMessage = (
+  type: 'success' | 'error' | 'warning' | 'hint',
+  message?: string
+) => {
+  if (message) return message;
+  if (type === 'error') {
+    return pickRandomMessage(
+      FEEDBACK_MESSAGES.error.gentle,
+      "Let's try that again!"
+    );
+  }
+  if (type === 'warning') {
+    return pickRandomMessage(
+      FEEDBACK_MESSAGES.error.warning,
+      'Check that spot!'
+    );
+  }
+  return pickRandomMessage(FEEDBACK_MESSAGES[type], `${type} feedback`);
+};
+
+const getCelebrationEmoji = (
+  celebrationType: 'confetti' | 'stars' | 'rainbow',
+  index: number
+) => {
+  if (celebrationType === 'stars') {
+    const starEmojis = ['⭐', '🌟', '✨'];
+    return starEmojis[index % starEmojis.length] ?? '⭐';
+  }
+  if (celebrationType === 'rainbow') {
+    const rainbowEmojis = ['🌈', '🦄', '✨', '🌟', '💫'];
+    return rainbowEmojis[index % rainbowEmojis.length] ?? '🌈';
+  }
+  const confettiEmojis = ['🎉', '🎊', '✨', '🌟', '⭐'];
+  return confettiEmojis[index % confettiEmojis.length] ?? '🎉';
+};
+
 // Child-friendly messages for different feedback types
 const FEEDBACK_MESSAGES = {
   success: [
@@ -244,9 +280,7 @@ function VisualFeedbackSystem({
         element.style.backgroundColor = originalStyle.backgroundColor;
         element.style.boxShadow = originalStyle.boxShadow;
         element.style.transform = originalStyle.transform;
-        if (patternOverlay.parentNode) {
-          patternOverlay.parentNode.removeChild(patternOverlay);
-        }
+        patternOverlay.remove();
       }, duration);
     },
     [reducedMotion, highContrast]
@@ -277,9 +311,7 @@ function VisualFeedbackSystem({
             targetElement.appendChild(sparkle);
 
             setTimeout(() => {
-              if (sparkle.parentNode) {
-                sparkle.parentNode.removeChild(sparkle);
-              }
+              sparkle.remove();
             }, 2000);
           }
           break;
@@ -329,19 +361,7 @@ function VisualFeedbackSystem({
       const patternCue = PATTERN_CUES[type];
       const selectedPattern = pattern || patternCue.pattern;
 
-      const feedbackMessage =
-        message ||
-        (type === 'error'
-          ? pickRandomMessage(
-              FEEDBACK_MESSAGES.error.gentle,
-              "Let's try that again!"
-            )
-          : type === 'warning'
-            ? pickRandomMessage(
-                FEEDBACK_MESSAGES.error.warning,
-                'Check that spot!'
-              )
-            : pickRandomMessage(FEEDBACK_MESSAGES[type], `${type} feedback`));
+      const feedbackMessage = getFeedbackMessage(type, message);
 
       setFeedback({
         type,
@@ -544,17 +564,7 @@ function VisualFeedbackSystem({
     const particles = [];
 
     for (let i = 0; i < particleCount; i++) {
-      let emoji = '🎉';
-      if (celebrationType === 'stars') {
-        const starEmojis = ['⭐', '🌟', '✨'];
-        emoji = starEmojis[i % starEmojis.length] ?? '⭐';
-      } else if (celebrationType === 'rainbow') {
-        const rainbowEmojis = ['🌈', '🦄', '✨', '🌟', '💫'];
-        emoji = rainbowEmojis[i % rainbowEmojis.length] ?? '🌈';
-      } else {
-        const confettiEmojis = ['🎉', '🎊', '✨', '🌟', '⭐'];
-        emoji = confettiEmojis[i % confettiEmojis.length] ?? '🎉';
-      }
+      const emoji = getCelebrationEmoji(celebrationType, i);
 
       particles.push(
         <div

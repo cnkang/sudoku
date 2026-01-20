@@ -394,7 +394,6 @@ export const generateCompletionReward = (
   // Special rewards for milestones
   if (stats.puzzlesCompleted === 1) {
     rewardType = 'trophy';
-    color = 'gold';
     size = 'large';
     animation = 'bounce';
     message = 'Your very first puzzle! Amazing! 🏆';
@@ -406,20 +405,16 @@ export const generateCompletionReward = (
     message = `${stats.puzzlesCompleted} puzzles completed! Incredible! 🎊`;
   } else if (gameData.hintsUsed === 0) {
     rewardType = 'crown';
-    color = 'gold';
     size = 'large';
-    animation = 'sparkle';
     message = 'Perfect! No hints needed! 👑';
   } else if (gameData.completionTime < stats.bestTime || stats.bestTime === 0) {
     rewardType = 'gem';
     color = 'blue';
-    size = 'medium';
     animation = 'glow';
     message = 'New personal best! ⚡';
   } else if (stats.streakCount >= 3) {
     rewardType = 'sticker';
     color = 'green';
-    size = 'medium';
     animation = 'pulse';
     message = `${stats.streakCount} in a row! You're on fire! 🔥`;
   }
@@ -595,12 +590,12 @@ export const updateProgressStats = (
     : null;
   const isConsecutiveDay =
     lastPlayedDate === new Date(Date.now() - 86400000).toDateString(); // Yesterday
-  const newDailyStreak =
-    lastPlayedDate === today
-      ? currentStats.dailyStreak
-      : isConsecutiveDay
-        ? currentStats.dailyStreak + 1
-        : 1;
+  let newDailyStreak = 1;
+  if (lastPlayedDate === today) {
+    newDailyStreak = currentStats.dailyStreak;
+  } else if (isConsecutiveDay) {
+    newDailyStreak = currentStats.dailyStreak + 1;
+  }
 
   return {
     ...currentStats,
