@@ -107,8 +107,8 @@ vi.mock('next/navigation', () => ({
 }));
 
 // Mock window.matchMedia (only in browser environment)
-if (typeof window !== 'undefined') {
-  Object.defineProperty(window, 'matchMedia', {
+if (globalThis.window !== undefined) {
+  Object.defineProperty(globalThis, 'matchMedia', {
     writable: true,
     value: vi.fn().mockImplementation(query => ({
       matches: false,
@@ -124,15 +124,15 @@ if (typeof window !== 'undefined') {
 }
 
 // Mock IntersectionObserver (only in browser environment)
-if (typeof global !== 'undefined') {
-  global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+if (typeof globalThis !== 'undefined') {
+  globalThis.IntersectionObserver = vi.fn().mockImplementation(() => ({
     observe: vi.fn(),
     unobserve: vi.fn(),
     disconnect: vi.fn(),
   }));
 
   // Mock ResizeObserver
-  global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
     observe: vi.fn(),
     unobserve: vi.fn(),
     disconnect: vi.fn(),

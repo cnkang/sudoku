@@ -14,7 +14,7 @@ const mockMatchMedia = (query: string) => ({
   dispatchEvent: vi.fn(),
 });
 
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(globalThis, 'matchMedia', {
   writable: true,
   value: vi.fn().mockImplementation(mockMatchMedia),
 });
@@ -41,7 +41,7 @@ describe('GameControls Responsive Tests', () => {
   describe('Mobile Layout Tests', () => {
     beforeEach(() => {
       // Mock mobile viewport
-      Object.defineProperty(window, 'innerWidth', {
+      Object.defineProperty(globalThis, 'innerWidth', {
         writable: true,
         configurable: true,
         value: 375,
@@ -97,7 +97,7 @@ describe('GameControls Responsive Tests', () => {
   describe('Tablet Layout Tests', () => {
     beforeEach(() => {
       // Mock tablet viewport
-      Object.defineProperty(window, 'innerWidth', {
+      Object.defineProperty(globalThis, 'innerWidth', {
         writable: true,
         configurable: true,
         value: 768,
@@ -130,12 +130,12 @@ describe('GameControls Responsive Tests', () => {
   describe('Landscape Orientation Tests', () => {
     beforeEach(() => {
       // Mock landscape orientation
-      Object.defineProperty(window, 'innerWidth', {
+      Object.defineProperty(globalThis, 'innerWidth', {
         writable: true,
         configurable: true,
         value: 667,
       });
-      Object.defineProperty(window, 'innerHeight', {
+      Object.defineProperty(globalThis, 'innerHeight', {
         writable: true,
         configurable: true,
         value: 375,
@@ -169,7 +169,7 @@ describe('GameControls Responsive Tests', () => {
   describe('Touch Device Optimizations', () => {
     beforeEach(() => {
       // Mock touch device
-      Object.defineProperty(navigator, 'maxTouchPoints', {
+      Object.defineProperty(globalThis.navigator, 'maxTouchPoints', {
         writable: true,
         configurable: true,
         value: 5,
@@ -239,7 +239,7 @@ describe('GameControls Responsive Tests', () => {
 
     it('should adapt message text size on mobile', () => {
       // Mock mobile viewport
-      Object.defineProperty(window, 'innerWidth', {
+      Object.defineProperty(globalThis, 'innerWidth', {
         writable: true,
         configurable: true,
         value: 375,

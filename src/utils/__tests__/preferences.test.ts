@@ -40,7 +40,7 @@ describe('preferences', () => {
 
   beforeEach(() => {
     localStorageMock = createLocalStorageMock();
-    Object.defineProperty(window, 'localStorage', {
+    Object.defineProperty(globalThis, 'localStorage', {
       value: localStorageMock,
       writable: true,
     });

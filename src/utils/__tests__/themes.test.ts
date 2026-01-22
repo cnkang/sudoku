@@ -52,7 +52,7 @@ describe('Theme Utilities', () => {
       // A combination that meets AAA for large text but not normal text
       const ratio = calculateContrastRatio('#666666', '#ffffff');
       expect(ratio).toBeGreaterThan(4.5);
-      expect(ratio).toBeLessThan(7.0);
+      expect(ratio).toBeLessThan(7);
 
       expect(meetsWCAGAAA('#666666', '#ffffff', false)).toBe(false);
       expect(meetsWCAGAAA('#666666', '#ffffff', true)).toBe(true);
@@ -142,7 +142,7 @@ describe('Theme Utilities', () => {
         expect(highContrastTheme.category).toBe('high-contrast');
         expect(highContrastTheme.colors.text).toBe('#000000');
         expect(highContrastTheme.colors.background).toBe('#FFFFFF');
-        expect(highContrastTheme.accessibility.contrastRatio).toBe(21.0);
+        expect(highContrastTheme.accessibility.contrastRatio).toBe(21);
         expect(highContrastTheme.childFriendly.enableAnimations).toBe(false);
       });
     });
@@ -199,9 +199,9 @@ describe('Theme Utilities', () => {
         );
 
         expect(recommendations.length).toBeGreaterThan(0);
-        recommendations.forEach(theme => {
+        for (const theme of recommendations) {
           expect(['children', 'all']).toContain(theme.ageGroup);
-        });
+        }
       });
 
       it('should recommend high contrast themes when needed', () => {
@@ -212,9 +212,9 @@ describe('Theme Utilities', () => {
         );
 
         expect(recommendations.length).toBeGreaterThan(0);
-        recommendations.forEach(theme => {
+        for (const theme of recommendations) {
           expect(theme.category).toBe('high-contrast');
-        });
+        }
       });
 
       it('should filter out animated themes for reduced motion', () => {
@@ -224,9 +224,9 @@ describe('Theme Utilities', () => {
           true
         );
 
-        recommendations.forEach(theme => {
+        for (const theme of recommendations) {
           expect(theme.childFriendly.enableAnimations).toBe(false);
-        });
+        }
       });
     });
   });
@@ -268,9 +268,9 @@ describe('Theme Utilities', () => {
       it('should return only child-friendly themes', () => {
         const themes = getChildFriendlyThemes();
         expect(themes.length).toBeGreaterThan(0);
-        themes.forEach(theme => {
+        for (const theme of themes) {
           expect(theme.category).toBe('child-friendly');
-        });
+        }
       });
     });
 
@@ -278,9 +278,9 @@ describe('Theme Utilities', () => {
       it('should return only high contrast themes', () => {
         const themes = getHighContrastThemes();
         expect(themes.length).toBeGreaterThan(0);
-        themes.forEach(theme => {
+        for (const theme of themes) {
           expect(theme.category).toBe('high-contrast');
-        });
+        }
       });
     });
   });
@@ -365,7 +365,7 @@ describe('Theme Utilities', () => {
     });
 
     it('should have valid theme structure', () => {
-      Object.values(THEMES).forEach(theme => {
+      for (const theme of Object.values(THEMES)) {
         expect(theme.id).toBeTruthy();
         expect(theme.name).toBeTruthy();
         expect(theme.displayName).toBeTruthy();
@@ -380,19 +380,19 @@ describe('Theme Utilities', () => {
         expect(theme.colors.background).toBeTruthy();
         expect(theme.colors.text).toBeTruthy();
         expect(theme.colors.cellBackground).toBeTruthy();
-      });
+      }
     });
 
     it('should have WCAG AAA compliant child-friendly themes', () => {
       const childFriendlyThemes = getChildFriendlyThemes();
 
-      childFriendlyThemes.forEach(theme => {
+      for (const theme of childFriendlyThemes) {
         expect(AccessibilityManager.validateThemeCompliance(theme)).toBe(true);
-      });
+      }
     });
 
     it('should have proper CSS variable mapping', () => {
-      Object.values(THEMES).forEach(theme => {
+      for (const theme of Object.values(THEMES)) {
         expect(theme.cssVariables['--color-primary']).toBe(
           theme.colors.primary
         );
@@ -400,7 +400,7 @@ describe('Theme Utilities', () => {
           theme.colors.background
         );
         expect(theme.cssVariables['--color-text']).toBe(theme.colors.text);
-      });
+      }
     });
   });
 });

@@ -18,7 +18,7 @@ Object.defineProperty(document, 'startViewTransition', {
 });
 
 // Mock window.matchMedia for PWA detection
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(globalThis, 'matchMedia', {
   writable: true,
   value: vi.fn().mockImplementation(query => ({
     matches: false,
@@ -33,7 +33,7 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock navigator.standalone for iOS PWA detection
-Object.defineProperty(window.navigator, 'standalone', {
+Object.defineProperty(globalThis.navigator, 'standalone', {
   writable: true,
   value: false,
 });
@@ -154,7 +154,7 @@ describe('PWAGridSelector', () => {
 
     it('shows installed indicator when app is installed', () => {
       // Mock standalone mode
-      window.matchMedia = vi.fn().mockImplementation(query => ({
+      globalThis.matchMedia = vi.fn().mockImplementation(query => ({
         matches: query === '(display-mode: standalone)',
         media: query,
         onchange: null,

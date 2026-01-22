@@ -26,12 +26,12 @@ export const LANDSCAPE_SIZES = {
  * Mock window dimensions for testing
  */
 export const mockViewport = (size: ViewportSize) => {
-  Object.defineProperty(window, 'innerWidth', {
+  Object.defineProperty(globalThis, 'innerWidth', {
     writable: true,
     configurable: true,
     value: size.width,
   });
-  Object.defineProperty(window, 'innerHeight', {
+  Object.defineProperty(globalThis, 'innerHeight', {
     writable: true,
     configurable: true,
     value: size.height,
@@ -42,7 +42,7 @@ export const mockViewport = (size: ViewportSize) => {
  * Mock touch device capabilities
  */
 export const mockTouchDevice = (maxTouchPoints = 5) => {
-  Object.defineProperty(navigator, 'maxTouchPoints', {
+  Object.defineProperty(globalThis.navigator, 'maxTouchPoints', {
     writable: true,
     configurable: true,
     value: maxTouchPoints,
@@ -64,7 +64,7 @@ export const mockMediaQuery = (queries: Record<string, boolean>) => {
     dispatchEvent: vi.fn(),
   });
 
-  Object.defineProperty(window, 'matchMedia', {
+  Object.defineProperty(globalThis, 'matchMedia', {
     writable: true,
     value: vi.fn().mockImplementation(mockMatchMedia),
   });

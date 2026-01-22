@@ -131,14 +131,14 @@ export const createResponsiveTests = (
     viewports.forEach(({ name, width, height = 600, checks }) => {
       it(`should work correctly on ${name}`, () => {
         // Mock viewport
-        Object.defineProperty(window, 'innerWidth', {
+        Object.defineProperty(globalThis, 'innerWidth', {
           writable: true,
           configurable: true,
           value: width,
         });
 
         if (height) {
-          Object.defineProperty(window, 'innerHeight', {
+          Object.defineProperty(globalThis, 'innerHeight', {
             writable: true,
             configurable: true,
             value: height,
