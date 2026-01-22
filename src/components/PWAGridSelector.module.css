@@ -34,7 +34,7 @@
 
 .installButton {
   padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -114,7 +114,6 @@
 
   /* WCAG AAA touch target */
   min-width: 50px;
-  min-height: 50px;
 }
 
 .gridOption:hover:not(:disabled) {
@@ -239,8 +238,9 @@
   right: 1rem;
   width: 2rem;
   height: 2rem;
-  background: var(--option-color, #3b82f6);
-  color: white;
+  background: #f8fafc;
+  color: var(--option-color, #1e3a8a);
+  border: 2px solid var(--option-color, #1e3a8a);
   border-radius: 50%;
   display: flex;
   align-items: center;

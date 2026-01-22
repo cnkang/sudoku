@@ -222,22 +222,22 @@
 }
 
 .achievementRarity.common {
-  background: #ddd;
-  color: #666;
+  background: #f3f4f6;
+  color: #111827;
 }
 
 .achievementRarity.rare {
-  background: #74b9ff;
+  background: #1e3a8a;
   color: white;
 }
 
 .achievementRarity.epic {
-  background: #a29bfe;
+  background: #4c1d95;
   color: white;
 }
 
 .achievementRarity.legendary {
-  background: linear-gradient(45deg, #fd79a8, #fdcb6e);
+  background: linear-gradient(45deg, #7f1d1d, #b45309);
   color: white;
 }
 
@@ -358,7 +358,7 @@
   height: 100%;
 }
 
-.sparkle {
+.celebrationSparkle {
   position: absolute;
   font-size: 2rem;
   animation: sparkle-twinkle 2s ease-in-out infinite;
@@ -604,6 +604,7 @@
   .statIcon,
   .achievementIcon,
   .confettiPiece,
+  .celebrationSparkle,
   .sparkle,
   .firework {
     animation: none;
