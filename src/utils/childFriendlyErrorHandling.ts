@@ -359,7 +359,7 @@ export const createChildFriendlyError = (
     // Make messages even more encouraging for smaller grids (children)
     customizedError.encouragementLevel = 'high';
     customizedError.childMessage = customizedError.childMessage.replaceAll(
-      /!/g,
+      '!',
       '! 🌈'
     );
   }
