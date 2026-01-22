@@ -5,7 +5,7 @@ interface CachedResponse {
 }
 
 class ClientCache {
-  private cache = new Map<string, CachedResponse>();
+  private readonly cache = new Map<string, CachedResponse>();
   private readonly maxAge = 30000; // 30 seconds
 
   set(key: string, data: unknown, etag?: string): void {

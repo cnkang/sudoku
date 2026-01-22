@@ -8,10 +8,10 @@ import type {
 /**
  * WCAG AAA Compliance Constants
  */
-const WCAG_AAA_NORMAL_TEXT_RATIO = 7.0;
+const WCAG_AAA_NORMAL_TEXT_RATIO = 7;
 const WCAG_AAA_LARGE_TEXT_RATIO = 4.5;
 const WCAG_AA_NORMAL_TEXT_RATIO = 4.5;
-const WCAG_AA_LARGE_TEXT_RATIO = 3.0;
+const WCAG_AA_LARGE_TEXT_RATIO = 3;
 
 /**
  * Convert hex color to RGB values
@@ -437,7 +437,7 @@ export const THEMES: Record<string, ThemeConfig> = {
     colors: highContrastColors,
     accessibility: {
       ...defaultAccessibility,
-      contrastRatio: 21.0, // Maximum possible contrast
+      contrastRatio: 21, // Maximum possible contrast
       focusIndicatorWidth: 4,
     },
     childFriendly: {
@@ -539,7 +539,7 @@ export class AccessibilityManager {
       colors: highContrastColors,
       accessibility: {
         ...theme.accessibility,
-        contrastRatio: 21.0,
+        contrastRatio: 21,
         focusIndicatorWidth: 4,
       },
       childFriendly: {
@@ -562,10 +562,10 @@ export class AccessibilityManager {
     const baseSize = accessibility.minimumFontSize;
 
     // Scale factor based on screen width (keep small screens readable)
-    const scaleFactor = Math.min(2.0, Math.max(1.0, screenWidth / 400));
+    const scaleFactor = Math.min(2, Math.max(1, screenWidth / 400));
 
     // Grid factor for child-friendly sizing
-    let gridFactor = 1.0;
+    let gridFactor = 1;
     if (gridSize <= 4) {
       gridFactor = 1.2;
     } else if (gridSize <= 6) {
