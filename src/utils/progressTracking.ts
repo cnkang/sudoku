@@ -378,7 +378,7 @@ export const checkForNewAchievements = (
  */
 export const generateCompletionReward = (
   stats: ProgressStats,
-  gridSize: 4 | 6 | 9,
+  gridSize: GridSize,
   gameData: {
     completionTime: number;
     hintsUsed: number;
