@@ -1,5 +1,4 @@
 'use client';
-import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import { Suspense } from 'react';
 import ModernSudokuApp from '../components/ModernSudokuApp';
