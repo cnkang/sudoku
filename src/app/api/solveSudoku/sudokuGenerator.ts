@@ -40,7 +40,7 @@ export async function generateSudokuPuzzle(
 // Generates a complete solved Sudoku board for any grid size.
 function generateCompleteBoard(config: GridConfig): number[][] {
   const board: number[][] = Array.from({ length: config.size }, () =>
-    new Array(config.size).fill(0)
+    Array.from({ length: config.size }, () => 0)
   );
   fillBoard(board, config);
   return board;

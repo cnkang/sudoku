@@ -97,15 +97,15 @@ describe('SudokuGrid', () => {
     [3, 0, 0, 2],
   ];
 
-  const samplePuzzle9x9 = new Array(9)
-    .fill(null)
-    .map(() => new Array(9).fill(0));
+  const samplePuzzle9x9 = Array.from({ length: 9 }, () =>
+    Array.from({ length: 9 }, () => 0)
+  );
   samplePuzzle9x9[0][0] = 5;
   samplePuzzle9x9[1][1] = 3;
 
-  const sampleUserInput9x9 = new Array(9)
-    .fill(null)
-    .map(() => new Array(9).fill(0));
+  const sampleUserInput9x9 = Array.from({ length: 9 }, () =>
+    Array.from({ length: 9 }, () => 0)
+  );
 
   beforeEach(() => {
     mockOnInputChange.mockClear();
@@ -132,12 +132,12 @@ describe('SudokuGrid', () => {
     });
 
     it('renders 6x6 grid correctly', () => {
-      const puzzle6x6 = new Array(6)
-        .fill(null)
-        .map(() => new Array(6).fill(0));
-      const userInput6x6 = new Array(6)
-        .fill(null)
-        .map(() => new Array(6).fill(0));
+      const puzzle6x6 = Array.from({ length: 6 }, () =>
+        Array.from({ length: 6 }, () => 0)
+      );
+      const userInput6x6 = Array.from({ length: 6 }, () =>
+        Array.from({ length: 6 }, () => 0)
+      );
 
       render(
         <SudokuGrid

@@ -183,9 +183,9 @@ describe('validation utilities', () => {
 
   describe('validateSudokuGrid', () => {
     const createValidGrid = (): number[][] => {
-      return new Array(9)
-        .fill(null)
-        .map(() => new Array(9).fill(0));
+      return Array.from({ length: 9 }, () =>
+        Array.from({ length: 9 }, () => 0)
+      );
     };
 
     const createValidGridWithValues = (): number[][] => {
@@ -225,16 +225,16 @@ describe('validation utilities', () => {
     });
 
     it('should throw error for wrong grid size', () => {
-      const smallGrid = new Array(8)
-        .fill(null)
-        .map(() => new Array(9).fill(0));
+      const smallGrid = Array.from({ length: 8 }, () =>
+        Array.from({ length: 9 }, () => 0)
+      );
       expect(() => validateSudokuGrid(smallGrid)).toThrow(
         'Invalid grid: must be a 9x9 array.'
       );
 
-      const largeGrid = new Array(10)
-        .fill(null)
-        .map(() => new Array(9).fill(0));
+      const largeGrid = Array.from({ length: 10 }, () =>
+        Array.from({ length: 9 }, () => 0)
+      );
       expect(() => validateSudokuGrid(largeGrid)).toThrow(
         'Invalid grid: must be a 9x9 array.'
       );
@@ -250,13 +250,13 @@ describe('validation utilities', () => {
 
     it('should throw error for wrong row size', () => {
       const grid1 = createValidGrid();
-      grid1[0] = new Array(8).fill(0); // Too short
+      grid1[0] = Array.from({ length: 8 }, () => 0); // Too short
       expect(() => validateSudokuGrid(grid1)).toThrow(
         'Invalid row 0: must contain exactly 9 elements.'
       );
 
       const grid2 = createValidGrid();
-      grid2[1] = new Array(10).fill(0); // Too long
+      grid2[1] = Array.from({ length: 10 }, () => 0); // Too long
       expect(() => validateSudokuGrid(grid2)).toThrow(
         'Invalid row 1: must contain exactly 9 elements.'
       );
@@ -396,14 +396,14 @@ describe('multi-size validation functions', () => {
   describe('validateSudokuGrid with config', () => {
     it('should validate 4x4 grid structure', () => {
       const config = GridConfigManager.getConfig(4);
-      const validGrid = new Array(4)
-        .fill(null)
-        .map(() => new Array(4).fill(0));
+      const validGrid = Array.from({ length: 4 }, () =>
+        Array.from({ length: 4 }, () => 0)
+      );
       expect(() => validateSudokuGrid(validGrid, config)).not.toThrow();
 
-      const invalidGrid = new Array(3)
-        .fill(null)
-        .map(() => new Array(4).fill(0));
+      const invalidGrid = Array.from({ length: 3 }, () =>
+        Array.from({ length: 4 }, () => 0)
+      );
       expect(() => validateSudokuGrid(invalidGrid, config)).toThrow(
         'Invalid grid: must be a 4x4 array.'
       );
