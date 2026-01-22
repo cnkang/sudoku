@@ -86,7 +86,7 @@ describe('validation utilities', () => {
     });
 
     it('should throw error for NaN', () => {
-      expect(() => validateDifficulty(NaN)).toThrow(
+      expect(() => validateDifficulty(Number.NaN)).toThrow(
         'Difficulty must be a valid number.'
       );
     });

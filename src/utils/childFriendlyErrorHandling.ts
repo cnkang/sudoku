@@ -358,7 +358,7 @@ export const createChildFriendlyError = (
   if (context?.gridSize && context.gridSize < 9) {
     // Make messages even more encouraging for smaller grids (children)
     customizedError.encouragementLevel = 'high';
-    customizedError.childMessage = customizedError.childMessage.replace(
+    customizedError.childMessage = customizedError.childMessage.replaceAll(
       /!/g,
       '! 🌈'
     );

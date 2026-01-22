@@ -368,7 +368,7 @@ function generateCSSVariables(colors: ThemeColors): Record<string, string> {
 
   Object.entries(colors).forEach(([key, value]) => {
     // Convert camelCase to kebab-case
-    const cssKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+    const cssKey = key.replaceAll(/([A-Z])/g, '-$1').toLowerCase();
     variables[`--color-${cssKey}`] = value;
   });
 
@@ -712,8 +712,8 @@ export function applyThemeToDocument(theme: ThemeConfig): void {
 
   // Set theme class on body
   document.body.className = document.body.className
-    .replace(/theme-\w+/g, '')
-    .replace(/\s+/g, ' ')
+    .replaceAll(/theme-\w+/g, '')
+    .replaceAll(/\s+/g, ' ')
     .concat(` theme-${theme.id}`)
     .trim();
 }
