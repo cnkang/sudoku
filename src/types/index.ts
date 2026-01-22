@@ -156,7 +156,7 @@ export interface DifficultySelectProps {
   onChange: (difficulty: number) => void;
   disabled?: boolean;
   isLoading?: boolean;
-  gridSize?: 4 | 6 | 9; // Grid size to determine available difficulty levels
+  gridSize?: GridSize; // Grid size to determine available difficulty levels
 }
 
 export interface GameControlsProps {
@@ -174,8 +174,8 @@ export interface GameControlsProps {
 }
 
 export interface PWAGridSelectorProps {
-  currentSize: 4 | 6 | 9;
-  onSizeChange: (size: 4 | 6 | 9) => void;
+  currentSize: GridSize;
+  onSizeChange: (size: GridSize) => void;
   childMode?: boolean;
   showDescriptions?: boolean;
   disabled?: boolean;
