@@ -11,14 +11,25 @@ type PatternFeedbackType = 'success' | 'error' | 'warning' | 'hint';
 type PatternFeedbackStyle = 'stripes' | 'dots' | 'waves' | 'stars';
 type PatternCueType = PatternFeedbackType | 'celebration';
 type PatternCueStyle = PatternFeedbackStyle | 'checkmarks';
+type FeedbackErrorType = 'gentle' | 'warning';
+type CelebrationType = 'confetti' | 'stars' | 'rainbow';
+type ReinforcementType = 'sparkle' | 'bounce' | 'glow' | 'pulse';
+type FeedbackStateType =
+  | 'success'
+  | 'error'
+  | 'warning'
+  | 'encouragement'
+  | 'celebration'
+  | 'hint'
+  | null;
 
-export interface VisualFeedbackProps {
+export type VisualFeedbackProps = Readonly<{
   theme: ThemeConfig;
   childMode?: boolean;
   highContrast?: boolean;
   reducedMotion?: boolean;
   onHighContrastToggle?: () => void;
-}
+}>;
 
 export interface PatternBasedCue {
   type: PatternCueType;
@@ -30,9 +41,9 @@ export interface PatternBasedCue {
 
 export interface FeedbackTriggers {
   showSuccess: (message?: string) => void;
-  showError: (message?: string, type?: 'gentle' | 'warning') => void;
+  showError: (message?: string, type?: FeedbackErrorType) => void;
   showEncouragement: (message?: string) => void;
-  showCelebration: (type?: 'confetti' | 'stars' | 'rainbow') => void;
+  showCelebration: (type?: CelebrationType) => void;
   showHint: (message?: string) => void;
   clearFeedback: () => void;
   // Enhanced pattern-based feedback
@@ -45,28 +56,23 @@ export interface FeedbackTriggers {
   highlightGentleError: (element: HTMLElement, duration?: number) => void;
   // Positive reinforcement
   triggerPositiveReinforcement: (
-    type: 'sparkle' | 'bounce' | 'glow' | 'pulse',
+    type: ReinforcementType,
     element?: HTMLElement
   ) => void;
 }
 
-export interface VisualFeedbackSystemProps extends VisualFeedbackProps {
+export type VisualFeedbackSystemProps = Readonly<
+  VisualFeedbackProps & {
   children: (triggers: FeedbackTriggers) => React.ReactNode;
-}
+  }
+>;
 
 interface FeedbackState {
-  type:
-    | 'success'
-    | 'error'
-    | 'warning'
-    | 'encouragement'
-    | 'celebration'
-    | 'hint'
-    | null;
+  type: FeedbackStateType;
   message: string;
   subtype?: string;
   isVisible: boolean;
-  celebrationType?: 'confetti' | 'stars' | 'rainbow';
+  celebrationType?: CelebrationType;
   pattern?: PatternCueStyle;
   patternColor?: string;
   duration?: number;
@@ -297,7 +303,7 @@ function VisualFeedbackSystem({
   // Positive reinforcement animations
   const triggerPositiveReinforcement = useCallback(
     // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: visual effect selection logic
-    (type: 'sparkle' | 'bounce' | 'glow' | 'pulse', element?: HTMLElement) => {
+    (type: ReinforcementType, element?: HTMLElement) => {
       if (reducedMotion) return;
 
       const targetElement = element || document.body;
@@ -361,7 +367,7 @@ function VisualFeedbackSystem({
   // Enhanced pattern-based feedback
   const showPatternFeedback = useCallback(
     (
-      type: 'success' | 'error' | 'warning' | 'hint',
+  type: PatternFeedbackType,
       message?: string,
       pattern?: 'stripes' | 'dots' | 'waves' | 'stars'
     ) => {

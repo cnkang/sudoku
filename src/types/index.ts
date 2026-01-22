@@ -1,5 +1,7 @@
+export type GridSize = 4 | 6 | 9;
+
 export interface GridConfig {
-  readonly size: 4 | 6 | 9;
+  readonly size: GridSize;
   readonly boxRows: number;
   readonly boxCols: number;
   readonly maxValue: number;

@@ -4,6 +4,9 @@
  */
 
 import { pickSecureRandomElement } from '@/utils/secureRandom';
+import type { GridSize } from '@/types';
+
+type StruggleLevel = 'mild' | 'moderate' | 'significant';
 
 export interface ChildFriendlyError {
   type: 'validation' | 'conflict' | 'system' | 'network' | 'generation';
@@ -325,7 +328,7 @@ const ENCOURAGEMENT_MESSAGES: Record<string, EncouragementMessage[]> = {
 export const createChildFriendlyError = (
   errorType: string,
   context?: {
-    gridSize?: 4 | 6 | 9;
+    gridSize?: GridSize;
     childMode?: boolean;
     customMessage?: string;
   }
@@ -380,7 +383,7 @@ export const detectStruggle = (
   }
 ): {
   isStruggling: boolean;
-  strugglingLevel: 'mild' | 'moderate' | 'significant';
+  strugglingLevel: StruggleLevel;
   shouldShowEncouragement: boolean;
   encouragementType: string;
 } => {
@@ -406,7 +409,7 @@ export const detectStruggle = (
   }
 
   // Determine struggling level
-  let strugglingLevel: 'mild' | 'moderate' | 'significant' = 'mild';
+  let strugglingLevel: StruggleLevel = 'mild';
   let encouragementType = 'STRUGGLING';
 
   if (updatedStruggle.consecutiveErrors >= 5) {

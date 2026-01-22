@@ -6,9 +6,11 @@ import { GRID_CONFIGS } from '@/utils/gridConfig';
 import type { GridConfig } from '@/types';
 import styles from './PWAGridSelector.module.css';
 
+type GridSize = 4 | 6 | 9;
+
 interface PWAGridSelectorProps {
-  currentSize: 4 | 6 | 9;
-  onSizeChange: (size: 4 | 6 | 9) => void;
+  currentSize: GridSize;
+  onSizeChange: (size: GridSize) => void;
   childMode?: boolean;
   showDescriptions?: boolean;
   disabled?: boolean;
@@ -19,7 +21,7 @@ interface PWAGridSelectorProps {
 }
 
 interface GridOption {
-  size: 4 | 6 | 9;
+  size: GridSize;
   label: string;
   childLabel: string;
   description: string;

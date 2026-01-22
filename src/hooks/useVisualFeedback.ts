@@ -9,11 +9,16 @@ export interface VisualFeedbackConfig {
   enableSoundEffects: boolean;
 }
 
+type FeedbackErrorType = 'gentle' | 'warning';
+type CelebrationType = 'confetti' | 'stars' | 'rainbow';
+type HapticFeedbackType = 'light' | 'medium' | 'heavy';
+type AudioFeedbackType = 'success' | 'error' | 'hint' | 'celebration';
+
 export interface VisualFeedbackHook {
   triggerSuccess: (message?: string) => void;
-  triggerError: (message?: string, type?: 'gentle' | 'warning') => void;
+  triggerError: (message?: string, type?: FeedbackErrorType) => void;
   triggerEncouragement: (message?: string) => void;
-  triggerCelebration: (type?: 'confetti' | 'stars' | 'rainbow') => void;
+  triggerCelebration: (type?: CelebrationType) => void;
   triggerHint: (message?: string) => void;
   clearFeedback: () => void;
   setFeedbackTriggers: (triggers: FeedbackTriggers) => void;
@@ -30,7 +35,7 @@ export function useVisualFeedback(
 
   // Haptic feedback helper
   const triggerHapticFeedback = useCallback(
-    (type: 'light' | 'medium' | 'heavy' = 'light') => {
+    (type: HapticFeedbackType = 'light') => {
       if (!config.enableHapticFeedback) return;
 
       if ('vibrate' in navigator) {
@@ -47,7 +52,7 @@ export function useVisualFeedback(
 
   // Audio feedback helper (placeholder for future implementation)
   const triggerAudioFeedback = useCallback(
-    (_type: 'success' | 'error' | 'hint' | 'celebration') => {
+    (_type: AudioFeedbackType) => {
       if (!config.enableSoundEffects) return;
 
       // Future: Implement audio feedback
@@ -75,7 +80,7 @@ export function useVisualFeedback(
 
   // Trigger error feedback with gentle approach
   const triggerError = useCallback(
-    (message?: string, type: 'gentle' | 'warning' = 'gentle') => {
+    (message?: string, type: FeedbackErrorType = 'gentle') => {
       if (feedbackTriggersRef.current) {
         feedbackTriggersRef.current.showError(message, type);
         // Use lighter haptic feedback for gentle errors
@@ -100,7 +105,7 @@ export function useVisualFeedback(
 
   // Trigger celebration
   const triggerCelebration = useCallback(
-    (type: 'confetti' | 'stars' | 'rainbow' = 'confetti') => {
+    (type: CelebrationType = 'confetti') => {
       if (feedbackTriggersRef.current) {
         feedbackTriggersRef.current.showCelebration(type);
         triggerHapticFeedback('heavy');
