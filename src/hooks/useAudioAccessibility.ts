@@ -73,7 +73,7 @@ export interface CellInfo {
 const defaultAudioSettings: AudioSettings = {
   enabled: false,
   rate: 0.9,
-  pitch: 1.0,
+  pitch: 1,
   volume: 0.8,
   announceGameState: true,
   announceMoves: true,
@@ -87,7 +87,7 @@ export const useAudioAccessibility = (
 ): [AudioAccessibilityState, AudioAccessibilityHandlers] => {
   const resolveSpeechSynthesis = useCallback((): SpeechSynthesis | null => {
     if (
-      typeof globalThis.window !== 'undefined' &&
+      globalThis.window !== undefined &&
       'speechSynthesis' in globalThis
     ) {
       return (

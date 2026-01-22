@@ -83,7 +83,7 @@ const registerBackgroundSync = async (): Promise<void> => {
 export default function PWAInit() {
   useEffect(() => {
     // Only run in browser environment
-    if (typeof globalThis.window === 'undefined') return;
+    if (globalThis.window === undefined) return;
 
     // Register service worker
     if ('serviceWorker' in navigator) {

@@ -122,8 +122,10 @@ export const useVoiceInput = (
   // Initialize speech recognition
   // biome-ignore lint/correctness/useExhaustiveDependencies: processVoiceCommand is stable and referenced in effect
   useEffect(() => {
+    const speechRecognitionHost = globalThis as typeof globalThis & Window;
     const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+      speechRecognitionHost.SpeechRecognition ||
+      speechRecognitionHost.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
       return undefined;

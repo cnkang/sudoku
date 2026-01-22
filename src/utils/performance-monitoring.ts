@@ -70,7 +70,7 @@ class PerformanceMonitor {
 
   private initializeObservers(): void {
     // Only initialize in browser environment
-    if (typeof window === 'undefined') return;
+    if (globalThis.window === undefined) return;
 
     try {
       // LCP Observer
@@ -143,10 +143,10 @@ class PerformanceMonitor {
   }
 
   private observeNavigationTiming(): void {
-    if (typeof window === 'undefined') return;
+    if (globalThis.window === undefined) return;
 
     // Use Navigation Timing API to calculate TTI approximation
-    window.addEventListener('load', () => {
+    globalThis.addEventListener('load', () => {
       setTimeout(() => {
         const navigation = performance.getEntriesByType(
           'navigation'
@@ -167,8 +167,11 @@ class PerformanceMonitor {
       value,
       rating,
       timestamp: Date.now(),
-      url: typeof window !== 'undefined' ? window.location.href : '',
-      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
+      url: globalThis.window !== undefined ? globalThis.location.href : '',
+      userAgent:
+        typeof globalThis.navigator !== 'undefined'
+          ? globalThis.navigator.userAgent
+          : '',
     };
 
     this.metrics.set(name, metric);
@@ -192,7 +195,7 @@ class PerformanceMonitor {
     // Send to analytics service in production
     if (process.env.NODE_ENV === 'production') {
       // Example: Send to Google Analytics 4
-      if (typeof gtag !== 'undefined') {
+      if (gtag !== undefined) {
         gtag('event', metric.name, {
           event_category: 'Web Vitals',
           value: Math.round(metric.value),
@@ -329,7 +332,7 @@ export const withPerformanceTracking = <P extends object>(
 
 // Bundle size monitoring
 export const getBundleSize = async (): Promise<number> => {
-  if (typeof window === 'undefined') return 0;
+  if (globalThis.window === undefined) return 0;
 
   try {
     const entries = performance.getEntriesByType(
@@ -353,8 +356,9 @@ declare global {
   }
 }
 
-if (typeof window !== 'undefined') {
-  window.performanceMonitor = getPerformanceMonitor();
+if (globalThis.window !== undefined) {
+  (globalThis as typeof globalThis & { performanceMonitor?: PerformanceMonitor })
+    .performanceMonitor = getPerformanceMonitor();
 }
 
 export default getPerformanceMonitor;

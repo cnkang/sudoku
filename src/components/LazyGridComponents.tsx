@@ -325,7 +325,7 @@ export const preloadThemeComponents = () => {
 export const getComponentBundleSize = async (
   componentName: string
 ): Promise<number> => {
-  if (typeof globalThis.window === 'undefined') return 0;
+  if (globalThis.window === undefined) return 0;
 
   try {
     const entries = performance.getEntriesByName(componentName);

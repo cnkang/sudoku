@@ -130,22 +130,22 @@ export function useOfflineStatus(): boolean {
   const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (globalThis.window === undefined) return;
 
     const updateOnlineStatus = () => {
-      setIsOffline(!navigator.onLine);
+      setIsOffline(!globalThis.navigator.onLine);
     };
 
     // Set initial status
     updateOnlineStatus();
 
     // Listen for online/offline events
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
+    globalThis.addEventListener('online', updateOnlineStatus);
+    globalThis.addEventListener('offline', updateOnlineStatus);
 
     return () => {
-      window.removeEventListener('online', updateOnlineStatus);
-      window.removeEventListener('offline', updateOnlineStatus);
+      globalThis.removeEventListener('online', updateOnlineStatus);
+      globalThis.removeEventListener('offline', updateOnlineStatus);
     };
   }, []);
 
