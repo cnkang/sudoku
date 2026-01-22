@@ -46,6 +46,19 @@ interface SudokuGridProps {
   onPuzzleComplete?: () => void;
 }
 
+const getPuzzleDifficultyLabel = (
+  puzzle: number[][],
+  gridConfig: GridConfig
+): string => {
+  const filledCells = puzzle.flat().filter(cell => cell !== 0).length;
+  const totalCells = gridConfig.size * gridConfig.size;
+  const fillRatio = totalCells > 0 ? filledCells / totalCells : 0;
+
+  if (fillRatio >= 0.5) return 'easy';
+  if (fillRatio >= 0.4) return 'medium';
+  return 'hard';
+};
+
 interface CellPosition {
   row: number;
   col: number;
@@ -1162,7 +1175,7 @@ const SudokuGrid = memo<SudokuGridProps>(
             'puzzle-loaded',
             {
               gridSize: gridConfig.size,
-              difficulty: 'medium', // TODO: Get actual difficulty
+              difficulty: getPuzzleDifficultyLabel(puzzle, gridConfig),
               clueCount: puzzle.flat().filter(cell => cell !== 0).length,
             }
           ),
@@ -1174,7 +1187,7 @@ const SudokuGrid = memo<SudokuGridProps>(
         if (audioFeedback) {
           audioHandlers.speakGameState(gridConfig, {
             clueCount: puzzle.flat().filter(cell => cell !== 0).length,
-            difficulty: 'medium', // TODO: Get actual difficulty
+            difficulty: getPuzzleDifficultyLabel(puzzle, gridConfig),
           });
         }
       }
