@@ -85,7 +85,7 @@
   cursor: not-allowed;
   transform: none;
   background: #d3d3d3;
-  color: #888888;
+  color: #4b5563;
 }
 
 /* Magic Wand Animation */
@@ -129,8 +129,8 @@
 
 /* Hints Counter */
 .hintsCounter {
-  background: rgba(139, 69, 19, 0.2);
-  color: #8b4513;
+  background: #f7e2d2;
+  color: #5a2f0a;
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
   font-size: 0.875rem;
@@ -148,7 +148,7 @@
   min-height: 50px;
   min-width: 180px;
   padding: 0.875rem 1.5rem;
-  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+  background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%);
   border: none;
   border-radius: 25px;
   color: white;
@@ -163,7 +163,7 @@
 .encouragementButton:hover:not(:disabled) {
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 6px 25px rgba(255, 107, 107, 0.4);
-  background: linear-gradient(135deg, #ff8e8e 0%, #ff6b6b 100%);
+  background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
 }
 
 .encouragementButton:active:not(:disabled) {
@@ -203,7 +203,7 @@
   min-height: 50px;
   min-width: 180px;
   padding: 0.875rem 1.5rem;
-  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
   border: none;
   border-radius: 25px;
   color: white;
@@ -218,7 +218,7 @@
 .celebrationButton:hover:not(:disabled) {
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 6px 25px rgba(78, 205, 196, 0.4);
-  background: linear-gradient(135deg, #44a08d 0%, #4ecdc4 100%);
+  background: linear-gradient(135deg, #115e59 0%, #0f766e 100%);
 }
 
 .celebrationButton:active:not(:disabled) {
@@ -292,27 +292,43 @@
 /* Sparkle Positions and Animations */
 .sparkle1 {
   animation-delay: 0s;
+  --sparkle-x: -30px;
+  --sparkle-y: -30px;
 }
 .sparkle2 {
   animation-delay: 0.1s;
+  --sparkle-x: 30px;
+  --sparkle-y: -30px;
 }
 .sparkle3 {
   animation-delay: 0.2s;
+  --sparkle-x: -30px;
+  --sparkle-y: 30px;
 }
 .sparkle4 {
   animation-delay: 0.3s;
+  --sparkle-x: 30px;
+  --sparkle-y: 30px;
 }
 .sparkle5 {
   animation-delay: 0.4s;
+  --sparkle-x: -45px;
+  --sparkle-y: 0px;
 }
 .sparkle6 {
   animation-delay: 0.5s;
+  --sparkle-x: 45px;
+  --sparkle-y: 0px;
 }
 .sparkle7 {
   animation-delay: 0.6s;
+  --sparkle-x: 0px;
+  --sparkle-y: -45px;
 }
 .sparkle8 {
   animation-delay: 0.7s;
+  --sparkle-x: 0px;
+  --sparkle-y: 45px;
 }
 
 @keyframes sparkleFloat {
@@ -330,39 +346,6 @@
   }
 }
 
-/* Sparkle position variables */
-.sparkle1 {
-  --sparkle-x: -30px;
-  --sparkle-y: -30px;
-}
-.sparkle2 {
-  --sparkle-x: 30px;
-  --sparkle-y: -30px;
-}
-.sparkle3 {
-  --sparkle-x: -30px;
-  --sparkle-y: 30px;
-}
-.sparkle4 {
-  --sparkle-x: 30px;
-  --sparkle-y: 30px;
-}
-.sparkle5 {
-  --sparkle-x: -45px;
-  --sparkle-y: 0px;
-}
-.sparkle6 {
-  --sparkle-x: 45px;
-  --sparkle-y: 0px;
-}
-.sparkle7 {
-  --sparkle-x: 0px;
-  --sparkle-y: -45px;
-}
-.sparkle8 {
-  --sparkle-x: 0px;
-  --sparkle-y: 45px;
-}
 
 /* Encouragement Message */
 .encouragementMessage {
@@ -552,7 +535,7 @@
 }
 
 .highContrast .encouragementButton {
-  background: #ff0000;
+  background: #7f0000;
   color: #ffffff;
   border: 3px solid #ffffff;
 }

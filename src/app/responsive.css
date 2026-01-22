@@ -220,7 +220,7 @@
   }
 
   .sudoku-cell.error {
-    background-color: #ff0000 !important;
+    background-color: #7f0000 !important;
     color: #ffffff !important;
   }
 }

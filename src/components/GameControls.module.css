@@ -27,32 +27,32 @@
 }
 
 .btnPrimary {
-  background-color: #3b82f6;
+  background-color: #1e3a8a;
   color: white;
 }
 
 .btnPrimary:hover:not(:disabled) {
-  background-color: #2563eb;
+  background-color: #1e40af;
   transform: translateY(-1px);
 }
 
 .btnSecondary {
-  background-color: #6b7280;
+  background-color: #374151;
   color: white;
 }
 
 .btnSecondary:hover:not(:disabled) {
-  background-color: #4b5563;
+  background-color: #1f2937;
   transform: translateY(-1px);
 }
 
 .btnDanger {
-  background-color: #ef4444;
+  background-color: #7f1d1d;
   color: white;
 }
 
 .btnDanger:hover:not(:disabled) {
-  background-color: #dc2626;
+  background-color: #991b1b;
   transform: translateY(-1px);
 }
 
@@ -63,12 +63,12 @@
 }
 
 .btnWarning {
-  background-color: #f59e0b;
+  background-color: #92400e;
   color: white;
 }
 
 .btnWarning:hover:not(:disabled) {
-  background-color: #d97706;
+  background-color: #78350f;
   transform: translateY(-1px);
 }
 
@@ -79,12 +79,12 @@
 }
 
 .btnInfo {
-  background-color: #06b6d4;
+  background-color: #0e7490;
   color: white;
 }
 
 .btnInfo:hover:not(:disabled) {
-  background-color: #0891b2;
+  background-color: #155e75;
   transform: translateY(-1px);
 }
 
