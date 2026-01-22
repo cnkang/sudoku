@@ -1,9 +1,9 @@
-import type { GridConfig, GridDimensions, ScreenSize } from '@/types';
+import type { GridConfig, GridDimensions, GridSize, ScreenSize } from '@/types';
 
 /**
  * Grid configuration constants for different Sudoku sizes
  */
-export const GRID_CONFIGS: Record<4 | 6 | 9, GridConfig> = {
+export const GRID_CONFIGS: Record<GridSize, GridConfig> = {
   4: {
     size: 4,
     boxRows: 2,
@@ -54,7 +54,7 @@ export const GRID_CONFIGS: Record<4 | 6 | 9, GridConfig> = {
 /**
  * Get configuration for a specific grid size
  */
-export function getConfig(size: 4 | 6 | 9): GridConfig {
+export function getConfig(size: GridSize): GridConfig {
   const config = GRID_CONFIGS[size];
   if (!config) {
     throw new Error(`Unsupported grid size: ${size}`);

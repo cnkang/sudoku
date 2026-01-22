@@ -4,11 +4,11 @@ import { useThemeContext } from '@/hooks/useTheme';
 import { getChildFriendlyThemes } from '@/utils/themes';
 import styles from './ThemeSelector.module.css';
 
-interface ThemeSelectorProps {
+type ThemeSelectorProps = Readonly<{
   showChildFriendlyOnly?: boolean;
   showHighContrastToggle?: boolean;
   className?: string;
-}
+}>;
 
 /**
  * Theme Selector Component

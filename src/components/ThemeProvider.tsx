@@ -3,9 +3,9 @@
 import type { ReactNode } from 'react';
 import { ThemeContext, useTheme } from '@/hooks/useTheme';
 
-interface ThemeProviderProps {
+type ThemeProviderProps = Readonly<{
   children: ReactNode;
-}
+}>;
 
 /**
  * Theme Provider Component

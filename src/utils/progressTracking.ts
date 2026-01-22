@@ -4,6 +4,7 @@
  */
 
 import { pickSecureRandomElement } from '@/utils/secureRandom';
+import type { GridSize } from '@/types';
 
 export interface Achievement {
   id: string;
@@ -12,7 +13,7 @@ export interface Achievement {
   icon: string;
   category: 'completion' | 'speed' | 'streak' | 'learning' | 'special';
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
-  gridSize?: 4 | 6 | 9; // null means applies to all sizes
+  gridSize?: GridSize; // null means applies to all sizes
   requirement: {
     type:
       | 'puzzles_completed'

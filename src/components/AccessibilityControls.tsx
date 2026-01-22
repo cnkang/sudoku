@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import type { ThemeConfig } from '@/types';
 import styles from './AccessibilityControls.module.css';
 
-export interface AccessibilityControlsProps {
+export type AccessibilityControlsProps = Readonly<{
   currentTheme: ThemeConfig;
   availableThemes: ThemeConfig[];
   highContrast: boolean;
@@ -15,7 +15,7 @@ export interface AccessibilityControlsProps {
   onLargeTextToggle: () => void;
   childMode?: boolean;
   disabled?: boolean;
-}
+}>;
 
 /**
  * Accessibility Controls Component
