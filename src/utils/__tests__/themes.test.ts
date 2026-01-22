@@ -71,163 +71,161 @@ describe('Theme Utilities', () => {
     });
   });
 
-  describe('AccessibilityManager', () => {
-    describe('validateThemeCompliance', () => {
-      beforeEach(() => {
-        vi.spyOn(console, 'warn').mockImplementation(() => {});
-      });
-
-      afterEach(() => {
-        vi.restoreAllMocks();
-      });
-
-      it('should validate compliant themes', () => {
-        const oceanTheme = THEMES.ocean;
-        expect(AccessibilityManager.validateThemeCompliance(oceanTheme)).toBe(
-          true
-        );
-      });
-
-      it('should reject themes with insufficient contrast', () => {
-        const badTheme: ThemeConfig = {
-          ...THEMES.ocean,
-          colors: {
-            ...THEMES.ocean.colors,
-            text: '#cccccc', // Low contrast with white background
-            background: '#ffffff',
-          },
-        };
-
-        expect(AccessibilityManager.validateThemeCompliance(badTheme)).toBe(
-          false
-        );
-      });
-
-      it('should reject themes with small touch targets', () => {
-        const badTheme: ThemeConfig = {
-          ...THEMES.ocean,
-          accessibility: {
-            ...THEMES.ocean.accessibility,
-            minimumTouchTarget: 30, // Below 44px minimum
-          },
-        };
-
-        expect(AccessibilityManager.validateThemeCompliance(badTheme)).toBe(
-          false
-        );
-      });
-
-      it('should reject themes with thin focus indicators', () => {
-        const badTheme: ThemeConfig = {
-          ...THEMES.ocean,
-          accessibility: {
-            ...THEMES.ocean.accessibility,
-            focusIndicatorWidth: 1, // Below 2px minimum
-          },
-        };
-
-        expect(AccessibilityManager.validateThemeCompliance(badTheme)).toBe(
-          false
-        );
-      });
+  describe('AccessibilityManager.validateThemeCompliance', () => {
+    beforeEach(() => {
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
     });
 
-    describe('generateHighContrastVariant', () => {
-      it('should generate high contrast variant', () => {
-        const originalTheme = THEMES.ocean;
-        const highContrastTheme =
-          AccessibilityManager.generateHighContrastVariant(originalTheme);
-
-        expect(highContrastTheme.id).toBe('ocean-high-contrast');
-        expect(highContrastTheme.category).toBe('high-contrast');
-        expect(highContrastTheme.colors.text).toBe('#000000');
-        expect(highContrastTheme.colors.background).toBe('#FFFFFF');
-        expect(highContrastTheme.accessibility.contrastRatio).toBe(21);
-        expect(highContrastTheme.childFriendly.enableAnimations).toBe(false);
-      });
+    afterEach(() => {
+      vi.restoreAllMocks();
     });
 
-    describe('calculateOptimalFontSize', () => {
-      it('should calculate appropriate font size for different grid sizes', () => {
-        const accessibility = THEMES.ocean.accessibility;
-
-        const size4x4 = AccessibilityManager.calculateOptimalFontSize(
-          4,
-          320,
-          accessibility
-        );
-        const size6x6 = AccessibilityManager.calculateOptimalFontSize(
-          6,
-          320,
-          accessibility
-        );
-        const size9x9 = AccessibilityManager.calculateOptimalFontSize(
-          9,
-          320,
-          accessibility
-        );
-
-        expect(size4x4).toBeGreaterThan(size6x6);
-        expect(size6x6).toBeGreaterThan(size9x9);
-        expect(size9x9).toBeGreaterThanOrEqual(accessibility.minimumFontSize);
-      });
-
-      it('should scale with screen width', () => {
-        const accessibility = THEMES.ocean.accessibility;
-
-        const sizeSmall = AccessibilityManager.calculateOptimalFontSize(
-          9,
-          320,
-          accessibility
-        );
-        const sizeLarge = AccessibilityManager.calculateOptimalFontSize(
-          9,
-          1024,
-          accessibility
-        );
-
-        expect(sizeLarge).toBeGreaterThan(sizeSmall);
-      });
+    it('should validate compliant themes', () => {
+      const oceanTheme = THEMES.ocean;
+      expect(AccessibilityManager.validateThemeCompliance(oceanTheme)).toBe(
+        true
+      );
     });
 
-    describe('getThemeRecommendations', () => {
-      it('should recommend child-friendly themes for children', () => {
-        const recommendations = AccessibilityManager.getThemeRecommendations(
-          'children',
-          false,
-          false
-        );
+    it('should reject themes with insufficient contrast', () => {
+      const badTheme: ThemeConfig = {
+        ...THEMES.ocean,
+        colors: {
+          ...THEMES.ocean.colors,
+          text: '#cccccc', // Low contrast with white background
+          background: '#ffffff',
+        },
+      };
 
-        expect(recommendations.length).toBeGreaterThan(0);
-        for (const theme of recommendations) {
-          expect(['children', 'all']).toContain(theme.ageGroup);
-        }
-      });
+      expect(AccessibilityManager.validateThemeCompliance(badTheme)).toBe(
+        false
+      );
+    });
 
-      it('should recommend high contrast themes when needed', () => {
-        const recommendations = AccessibilityManager.getThemeRecommendations(
-          'all',
-          true,
-          false
-        );
+    it('should reject themes with small touch targets', () => {
+      const badTheme: ThemeConfig = {
+        ...THEMES.ocean,
+        accessibility: {
+          ...THEMES.ocean.accessibility,
+          minimumTouchTarget: 30, // Below 44px minimum
+        },
+      };
 
-        expect(recommendations.length).toBeGreaterThan(0);
-        for (const theme of recommendations) {
-          expect(theme.category).toBe('high-contrast');
-        }
-      });
+      expect(AccessibilityManager.validateThemeCompliance(badTheme)).toBe(
+        false
+      );
+    });
 
-      it('should filter out animated themes for reduced motion', () => {
-        const recommendations = AccessibilityManager.getThemeRecommendations(
-          'all',
-          false,
-          true
-        );
+    it('should reject themes with thin focus indicators', () => {
+      const badTheme: ThemeConfig = {
+        ...THEMES.ocean,
+        accessibility: {
+          ...THEMES.ocean.accessibility,
+          focusIndicatorWidth: 1, // Below 2px minimum
+        },
+      };
 
-        for (const theme of recommendations) {
-          expect(theme.childFriendly.enableAnimations).toBe(false);
-        }
-      });
+      expect(AccessibilityManager.validateThemeCompliance(badTheme)).toBe(
+        false
+      );
+    });
+  });
+
+  describe('AccessibilityManager.generateHighContrastVariant', () => {
+    it('should generate high contrast variant', () => {
+      const originalTheme = THEMES.ocean;
+      const highContrastTheme =
+        AccessibilityManager.generateHighContrastVariant(originalTheme);
+
+      expect(highContrastTheme.id).toBe('ocean-high-contrast');
+      expect(highContrastTheme.category).toBe('high-contrast');
+      expect(highContrastTheme.colors.text).toBe('#000000');
+      expect(highContrastTheme.colors.background).toBe('#FFFFFF');
+      expect(highContrastTheme.accessibility.contrastRatio).toBe(21);
+      expect(highContrastTheme.childFriendly.enableAnimations).toBe(false);
+    });
+  });
+
+  describe('AccessibilityManager.calculateOptimalFontSize', () => {
+    it('should calculate appropriate font size for different grid sizes', () => {
+      const accessibility = THEMES.ocean.accessibility;
+
+      const size4x4 = AccessibilityManager.calculateOptimalFontSize(
+        4,
+        320,
+        accessibility
+      );
+      const size6x6 = AccessibilityManager.calculateOptimalFontSize(
+        6,
+        320,
+        accessibility
+      );
+      const size9x9 = AccessibilityManager.calculateOptimalFontSize(
+        9,
+        320,
+        accessibility
+      );
+
+      expect(size4x4).toBeGreaterThan(size6x6);
+      expect(size6x6).toBeGreaterThan(size9x9);
+      expect(size9x9).toBeGreaterThanOrEqual(accessibility.minimumFontSize);
+    });
+
+    it('should scale with screen width', () => {
+      const accessibility = THEMES.ocean.accessibility;
+
+      const sizeSmall = AccessibilityManager.calculateOptimalFontSize(
+        9,
+        320,
+        accessibility
+      );
+      const sizeLarge = AccessibilityManager.calculateOptimalFontSize(
+        9,
+        1024,
+        accessibility
+      );
+
+      expect(sizeLarge).toBeGreaterThan(sizeSmall);
+    });
+  });
+
+  describe('AccessibilityManager.getThemeRecommendations', () => {
+    it('should recommend child-friendly themes for children', () => {
+      const recommendations = AccessibilityManager.getThemeRecommendations(
+        'children',
+        false,
+        false
+      );
+
+      expect(recommendations.length).toBeGreaterThan(0);
+      for (const theme of recommendations) {
+        expect(['children', 'all']).toContain(theme.ageGroup);
+      }
+    });
+
+    it('should recommend high contrast themes when needed', () => {
+      const recommendations = AccessibilityManager.getThemeRecommendations(
+        'all',
+        true,
+        false
+      );
+
+      expect(recommendations.length).toBeGreaterThan(0);
+      for (const theme of recommendations) {
+        expect(theme.category).toBe('high-contrast');
+      }
+    });
+
+    it('should filter out animated themes for reduced motion', () => {
+      const recommendations = AccessibilityManager.getThemeRecommendations(
+        'all',
+        false,
+        true
+      );
+
+      for (const theme of recommendations) {
+        expect(theme.childFriendly.enableAnimations).toBe(false);
+      }
     });
   });
 
