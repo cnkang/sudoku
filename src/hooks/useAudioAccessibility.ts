@@ -86,10 +86,7 @@ export const useAudioAccessibility = (
   accessibilitySettings: AccessibilitySettings
 ): [AudioAccessibilityState, AudioAccessibilityHandlers] => {
   const resolveSpeechSynthesis = useCallback((): SpeechSynthesis | null => {
-    if (
-      globalThis.window !== undefined &&
-      'speechSynthesis' in globalThis
-    ) {
+    if (globalThis.window !== undefined && 'speechSynthesis' in globalThis) {
       return (
         (globalThis as { speechSynthesis?: SpeechSynthesis }).speechSynthesis ??
         null

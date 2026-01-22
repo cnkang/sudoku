@@ -63,7 +63,7 @@ export interface FeedbackTriggers {
 
 export type VisualFeedbackSystemProps = Readonly<
   VisualFeedbackProps & {
-  children: (triggers: FeedbackTriggers) => React.ReactNode;
+    children: (triggers: FeedbackTriggers) => React.ReactNode;
   }
 >;
 
@@ -367,7 +367,7 @@ function VisualFeedbackSystem({
   // Enhanced pattern-based feedback
   const showPatternFeedback = useCallback(
     (
-  type: PatternFeedbackType,
+      type: PatternFeedbackType,
       message?: string,
       pattern?: 'stripes' | 'dots' | 'waves' | 'stars'
     ) => {

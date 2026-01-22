@@ -427,10 +427,7 @@ export const useKeyboardNavigation = (
       if (disabled) return;
 
       // Global shortcuts
-      if (
-        (event.ctrlKey || event.metaKey) &&
-        event.key.toLowerCase() === 'h'
-      ) {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'h') {
         event.preventDefault();
         accessibilityManager.current.announce({
           message:
