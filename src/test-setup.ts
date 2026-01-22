@@ -78,7 +78,9 @@ vi.mock('@/utils/accessibilityManager', () => {
 
   return {
     __esModule: true,
-    default: class MockAccessibilityManager {},
+    default: class MockAccessibilityManager {
+      public readonly _isMock = true;
+    },
     getAccessibilityManager: () => mockManager,
   };
 });

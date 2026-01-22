@@ -585,7 +585,7 @@ describe('useGameState', () => {
 
   describe('Puzzle Loading (usePuzzleLoader)', () => {
     beforeEach(() => {
-      global.fetch = vi.fn();
+      globalThis.fetch = vi.fn();
     });
 
     afterEach(() => {
@@ -602,7 +602,7 @@ describe('useGameState', () => {
         ok: true,
         json: () => Promise.resolve({ puzzle: [[1]], solution: [[1]] }),
       };
-      (global.fetch as any).mockResolvedValue(mockResponse);
+      (globalThis.fetch as any).mockResolvedValue(mockResponse);
 
       // Test that hook creates promise without triggering suspension
       const { result } = renderHook(() => {
@@ -622,7 +622,7 @@ describe('useGameState', () => {
         ok: true,
         json: () => Promise.resolve({ puzzle: [[1]], solution: [[1]] }),
       };
-      (global.fetch as any).mockResolvedValue(mockResponse);
+      (globalThis.fetch as any).mockResolvedValue(mockResponse);
 
       // Test URL construction logic
       const difficulty = 5;

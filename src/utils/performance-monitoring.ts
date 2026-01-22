@@ -76,7 +76,7 @@ class PerformanceMonitor {
       // LCP Observer
       const lcpObserver = new PerformanceObserver(list => {
         const entries = list.getEntries();
-        const lastEntry = entries[entries.length - 1] as PerformanceEntry & {
+        const lastEntry = entries.at(-1) as PerformanceEntry & {
           renderTime?: number;
           loadTime?: number;
         };
@@ -167,11 +167,8 @@ class PerformanceMonitor {
       value,
       rating,
       timestamp: Date.now(),
-      url: globalThis.window !== undefined ? globalThis.location.href : '',
-      userAgent:
-        typeof globalThis.navigator !== 'undefined'
-          ? globalThis.navigator.userAgent
-          : '',
+      url: globalThis.location?.href ?? '',
+      userAgent: globalThis.navigator?.userAgent ?? '',
     };
 
     this.metrics.set(name, metric);
@@ -270,9 +267,7 @@ class PerformanceMonitor {
 let performanceMonitor: PerformanceMonitor | null = null;
 
 export const getPerformanceMonitor = (): PerformanceMonitor => {
-  if (!performanceMonitor) {
-    performanceMonitor = new PerformanceMonitor();
-  }
+  performanceMonitor ??= new PerformanceMonitor();
   return performanceMonitor;
 };
 

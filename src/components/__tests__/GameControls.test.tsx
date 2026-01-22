@@ -254,7 +254,7 @@ describe('GameControls', () => {
     });
 
     it('should clear timeout on component unmount', () => {
-      const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout');
+      const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout');
 
       const { unmount } = render(<GameControls {...mockProps} />);
 
