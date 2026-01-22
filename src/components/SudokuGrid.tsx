@@ -1,25 +1,26 @@
 import type React from 'react';
 import {
+  memo,
+  startTransition,
   useCallback,
+  useDeferredValue,
   useEffect,
+  useMemo,
   useRef,
   useState,
-  memo,
-  useMemo,
-  startTransition,
-  useDeferredValue,
 } from 'react';
-import type { GridConfig } from '@/types';
-import {
-  useVisualFeedback,
-  getContextualFeedback,
-} from '@/hooks/useVisualFeedback';
-import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
-import { useAudioAccessibility } from '@/hooks/useAudioAccessibility';
-import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { useAdaptiveTouchTargets } from '@/hooks/useAdaptiveTouchTargets';
-import { useMotionPreferences } from '@/utils/reducedMotion';
+import { useAudioAccessibility } from '@/hooks/useAudioAccessibility';
+import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
+import {
+  getContextualFeedback,
+  useVisualFeedback,
+} from '@/hooks/useVisualFeedback';
+import { useVoiceInput } from '@/hooks/useVoiceInput';
+import type { GridConfig } from '@/types';
 import { getAccessibilityManager } from '@/utils/accessibilityManager';
+import { useMotionPreferences } from '@/utils/reducedMotion';
+
 import styles from './SudokuGrid.module.css';
 
 interface SudokuGridProps {
