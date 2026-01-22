@@ -283,7 +283,7 @@ export const useKeyboardNavigation = (
       const { maxValue } = gridConfig;
 
       // Check for valid number input
-      const numberMatch = key.match(/^[0-9]$/);
+      const numberMatch = /^\d$/.exec(key);
       if (numberMatch) {
         const value = Number.parseInt(key, 10);
 
@@ -328,7 +328,6 @@ export const useKeyboardNavigation = (
 
   // Main keyboard event handler for grid cells
   const handleCellKeyDown = useCallback(
-    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: input handling is complex
     (event: React.KeyboardEvent, row: number, col: number) => {
       if (disabled) return;
 
@@ -373,20 +372,14 @@ export const useKeyboardNavigation = (
       handleNumberInput(event.nativeEvent, row, col);
 
       // Handle keyboard shortcuts
-      if (ctrlKey) {
-        switch (key.toLowerCase()) {
-          case 'h':
-            event.preventDefault();
-            accessibilityManager.current.announce({
-              message:
-                accessibilityManager.current.getKeyboardInstructions(
-                  gridConfig
-                ),
-              priority: 'polite',
-              category: 'navigation',
-            });
-            break;
-        }
+      if (ctrlKey && key.toLowerCase() === 'h') {
+        event.preventDefault();
+        accessibilityManager.current.announce({
+          message:
+            accessibilityManager.current.getKeyboardInstructions(gridConfig),
+          priority: 'polite',
+          category: 'navigation',
+        });
       }
     },
     [
@@ -434,20 +427,17 @@ export const useKeyboardNavigation = (
       if (disabled) return;
 
       // Global shortcuts
-      if (event.ctrlKey || event.metaKey) {
-        switch (event.key.toLowerCase()) {
-          case 'h':
-            event.preventDefault();
-            accessibilityManager.current.announce({
-              message:
-                accessibilityManager.current.getKeyboardInstructions(
-                  gridConfig
-                ),
-              priority: 'assertive',
-              category: 'navigation',
-            });
-            break;
-        }
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.key.toLowerCase() === 'h'
+      ) {
+        event.preventDefault();
+        accessibilityManager.current.announce({
+          message:
+            accessibilityManager.current.getKeyboardInstructions(gridConfig),
+          priority: 'assertive',
+          category: 'navigation',
+        });
       }
     },
     [disabled, gridConfig]

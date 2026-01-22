@@ -86,20 +86,19 @@ export const useChildFriendlyErrorHandling = ({
         customMessage?: string;
       }
     ) => {
+      const customMessage = context?.customMessage;
       const error = createChildFriendlyError(errorType, {
         gridSize: gameState.gridConfig.size,
         childMode: gameState.childMode,
-        ...(context?.customMessage !== undefined
-          ? { customMessage: context.customMessage }
-          : {}),
+        ...(customMessage === undefined ? {} : { customMessage }),
       });
 
       // Update error history
       const newErrorEntry = {
         timestamp: Date.now(),
         errorType,
-        ...(context?.row !== undefined ? { row: context.row } : {}),
-        ...(context?.col !== undefined ? { col: context.col } : {}),
+        ...(context?.row === undefined ? {} : { row: context.row }),
+        ...(context?.col === undefined ? {} : { col: context.col }),
       };
 
       setErrorState(prev => {

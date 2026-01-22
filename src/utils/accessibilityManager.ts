@@ -238,33 +238,18 @@ class AccessibilityManager {
     const subGridPosition = `sub-grid ${subGridRow}, ${subGridCol}`;
 
     // Build description parts
-    const parts: string[] = [];
-
-    // Cell position
-    parts.push(`Cell row ${row + 1}, column ${col + 1}`);
-    parts.push(`in ${subGridPosition}`);
-
-    // Cell value and type
-    if (isFixed) {
-      parts.push(`contains fixed number ${value}`);
-    } else if (value > 0) {
-      parts.push(`contains entered number ${value}`);
-    } else {
-      parts.push('is empty');
-    }
-
-    // Conflict status
-    if (hasConflict) {
-      parts.push('has conflict with other numbers');
-    }
-
-    // Hint status
-    if (isHinted) {
-      parts.push('is highlighted as a hint');
-    }
-
-    // Valid range
-    parts.push(`Valid numbers are 1 to ${gridConfig.maxValue}`);
+    const parts = [
+      `Cell row ${row + 1}, column ${col + 1}`,
+      `in ${subGridPosition}`,
+      isFixed
+        ? `contains fixed number ${value}`
+        : value > 0
+          ? `contains entered number ${value}`
+          : 'is empty',
+      ...(hasConflict ? ['has conflict with other numbers'] : []),
+      ...(isHinted ? ['is highlighted as a hint'] : []),
+      `Valid numbers are 1 to ${gridConfig.maxValue}`,
+    ];
 
     return `${parts.join(', ')}.`;
   }
@@ -423,9 +408,7 @@ class AccessibilityManager {
 let accessibilityManagerInstance: AccessibilityManager | null = null;
 
 export const getAccessibilityManager = (): AccessibilityManager => {
-  if (!accessibilityManagerInstance) {
-    accessibilityManagerInstance = new AccessibilityManager();
-  }
+  accessibilityManagerInstance ??= new AccessibilityManager();
   return accessibilityManagerInstance;
 };
 
