@@ -352,8 +352,11 @@ declare global {
 }
 
 if (globalThis.window !== undefined) {
-  (globalThis as typeof globalThis & { performanceMonitor?: PerformanceMonitor })
-    .performanceMonitor = getPerformanceMonitor();
+  (
+    globalThis as typeof globalThis & {
+      performanceMonitor?: PerformanceMonitor;
+    }
+  ).performanceMonitor = getPerformanceMonitor();
 }
 
 export default getPerformanceMonitor;
