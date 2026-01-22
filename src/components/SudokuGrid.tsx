@@ -816,7 +816,7 @@ const SudokuGrid = memo<SudokuGridProps>(
     const _deferredHintCell = useDeferredValue(hintCell);
 
     const [selectedCell, setSelectedCell] = useState<CellPosition | null>(null);
-    const [, setIncorrectMoveCount] = useState(0);
+    const [_incorrectMoveCount, setIncorrectMoveCount] = useState(0);
     const cellRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
     // Memoize accessibility settings to prevent unnecessary re-renders

@@ -1,12 +1,11 @@
+import { VALIDATION_CONSTANTS, validateSudokuGrid } from './validation';
+
 export interface HintResult {
   row: number;
   col: number;
   value: number;
   reason: string;
 }
-
-import { validateSudokuGrid } from './validation';
-import { VALIDATION_CONSTANTS } from './validation';
 
 type CellValues = {
   puzzleCell: number;

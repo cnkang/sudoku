@@ -17,7 +17,7 @@ class ClientCache {
     this.cache.set(key, entry);
   }
 
-  get(key: string): unknown | null {
+  get(key: string): unknown {
     const item = this.cache.get(key);
     if (!item) return null;
 
