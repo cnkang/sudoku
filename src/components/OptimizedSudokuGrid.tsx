@@ -66,6 +66,7 @@ const SudokuCell = React.memo(
     accessibility,
     onCellClick,
     onCellChange,
+    onGridKeyDown,
     disabled,
   }: {
     row: number;
@@ -84,6 +85,7 @@ const SudokuCell = React.memo(
     };
     onCellClick: (row: number, col: number) => void;
     onCellChange: (row: number, col: number, value: number) => void;
+    onGridKeyDown: (event: React.KeyboardEvent) => void;
     disabled?: boolean;
   }) => {
     const cellRef = useRef<HTMLTableCellElement>(null);
@@ -193,6 +195,8 @@ const SudokuCell = React.memo(
         className={cellClasses}
         onClick={handleClick}
         onKeyDown={event => {
+          onGridKeyDown(event);
+          if (event.defaultPrevented) return;
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
             handleClick();
@@ -398,7 +402,6 @@ const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
         className={gridClasses}
         data-grid-size={gridConfig.size}
         aria-label={`${gridConfig.size}x${gridConfig.size} Sudoku puzzle`}
-        onKeyDown={handleKeyDown}
       >
         <tbody>
           {gridData.map((rowData, rowIndex) => {
@@ -413,6 +416,7 @@ const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
                     accessibility={accessibility}
                     onCellClick={handleCellClick}
                     onCellChange={handleCellChange}
+                    onGridKeyDown={handleKeyDown}
                     disabled={disabled}
                   />
                 ))}
