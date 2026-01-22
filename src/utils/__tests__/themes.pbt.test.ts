@@ -63,7 +63,7 @@ describe('Theme Property-Based Tests', () => {
         // All critical combinations should meet WCAG AAA
         return criticalCombinations.every(({ fg, bg }) => {
           const ratio = calculateContrastRatio(fg, bg);
-          return ratio >= 7.0; // WCAG AAA standard for normal text
+          return ratio >= 7; // WCAG AAA standard for normal text
         });
       }),
       { numRuns: 100 }
@@ -118,11 +118,11 @@ describe('Theme Property-Based Tests', () => {
         const isSymmetric = Math.abs(ratio1 - ratio2) < 0.001;
 
         // Contrast ratio should be between 1 and 21
-        const isInValidRange = ratio1 >= 1.0 && ratio1 <= 21.0;
+        const isInValidRange = ratio1 >= 1 && ratio1 <= 21;
 
         // Same colors should have ratio of 1
         const sameColorRatio = calculateContrastRatio(color1, color1);
-        const sameColorCorrect = Math.abs(sameColorRatio - 1.0) < 0.001;
+        const sameColorCorrect = Math.abs(sameColorRatio - 1) < 0.001;
 
         return isSymmetric && isInValidRange && sameColorCorrect;
       }),
@@ -145,7 +145,7 @@ describe('Theme Property-Based Tests', () => {
 
           // High contrast theme should have maximum contrast ratio
           const hasMaxContrast =
-            highContrastTheme.accessibility.contrastRatio === 21.0;
+            highContrastTheme.accessibility.contrastRatio === 21;
 
           // Should be categorized as high-contrast
           const isHighContrastCategory =
@@ -164,7 +164,7 @@ describe('Theme Property-Based Tests', () => {
             highContrastTheme.colors.text,
             highContrastTheme.colors.background
           );
-          const hasMaxTextContrast = textBackgroundRatio >= 15.0; // Very high contrast
+          const hasMaxTextContrast = textBackgroundRatio >= 15; // Very high contrast
 
           return (
             hasMaxContrast &&

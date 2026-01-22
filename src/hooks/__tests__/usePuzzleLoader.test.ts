@@ -17,7 +17,7 @@ const assertPuzzleFetch = (difficulty: number) => {
     { method: 'POST' }
   );
 };
-global.fetch = mockFetch;
+globalThis.fetch = mockFetch;
 
 // Mock React's use hook since it's experimental
 vi.mock('react', async () => {

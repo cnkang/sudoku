@@ -124,7 +124,7 @@ function simulateComponentRender(
 
 // Simulate API call timing
 async function simulateApiCall(
-  gridSize: 4 | 6 | 9,
+  gridSize: GridSize,
   networkDelay: number = 0
 ): Promise<number> {
   const timer = new PerformanceTimer();

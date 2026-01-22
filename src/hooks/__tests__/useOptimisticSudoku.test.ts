@@ -36,9 +36,9 @@ describe('useOptimisticSudoku', () => {
     });
 
     it('should handle empty initial input', () => {
-      const emptyInput = Array(9)
+      const emptyInput = new Array(9)
         .fill(null)
-        .map(() => Array(9).fill(0));
+        .map(() => new Array(9).fill(0));
 
       const { result } = renderHook(() => useOptimisticSudoku(emptyInput));
 

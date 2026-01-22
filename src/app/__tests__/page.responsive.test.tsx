@@ -18,7 +18,7 @@ const mockMatchMedia = (query: string) => ({
   dispatchEvent: vi.fn(),
 });
 
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(globalThis, 'matchMedia', {
   writable: true,
   value: vi.fn().mockImplementation(mockMatchMedia),
 });
@@ -30,12 +30,12 @@ describe('Home Page Responsive Tests', () => {
 
   describe('Mobile Layout Tests', () => {
     beforeEach(() => {
-      Object.defineProperty(window, 'innerWidth', {
+      Object.defineProperty(globalThis, 'innerWidth', {
         writable: true,
         configurable: true,
         value: 375,
       });
-      Object.defineProperty(window, 'innerHeight', {
+      Object.defineProperty(globalThis, 'innerHeight', {
         writable: true,
         configurable: true,
         value: 667,
@@ -51,12 +51,12 @@ describe('Home Page Responsive Tests', () => {
 
   describe('Tablet Layout Tests', () => {
     beforeEach(() => {
-      Object.defineProperty(window, 'innerWidth', {
+      Object.defineProperty(globalThis, 'innerWidth', {
         writable: true,
         configurable: true,
         value: 768,
       });
-      Object.defineProperty(window, 'innerHeight', {
+      Object.defineProperty(globalThis, 'innerHeight', {
         writable: true,
         configurable: true,
         value: 1024,
@@ -72,12 +72,12 @@ describe('Home Page Responsive Tests', () => {
 
   describe('Landscape Orientation Tests', () => {
     beforeEach(() => {
-      Object.defineProperty(window, 'innerWidth', {
+      Object.defineProperty(globalThis, 'innerWidth', {
         writable: true,
         configurable: true,
         value: 667,
       });
-      Object.defineProperty(window, 'innerHeight', {
+      Object.defineProperty(globalThis, 'innerHeight', {
         writable: true,
         configurable: true,
         value: 375,
@@ -100,7 +100,7 @@ describe('Home Page Responsive Tests', () => {
     });
 
     it('should handle dark mode preferences', () => {
-      window.matchMedia = vi.fn().mockImplementation(query => ({
+      globalThis.matchMedia = vi.fn().mockImplementation(query => ({
         ...mockMatchMedia(query),
         matches: query === '(prefers-color-scheme: dark)',
       }));
@@ -111,7 +111,7 @@ describe('Home Page Responsive Tests', () => {
     });
 
     it('should respect reduced motion preferences', () => {
-      window.matchMedia = vi.fn().mockImplementation(query => ({
+      globalThis.matchMedia = vi.fn().mockImplementation(query => ({
         ...mockMatchMedia(query),
         matches: query === '(prefers-reduced-motion: reduce)',
       }));

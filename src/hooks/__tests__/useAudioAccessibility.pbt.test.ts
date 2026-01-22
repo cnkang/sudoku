@@ -57,7 +57,9 @@ vi.mock('@/utils/accessibilityManager', () => {
 
   return {
     __esModule: true,
-    default: class MockAccessibilityManager {},
+    default: class MockAccessibilityManager {
+      public readonly _isMock = true;
+    },
     getAccessibilityManager: () => mockManager,
   };
 });
@@ -189,12 +191,12 @@ const cellInfoArb = fc.record({
 describe('useAudioAccessibility - Property-based tests', () => {
   beforeEach(() => {
     // Mock Web Speech API
-    Object.defineProperty(window, 'speechSynthesis', {
+    Object.defineProperty(globalThis, 'speechSynthesis', {
       value: mockSpeechSynthesis,
       writable: true,
       configurable: true,
     });
-    Object.defineProperty(window, 'SpeechSynthesisUtterance', {
+    Object.defineProperty(globalThis, 'SpeechSynthesisUtterance', {
       value: mockSpeechSynthesisUtterance,
       writable: true,
       configurable: true,
@@ -468,17 +470,17 @@ describe('useAudioAccessibility - Property-based tests', () => {
         fc.record({
           speechRate: fc.float({
             min: Math.fround(0.1),
-            max: Math.fround(2.0),
+            max: Math.fround(2),
             noNaN: true,
           }),
           speechVolume: fc.float({
-            min: Math.fround(0.0),
-            max: Math.fround(1.0),
+            min: Math.fround(0),
+            max: Math.fround(1),
             noNaN: true,
           }),
           speechPitch: fc.float({
-            min: Math.fround(0.0),
-            max: Math.fround(2.0),
+            min: Math.fround(0),
+            max: Math.fround(2),
             noNaN: true,
           }),
         }),
@@ -536,16 +538,16 @@ describe('useAudioAccessibility - Property-based tests', () => {
   });
 
   it('Property 15.7: Audio accessibility gracefully handles Web Speech API unavailability', () => {
-    const originalSpeechSynthesis = window.speechSynthesis;
-    const originalUtterance = window.SpeechSynthesisUtterance;
+    const originalSpeechSynthesis = globalThis.speechSynthesis;
+    const originalUtterance = globalThis.SpeechSynthesisUtterance;
 
     try {
-      Object.defineProperty(window, 'speechSynthesis', {
+      Object.defineProperty(globalThis, 'speechSynthesis', {
         value: undefined,
         writable: true,
         configurable: true,
       });
-      Object.defineProperty(window, 'SpeechSynthesisUtterance', {
+      Object.defineProperty(globalThis, 'SpeechSynthesisUtterance', {
         value: undefined,
         writable: true,
         configurable: true,
@@ -583,12 +585,12 @@ describe('useAudioAccessibility - Property-based tests', () => {
       expect(mockSpeechSynthesis.speak).not.toHaveBeenCalled();
       expect(mockSpeechSynthesisUtterance).not.toHaveBeenCalled();
     } finally {
-      Object.defineProperty(window, 'speechSynthesis', {
+      Object.defineProperty(globalThis, 'speechSynthesis', {
         value: originalSpeechSynthesis,
         writable: true,
         configurable: true,
       });
-      Object.defineProperty(window, 'SpeechSynthesisUtterance', {
+      Object.defineProperty(globalThis, 'SpeechSynthesisUtterance', {
         value: originalUtterance,
         writable: true,
         configurable: true,
