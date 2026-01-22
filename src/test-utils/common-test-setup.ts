@@ -39,9 +39,9 @@ export const createMockCallbacks = <T extends Record<string, unknown>>(
  * Common Sudoku test data
  */
 export const TEST_DATA = {
-  EMPTY_GRID: new Array(9)
-    .fill(null)
-    .map(() => new Array(9).fill(0)),
+  EMPTY_GRID: Array.from({ length: 9 }, () =>
+    Array.from({ length: 9 }, () => 0)
+  ),
   SAMPLE_PUZZLE: [
     [5, 3, 0, 0, 7, 0, 0, 0, 0],
     [6, 0, 0, 1, 9, 5, 0, 0, 0],
@@ -53,9 +53,9 @@ export const TEST_DATA = {
     [0, 0, 0, 4, 1, 9, 0, 0, 5],
     [0, 0, 0, 0, 8, 0, 0, 7, 9],
   ],
-  FILLED_GRID: new Array(9)
-    .fill(null)
-    .map(() => new Array(9).fill(5)),
+  FILLED_GRID: Array.from({ length: 9 }, () =>
+    Array.from({ length: 9 }, () => 5)
+  ),
 } as const;
 
 /**
