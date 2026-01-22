@@ -366,7 +366,7 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
                 {sparklePieces.map((piece, i) => (
                   <div
                     key={piece.id}
-                    className={styles.sparkle}
+                    className={styles.celebrationSparkle}
                     style={
                       {
                         '--delay': `${i * 0.2}s`,
