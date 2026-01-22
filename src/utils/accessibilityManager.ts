@@ -238,14 +238,17 @@ class AccessibilityManager {
     const subGridPosition = `sub-grid ${subGridRow}, ${subGridCol}`;
 
     // Build description parts
+    let valueDescription = 'is empty';
+    if (isFixed) {
+      valueDescription = `contains fixed number ${value}`;
+    } else if (value > 0) {
+      valueDescription = `contains entered number ${value}`;
+    }
+
     const parts = [
       `Cell row ${row + 1}, column ${col + 1}`,
       `in ${subGridPosition}`,
-      isFixed
-        ? `contains fixed number ${value}`
-        : value > 0
-          ? `contains entered number ${value}`
-          : 'is empty',
+      valueDescription,
       ...(hasConflict ? ['has conflict with other numbers'] : []),
       ...(isHinted ? ['is highlighted as a hint'] : []),
       `Valid numbers are 1 to ${gridConfig.maxValue}`,
