@@ -11,6 +11,11 @@ import {
 } from '../validation';
 import { GridConfigManager } from '../gridConfig';
 
+const createGrid = (size: number, fillValue = 0): number[][] =>
+  Array.from({ length: size }, () =>
+    Array.from({ length: size }, () => fillValue)
+  );
+
 describe('validation utilities', () => {
   describe('VALIDATION_CONSTANTS', () => {
     it('should export all expected constants', () => {
@@ -182,11 +187,7 @@ describe('validation utilities', () => {
   });
 
   describe('validateSudokuGrid', () => {
-    const createValidGrid = (): number[][] => {
-      return Array.from({ length: 9 }, () =>
-        Array.from({ length: 9 }, () => 0)
-      );
-    };
+    const createValidGrid = (): number[][] => createGrid(9);
 
     const createValidGridWithValues = (): number[][] => {
       return [
@@ -225,16 +226,12 @@ describe('validation utilities', () => {
     });
 
     it('should throw error for wrong grid size', () => {
-      const smallGrid = Array.from({ length: 8 }, () =>
-        Array.from({ length: 9 }, () => 0)
-      );
+      const smallGrid = createGrid(8);
       expect(() => validateSudokuGrid(smallGrid)).toThrow(
         'Invalid grid: must be a 9x9 array.'
       );
 
-      const largeGrid = Array.from({ length: 10 }, () =>
-        Array.from({ length: 9 }, () => 0)
-      );
+      const largeGrid = createGrid(10);
       expect(() => validateSudokuGrid(largeGrid)).toThrow(
         'Invalid grid: must be a 9x9 array.'
       );
@@ -396,14 +393,10 @@ describe('multi-size validation functions', () => {
   describe('validateSudokuGrid with config', () => {
     it('should validate 4x4 grid structure', () => {
       const config = GridConfigManager.getConfig(4);
-      const validGrid = Array.from({ length: 4 }, () =>
-        Array.from({ length: 4 }, () => 0)
-      );
+      const validGrid = createGrid(4);
       expect(() => validateSudokuGrid(validGrid, config)).not.toThrow();
 
-      const invalidGrid = Array.from({ length: 3 }, () =>
-        Array.from({ length: 4 }, () => 0)
-      );
+      const invalidGrid = createGrid(3);
       expect(() => validateSudokuGrid(invalidGrid, config)).toThrow(
         'Invalid grid: must be a 4x4 array.'
       );
