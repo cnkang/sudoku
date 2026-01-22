@@ -1,6 +1,11 @@
 import { renderHook, act } from '@testing-library/react';
 import { useOptimisticSudoku } from '../useOptimisticSudoku';
 
+const createGrid = (size: number, fillValue = 0): number[][] =>
+  Array.from({ length: size }, () =>
+    Array.from({ length: size }, () => fillValue)
+  );
+
 // Mock useOptimistic since it's not fully supported in test environment
 vi.mock('react', async () => {
   const actual = await vi.importActual('react');
@@ -36,9 +41,7 @@ describe('useOptimisticSudoku', () => {
     });
 
     it('should handle empty initial input', () => {
-      const emptyInput = Array.from({ length: 9 }, () =>
-        Array.from({ length: 9 }, () => 0)
-      );
+      const emptyInput = createGrid(9);
 
       const { result } = renderHook(() => useOptimisticSudoku(emptyInput));
 

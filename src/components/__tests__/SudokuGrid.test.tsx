@@ -4,6 +4,11 @@ import { vi } from 'vitest';
 import SudokuGrid from '../SudokuGrid';
 import { GRID_CONFIGS } from '@/utils/gridConfig';
 
+const createGrid = (size: number, fillValue = 0): number[][] =>
+  Array.from({ length: size }, () =>
+    Array.from({ length: size }, () => fillValue)
+  );
+
 vi.mock('@/hooks/useAudioAccessibility', () => ({
   useAudioAccessibility: () => [
     {},
@@ -97,15 +102,11 @@ describe('SudokuGrid', () => {
     [3, 0, 0, 2],
   ];
 
-  const samplePuzzle9x9 = Array.from({ length: 9 }, () =>
-    Array.from({ length: 9 }, () => 0)
-  );
+  const samplePuzzle9x9 = createGrid(9);
   samplePuzzle9x9[0][0] = 5;
   samplePuzzle9x9[1][1] = 3;
 
-  const sampleUserInput9x9 = Array.from({ length: 9 }, () =>
-    Array.from({ length: 9 }, () => 0)
-  );
+  const sampleUserInput9x9 = createGrid(9);
 
   beforeEach(() => {
     mockOnInputChange.mockClear();
@@ -132,12 +133,8 @@ describe('SudokuGrid', () => {
     });
 
     it('renders 6x6 grid correctly', () => {
-      const puzzle6x6 = Array.from({ length: 6 }, () =>
-        Array.from({ length: 6 }, () => 0)
-      );
-      const userInput6x6 = Array.from({ length: 6 }, () =>
-        Array.from({ length: 6 }, () => 0)
-      );
+      const puzzle6x6 = createGrid(6);
+      const userInput6x6 = createGrid(6);
 
       render(
         <SudokuGrid
