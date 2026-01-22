@@ -70,8 +70,8 @@ test.describe('Sudoku Game E2E Tests', () => {
 
     // Get current value and verify it's valid
     const currentValue = await difficultySelector.inputValue();
-    expect(parseInt(currentValue, 10)).toBeGreaterThanOrEqual(1);
-    expect(parseInt(currentValue, 10)).toBeLessThanOrEqual(10);
+    expect(Number.parseInt(currentValue, 10)).toBeGreaterThanOrEqual(1);
+    expect(Number.parseInt(currentValue, 10)).toBeLessThanOrEqual(10);
 
     // Verify we can change the difficulty (this should trigger a new puzzle request)
     await page.waitForTimeout(5500);

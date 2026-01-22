@@ -236,7 +236,7 @@ export const useVoiceInput = (
 
       // Check for number with context (e.g., "enter five", "put three")
       for (const pattern of CONTEXT_NUMBER_PATTERNS) {
-        const match = transcript.match(pattern);
+        const match = pattern.exec(transcript);
         if (match?.[1]) {
           const word = match[1];
           const number = NUMBER_WORDS[word] ?? Number.parseInt(word, 10);
