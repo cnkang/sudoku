@@ -29,10 +29,10 @@ export const ThemeContext = createContext<ThemeContextValue | null>(null);
  * Get stored theme preference
  */
 function getStoredTheme(): string | null {
-  if (typeof window === 'undefined') return null;
+  if (globalThis.window === undefined) return null;
 
   try {
-    return localStorage.getItem(THEME_STORAGE_KEY);
+    return globalThis.localStorage.getItem(THEME_STORAGE_KEY);
   } catch {
     return null;
   }
@@ -42,10 +42,10 @@ function getStoredTheme(): string | null {
  * Store theme preference
  */
 function storeTheme(themeId: string): void {
-  if (typeof window === 'undefined') return;
+  if (globalThis.window === undefined) return;
 
   try {
-    localStorage.setItem(THEME_STORAGE_KEY, themeId);
+    globalThis.localStorage.setItem(THEME_STORAGE_KEY, themeId);
   } catch {
     // Silently fail if storage is unavailable
   }
@@ -55,10 +55,10 @@ function storeTheme(themeId: string): void {
  * Get stored high contrast preference
  */
 function getStoredHighContrast(): boolean {
-  if (typeof window === 'undefined') return false;
+  if (globalThis.window === undefined) return false;
 
   try {
-    const stored = localStorage.getItem(HIGH_CONTRAST_STORAGE_KEY);
+    const stored = globalThis.localStorage.getItem(HIGH_CONTRAST_STORAGE_KEY);
     return stored === 'true';
   } catch {
     return false;
@@ -69,10 +69,13 @@ function getStoredHighContrast(): boolean {
  * Store high contrast preference
  */
 function storeHighContrast(enabled: boolean): void {
-  if (typeof window === 'undefined') return;
+  if (globalThis.window === undefined) return;
 
   try {
-    localStorage.setItem(HIGH_CONTRAST_STORAGE_KEY, enabled.toString());
+    globalThis.localStorage.setItem(
+      HIGH_CONTRAST_STORAGE_KEY,
+      enabled.toString()
+    );
   } catch {
     // Silently fail if storage is unavailable
   }
@@ -82,10 +85,10 @@ function storeHighContrast(enabled: boolean): void {
  * Detect system high contrast preference
  */
 function detectSystemHighContrast(): boolean {
-  if (typeof window === 'undefined') return false;
+  if (globalThis.window === undefined) return false;
 
   try {
-    return window.matchMedia('(prefers-contrast: high)').matches;
+    return globalThis.matchMedia('(prefers-contrast: high)').matches;
   } catch {
     return false;
   }
@@ -155,12 +158,12 @@ export function useTheme(): ThemeContextValue {
 
   // Listen for system high contrast changes
   useEffect(() => {
-    if (typeof window === 'undefined') {
+    if (globalThis.window === undefined) {
       return undefined;
     }
 
     try {
-      const mediaQuery = window.matchMedia('(prefers-contrast: high)');
+      const mediaQuery = globalThis.matchMedia('(prefers-contrast: high)');
 
       const handleChange = (e: MediaQueryListEvent) => {
         // Only update if user hasn't explicitly set a preference

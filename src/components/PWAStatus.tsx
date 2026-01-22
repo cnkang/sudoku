@@ -10,12 +10,12 @@ import { usePWA, useOfflineStatus } from '@/hooks/usePWA';
 import { secureRandomChance } from '@/utils/secureRandom';
 import styles from './PWAStatus.module.css';
 
-interface PWAStatusProps {
+type PWAStatusProps = Readonly<{
   showInstallButton?: boolean;
   showOfflineIndicator?: boolean;
   showUpdateNotification?: boolean;
   className?: string;
-}
+}>;
 
 export default function PWAStatus({
   showInstallButton = true,
@@ -64,7 +64,7 @@ export default function PWAStatus({
       setShowUpdatePrompt(false);
       // Reload the page to use the new service worker
       setTimeout(() => {
-        window.location.reload();
+        globalThis.location.reload();
       }, 1000);
     } catch {
     } finally {

@@ -112,8 +112,8 @@ class AccessibilityManager {
    * Initialize speech synthesis for audio descriptions
    */
   private initializeSpeechSynthesis(): void {
-    if ('speechSynthesis' in window) {
-      this.speechSynthesis = window.speechSynthesis;
+    if ('speechSynthesis' in globalThis) {
+      this.speechSynthesis = globalThis.speechSynthesis;
     }
   }
 
@@ -192,7 +192,7 @@ class AccessibilityManager {
       utterance.voice = description.voice;
     }
     utterance.rate = description.rate ?? 0.9;
-    utterance.pitch = description.pitch ?? 1.0;
+    utterance.pitch = description.pitch ?? 1;
     utterance.volume = description.volume ?? 0.8;
 
     // Set language for better pronunciation

@@ -35,12 +35,12 @@ export interface AchievementData {
 }
 
 const getWindow = (): (Window & typeof globalThis) | undefined => {
-  return typeof window === 'undefined' ? undefined : window;
+  return globalThis.window === undefined ? undefined : globalThis.window;
 };
 
 const getNavigator = (): Navigator | undefined => {
-  if (typeof navigator !== 'undefined') {
-    return navigator;
+  if (typeof globalThis.navigator !== 'undefined') {
+    return globalThis.navigator;
   }
   return getWindow()?.navigator;
 };

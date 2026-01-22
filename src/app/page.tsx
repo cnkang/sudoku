@@ -19,12 +19,15 @@ export default function Home() {
   'use memo'; // React Compiler directive for automatic optimization
 
   // Initialize performance monitoring for the page
-  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  if (
+    globalThis.window !== undefined &&
+    process.env.NODE_ENV === 'development'
+  ) {
     const monitor = getPerformanceMonitor();
     const startTime = performance.now();
 
     // Track page load performance
-    window.addEventListener('load', () => {
+    globalThis.addEventListener('load', () => {
       const endTime = performance.now();
       const _loadTime = endTime - startTime;
       const _meetsRequirements = monitor.meetsPerformanceRequirements();

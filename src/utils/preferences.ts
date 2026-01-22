@@ -83,8 +83,8 @@ const isAccessibilitySettings = (
 };
 
 const getLocalStorage = (): Storage | undefined => {
-  if (typeof window !== 'undefined' && window.localStorage) {
-    return window.localStorage;
+  if (globalThis.window !== undefined && globalThis.localStorage) {
+    return globalThis.localStorage;
   }
   if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
     return (globalThis as { localStorage?: Storage }).localStorage;
