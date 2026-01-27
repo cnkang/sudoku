@@ -42,7 +42,7 @@
     "regenerator-runtime": "^0.14.1",
     "winston": "^3.19.0",
     "workbox-webpack-plugin": "^7.4.0",
-    "zod": "^4.3.5"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.12",
