@@ -25,19 +25,15 @@ globalThis.addEventListener('install', event => {
   event.waitUntil(
     Promise.all([
       // Cache static assets
-      caches
-        .open(STATIC_CACHE_NAME)
-        .then(cache => {
-          swLog('[SW] Caching static assets');
-          return cache.addAll(STATIC_ASSETS);
-        }),
+      caches.open(STATIC_CACHE_NAME).then(cache => {
+        swLog('[SW] Caching static assets');
+        return cache.addAll(STATIC_ASSETS);
+      }),
       // Initialize puzzle cache
-      caches
-        .open(PUZZLE_CACHE_NAME)
-        .then(cache => {
-          swLog('[SW] Initializing puzzle cache');
-          return cache.put('/puzzles/init', new Response('{}'));
-        }),
+      caches.open(PUZZLE_CACHE_NAME).then(cache => {
+        swLog('[SW] Initializing puzzle cache');
+        return cache.put('/puzzles/init', new Response('{}'));
+      }),
       // Skip waiting to activate immediately
       globalThis.skipWaiting(),
     ])
@@ -51,23 +47,21 @@ globalThis.addEventListener('activate', event => {
   event.waitUntil(
     Promise.all([
       // Clean up old caches
-      caches
-        .keys()
-        .then(cacheNames => {
-          const deletions = [];
-          for (const cacheName of cacheNames) {
-            if (
-              cacheName !== CACHE_NAME &&
-              cacheName !== STATIC_CACHE_NAME &&
-              cacheName !== PUZZLE_CACHE_NAME &&
-              cacheName !== RUNTIME_CACHE_NAME
-            ) {
-              swLog('[SW] Deleting old cache:', cacheName);
-              deletions.push(caches.delete(cacheName));
-            }
+      caches.keys().then(cacheNames => {
+        const deletions = [];
+        for (const cacheName of cacheNames) {
+          if (
+            cacheName !== CACHE_NAME &&
+            cacheName !== STATIC_CACHE_NAME &&
+            cacheName !== PUZZLE_CACHE_NAME &&
+            cacheName !== RUNTIME_CACHE_NAME
+          ) {
+            swLog('[SW] Deleting old cache:', cacheName);
+            deletions.push(caches.delete(cacheName));
           }
-          return Promise.all(deletions);
-        }),
+        }
+        return Promise.all(deletions);
+      }),
       // Take control of all clients
       globalThis.clients.claim(),
     ])
