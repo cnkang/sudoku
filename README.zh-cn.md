@@ -28,9 +28,16 @@
 - **全面测试**：87.5% 测试覆盖率，包含单元测试、集成测试和响应式测试
 - **类型安全**：完整的 TypeScript 实现
 
+## 环境要求
+
+- Node.js `24.13.0`（见 `.nvmrc`）
+- `pnpm 10.29.2+`
+
 ## 安装
 
 ```bash
+corepack enable
+corepack use pnpm@10.29.2
 pnpm install
 ```
 

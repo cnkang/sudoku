@@ -9,7 +9,7 @@ inclusion: always
 - **Next.js 16** with App Router - Default to React Server Components, use client components only when necessary
 - **React 19** with React Compiler - Enable automatic optimizations and concurrent features
 - **TypeScript 5.9+** in strict mode - All code must be fully typed, no `any` types allowed
-- **pnpm** - Only package manager allowed, use `pnpm` for all operations
+- **pnpm 10.29.2+** - Only package manager allowed, use `pnpm` for all operations
 
 ## Tooling Requirements
 

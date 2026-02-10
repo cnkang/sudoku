@@ -8,7 +8,7 @@ This implementation plan transforms the existing 9×9 Sudoku application into a 
 
 - [x] 1. Modernize development toolchain and project setup
 
-  - Upgrade to Next.js 16, React 19, TypeScript 5.9+, pnpm 10.19.0+
+  - Upgrade to Next.js 16, React 19, TypeScript 5.9+, pnpm 10.29.2+
   - Replace ESLint+Prettier with Biome for ultra-fast linting and formatting
   - Configure Turbopack for development bundling
   - Set up modern testing infrastructure with Vitest 3.2+ and @vitest/ui

@@ -140,7 +140,7 @@ This feature extends the existing Sudoku Challenge application to support multip
 7. THE System SHALL implement View Transitions API for smooth navigation between grid sizes
 8. THE System SHALL use Web Components and Custom Elements for reusable child-friendly UI components
 9. THE System SHALL implement modern performance monitoring with Core Web Vitals tracking
-10. THE System SHALL use the latest stable versions of all dependencies including pnpm 10.19.0+
+10. THE System SHALL use the latest stable versions of all dependencies including pnpm 10.29.2+
 11. THE System SHALL use Biome for ultra-fast linting and formatting (10-100x faster than ESLint+Prettier)
 12. THE System SHALL implement Oxlint as optional supplementary linting for additional performance and rules
 

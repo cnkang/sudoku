@@ -28,9 +28,16 @@ A modern, full-featured Sudoku game built with Next.js 16 and React 19. Features
 - **Comprehensive Testing**: 87.5% test coverage with unit, integration, and responsive testing
 - **Type Safety**: Full TypeScript implementation
 
+## Prerequisites
+
+- Node.js `24.13.0` (see `.nvmrc`)
+- `pnpm 10.29.2+`
+
 ## Installation
 
 ```bash
+corepack enable
+corepack use pnpm@10.29.2
 pnpm install
 ```
 

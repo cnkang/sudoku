@@ -13,7 +13,7 @@ The design emphasizes educational value, visual appeal for children, inclusive a
 - **Next.js 16**: Latest App Router with React Server Components and Turbopack
 - **React 19**: React Compiler for automatic optimization and concurrent features
 - **TypeScript 5.9+**: Strict mode with latest language features
-- **pnpm 10.19.0+**: Latest package manager with improved performance
+- **pnpm 10.29.2+**: Latest package manager with improved performance
 
 ### Modern Web APIs
 
