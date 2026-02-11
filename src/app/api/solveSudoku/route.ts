@@ -10,6 +10,17 @@ import {
   ERROR_TYPES,
 } from '@/utils/error-handling';
 import { BackwardCompatibility } from '@/utils/backwardCompatibility';
+import {
+  buildSecurityHeaders,
+  createRateLimitedResponse,
+  enforceRateLimit,
+} from '@/app/api/_lib/security';
+
+const SOLVE_SUDOKU_RATE_LIMIT = {
+  key: 'solve-sudoku:post',
+  windowMs: 60_000,
+  maxRequests: 240,
+} as const;
 
 /**
  * Validates and parses grid size parameter
@@ -36,6 +47,14 @@ function validateGridSize(gridSizeParam: string | null): 4 | 6 | 9 {
  * @throws {Error} If the difficulty level or grid size is invalid.
  */
 export async function POST(request: NextRequest) {
+  const rateLimit = enforceRateLimit(request, SOLVE_SUDOKU_RATE_LIMIT);
+  if (rateLimit.limited) {
+    return createRateLimitedResponse(
+      rateLimit.retryAfterSeconds,
+      ERROR_MESSAGES.RATE_LIMITED
+    );
+  }
+
   try {
     const { searchParams } = new URL(request.url);
 
@@ -79,10 +98,10 @@ export async function POST(request: NextRequest) {
           { ...cachedPuzzle, cached: true },
           {
             status: 200,
-            headers: {
+            headers: buildSecurityHeaders({
               'Cache-Control': 'public, max-age=30, s-maxage=30',
               ETag: `"${cacheKey}-${Date.now()}"`,
-            },
+            }),
           }
         );
       }
@@ -110,19 +129,19 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(compatibleResponse, {
       status: 200,
-      headers: {
+      headers: buildSecurityHeaders({
         'Cache-Control': 'public, max-age=30, s-maxage=30',
         ETag: `"${cacheKey}-${Date.now()}"`,
         // Add backward compatibility headers
         'X-Sudoku-Version': '3.0.0',
         'X-Grid-Size': gridSize.toString(),
         'X-Backward-Compatible': 'true',
-      },
+      }),
     });
   } catch (error) {
     return NextResponse.json(
       createErrorResponse(error, ERROR_TYPES.GENERATION_ERROR),
-      { status: 500 }
+      { status: 500, headers: buildSecurityHeaders() }
     );
   }
 }

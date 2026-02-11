@@ -6,16 +6,47 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import {
+  buildSecurityHeaders,
+  createForbiddenResponse,
+  createRateLimitedResponse,
+  enforceRateLimit,
+  isSameOriginRequest,
+  readJsonBodyWithLimit,
+} from '@/app/api/_lib/security';
+
+const MAX_JSON_BODY_BYTES = 64 * 1024;
+const MAX_ACHIEVEMENT_BATCH_SIZE = 100;
+const POST_RATE_LIMIT = {
+  key: 'achievements:post',
+  windowMs: 60_000,
+  maxRequests: 120,
+} as const;
+const GET_RATE_LIMIT = {
+  key: 'achievements:get',
+  windowMs: 60_000,
+  maxRequests: 240,
+} as const;
+
+const AchievementTypeSchema = z.enum([
+  'completion',
+  'streak',
+  'speed',
+  'perfect',
+]);
 
 // Achievement data validation schema
 const AchievementDataSchema = z.object({
-  type: z.enum(['completion', 'streak', 'speed', 'perfect']),
+  type: AchievementTypeSchema,
   gridSize: z.union([z.literal(4), z.literal(6), z.literal(9)]),
-  value: z.number().positive(),
+  value: z.number().positive().max(1_000_000),
   timestamp: z.number().positive(),
 });
 
-const AchievementArraySchema = z.array(AchievementDataSchema);
+const AchievementArraySchema = z
+  .array(AchievementDataSchema)
+  .min(1)
+  .max(MAX_ACHIEVEMENT_BATCH_SIZE);
 
 // Achievement definitions for child-friendly messaging
 const ACHIEVEMENT_DEFINITIONS = {
@@ -52,12 +83,26 @@ const ACHIEVEMENT_DEFINITIONS = {
 } as const;
 
 export async function POST(request: NextRequest) {
+  const rateLimit = enforceRateLimit(request, POST_RATE_LIMIT);
+  if (rateLimit.limited) {
+    return createRateLimitedResponse(rateLimit.retryAfterSeconds);
+  }
+  if (!isSameOriginRequest(request)) {
+    return createForbiddenResponse();
+  }
+
   try {
-    const body = await request.json();
+    const bodyResult = await readJsonBodyWithLimit<unknown>(
+      request,
+      MAX_JSON_BODY_BYTES
+    );
+    if (!bodyResult.ok) {
+      return bodyResult.response;
+    }
 
     // Validate the request body
     const achievementData = AchievementArraySchema.parse(
-      Array.isArray(body) ? body : [body]
+      Array.isArray(bodyResult.data) ? bodyResult.data : [bodyResult.data]
     );
 
     // Process each achievement
@@ -117,7 +162,12 @@ export async function POST(request: NextRequest) {
         ),
         timestamp: Date.now(),
       },
-      { status: 200 }
+      {
+        status: 200,
+        headers: buildSecurityHeaders({
+          'Cache-Control': 'no-store',
+        }),
+      }
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -127,7 +177,12 @@ export async function POST(request: NextRequest) {
           error: 'Invalid achievement data format',
           details: error.issues,
         },
-        { status: 400 }
+        {
+          status: 400,
+          headers: buildSecurityHeaders({
+            'Cache-Control': 'no-store',
+          }),
+        }
       );
     }
 
@@ -137,22 +192,42 @@ export async function POST(request: NextRequest) {
         error: 'Internal server error',
         message: 'Failed to process achievement data',
       },
-      { status: 500 }
+      {
+        status: 500,
+        headers: buildSecurityHeaders({
+          'Cache-Control': 'no-store',
+        }),
+      }
     );
   }
 }
 
 export async function GET(request: NextRequest) {
+  const rateLimit = enforceRateLimit(request, GET_RATE_LIMIT);
+  if (rateLimit.limited) {
+    return createRateLimitedResponse(rateLimit.retryAfterSeconds);
+  }
+
   // Get user achievements (for future implementation)
   const { searchParams } = new URL(request.url);
   const gridSizeParam = searchParams.get('gridSize');
-  const type = searchParams.get('type');
+  const typeParam = searchParams.get('type');
   const parsedLimit = Number.parseInt(searchParams.get('limit') ?? '20', 10);
-  const limit = Number.isNaN(parsedLimit) ? 20 : parsedLimit;
+  const limit = Number.isNaN(parsedLimit)
+    ? 20
+    : Math.max(1, Math.min(parsedLimit, 50));
   const parsedGridSize = gridSizeParam
     ? Number.parseInt(gridSizeParam, 10)
     : null;
-  const gridSizeFilter = Number.isNaN(parsedGridSize) ? null : parsedGridSize;
+  const gridSizeFilter =
+    parsedGridSize === 4 || parsedGridSize === 6 || parsedGridSize === 9
+      ? parsedGridSize
+      : null;
+  const type = typeParam
+    ? AchievementTypeSchema.safeParse(typeParam).success
+      ? typeParam
+      : null
+    : null;
 
   // Mock achievement data
   const mockAchievements = [
@@ -211,12 +286,19 @@ export async function GET(request: NextRequest) {
     },
   };
 
-  return NextResponse.json({
-    success: true,
-    achievements: mockAchievements,
-    stats,
-    timestamp: Date.now(),
-  });
+  return NextResponse.json(
+    {
+      success: true,
+      achievements: mockAchievements,
+      stats,
+      timestamp: Date.now(),
+    },
+    {
+      headers: buildSecurityHeaders({
+        'Cache-Control': 'no-store',
+      }),
+    }
+  );
 }
 
 /**
