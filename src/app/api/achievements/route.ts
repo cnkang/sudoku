@@ -223,11 +223,10 @@ export async function GET(request: NextRequest) {
     parsedGridSize === 4 || parsedGridSize === 6 || parsedGridSize === 9
       ? parsedGridSize
       : null;
-  const type = typeParam
-    ? AchievementTypeSchema.safeParse(typeParam).success
-      ? typeParam
-      : null
+  const parsedType = typeParam
+    ? AchievementTypeSchema.safeParse(typeParam)
     : null;
+  const type = parsedType?.success ? parsedType.data : null;
 
   // Mock achievement data
   const mockAchievements = [
