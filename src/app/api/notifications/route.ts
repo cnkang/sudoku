@@ -5,11 +5,11 @@
 
 import { randomInt } from 'node:crypto';
 import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import {
-  buildSecurityHeaders,
   createForbiddenResponse,
+  createJsonResponse,
+  createNoStoreJsonResponse,
   createRateLimitedResponse,
   enforceRateLimit,
   isSameOriginRequest,
@@ -109,21 +109,21 @@ export async function POST(request: NextRequest) {
       }
       return handleSendNotification(bodyResult.data);
     } else {
-      return NextResponse.json(
+      return createJsonResponse(
         {
           success: false,
           error: 'Invalid action. Use ?action=subscribe or ?action=send',
         },
-        { status: 400, headers: buildSecurityHeaders() }
+        400
       );
     }
   } catch {
-    return NextResponse.json(
+    return createJsonResponse(
       {
         success: false,
         error: 'Internal server error',
       },
-      { status: 500, headers: buildSecurityHeaders() }
+      500
     );
   }
 }
@@ -138,57 +138,43 @@ async function handleSubscribe(body: unknown) {
       subscriptions.size >= MAX_SUBSCRIPTIONS &&
       !subscriptions.has(subscriptionKey)
     ) {
-      return NextResponse.json(
+      return createJsonResponse(
         {
           success: false,
           error: 'Subscription capacity reached. Please retry later.',
         },
-        { status: 429, headers: buildSecurityHeaders() }
+        429
       );
     }
     subscriptions.add(subscriptionKey);
 
-    return NextResponse.json(
+    return createNoStoreJsonResponse(
       {
         success: true,
         message: 'Push notification subscription registered successfully',
         subscriptionId: `${subscriptionKey.substring(0, 16)}...`,
         timestamp: Date.now(),
       },
-      {
-        headers: buildSecurityHeaders({
-          'Cache-Control': 'no-store',
-        }),
-      }
+      200
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
+      return createNoStoreJsonResponse(
         {
           success: false,
           error: 'Invalid subscription format',
           details: error.issues,
         },
-        {
-          status: 400,
-          headers: buildSecurityHeaders({
-            'Cache-Control': 'no-store',
-          }),
-        }
+        400
       );
     }
 
-    return NextResponse.json(
+    return createNoStoreJsonResponse(
       {
         success: false,
         error: 'Failed to register subscription',
       },
-      {
-        status: 500,
-        headers: buildSecurityHeaders({
-          'Cache-Control': 'no-store',
-        }),
-      }
+      500
     );
   }
 }
@@ -218,7 +204,7 @@ async function handleSendNotification(body: unknown) {
     ).length;
     const failureCount = notificationResults.length - successCount;
 
-    return NextResponse.json(
+    return createNoStoreJsonResponse(
       {
         success: true,
         message: 'Notifications sent successfully',
@@ -236,40 +222,26 @@ async function handleSendNotification(body: unknown) {
         },
         timestamp: Date.now(),
       },
-      {
-        headers: buildSecurityHeaders({
-          'Cache-Control': 'no-store',
-        }),
-      }
+      200
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
+      return createNoStoreJsonResponse(
         {
           success: false,
           error: 'Invalid notification payload',
           details: error.issues,
         },
-        {
-          status: 400,
-          headers: buildSecurityHeaders({
-            'Cache-Control': 'no-store',
-          }),
-        }
+        400
       );
     }
 
-    return NextResponse.json(
+    return createNoStoreJsonResponse(
       {
         success: false,
         error: 'Failed to send notifications',
       },
-      {
-        status: 500,
-        headers: buildSecurityHeaders({
-          'Cache-Control': 'no-store',
-        }),
-      }
+      500
     );
   }
 }
@@ -307,17 +279,13 @@ export async function GET(request: NextRequest) {
     ],
   };
 
-  return NextResponse.json(
+  return createNoStoreJsonResponse(
     {
       success: true,
       stats,
       timestamp: Date.now(),
     },
-    {
-      headers: buildSecurityHeaders({
-        'Cache-Control': 'no-store',
-      }),
-    }
+    200
   );
 }
 
@@ -345,7 +313,7 @@ export async function DELETE(request: NextRequest) {
     const subscriptionKey = `${subscription.endpoint}:${subscription.keys.p256dh}`;
     const wasRemoved = subscriptions.delete(subscriptionKey);
 
-    return NextResponse.json(
+    return createNoStoreJsonResponse(
       {
         success: true,
         message: wasRemoved
@@ -355,40 +323,26 @@ export async function DELETE(request: NextRequest) {
         remainingSubscriptions: subscriptions.size,
         timestamp: Date.now(),
       },
-      {
-        headers: buildSecurityHeaders({
-          'Cache-Control': 'no-store',
-        }),
-      }
+      200
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
+      return createNoStoreJsonResponse(
         {
           success: false,
           error: 'Invalid subscription format',
           details: error.issues,
         },
-        {
-          status: 400,
-          headers: buildSecurityHeaders({
-            'Cache-Control': 'no-store',
-          }),
-        }
+        400
       );
     }
 
-    return NextResponse.json(
+    return createNoStoreJsonResponse(
       {
         success: false,
         error: 'Failed to unsubscribe',
       },
-      {
-        status: 500,
-        headers: buildSecurityHeaders({
-          'Cache-Control': 'no-store',
-        }),
-      }
+      500
     );
   }
 }
