@@ -6,6 +6,9 @@ import {
   readJsonBodyWithLimit,
 } from './security';
 
+// RFC 5737 TEST-NET-3 address reserved for documentation and examples.
+const TEST_CLIENT_IP = '203.0.113.10';
+
 describe('API security helpers', () => {
   describe('isSameOriginRequest', () => {
     it('returns true when origin matches request origin', () => {
@@ -35,7 +38,7 @@ describe('API security helpers', () => {
     it('limits requests after reaching configured maximum', () => {
       const request = new NextRequest('http://localhost:3000/api/progress', {
         headers: {
-          'x-forwarded-for': '10.0.0.1',
+          'x-forwarded-for': TEST_CLIENT_IP,
         },
       });
       const key = `test-rate-${Date.now()}`;
