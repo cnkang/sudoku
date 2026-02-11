@@ -830,7 +830,7 @@ const SudokuGrid = memo<SudokuGridProps>(
     const _deferredHintCell = useDeferredValue(hintCell);
 
     const [selectedCell, setSelectedCell] = useState<CellPosition | null>(null);
-    const [_incorrectMoveCount, setIncorrectMoveCount] = useState(0);
+    const incorrectMoveCountRef = useRef(0);
     const cellRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
     // Memoize accessibility settings to prevent unnecessary re-renders
@@ -997,7 +997,7 @@ const SudokuGrid = memo<SudokuGridProps>(
               accessibilityManager,
               cellRefs,
             });
-            setIncorrectMoveCount(prev => prev + 1);
+            incorrectMoveCountRef.current += 1;
             onIncorrectMove?.();
             return;
           }
@@ -1015,7 +1015,7 @@ const SudokuGrid = memo<SudokuGridProps>(
             accessibilityManager,
             cellRefs,
           });
-          setIncorrectMoveCount(0);
+          incorrectMoveCountRef.current = 0;
           onCorrectMove?.();
 
           if (isPuzzleComplete(userInput, puzzle, gridConfig)) {
