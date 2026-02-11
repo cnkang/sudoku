@@ -4,11 +4,10 @@
  */
 
 import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import {
-  buildSecurityHeaders,
   createForbiddenResponse,
+  createNoStoreJsonResponse,
   createRateLimitedResponse,
   enforceRateLimit,
   isSameOriginRequest,
@@ -150,7 +149,7 @@ export async function POST(request: NextRequest) {
       ],
     }));
 
-    return NextResponse.json(
+    return createNoStoreJsonResponse(
       {
         success: true,
         message: `Successfully processed ${achievementData.length} achievements`,
@@ -162,42 +161,27 @@ export async function POST(request: NextRequest) {
         ),
         timestamp: Date.now(),
       },
-      {
-        status: 200,
-        headers: buildSecurityHeaders({
-          'Cache-Control': 'no-store',
-        }),
-      }
+      200
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
+      return createNoStoreJsonResponse(
         {
           success: false,
           error: 'Invalid achievement data format',
           details: error.issues,
         },
-        {
-          status: 400,
-          headers: buildSecurityHeaders({
-            'Cache-Control': 'no-store',
-          }),
-        }
+        400
       );
     }
 
-    return NextResponse.json(
+    return createNoStoreJsonResponse(
       {
         success: false,
         error: 'Internal server error',
         message: 'Failed to process achievement data',
       },
-      {
-        status: 500,
-        headers: buildSecurityHeaders({
-          'Cache-Control': 'no-store',
-        }),
-      }
+      500
     );
   }
 }
@@ -285,18 +269,14 @@ export async function GET(request: NextRequest) {
     },
   };
 
-  return NextResponse.json(
+  return createNoStoreJsonResponse(
     {
       success: true,
       achievements: mockAchievements,
       stats,
       timestamp: Date.now(),
     },
-    {
-      headers: buildSecurityHeaders({
-        'Cache-Control': 'no-store',
-      }),
-    }
+    200
   );
 }
 

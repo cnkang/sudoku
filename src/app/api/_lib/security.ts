@@ -19,6 +19,7 @@ type RateLimitResult = {
 };
 
 const MAX_RATE_LIMIT_ENTRIES = 10000;
+const NO_STORE_CACHE_CONTROL = 'no-store';
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
 function getHeaderValue(
@@ -138,20 +139,50 @@ export function buildSecurityHeaders(headersInit?: HeadersInit): Headers {
   return headers;
 }
 
+export function buildNoStoreSecurityHeaders(
+  headersInit?: HeadersInit
+): Headers {
+  const headers = buildSecurityHeaders(headersInit);
+  if (!headers.has('Cache-Control')) {
+    headers.set('Cache-Control', NO_STORE_CACHE_CONTROL);
+  }
+  return headers;
+}
+
+export function createJsonResponse<T>(
+  payload: T,
+  status = 200,
+  headersInit?: HeadersInit
+): NextResponse {
+  return NextResponse.json(payload, {
+    status,
+    headers: buildSecurityHeaders(headersInit),
+  });
+}
+
+export function createNoStoreJsonResponse<T>(
+  payload: T,
+  status = 200,
+  headersInit?: HeadersInit
+): NextResponse {
+  return NextResponse.json(payload, {
+    status,
+    headers: buildNoStoreSecurityHeaders(headersInit),
+  });
+}
+
 export function createRateLimitedResponse(
   retryAfterSeconds: number,
   message = 'Too many requests. Please try again later.'
 ): NextResponse {
-  return NextResponse.json(
+  return createJsonResponse(
     {
       success: false,
       error: message,
     },
+    429,
     {
-      status: 429,
-      headers: buildSecurityHeaders({
-        'Retry-After': String(retryAfterSeconds),
-      }),
+      'Retry-After': String(retryAfterSeconds),
     }
   );
 }
@@ -159,15 +190,12 @@ export function createRateLimitedResponse(
 export function createForbiddenResponse(
   message = 'Cross-origin request denied.'
 ): NextResponse {
-  return NextResponse.json(
+  return createJsonResponse(
     {
       success: false,
       error: message,
     },
-    {
-      status: 403,
-      headers: buildSecurityHeaders(),
-    }
+    403
   );
 }
 
@@ -175,44 +203,35 @@ export function createPayloadTooLargeResponse(
   maxBytes: number,
   message = 'Request payload too large.'
 ): NextResponse {
-  return NextResponse.json(
+  return createJsonResponse(
     {
       success: false,
       error: message,
       maxBytes,
     },
-    {
-      status: 413,
-      headers: buildSecurityHeaders(),
-    }
+    413
   );
 }
 
 export function createUnsupportedMediaTypeResponse(): NextResponse {
-  return NextResponse.json(
+  return createJsonResponse(
     {
       success: false,
       error: 'Unsupported media type. Use application/json.',
     },
-    {
-      status: 415,
-      headers: buildSecurityHeaders(),
-    }
+    415
   );
 }
 
 export function createBadRequestResponse(
   message = 'Invalid JSON payload.'
 ): NextResponse {
-  return NextResponse.json(
+  return createJsonResponse(
     {
       success: false,
       error: message,
     },
-    {
-      status: 400,
-      headers: buildSecurityHeaders(),
-    }
+    400
   );
 }
 

@@ -1,7 +1,6 @@
 import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
 import {
-  buildSecurityHeaders,
+  createNoStoreJsonResponse,
   createRateLimitedResponse,
   enforceRateLimit,
 } from '@/app/api/_lib/security';
@@ -35,14 +34,9 @@ export async function GET(request: NextRequest) {
           }),
     };
 
-    return NextResponse.json(healthPayload, {
-      status: 200,
-      headers: buildSecurityHeaders({
-        'Cache-Control': 'no-store',
-      }),
-    });
+    return createNoStoreJsonResponse(healthPayload, 200);
   } catch (error) {
-    return NextResponse.json(
+    return createNoStoreJsonResponse(
       {
         status: 'error',
         message:
@@ -51,12 +45,7 @@ export async function GET(request: NextRequest) {
             : error.message,
         timestamp: new Date().toISOString(),
       },
-      {
-        status: 500,
-        headers: buildSecurityHeaders({
-          'Cache-Control': 'no-store',
-        }),
-      }
+      500
     );
   }
 }
