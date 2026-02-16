@@ -90,11 +90,47 @@ describe('apiCache', () => {
       const cachedData = { cached: true };
       clientCache.set('test-url-{}', cachedData, 'old-etag');
 
-      const mockResponse = { status: 304 };
+      const mockResponse = { status: 304, ok: false };
       vi.mocked(fetch).mockResolvedValue(mockResponse as Response);
 
       const result = await fetchWithCache('test-url');
 
+      expect(result).toEqual(cachedData);
+    });
+
+    it('should include If-None-Match header when cached ETag exists', async () => {
+      clientCache.set('etag-url-{}', { stale: true }, 'etag-123');
+
+      const mockResponse = {
+        ok: true,
+        status: 200,
+        json: vi.fn().mockResolvedValue({ fresh: true }),
+        headers: new Headers({ ETag: 'etag-456' }),
+      };
+      vi.mocked(fetch).mockResolvedValue(mockResponse as Response);
+
+      await fetchWithCache('etag-url', {}, true);
+
+      expect(fetch).toHaveBeenCalledWith(
+        'etag-url',
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'If-None-Match': 'etag-123',
+          }),
+        })
+      );
+    });
+
+    it('should return cached data on 304 when force refresh is enabled', async () => {
+      const cachedData = { cached: 'value' };
+      clientCache.set('revalidate-url-{}', cachedData, 'etag-123');
+
+      const mockResponse = { status: 304, ok: false };
+      vi.mocked(fetch).mockResolvedValue(mockResponse as Response);
+
+      const result = await fetchWithCache('revalidate-url', {}, true);
+
+      expect(fetch).toHaveBeenCalledTimes(1);
       expect(result).toEqual(cachedData);
     });
 
