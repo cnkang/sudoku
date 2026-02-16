@@ -1565,9 +1565,6 @@ packages:
   '@types/node@25.2.3':
     resolution: {integrity: sha512-m0jEgYlYz+mDJZ2+F4v8D1AyQb+QzsNqRuI7xg1VQX/KlKS0qT9r1Mo16yo5F/MtifXFgaofIFsdFMox2SxIbQ==}
 
-  '@types/node@25.2.3':
-    resolution: {integrity: sha512-m0jEgYlYz+mDJZ2+F4v8D1AyQb+QzsNqRuI7xg1VQX/KlKS0qT9r1Mo16yo5F/MtifXFgaofIFsdFMox2SxIbQ==}
-
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
     peerDependencies:
@@ -4934,10 +4931,6 @@ snapshots:
   '@types/json-schema@7.0.15': {}
 
   '@types/lodash@4.17.23': {}
-
-  '@types/node@25.2.3':
-    dependencies:
-      undici-types: 7.16.0
 
   '@types/node@25.2.3':
     dependencies:
