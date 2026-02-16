@@ -9,6 +9,12 @@ const ALLOWED_PUZZLE_SIZES = new Set([4, 6, 9]);
 const DEFAULT_PUZZLE_SIZE = 9;
 const MIN_PUZZLE_DIFFICULTY = 1;
 const MAX_PUZZLE_DIFFICULTY = 5;
+const SW_MESSAGE_TYPES = new Set([
+  'SKIP_WAITING',
+  'CACHE_PROGRESS',
+  'CACHE_ACHIEVEMENT',
+  'GET_CACHE_STATUS',
+]);
 
 // Static assets to cache immediately
 const STATIC_ASSETS = [
@@ -521,27 +527,73 @@ globalThis.addEventListener('notificationclick', event => {
 
 // Message handling for communication with main thread
 globalThis.addEventListener('message', event => {
+  if (!isValidMessageEvent(event)) {
+    swError('[SW] Ignoring message from untrusted origin/source');
+    return;
+  }
+
   swLog('[SW] Message received:', event.data);
 
-  if (event.data?.type) {
-    switch (event.data.type) {
-      case 'SKIP_WAITING':
-        globalThis.skipWaiting();
+  if (!isValidMessageData(event.data)) {
+    swError('[SW] Ignoring message with invalid payload/type');
+    return;
+  }
+
+  switch (event.data.type) {
+    case 'SKIP_WAITING':
+      globalThis.skipWaiting();
+      break;
+    case 'CACHE_PROGRESS':
+      cacheProgressData(event.data.payload);
+      break;
+    case 'CACHE_ACHIEVEMENT':
+      cacheAchievementData(event.data.payload);
+      break;
+    case 'GET_CACHE_STATUS': {
+      const replyPort = event.ports?.[0];
+      if (!replyPort) {
+        swError('[SW] Missing message port for GET_CACHE_STATUS');
         break;
-      case 'CACHE_PROGRESS':
-        cacheProgressData(event.data.payload);
-        break;
-      case 'CACHE_ACHIEVEMENT':
-        cacheAchievementData(event.data.payload);
-        break;
-      case 'GET_CACHE_STATUS':
-        getCacheStatus().then(status => {
-          event.ports[0].postMessage(status);
-        });
-        break;
+      }
+
+      event.waitUntil(
+        getCacheStatus()
+          .then(status => {
+            replyPort.postMessage(status);
+          })
+          .catch(error => {
+            swError('[SW] Failed to respond with cache status:', error);
+          })
+      );
+      break;
     }
   }
 });
+
+function isValidMessageData(data) {
+  return (
+    !!data &&
+    typeof data === 'object' &&
+    typeof data.type === 'string' &&
+    SW_MESSAGE_TYPES.has(data.type)
+  );
+}
+
+function isValidMessageEvent(event) {
+  if (event.origin && event.origin !== globalThis.location.origin) {
+    return false;
+  }
+
+  if (event.source && 'url' in event.source) {
+    try {
+      return new URL(event.source.url).origin === globalThis.location.origin;
+    } catch {
+      return false;
+    }
+  }
+
+  return true;
+}
 
 // Cache progress data for later sync
 async function cacheProgressData(progressData) {
