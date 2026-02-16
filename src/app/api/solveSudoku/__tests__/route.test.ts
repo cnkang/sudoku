@@ -87,6 +87,32 @@ describe('/api/solveSudoku', () => {
     });
   });
 
+  describe('Grid Size Validation', () => {
+    it('should accept supported grid size values', async () => {
+      const url =
+        'http://localhost:3000/api/solveSudoku?difficulty=1&gridSize=4';
+      mockRequest = new NextRequest(url, { method: 'POST' });
+
+      const response = await POST(mockRequest);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.gridSize).toBe(4);
+    });
+
+    it('should reject unsupported grid size values', async () => {
+      const url =
+        'http://localhost:3000/api/solveSudoku?difficulty=1&gridSize=5';
+      mockRequest = new NextRequest(url, { method: 'POST' });
+
+      const response = await POST(mockRequest);
+      const data = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(data.error).toBe('Invalid grid size. Must be 4, 6, or 9.');
+    });
+  });
+
   describe('Invalid Difficulty Parameters', () => {
     it('should reject missing difficulty parameter', async () => {
       const url = 'http://localhost:3000/api/solveSudoku';
@@ -308,6 +334,26 @@ describe('/api/solveSudoku', () => {
   });
 
   describe('Error Handling', () => {
+    it('should return 429 when endpoint-level rate limit is exceeded', async () => {
+      const security = await import('@/app/api/_lib/security');
+      const rateLimitSpy = vi
+        .spyOn(security, 'enforceRateLimit')
+        .mockReturnValue({
+          limited: true,
+          retryAfterSeconds: 30,
+          remaining: 0,
+        });
+
+      mockRequest = createMockRequest('5');
+      const response = await POST(mockRequest);
+      const data = await response.json();
+
+      expect(response.status).toBe(429);
+      expect(data.error).toBe('Please wait before making another request');
+
+      rateLimitSpy.mockRestore();
+    });
+
     it('should handle generator errors', async () => {
       const { generateSudokuPuzzle } = await import('../sudokuGenerator');
 
