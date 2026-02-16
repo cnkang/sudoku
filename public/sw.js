@@ -5,6 +5,10 @@ const CACHE_NAME = 'sudoku-pwa-v1';
 const STATIC_CACHE_NAME = 'sudoku-static-v1';
 const PUZZLE_CACHE_NAME = 'sudoku-puzzles-v1';
 const RUNTIME_CACHE_NAME = 'sudoku-runtime-v1';
+const ALLOWED_PUZZLE_SIZES = new Set([4, 6, 9]);
+const DEFAULT_PUZZLE_SIZE = 9;
+const MIN_PUZZLE_DIFFICULTY = 1;
+const MAX_PUZZLE_DIFFICULTY = 5;
 
 // Static assets to cache immediately
 const STATIC_ASSETS = [
@@ -94,7 +98,7 @@ globalThis.addEventListener('fetch', event => {
 // Handle puzzle generation requests
 async function handlePuzzleRequest(request) {
   const url = new URL(request.url);
-  const cacheKey = `puzzle-${url.searchParams.toString()}`;
+  const cacheRequest = createPuzzleCacheRequest(url.searchParams);
 
   try {
     // Try network first for fresh puzzles
@@ -112,11 +116,11 @@ async function handlePuzzleRequest(request) {
         headers: {
           ...Object.fromEntries(responseClone.headers.entries()),
           'sw-cached-at': Date.now().toString(),
-          'sw-cache-key': cacheKey,
+          'sw-cache-key': cacheRequest.url,
         },
       });
 
-      await cache.put(cacheKey, responseWithMeta);
+      await cache.put(cacheRequest, responseWithMeta);
       return networkResponse;
     }
   } catch {
@@ -125,7 +129,7 @@ async function handlePuzzleRequest(request) {
 
   // Fallback to cache
   const cache = await caches.open(PUZZLE_CACHE_NAME);
-  const cachedResponse = await cache.match(cacheKey);
+  const cachedResponse = await cache.match(cacheRequest);
 
   if (cachedResponse) {
     return cachedResponse;
@@ -133,6 +137,35 @@ async function handlePuzzleRequest(request) {
 
   // Generate offline puzzle if no cache available
   return generateOfflinePuzzle(url.searchParams);
+}
+
+function createPuzzleCacheRequest(searchParams) {
+  const normalizedParams = normalizePuzzleParams(searchParams);
+  const cacheUrl = new URL('/__sw/puzzle-cache', globalThis.location.origin);
+  cacheUrl.searchParams.set('size', String(normalizedParams.size));
+  cacheUrl.searchParams.set('difficulty', String(normalizedParams.difficulty));
+
+  return new Request(cacheUrl.toString(), { method: 'GET' });
+}
+
+function normalizePuzzleParams(searchParams) {
+  const parsedSize = Number.parseInt(searchParams.get('size') ?? '', 10);
+  const parsedDifficulty = Number.parseInt(
+    searchParams.get('difficulty') ?? '',
+    10
+  );
+
+  const size = ALLOWED_PUZZLE_SIZES.has(parsedSize)
+    ? parsedSize
+    : DEFAULT_PUZZLE_SIZE;
+  const difficulty = Number.isFinite(parsedDifficulty)
+    ? Math.min(
+        MAX_PUZZLE_DIFFICULTY,
+        Math.max(MIN_PUZZLE_DIFFICULTY, parsedDifficulty)
+      )
+    : MIN_PUZZLE_DIFFICULTY;
+
+  return { size, difficulty };
 }
 
 // Handle API requests
