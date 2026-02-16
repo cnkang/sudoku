@@ -66,5 +66,32 @@ describe('Stats Utils', () => {
       expect(stats.gamesPlayed).toBe(5);
       expect(stats.gamesCompleted).toBe(3);
     });
+
+    it('should fall back to defaults when localStorage throws', () => {
+      mockLocalStorage.getItem.mockImplementation(() => {
+        throw new Error('storage unavailable');
+      });
+
+      const stats = getStats();
+
+      expect(stats).toEqual({
+        gamesPlayed: 0,
+        gamesCompleted: 0,
+        bestTimes: {},
+        totalTime: 0,
+        averageTime: 0,
+      });
+    });
+  });
+
+  describe('error resilience', () => {
+    it('should not throw when persisting stats fails', () => {
+      mockLocalStorage.getItem.mockReturnValue(null);
+      mockLocalStorage.setItem.mockImplementation(() => {
+        throw new Error('quota exceeded');
+      });
+
+      expect(() => updateStats(2, 120, true)).not.toThrow();
+    });
   });
 });
