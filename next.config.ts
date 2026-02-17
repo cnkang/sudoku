@@ -1,5 +1,4 @@
 import type { NextConfig } from 'next';
-import withPWA from '@ducanh2912/next-pwa';
 
 const reactCompilerOptions: Record<string, unknown> = {
   compilationMode: 'annotation',
@@ -11,9 +10,10 @@ const reactCompilerOptions: Record<string, unknown> = {
 };
 
 const experimentalOptions: Record<string, unknown> = {
-  optimizePackageImports: ['lodash', 'fast-check'],
+  optimizePackageImports: ['fast-check'],
   optimizeCss: true,
   optimizeServerReact: true,
+  serverSourceMaps: false,
 };
 
 const nextConfig: NextConfig = {
@@ -31,10 +31,10 @@ const nextConfig: NextConfig = {
     NextConfig['reactCompiler']
   >,
   experimental: experimentalOptions as NonNullable<NextConfig['experimental']>,
-  // Server external packages (moved from experimental)
-  serverExternalPackages: ['winston'],
+  // Ensure browser bundles do not emit source maps in production artifacts
+  productionBrowserSourceMaps: false,
   // Transpile packages for better compatibility
-  transpilePackages: ['lodash-es', 'fast-sudoku-solver'],
+  transpilePackages: ['fast-sudoku-solver'],
   compiler: {
     // Enable React 19 compiler optimizations
     reactRemoveProperties: process.env.NODE_ENV === 'production',
@@ -180,13 +180,4 @@ const nextConfig: NextConfig = {
     : {}),
 };
 
-export default withPWA({
-  dest: 'public',
-  cacheOnFrontEndNav: true,
-  aggressiveFrontEndNavCaching: true,
-  reloadOnOnline: true,
-  disable: process.env.NODE_ENV === 'development',
-  workboxOptions: {
-    disableDevLogs: true,
-  },
-})(nextConfig);
+export default nextConfig;

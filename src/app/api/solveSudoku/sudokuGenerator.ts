@@ -1,22 +1,19 @@
-import winston from 'winston';
 import type { SudokuPuzzle } from './types';
 import type { GridConfig } from '@/types';
 import { solveSudoku } from './dlxSolver';
-import { shuffle } from 'lodash';
 import crypto from 'node:crypto';
 import { getConfig, validateMove } from '@/utils/gridConfig';
 
-// Configure logging
-const logger = winston.createLogger({
-  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.printf(({ timestamp, level, message }) => {
-      return `${timestamp} [${level.toUpperCase()}]: ${message}`;
-    })
-  ),
-  transports: [new winston.transports.Console()],
-});
+const logger = {
+  debug: (message: string) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.debug(`[sudoku-generator] ${message}`);
+    }
+  },
+  warn: (message: string) => {
+    console.warn(`[sudoku-generator] ${message}`);
+  },
+};
 
 // Generates a Sudoku puzzle based on the provided difficulty and grid configuration.
 export async function generateSudokuPuzzle(
@@ -107,7 +104,18 @@ function isSafe(
 }
 
 function shuffleArray(array: number[]): number[] {
-  return shuffle(array);
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = crypto.randomInt(0, i + 1);
+    const current = shuffled[i];
+    const target = shuffled[j];
+    if (current === undefined || target === undefined) {
+      continue;
+    }
+    shuffled[i] = target;
+    shuffled[j] = current;
+  }
+  return shuffled;
 }
 
 // Removes numbers from a complete board to create a puzzle with appropriate difficulty for any grid size.

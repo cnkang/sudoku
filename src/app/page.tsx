@@ -1,5 +1,4 @@
 'use client';
-import 'regenerator-runtime/runtime';
 import { Suspense } from 'react';
 import ModernSudokuApp from '../components/ModernSudokuApp';
 import { getPerformanceMonitor } from '../utils/performance-monitoring';

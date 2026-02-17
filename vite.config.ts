@@ -7,17 +7,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  plugins: [
-    react({
-      babel: {
-        plugins:
-          // Disable React Compiler in test environment to avoid JSX warnings
-          process.env.NODE_ENV === 'test'
-            ? []
-            : ['babel-plugin-react-compiler'],
-      },
-    }),
-  ],
+  plugins: [react()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
