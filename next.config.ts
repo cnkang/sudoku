@@ -165,6 +165,10 @@ const nextConfig: NextConfig = {
             value:
               'accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()',
           },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
           // Performance headers
           {
             key: 'X-DNS-Prefetch-Control',
