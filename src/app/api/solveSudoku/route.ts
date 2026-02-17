@@ -12,8 +12,10 @@ import {
 import { BackwardCompatibility } from '@/utils/backwardCompatibility';
 import {
   buildSecurityHeaders,
+  createForbiddenResponse,
   createRateLimitedResponse,
   enforceRateLimit,
+  isSameOriginRequest,
 } from '@/app/api/_lib/security';
 
 const SOLVE_SUDOKU_RATE_LIMIT = {
@@ -21,6 +23,8 @@ const SOLVE_SUDOKU_RATE_LIMIT = {
   windowMs: 60_000,
   maxRequests: 240,
 } as const;
+const SAFE_SEED_PATTERN = /^[a-zA-Z0-9_-]+$/;
+const MAX_SEED_LENGTH = 64;
 
 /**
  * Validates and parses grid size parameter
@@ -38,6 +42,25 @@ function validateGridSize(gridSizeParam: string | null): 4 | 6 | 9 {
 
   return gridSize as 4 | 6 | 9;
 }
+
+function validateSeed(seedParam: string | null): string {
+  if (!seedParam) {
+    return 'default';
+  }
+
+  const seed = seedParam.trim();
+  if (!seed) {
+    return 'default';
+  }
+
+  if (seed.length > MAX_SEED_LENGTH || !SAFE_SEED_PATTERN.test(seed)) {
+    throw new Error(
+      'Invalid seed. Use 1-64 characters containing only letters, numbers, "_" or "-".'
+    );
+  }
+
+  return seed;
+}
 /**
  * POST /api/solveSudoku
  *
@@ -54,6 +77,9 @@ export async function POST(request: NextRequest) {
       ERROR_MESSAGES.RATE_LIMITED
     );
   }
+  if (!isSameOriginRequest(request)) {
+    return createForbiddenResponse();
+  }
 
   try {
     const { searchParams } = new URL(request.url);
@@ -68,7 +94,7 @@ export async function POST(request: NextRequest) {
       config
     );
 
-    const seed = searchParams.get('seed') || 'default';
+    const seed = validateSeed(searchParams.get('seed'));
     const forceRefresh = searchParams.get('force') === 'true';
 
     // Include grid size in cache key for proper separation
@@ -139,8 +165,12 @@ export async function POST(request: NextRequest) {
       }),
     });
   } catch (error) {
+    const safeError =
+      process.env.NODE_ENV === 'production'
+        ? ERROR_MESSAGES.GENERATION_FAILED
+        : error;
     return NextResponse.json(
-      createErrorResponse(error, ERROR_TYPES.GENERATION_ERROR),
+      createErrorResponse(safeError, ERROR_TYPES.GENERATION_ERROR),
       { status: 500, headers: buildSecurityHeaders() }
     );
   }

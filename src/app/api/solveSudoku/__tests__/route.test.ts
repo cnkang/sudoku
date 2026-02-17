@@ -334,6 +334,23 @@ describe('/api/solveSudoku', () => {
   });
 
   describe('Error Handling', () => {
+    it('should reject cross-origin requests', async () => {
+      const security = await import('@/app/api/_lib/security');
+      const sameOriginSpy = vi
+        .spyOn(security, 'isSameOriginRequest')
+        .mockReturnValue(false);
+
+      mockRequest = createMockRequest('5');
+
+      const response = await POST(mockRequest);
+      const data = await response.json();
+
+      expect(response.status).toBe(403);
+      expect(data.error).toBe('Cross-origin request denied.');
+
+      sameOriginSpy.mockRestore();
+    });
+
     it('should return 429 when endpoint-level rate limit is exceeded', async () => {
       const security = await import('@/app/api/_lib/security');
       const rateLimitSpy = vi
@@ -491,6 +508,44 @@ describe('/api/solveSudoku', () => {
 
       expect(response.status).toBe(500);
       expect(data.error).toBe('Difficulty must be a positive integer.');
+    });
+
+    it('should reject seed with unsupported characters', async () => {
+      const url =
+        'http://localhost:3000/api/solveSudoku?difficulty=5&seed=bad*seed';
+      mockRequest = new NextRequest(url, { method: 'POST' });
+
+      const response = await POST(mockRequest);
+      const data = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(data.error).toBe(
+        'Invalid seed. Use 1-64 characters containing only letters, numbers, "_" or "-".'
+      );
+    });
+
+    it('should reject seed that exceeds maximum length', async () => {
+      const seed = 'a'.repeat(65);
+      const url = `http://localhost:3000/api/solveSudoku?difficulty=5&seed=${seed}`;
+      mockRequest = new NextRequest(url, { method: 'POST' });
+
+      const response = await POST(mockRequest);
+      const data = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(data.error).toBe(
+        'Invalid seed. Use 1-64 characters containing only letters, numbers, "_" or "-".'
+      );
+    });
+
+    it('should accept seed with safe characters', async () => {
+      const url =
+        'http://localhost:3000/api/solveSudoku?difficulty=5&seed=seed_123-abc';
+      mockRequest = new NextRequest(url, { method: 'POST' });
+
+      const response = await POST(mockRequest);
+
+      expect(response.status).toBe(200);
     });
   });
 
