@@ -52,9 +52,29 @@ describe('/api/solveSudoku', () => {
     return new NextRequest(url, { method: 'POST' });
   };
 
+  const createRequestFromQuery = (query: string) =>
+    new NextRequest(`http://localhost:3000/api/solveSudoku?${query}`, {
+      method: 'POST',
+    });
+
+  const assertErrorResponse = async (
+    request: NextRequest,
+    expectedStatus: number,
+    expectedError: string
+  ) => {
+    const response = await POST(request);
+    const data = await response.json();
+    expect(response.status).toBe(expectedStatus);
+    expect(data.error).toBe(expectedError);
+  };
+
   describe('Valid Requests', () => {
-    it('should generate puzzle for valid difficulty', async () => {
-      mockRequest = createMockRequest('5');
+    it.each([
+      '1',
+      '5',
+      '10',
+    ])('should generate puzzle for valid difficulty %s', async difficulty => {
+      mockRequest = createMockRequest(difficulty);
 
       const response = await POST(mockRequest);
       const data = await response.json();
@@ -63,27 +83,13 @@ describe('/api/solveSudoku', () => {
       expect(data).toHaveProperty('puzzle');
       expect(data).toHaveProperty('solution');
       expect(data).toHaveProperty('difficulty');
+    });
+
+    it('should return solved=true for a successful puzzle response', async () => {
+      mockRequest = createMockRequest('5');
+      const response = await POST(mockRequest);
+      const data = await response.json();
       expect(data.solved).toBe(true);
-    });
-
-    it('should handle minimum difficulty (1)', async () => {
-      mockRequest = createMockRequest('1');
-
-      const response = await POST(mockRequest);
-      const data = await response.json();
-
-      expect(response.status).toBe(200);
-      expect(data).toHaveProperty('puzzle');
-    });
-
-    it('should handle maximum difficulty (10)', async () => {
-      mockRequest = createMockRequest('10');
-
-      const response = await POST(mockRequest);
-      const data = await response.json();
-
-      expect(response.status).toBe(200);
-      expect(data).toHaveProperty('puzzle');
     });
   });
 
@@ -115,88 +121,31 @@ describe('/api/solveSudoku', () => {
 
   describe('Invalid Difficulty Parameters', () => {
     it('should reject missing difficulty parameter', async () => {
-      const url = 'http://localhost:3000/api/solveSudoku';
-      mockRequest = new NextRequest(url, { method: 'POST' });
+      const request = new NextRequest('http://localhost:3000/api/solveSudoku', {
+        method: 'POST',
+      });
 
-      const response = await POST(mockRequest);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe('Difficulty must be a valid number.');
-    });
-
-    it('should reject empty difficulty parameter', async () => {
-      mockRequest = createMockRequest('');
-
-      const response = await POST(mockRequest);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe('Difficulty must be a positive integer.');
-    });
-
-    it('should reject non-numeric difficulty', async () => {
-      mockRequest = createMockRequest('abc');
-
-      const response = await POST(mockRequest);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe('Difficulty must be a positive integer.');
-    });
-
-    it('should reject negative difficulty', async () => {
-      mockRequest = createMockRequest('-1');
-
-      const response = await POST(mockRequest);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe('Difficulty must be a positive integer.');
-    });
-
-    it('should reject zero difficulty', async () => {
-      mockRequest = createMockRequest('0');
-
-      const response = await POST(mockRequest);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe(
-        'Invalid difficulty level. Must be between 1 and 10.'
+      await assertErrorResponse(
+        request,
+        500,
+        'Difficulty must be a valid number.'
       );
     });
 
-    it('should reject difficulty above maximum', async () => {
-      mockRequest = createMockRequest('11');
-
-      const response = await POST(mockRequest);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe(
-        'Invalid difficulty level. Must be between 1 and 10.'
+    it.each([
+      ['', 'Difficulty must be a positive integer.'],
+      ['abc', 'Difficulty must be a positive integer.'],
+      ['-1', 'Difficulty must be a positive integer.'],
+      ['5.5', 'Difficulty must be a positive integer.'],
+      ['5!', 'Difficulty must be a positive integer.'],
+      ['0', 'Invalid difficulty level. Must be between 1 and 10.'],
+      ['11', 'Invalid difficulty level. Must be between 1 and 10.'],
+    ])('should reject invalid difficulty "%s"', async (difficulty, expectedError) => {
+      await assertErrorResponse(
+        createMockRequest(difficulty),
+        500,
+        expectedError
       );
-    });
-
-    it('should reject decimal difficulty', async () => {
-      mockRequest = createMockRequest('5.5');
-
-      const response = await POST(mockRequest);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe('Difficulty must be a positive integer.');
-    });
-
-    it('should reject difficulty with special characters', async () => {
-      mockRequest = createMockRequest('5!');
-
-      const response = await POST(mockRequest);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe('Difficulty must be a positive integer.');
     });
   });
 
@@ -319,17 +268,15 @@ describe('/api/solveSudoku', () => {
       expect(data.cached).toBe(true);
     });
 
-    it('should clear cache entry after timeout', async () => {
-      // First request to populate cache
+    it('should keep serving valid responses after timer advances', async () => {
       mockRequest = createMockRequest('6');
       await POST(mockRequest);
 
-      // Fast forward to expire cache
       vi.advanceTimersByTime(5001);
 
-      // The cache should be automatically cleared by the timeout
-      // This is tested implicitly by the cache expiration test above
-      expect(true).toBe(true); // Placeholder assertion
+      mockRequest = createMockRequest('6');
+      const response = await POST(mockRequest);
+      expect(response.status).toBe(200);
     });
   });
 
@@ -387,41 +334,24 @@ describe('/api/solveSudoku', () => {
       expect(data.error).toBe('Generator failed');
     });
 
-    it('should handle thrown errors with string messages', async () => {
+    it('should return a generic generation error in production', async () => {
       const { generateSudokuPuzzle } = await import('../sudokuGenerator');
-
-      // Mock generator to throw an error
-      vi.mocked(generateSudokuPuzzle).mockImplementationOnce(() => {
-        throw new Error('String error');
-      });
-
-      mockRequest = createMockRequest('5');
-      const response = await POST(mockRequest);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe('String error');
-    });
-
-    it('should handle errors gracefully and log them', async () => {
-      const { generateSudokuPuzzle } = await import('../sudokuGenerator');
-      const consoleSpy = vi
-        .spyOn(console, 'error')
-        .mockImplementation(() => {});
-      vi.clearAllMocks();
+      const previousNodeEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'production';
 
       vi.mocked(generateSudokuPuzzle).mockImplementationOnce(() => {
-        throw new Error('Test error');
+        throw new Error('Sensitive details');
       });
 
-      mockRequest = createMockRequest('5');
-      const response = await POST(mockRequest);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe('Test error');
-
-      consoleSpy.mockRestore();
+      try {
+        await assertErrorResponse(
+          createMockRequest('5'),
+          500,
+          'Failed to generate puzzle'
+        );
+      } finally {
+        process.env.NODE_ENV = previousNodeEnv;
+      }
     });
   });
 
@@ -471,80 +401,39 @@ describe('/api/solveSudoku', () => {
 
   describe('Validation Edge Cases', () => {
     it('should handle leading zeros in difficulty', async () => {
-      mockRequest = createMockRequest('05');
-
-      const response = await POST(mockRequest);
-
+      const response = await POST(createMockRequest('05'));
       expect(response.status).toBe(200);
     });
 
-    it('should handle whitespace in difficulty', async () => {
-      mockRequest = createMockRequest(' 5 ');
-
-      const response = await POST(mockRequest);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe('Difficulty must be a positive integer.');
-    });
-
-    it('should handle very large numbers', async () => {
-      mockRequest = createMockRequest('999999');
-
-      const response = await POST(mockRequest);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe(
-        'Invalid difficulty level. Must be between 1 and 10.'
+    it.each([
+      [' 5 ', 'Difficulty must be a positive integer.'],
+      ['999999', 'Invalid difficulty level. Must be between 1 and 10.'],
+      ['1e1', 'Difficulty must be a positive integer.'],
+    ])('should reject edge-case difficulty "%s"', async (difficulty, expectedError) => {
+      await assertErrorResponse(
+        createMockRequest(difficulty),
+        500,
+        expectedError
       );
     });
 
-    it('should handle scientific notation', async () => {
-      mockRequest = createMockRequest('1e1');
-
-      const response = await POST(mockRequest);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe('Difficulty must be a positive integer.');
-    });
-
-    it('should reject seed with unsupported characters', async () => {
-      const url =
-        'http://localhost:3000/api/solveSudoku?difficulty=5&seed=bad*seed';
-      mockRequest = new NextRequest(url, { method: 'POST' });
-
-      const response = await POST(mockRequest);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe(
+    it.each([
+      'difficulty=5&seed=bad*seed',
+      `difficulty=5&seed=${'a'.repeat(65)}`,
+    ])('should reject invalid seed query "%s"', async query => {
+      await assertErrorResponse(
+        createRequestFromQuery(query),
+        500,
         'Invalid seed. Use 1-64 characters containing only letters, numbers, "_" or "-".'
       );
     });
 
-    it('should reject seed that exceeds maximum length', async () => {
-      const seed = 'a'.repeat(65);
-      const url = `http://localhost:3000/api/solveSudoku?difficulty=5&seed=${seed}`;
-      mockRequest = new NextRequest(url, { method: 'POST' });
-
-      const response = await POST(mockRequest);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe(
-        'Invalid seed. Use 1-64 characters containing only letters, numbers, "_" or "-".'
-      );
-    });
-
-    it('should accept seed with safe characters', async () => {
-      const url =
-        'http://localhost:3000/api/solveSudoku?difficulty=5&seed=seed_123-abc';
-      mockRequest = new NextRequest(url, { method: 'POST' });
-
-      const response = await POST(mockRequest);
-
+    it.each([
+      'difficulty=5&seed=seed_123-abc',
+      'difficulty=5&seed=',
+      'difficulty=5&seed=%20%20%20',
+    ])('should accept valid or fallback seed query "%s"', async query => {
+      const response = await POST(createRequestFromQuery(query));
       expect(response.status).toBe(200);
     });
   });
