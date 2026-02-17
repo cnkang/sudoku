@@ -1,73 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Mock setInterval to prevent side effects
-vi.mock('node:timers', () => ({
-  setInterval: vi.fn(),
-}));
-
-// Import after mocking to ensure setInterval is mocked
-const { puzzleCache } = await import('../cache.js');
-
-// Create a test cache class that extends the functionality for testing
-class TestAPICache<T> {
-  private cache = new Map<
-    string,
-    { data: T; timestamp: number; ttl: number }
-  >();
-  private readonly defaultTTL: number;
-
-  constructor(defaultTTL = 30000) {
-    this.defaultTTL = defaultTTL;
-  }
-
-  set(key: string, data: T, ttl = this.defaultTTL): void {
-    this.cache.set(key, {
-      data,
-      timestamp: Date.now(),
-      ttl,
-    });
-  }
-
-  get(key: string): T | null {
-    const item = this.cache.get(key);
-    if (!item) return null;
-
-    if (Date.now() - item.timestamp > item.ttl) {
-      this.cache.delete(key);
-      return null;
-    }
-
-    return item.data;
-  }
-
-  has(key: string): boolean {
-    return this.get(key) !== null;
-  }
-
-  clear(): void {
-    this.cache.clear();
-  }
-
-  cleanup(): void {
-    const now = Date.now();
-    for (const [key, item] of this.cache.entries()) {
-      if (now - item.timestamp > item.ttl) {
-        this.cache.delete(key);
-      }
-    }
-  }
-
-  size(): number {
-    return this.cache.size;
-  }
-}
+const { APICache, puzzleCache } = await import('../cache.js');
 
 describe('APICache', () => {
-  let cache: TestAPICache<any>;
+  let cache: APICache<unknown>;
   let mockNow: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    cache = new TestAPICache(5000); // 5 second TTL for testing
+    cache = new APICache(5000); // 5 second TTL for testing
     mockNow = vi.spyOn(Date, 'now');
     mockNow.mockReturnValue(1000000); // Fixed timestamp
   });
@@ -101,18 +41,20 @@ describe('APICache', () => {
       cache.set('key1', { data: 'test1' });
       cache.set('key2', { data: 'test2' });
 
-      expect(cache.size()).toBe(2);
+      expect(cache.has('key1')).toBe(true);
+      expect(cache.has('key2')).toBe(true);
 
       cache.clear();
 
-      expect(cache.size()).toBe(0);
+      expect(cache.has('key1')).toBe(false);
+      expect(cache.has('key2')).toBe(false);
       expect(cache.get('key1')).toBeNull();
     });
   });
 
   describe('TTL (Time To Live)', () => {
     it('should use default TTL when not specified', () => {
-      const defaultCache = new TestAPICache(10000); // 10 second default
+      const defaultCache = new APICache(10000); // 10 second default
       defaultCache.set('test', { data: 'value' });
 
       // Should exist immediately
@@ -146,14 +88,14 @@ describe('APICache', () => {
 
     it('should remove expired entries when accessed', () => {
       cache.set('auto-remove', { data: 'test' });
-      expect(cache.size()).toBe(1);
+      expect(cache.has('auto-remove')).toBe(true);
 
       // Advance time past TTL
       mockNow.mockReturnValue(1000000 + 6000);
 
       // Accessing expired entry should remove it
       expect(cache.get('auto-remove')).toBeNull();
-      expect(cache.size()).toBe(0);
+      expect(cache.has('auto-remove')).toBe(false);
     });
   });
 
@@ -164,14 +106,15 @@ describe('APICache', () => {
       cache.set('short2', { data: 'test2' }, 1000);
       cache.set('long', { data: 'test3' }, 10000);
 
-      expect(cache.size()).toBe(3);
+      expect(cache.has('short1')).toBe(true);
+      expect(cache.has('short2')).toBe(true);
+      expect(cache.has('long')).toBe(true);
 
       // Advance time to expire short-lived entries
       mockNow.mockReturnValue(1000000 + 2000);
 
       cache.cleanup();
 
-      expect(cache.size()).toBe(1);
       expect(cache.get('long')).toEqual({ data: 'test3' });
       expect(cache.get('short1')).toBeNull();
       expect(cache.get('short2')).toBeNull();
@@ -186,7 +129,6 @@ describe('APICache', () => {
 
       cache.cleanup();
 
-      expect(cache.size()).toBe(2);
       expect(cache.get('valid1')).toEqual({ data: 'test1' });
       expect(cache.get('valid2')).toEqual({ data: 'test2' });
     });
@@ -221,7 +163,6 @@ describe('APICache', () => {
       // Overwrite with new data
       cache.set(key, updatedData);
       expect(cache.get(key)).toEqual(updatedData);
-      expect(cache.size()).toBe(1);
     });
 
     it('should handle different data types', () => {
@@ -250,8 +191,6 @@ describe('APICache', () => {
         cache.set(`key-${i}`, { data: `value-${i}` });
       }
 
-      expect(cache.size()).toBe(entryCount);
-
       // Verify random entries
       expect(cache.get('key-100')).toEqual({ data: 'value-100' });
       expect(cache.get('key-500')).toEqual({ data: 'value-500' });
@@ -271,14 +210,12 @@ describe('APICache', () => {
         cache.set(`keep-${i}`, { data: `value-${i}` }, 10000);
       }
 
-      expect(cache.size()).toBe(entryCount * 2);
-
       // Expire half the entries
       mockNow.mockReturnValue(1000000 + 2000);
 
       cache.cleanup();
-
-      expect(cache.size()).toBe(entryCount);
+      expect(cache.get('keep-100')).toEqual({ data: 'value-100' });
+      expect(cache.get('expire-100')).toBeNull();
     });
   });
 

@@ -4,7 +4,7 @@ interface CacheItem<T> {
   ttl: number;
 }
 
-class APICache<T> {
+export class APICache<T> {
   private readonly cache = new Map<string, CacheItem<T>>();
   private readonly defaultTTL: number;
 
@@ -55,4 +55,6 @@ class APICache<T> {
 export const puzzleCache = new APICache();
 
 // Periodically clean up expired cache entries
-setInterval(() => puzzleCache.cleanup(), 60000); // Clean up every minute
+if (process.env.NODE_ENV !== 'test') {
+  setInterval(() => puzzleCache.cleanup(), 60000); // Clean up every minute
+}
