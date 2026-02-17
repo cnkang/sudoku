@@ -527,7 +527,30 @@ globalThis.addEventListener('notificationclick', event => {
 
 // Message handling for communication with main thread
 globalThis.addEventListener('message', event => {
-  if (!isValidMessageEvent(event)) {
+  const eventOrigin =
+    typeof event.origin === 'string' ? event.origin : undefined;
+  const sourceUrl =
+    event.source &&
+    typeof event.source === 'object' &&
+    'url' in event.source &&
+    typeof event.source.url === 'string'
+      ? event.source.url
+      : undefined;
+  let sourceOrigin;
+  if (sourceUrl) {
+    try {
+      sourceOrigin = new URL(sourceUrl, globalThis.location.origin).origin;
+    } catch {
+      swError('[SW] Ignoring message with invalid source URL');
+      return;
+    }
+  }
+
+  const isTrustedOrigin =
+    eventOrigin === globalThis.location.origin ||
+    sourceOrigin === globalThis.location.origin;
+
+  if (!isTrustedOrigin) {
     swError('[SW] Ignoring message from untrusted origin/source');
     return;
   }
@@ -577,22 +600,6 @@ function isValidMessageData(data) {
     typeof data.type === 'string' &&
     SW_MESSAGE_TYPES.has(data.type)
   );
-}
-
-function isValidMessageEvent(event) {
-  if (event.origin && event.origin !== globalThis.location.origin) {
-    return false;
-  }
-
-  if (event.source && 'url' in event.source) {
-    try {
-      return new URL(event.source.url).origin === globalThis.location.origin;
-    } catch {
-      return false;
-    }
-  }
-
-  return true;
 }
 
 // Cache progress data for later sync

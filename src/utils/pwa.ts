@@ -75,6 +75,70 @@ const isNavigatorStandalone = (navigatorRef?: Navigator): boolean => {
   return false;
 };
 
+const SW_MESSAGE_TYPES = new Set([
+  'CACHE_UPDATED',
+  'OFFLINE_READY',
+  'SYNC_COMPLETE',
+]);
+
+const isTrustedServiceWorkerMessage = (event: MessageEvent): boolean => {
+  const windowRef = getWindow();
+  const currentOrigin =
+    windowRef?.location.origin ??
+    (typeof globalThis.location !== 'undefined'
+      ? globalThis.location.origin
+      : undefined);
+  if (!currentOrigin) return false;
+  const eventOrigin =
+    typeof event.origin === 'string' ? event.origin : undefined;
+
+  if (eventOrigin && eventOrigin.length > 0 && eventOrigin !== currentOrigin) {
+    return false;
+  }
+
+  const source = event.source;
+  if (
+    source &&
+    typeof source === 'object' &&
+    'scriptURL' in source &&
+    typeof source.scriptURL === 'string'
+  ) {
+    try {
+      return new URL(source.scriptURL, currentOrigin).origin === currentOrigin;
+    } catch {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const isValidServiceWorkerMessageData = (
+  data: unknown
+): data is { type: string } => {
+  return (
+    !!data &&
+    typeof data === 'object' &&
+    'type' in data &&
+    typeof data.type === 'string' &&
+    SW_MESSAGE_TYPES.has(data.type)
+  );
+};
+
+const isValidCacheStatusMessage = (data: unknown): data is CacheStatus => {
+  if (!data || typeof data !== 'object') return false;
+  if (!('caches' in data) || !Array.isArray(data.caches)) return false;
+  if (!data.caches.every(item => typeof item === 'string')) return false;
+  return (
+    'totalSize' in data &&
+    typeof data.totalSize === 'number' &&
+    'puzzleCount' in data &&
+    typeof data.puzzleCount === 'number' &&
+    'lastUpdated' in data &&
+    typeof data.lastUpdated === 'number'
+  );
+};
+
 class PWAManager {
   private serviceWorkerRegistration: ServiceWorkerRegistration | null = null;
   private installPromptEvent: BeforeInstallPromptEvent | null = null;
@@ -194,21 +258,26 @@ class PWAManager {
    * Handle messages from service worker
    */
   private handleServiceWorkerMessage(event: MessageEvent): void {
-    const { data } = event;
+    if (!isTrustedServiceWorkerMessage(event)) {
+      return;
+    }
 
-    if (data?.type) {
-      switch (data.type) {
-        case 'CACHE_UPDATED':
-          logInfo('[PWA] Cache updated');
-          this.updateStatus();
-          break;
-        case 'OFFLINE_READY':
-          logInfo('[PWA] App ready for offline use');
-          break;
-        case 'SYNC_COMPLETE':
-          logInfo('[PWA] Background sync completed');
-          break;
-      }
+    const { data } = event;
+    if (!isValidServiceWorkerMessageData(data)) {
+      return;
+    }
+
+    switch (data.type) {
+      case 'CACHE_UPDATED':
+        logInfo('[PWA] Cache updated');
+        this.updateStatus();
+        break;
+      case 'OFFLINE_READY':
+        logInfo('[PWA] App ready for offline use');
+        break;
+      case 'SYNC_COMPLETE':
+        logInfo('[PWA] Background sync completed');
+        break;
     }
   }
 
@@ -273,7 +342,7 @@ class PWAManager {
       const messageChannel = new MessageChannel();
 
       messageChannel.port1.onmessage = event => {
-        resolve(event.data);
+        resolve(isValidCacheStatusMessage(event.data) ? event.data : undefined);
       };
 
       activeWorker.postMessage({ type: 'GET_CACHE_STATUS' }, [

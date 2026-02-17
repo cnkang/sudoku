@@ -8,6 +8,54 @@
 
 import { useEffect } from 'react';
 
+const SW_MESSAGE_TYPES = new Set([
+  'CACHE_UPDATED',
+  'OFFLINE_READY',
+  'SYNC_COMPLETE',
+]);
+
+const isTrustedServiceWorkerMessage = (event: MessageEvent): boolean => {
+  const currentOrigin =
+    typeof globalThis.location !== 'undefined'
+      ? globalThis.location.origin
+      : undefined;
+  if (!currentOrigin) return false;
+
+  const eventOrigin =
+    typeof event.origin === 'string' ? event.origin : undefined;
+  if (eventOrigin && eventOrigin.length > 0 && eventOrigin !== currentOrigin) {
+    return false;
+  }
+
+  const source = event.source;
+  if (
+    source &&
+    typeof source === 'object' &&
+    'scriptURL' in source &&
+    typeof source.scriptURL === 'string'
+  ) {
+    try {
+      return new URL(source.scriptURL, currentOrigin).origin === currentOrigin;
+    } catch {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const isValidServiceWorkerMessageData = (
+  data: unknown
+): data is { type: string } => {
+  return (
+    !!data &&
+    typeof data === 'object' &&
+    'type' in data &&
+    typeof data.type === 'string' &&
+    SW_MESSAGE_TYPES.has(data.type)
+  );
+};
+
 const dispatchUpdateAvailable = (registration: ServiceWorkerRegistration) => {
   globalThis.dispatchEvent(
     new CustomEvent('sw-update-available', {
@@ -49,7 +97,8 @@ const handleRegistration = (registration: ServiceWorkerRegistration) => {
 };
 
 const handleServiceWorkerMessage = (event: MessageEvent) => {
-  if (!event.data?.type) return;
+  if (!isTrustedServiceWorkerMessage(event)) return;
+  if (!isValidServiceWorkerMessageData(event.data)) return;
 
   switch (event.data.type) {
     case 'CACHE_UPDATED':
