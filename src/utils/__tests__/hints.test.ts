@@ -62,4 +62,48 @@ describe('Hints Utility', () => {
 
     expect(hint).toBeNull();
   });
+
+  it('should handle cells with matching values correctly', () => {
+    const userInput = mockPuzzle.map(row => [...row]);
+    // Fill in some correct values
+    userInput[0][2] = 4; // Correct value
+    userInput[1][1] = 7; // Correct value
+
+    const hint = getHint(mockPuzzle, userInput, mockSolution);
+
+    // Should skip cells that are already correct and find next empty cell
+    expect(hint).toBeDefined();
+    if (hint) {
+      // Should not suggest already correct cells
+      expect(!(hint.row === 0 && hint.col === 2)).toBe(true);
+      expect(!(hint.row === 1 && hint.col === 1)).toBe(true);
+    }
+  });
+
+  it('should prioritize empty cells over incorrect cells', () => {
+    const userInput = mockPuzzle.map(row => [...row]);
+    // Add an incorrect value to a filled cell
+    userInput[1][1] = 9; // Wrong value at position (1,1)
+
+    const hint = getHint(mockPuzzle, userInput, mockSolution);
+
+    // Should still return hint for first empty cell, not the incorrect one
+    expect(hint?.row).toBe(0);
+    expect(hint?.col).toBe(2);
+    expect(hint?.value).toBe(4);
+  });
+
+  it('should handle case where all empty cells are filled but some are wrong', () => {
+    const userInput = mockSolution.map(row => [...row]);
+    // Make multiple cells wrong
+    userInput[0][2] = 9;
+    userInput[1][1] = 8;
+    userInput[2][0] = 5;
+
+    const hint = getHint(mockPuzzle, userInput, mockSolution);
+
+    // Should return hint for first incorrect cell
+    expect(hint).toBeDefined();
+    expect(hint?.value).toBe(mockSolution[hint!.row][hint!.col]);
+  });
 });

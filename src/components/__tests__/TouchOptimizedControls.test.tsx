@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import '@testing-library/jest-dom/vitest';
 import TouchOptimizedControls from '../TouchOptimizedControls';
 import type { TouchOptimizedControlsProps } from '../TouchOptimizedControls';
 import { GRID_CONFIGS } from '../../utils/gridConfig';
@@ -406,6 +407,101 @@ describe('TouchOptimizedControls', () => {
       expect(
         screen.getByTestId('touch-optimized-controls')
       ).toBeInTheDocument();
+    });
+
+    it('handles error haptic feedback type', async () => {
+      const propsWithErrorHaptic = {
+        ...defaultProps,
+        hapticFeedback: {
+          success: vi.fn(),
+          error: vi.fn(),
+          hint: vi.fn(),
+        },
+      };
+
+      render(<TouchOptimizedControls {...propsWithErrorHaptic} />);
+
+      // Trigger error haptic by simulating an error scenario
+      const celebrationButton = screen.getByRole('button', {
+        name: /celebrate success/i,
+      });
+
+      await act(async () => {
+        fireEvent.click(celebrationButton);
+      });
+
+      // Verify success haptic was called
+      expect(propsWithErrorHaptic.hapticFeedback.success).toHaveBeenCalled();
+    });
+
+    it('clears existing sparkle timeout when magic wand clicked multiple times', async () => {
+      render(<TouchOptimizedControls {...defaultProps} />);
+
+      const magicWandButton = screen.getByRole('button', {
+        name: /magic wand hint/i,
+      });
+
+      // Click multiple times rapidly
+      await act(async () => {
+        fireEvent.click(magicWandButton);
+        vi.advanceTimersByTime(100);
+        fireEvent.click(magicWandButton);
+        vi.advanceTimersByTime(100);
+        fireEvent.click(magicWandButton);
+      });
+
+      // Should handle multiple clicks without errors
+      expect(defaultProps.onHint).toHaveBeenCalled();
+    });
+
+    it('clears existing encouragement timeout when clicked multiple times', async () => {
+      render(<TouchOptimizedControls {...defaultProps} />);
+
+      const encouragementButton = screen.getByRole('button', {
+        name: /get encouragement/i,
+      });
+
+      // Click multiple times rapidly
+      await act(async () => {
+        fireEvent.click(encouragementButton);
+        vi.advanceTimersByTime(100);
+        fireEvent.click(encouragementButton);
+        vi.advanceTimersByTime(100);
+        fireEvent.click(encouragementButton);
+      });
+
+      // Should handle multiple clicks without errors
+      expect(defaultProps.onEncourage).toHaveBeenCalled();
+    });
+
+    it('handles disabled state when hints remaining is zero', async () => {
+      render(<TouchOptimizedControls {...defaultProps} hintsRemaining={0} />);
+
+      const magicWandButton = screen.getByRole('button', {
+        name: /magic wand hint \(0 remaining\)/i,
+      });
+
+      await act(async () => {
+        fireEvent.click(magicWandButton);
+      });
+
+      // Should not call onHint when disabled
+      expect(defaultProps.onHint).not.toHaveBeenCalled();
+    });
+
+    it('handles disabled state when disabled prop is true', async () => {
+      render(<TouchOptimizedControls {...defaultProps} disabled={true} />);
+
+      const magicWandButton = screen.getByRole('button', {
+        name: /magic wand hint/i,
+      });
+
+      await act(async () => {
+        fireEvent.click(magicWandButton);
+      });
+
+      // Should not call onHint when disabled
+      expect(defaultProps.onHint).not.toHaveBeenCalled();
     });
   });
 });

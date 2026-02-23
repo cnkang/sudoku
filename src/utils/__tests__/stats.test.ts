@@ -39,6 +39,57 @@ describe('Stats Utils', () => {
         expect.stringContaining('"gamesPlayed":1')
       );
     });
+
+    it('should update best time when new time is better', () => {
+      const existingStats = {
+        gamesPlayed: 2,
+        gamesCompleted: 1,
+        totalTime: 500,
+        bestTimes: { 5: 400 },
+        averageTime: 250,
+      };
+      mockLocalStorage.getItem.mockReturnValue(JSON.stringify(existingStats));
+
+      updateStats(5, 300, true);
+
+      const savedData = mockLocalStorage.setItem.mock.calls[0][1];
+      const parsedStats = JSON.parse(savedData);
+      expect(parsedStats.bestTimes[5]).toBe(300);
+    });
+
+    it('should not update best time when new time is worse', () => {
+      const existingStats = {
+        gamesPlayed: 2,
+        gamesCompleted: 1,
+        totalTime: 500,
+        bestTimes: { 5: 200 },
+        averageTime: 250,
+      };
+      mockLocalStorage.getItem.mockReturnValue(JSON.stringify(existingStats));
+
+      updateStats(5, 300, true);
+
+      const savedData = mockLocalStorage.setItem.mock.calls[0][1];
+      const parsedStats = JSON.parse(savedData);
+      expect(parsedStats.bestTimes[5]).toBe(200);
+    });
+
+    it('should set best time for new difficulty level', () => {
+      const existingStats = {
+        gamesPlayed: 1,
+        gamesCompleted: 1,
+        totalTime: 300,
+        bestTimes: {},
+        averageTime: 300,
+      };
+      mockLocalStorage.getItem.mockReturnValue(JSON.stringify(existingStats));
+
+      updateStats(7, 250, true);
+
+      const savedData = mockLocalStorage.setItem.mock.calls[0][1];
+      const parsedStats = JSON.parse(savedData);
+      expect(parsedStats.bestTimes[7]).toBe(250);
+    });
   });
 
   describe('getStats', () => {
