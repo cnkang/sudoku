@@ -1,9 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-const { APICache, puzzleCache } = await import('../cache.js');
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { APICache, puzzleCache } from '../cache';
 
 describe('APICache', () => {
-  let cache: APICache<unknown>;
+  let cache: InstanceType<typeof APICache<unknown>>;
   let mockNow: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {

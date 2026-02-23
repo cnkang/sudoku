@@ -1,8 +1,20 @@
-import type React from 'react';
-import { useState, useCallback, useRef, useEffect } from 'react';
-import type { GridConfig } from '../types';
 import { pickSecureRandomElement } from '@/utils/secureRandom';
+import type React from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { GridConfig } from '../types';
 import styles from './TouchOptimizedControls.module.css';
+
+// Child-friendly encouragement messages
+const encouragementMessages = [
+  "You're doing great! Keep going! 🌟",
+  "Almost there! You've got this! 💪",
+  'Fantastic work! Try the next one! ✨',
+  "You're a Sudoku star! ⭐",
+  'Keep up the amazing work! 🎉',
+  "You're getting better and better! 🚀",
+  'What a smart cookie! 🍪',
+  "You're on fire! Keep it up! 🔥",
+];
 
 export interface TouchOptimizedControlsProps {
   onHint: () => void;
@@ -54,19 +66,6 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
   const sparkleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const encouragementTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Child-friendly encouragement messages
-  const encouragementMessages = [
-    "You're doing great! Keep going! 🌟",
-    "Almost there! You've got this! 💪",
-    'Fantastic work! Try the next one! ✨',
-    "You're a Sudoku star! ⭐",
-    'Keep up the amazing work! 🎉',
-    "You're getting better and better! 🚀",
-    'What a smart cookie! 🍪',
-    "You're on fire! Keep it up! 🔥",
-  ];
-
-  // Celebration messages for different achievements
   // Haptic feedback helper
   const triggerHaptic = useCallback(
     (type: 'success' | 'error' | 'hint') => {
