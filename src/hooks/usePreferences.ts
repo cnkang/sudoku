@@ -11,7 +11,9 @@ import {
 import { GRID_CONFIGS } from '@/utils/gridConfig';
 
 /**
- * Custom hook for managing user preferences persistence
+ * Custom hook for managing user preferences persistence.
+ * Uses a single debounced useEffect for all preference saves
+ * instead of 5 separate effects, reducing unnecessary writes.
  */
 export function usePreferences(
   state: GameState,
@@ -19,6 +21,7 @@ export function usePreferences(
 ) {
   // Track if initial load has happened to prevent save loops
   const hasLoadedRef = useRef(false);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /**
    * Load preferences on mount - only once
@@ -28,7 +31,6 @@ export function usePreferences(
 
     const preferences = loadUserPreferences();
 
-    // Load accessibility settings
     if (preferences.accessibility) {
       dispatch({
         type: 'UPDATE_ACCESSIBILITY',
@@ -36,7 +38,6 @@ export function usePreferences(
       });
     }
 
-    // Load progress stats
     if (preferences.progress) {
       Object.entries(preferences.progress).forEach(([gridSize, stats]) => {
         dispatch({
@@ -46,7 +47,6 @@ export function usePreferences(
       });
     }
 
-    // Load child mode
     if (preferences.childMode !== undefined) {
       dispatch({
         type: 'SET_CHILD_MODE',
@@ -54,7 +54,6 @@ export function usePreferences(
       });
     }
 
-    // Load grid config (if valid)
     if (preferences.gridConfig && isValidGridConfig(preferences.gridConfig)) {
       dispatch({
         type: 'SET_GRID_CONFIG',
@@ -62,7 +61,6 @@ export function usePreferences(
       });
     }
 
-    // Load difficulty
     if (preferences.difficulty !== undefined) {
       dispatch({
         type: 'SET_DIFFICULTY',
@@ -74,44 +72,36 @@ export function usePreferences(
   }, [dispatch]);
 
   /**
-   * Save accessibility settings when they change (but not during initial load)
+   * Batched debounced save: writes all preferences 300ms after the last change.
+   * Replaces 5 separate useEffect calls with a single one.
    */
   useEffect(() => {
     if (!hasLoadedRef.current) return;
-    saveAccessibilitySettings(state.accessibility);
-  }, [state.accessibility]);
 
-  /**
-   * Save progress stats when they change (but not during initial load)
-   */
-  useEffect(() => {
-    if (!hasLoadedRef.current) return;
-    saveProgressStats(state.progress);
-  }, [state.progress]);
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+    }
 
-  /**
-   * Save child mode when it changes (but not during initial load)
-   */
-  useEffect(() => {
-    if (!hasLoadedRef.current) return;
-    saveChildMode(state.childMode);
-  }, [state.childMode]);
+    saveTimerRef.current = setTimeout(() => {
+      saveAccessibilitySettings(state.accessibility);
+      saveProgressStats(state.progress);
+      saveChildMode(state.childMode);
+      saveGridConfig(state.gridConfig);
+      saveDifficulty(state.difficulty);
+    }, 300);
 
-  /**
-   * Save grid config when it changes (but not during initial load)
-   */
-  useEffect(() => {
-    if (!hasLoadedRef.current) return;
-    saveGridConfig(state.gridConfig);
-  }, [state.gridConfig]);
-
-  /**
-   * Save difficulty when it changes (but not during initial load)
-   */
-  useEffect(() => {
-    if (!hasLoadedRef.current) return;
-    saveDifficulty(state.difficulty);
-  }, [state.difficulty]);
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+    };
+  }, [
+    state.accessibility,
+    state.progress,
+    state.childMode,
+    state.gridConfig,
+    state.difficulty,
+  ]);
 
   /**
    * Restore preferences from localStorage

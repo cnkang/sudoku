@@ -157,7 +157,7 @@ const handleUserInteraction = (
       const newUserInput = state.userInput.map((r, i) =>
         i === row ? r.map((val, j) => (j === col ? value : val)) : r
       );
-      const newHistory = [...state.history, newUserInput].slice(-10); // Keep last 10 states
+      const newHistory = [...state.history, newUserInput].slice(-50); // Keep last 50 states
       return { ...state, userInput: newUserInput, history: newHistory };
     }
 
@@ -184,7 +184,10 @@ const handleUserInteraction = (
 
     case 'CHECK_ANSWER': {
       const isSolvedCorrectly =
-        JSON.stringify(state.userInput) === JSON.stringify(state.solution);
+        state.solution !== null &&
+        state.userInput.every((row, i) =>
+          row.every((cell, j) => cell === state.solution![i]![j])
+        );
       return {
         ...state,
         isCorrect: isSolvedCorrectly,

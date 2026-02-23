@@ -29,11 +29,13 @@ describe('usePreferences', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
     mockLoadUserPreferences.mockReturnValue({});
   });
 
   afterEach(() => {
     vi.clearAllMocks();
+    vi.useRealTimers();
   });
 
   it('should load preferences on mount', () => {
@@ -127,6 +129,11 @@ describe('usePreferences', () => {
       });
     });
 
+    // Advance past the 300ms debounce
+    act(() => {
+      vi.advanceTimersByTime(350);
+    });
+
     expect(mockSaveAccessibilitySettings).toHaveBeenCalled();
   });
 
@@ -149,6 +156,11 @@ describe('usePreferences', () => {
       });
     });
 
+    // Advance past the 300ms debounce
+    act(() => {
+      vi.advanceTimersByTime(350);
+    });
+
     expect(mockSaveProgressStats).toHaveBeenCalled();
   });
 
@@ -166,6 +178,11 @@ describe('usePreferences', () => {
         type: 'SET_CHILD_MODE',
         payload: true,
       });
+    });
+
+    // Advance past the 300ms debounce
+    act(() => {
+      vi.advanceTimersByTime(350);
     });
 
     expect(mockSaveChildMode).toHaveBeenCalled();
@@ -187,6 +204,11 @@ describe('usePreferences', () => {
       });
     });
 
+    // Advance past the 300ms debounce
+    act(() => {
+      vi.advanceTimersByTime(350);
+    });
+
     expect(mockSaveGridConfig).toHaveBeenCalled();
   });
 
@@ -204,6 +226,11 @@ describe('usePreferences', () => {
         type: 'SET_DIFFICULTY',
         payload: 5,
       });
+    });
+
+    // Advance past the 300ms debounce
+    act(() => {
+      vi.advanceTimersByTime(350);
     });
 
     expect(mockSaveDifficulty).toHaveBeenCalled();

@@ -14,7 +14,9 @@ import {
   useEffect,
   useCallback,
   useMemo,
-  startTransition,
+  useContext,
+  useRef,
+  useTransition,
   Suspense,
 } from 'react';
 import {
@@ -29,6 +31,7 @@ import DifficultySelector from './DifficultySelector';
 import GameControls from './GameControls';
 import TouchOptimizedControls from './TouchOptimizedControls';
 import { useGameState } from '@/hooks/useGameState';
+import { useOptimisticSudoku } from '@/hooks/useOptimisticSudoku';
 import { usePreferences } from '@/hooks/usePreferences';
 import { usePWA } from '@/hooks/usePWA';
 import { useVisualFeedback } from '@/hooks/useVisualFeedback';
@@ -48,7 +51,12 @@ interface ModernSudokuAppProps {
   enableOfflineMode?: boolean;
 }
 
-const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
+/**
+ * Inner component that consumes ThemeContext via useContext hook.
+ * Separated from the outer wrapper so it renders inside LazyThemeProvider.
+ */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: main game orchestration component
+const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
   initialGridSize = 9,
   initialChildMode = false,
   enablePWA = true,
@@ -56,9 +64,8 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
 }) => {
   'use memo'; // React Compiler directive for automatic optimization
 
+  const themeContext = useContext(ThemeContext);
   const { state, dispatch, handleError, clearError } = useGameState();
-  const _initialGridSize = initialGridSize;
-  const _initialChildMode = initialChildMode;
   const { trackRender, trackTransition } =
     usePerformanceTracking('ModernSudokuApp');
   const { status, installApp } = usePWA();
@@ -75,6 +82,15 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
   // Initialize preferences and restore state
   const { savePreferences } = usePreferences(state, dispatch);
 
+  // React 19: useOptimistic for instant cell rendering while reducer processes
+  const {
+    userInput: optimisticUserInput,
+    updateCell: optimisticUpdateCell,
+  } = useOptimisticSudoku(state.userInput);
+
+  // React 19: useTransition for non-urgent state updates with pending tracking
+  const [isDifficultyPending, startDifficultyTransition] = useTransition();
+
   // Local state for UI management
   const [lastFetchTime, setLastFetchTime] = useState(0);
   const [performanceMetrics, setPerformanceMetrics] = useState({
@@ -83,16 +99,27 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
     renderTime: 0,
   });
 
+  // Apply initial props on mount (before preferences override them)
+  const hasAppliedInitialProps = useRef(false);
+  useEffect(() => {
+    if (hasAppliedInitialProps.current) return;
+    hasAppliedInitialProps.current = true;
+
+    if (initialGridSize !== 9) {
+      const config = GRID_CONFIGS[initialGridSize];
+      dispatch({ type: 'CHANGE_GRID_SIZE', payload: config });
+    }
+    if (initialChildMode) {
+      dispatch({ type: 'SET_CHILD_MODE', payload: true });
+    }
+  }, [initialGridSize, initialChildMode, dispatch]);
+
   // Initialize app state - only run once on mount
   useEffect(() => {
     const initializeApp = async () => {
       const startTime = performance.now();
 
       try {
-        // Note: Preferences are automatically restored by usePreferences hook
-        // No need to call restorePreferences() here to avoid double initialization
-
-        // Track initialization performance
         const endTime = performance.now();
         const initTime = endTime - startTime;
         trackRender(initTime, true);
@@ -107,13 +134,12 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
     };
 
     initializeApp();
-  }, [handleError, trackRender]); // Only run once on mount to avoid infinite loop
+  }, [handleError, trackRender]);
 
   // Memoized grid configuration
   const currentGridConfig = useMemo(() => state.gridConfig, [state.gridConfig]);
 
-  // Grid size change handler — View Transition is managed by PWAGridSelector,
-  // so this function only handles state + data fetching to avoid nested transitions.
+  // Grid size change handler
   const handleGridSizeChange = useCallback(
     async (newSize: 4 | 6 | 9) => {
       if (newSize === currentGridConfig.size) return;
@@ -122,11 +148,8 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
 
       try {
         const newConfig = GRID_CONFIGS[newSize];
-
-        // Update grid config and reset game state
         dispatch({ type: 'CHANGE_GRID_SIZE', payload: newConfig });
 
-        // Fetch new puzzle for the new grid size
         const targetDifficulty = Math.min(
           state.difficulty ?? 1,
           newConfig.difficultyLevels
@@ -139,24 +162,17 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
           url,
           {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
           },
           true
         );
 
         const puzzle = data as SudokuPuzzle;
         dispatch({ type: 'SET_PUZZLE', payload: puzzle });
-
-        // Save preference
         await savePreferences();
 
-        // Track transition performance
-        const transitionEnd = performance.now();
-        const transitionTime = transitionEnd - transitionStart;
+        const transitionTime = performance.now() - transitionStart;
         trackTransition(transitionTime);
-
         setPerformanceMetrics(prev => ({
           ...prev,
           gridTransitionTime: transitionTime,
@@ -186,7 +202,6 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
     ) => {
       const now = Date.now();
 
-      // Rate limiting (bypass for grid size changes)
       if (!isGridSizeChange && !forceRefresh && now - lastFetchTime < 5000) {
         return;
       }
@@ -205,8 +220,6 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
 
         const targetDifficulty = difficulty ?? state.difficulty;
         const gridSize = currentGridConfig.size;
-
-        // Build API URL with grid size parameter
         const url = `/api/solveSudoku?difficulty=${targetDifficulty}&gridSize=${gridSize}${
           forceRefresh || isGridSizeChange ? '&force=true' : ''
         }`;
@@ -215,9 +228,7 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
           url,
           {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
           },
           forceRefresh || isGridSizeChange
         );
@@ -225,16 +236,9 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
         const puzzle = data as SudokuPuzzle;
         dispatch({ type: 'SET_PUZZLE', payload: puzzle });
 
-        // Track puzzle load performance
-        const fetchEnd = performance.now();
-        const loadTime = fetchEnd - fetchStart;
+        const loadTime = performance.now() - fetchStart;
+        setPerformanceMetrics(prev => ({ ...prev, puzzleLoadTime: loadTime }));
 
-        setPerformanceMetrics(prev => ({
-          ...prev,
-          puzzleLoadTime: loadTime,
-        }));
-
-        // Show child-friendly feedback for successful load
         if (state.childMode) {
           visualFeedback.triggerEncouragement(
             "New puzzle ready! Let's solve it together! 🧩"
@@ -257,7 +261,6 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
     ]
   );
 
-  // Enhanced input handling with performance optimization
   const handleInputChange = useCallback(
     (row: number, col: number, value: number) => {
       if (!state.userInput) {
@@ -268,16 +271,14 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
       }
 
       try {
-        startTransition(() => {
-          dispatch({ type: 'UPDATE_USER_INPUT', payload: { row, col, value } });
+        // React 19: optimistic update shows the value instantly in the grid
+        optimisticUpdateCell(row, col, value);
+        // Reducer processes the actual state update
+        dispatch({ type: 'UPDATE_USER_INPUT', payload: { row, col, value } });
+        if (state.showHint?.row === row && state.showHint?.col === col) {
+          dispatch({ type: 'CLEAR_HINT' });
+        }
 
-          // Clear hint if user filled the hinted cell
-          if (state.showHint?.row === row && state.showHint?.col === col) {
-            dispatch({ type: 'CLEAR_HINT' });
-          }
-        });
-
-        // Child-friendly feedback for valid moves
         if (state.childMode && value !== 0) {
           visualFeedback.triggerEncouragement('Great move! Keep going! ⭐');
         }
@@ -290,12 +291,12 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
       state.showHint,
       state.childMode,
       dispatch,
+      optimisticUpdateCell,
       handleError,
       visualFeedback,
     ]
   );
 
-  // Enhanced puzzle completion handling
   const checkAnswer = useCallback(() => {
     if (!state.userInput || !state.solution) {
       handleError(new Error('Cannot check answer when puzzle is not loaded'));
@@ -305,11 +306,11 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
     try {
       dispatch({ type: 'CHECK_ANSWER' });
 
-      const isCorrect =
-        JSON.stringify(state.userInput) === JSON.stringify(state.solution);
+      const isCorrect = state.userInput.every((row, i) =>
+        row.every((cell, j) => cell === state.solution![i]![j])
+      );
 
       if (isCorrect) {
-        // Update progress stats
         const gridSizeKey = `${currentGridConfig.size}x${currentGridConfig.size}`;
         dispatch({
           type: 'COMPLETE_PUZZLE',
@@ -320,16 +321,12 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
           },
         });
 
-        // Show celebration
         if (state.childMode) {
           visualFeedback.triggerCelebration('confetti');
         }
-
-        // Save progress
         savePreferences();
       }
 
-      // Update global stats
       updateStats(state.difficulty, state.time, isCorrect);
     } catch (error) {
       handleError(error);
@@ -348,11 +345,15 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
     savePreferences,
   ]);
 
-  // Enhanced hint system
   const getGameHint = useCallback(() => {
     if (!state.puzzle || !state.solution || !state.userInput) return;
 
-    const hint = getHint(state.puzzle, state.userInput, state.solution);
+    const hint = getHint(
+      state.puzzle,
+      state.userInput,
+      state.solution,
+      currentGridConfig
+    );
     if (hint) {
       dispatch({ type: 'USE_HINT' });
       dispatch({
@@ -366,7 +367,6 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
         },
       });
 
-      // Child-friendly hint feedback
       if (state.childMode) {
         visualFeedback.triggerEncouragement(
           "Here's a helpful hint! You've got this! 💡"
@@ -378,11 +378,11 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
     state.solution,
     state.userInput,
     state.childMode,
+    currentGridConfig,
     dispatch,
     visualFeedback,
   ]);
 
-  // Game control handlers
   const resetGame = useCallback(() => {
     dispatch({ type: 'RESET_AND_FETCH' });
     fetchPuzzle(undefined, true);
@@ -396,7 +396,6 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
     dispatch({ type: 'UNDO' });
   }, [dispatch]);
 
-  // Accessibility handlers
   const handleAccessibilityChange = useCallback(
     (settings: Partial<typeof state.accessibility>) => {
       dispatch({ type: 'UPDATE_ACCESSIBILITY', payload: settings });
@@ -405,12 +404,6 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
     [dispatch, savePreferences]
   );
 
-  // Child mode toggle
-  const _toggleChildMode = useCallback(() => {
-    dispatch({ type: 'TOGGLE_CHILD_MODE' });
-    savePreferences();
-  }, [dispatch, savePreferences]);
-
   // Fetch puzzle when difficulty changes (initial load)
   useEffect(() => {
     if (state.difficulty !== null && !state.puzzle && !state.isLoading) {
@@ -418,12 +411,21 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
     }
   }, [state.difficulty, state.puzzle, state.isLoading, fetchPuzzle]);
 
-  // Timer effect
+  // Timer effect — uses Date.now() delta to avoid setInterval drift
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined;
+    let lastTick = Date.now();
+
     if (state.timerActive && !state.isPaused) {
       timer = setInterval(() => {
-        dispatch({ type: 'TICK' });
+        const now = Date.now();
+        const elapsed = Math.round((now - lastTick) / 1000);
+        if (elapsed >= 1) {
+          for (let i = 0; i < elapsed; i++) {
+            dispatch({ type: 'TICK' });
+          }
+          lastTick = now;
+        }
       }, 1000);
     }
     return () => {
@@ -431,258 +433,260 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
     };
   }, [state.timerActive, state.isPaused, dispatch]);
 
+  if (!themeContext) return null;
+
+  const {
+    currentTheme,
+    availableThemes,
+    setTheme,
+    toggleHighContrast,
+    isHighContrastMode,
+  } = themeContext;
+
   const isGameDisabled = state.isPaused || state.isCorrect === true;
   const isTransitioningOrLoading = state.isLoading;
 
   return (
-    <LazyThemeProvider>
-      <ThemeContext.Consumer>
-        {/* biome-ignore lint/complexity/noExcessiveCognitiveComplexity: theme-dependent rendering is complex */}
-        {themeContext => {
-          if (!themeContext) return null;
-          const {
-            currentTheme,
-            availableThemes,
-            setTheme,
-            toggleHighContrast,
-            isHighContrastMode,
-          } = themeContext;
+    <div
+      className={`${styles.modernApp} ${
+        state.childMode ? styles.childMode : ''
+      }`}
+    >
+      {/* PWA Status and Grid Selector */}
+      {enablePWA && (
+        <div className={styles.pwaSection}>
+          <Suspense fallback={<div>Loading grid selector...</div>}>
+            <LazyPWAGridSelector
+              currentSize={currentGridConfig.size}
+              onSizeChange={handleGridSizeChange}
+              childMode={state.childMode}
+              showDescriptions={true}
+              disabled={isTransitioningOrLoading}
+              offlineMode={enableOfflineMode && status.isOffline}
+              onInstallPrompt={installApp}
+              notificationPermission={notificationPermission}
+            />
+          </Suspense>
+        </div>
+      )}
 
-          return (
-            <div
-              className={`${styles.modernApp} ${
-                state.childMode ? styles.childMode : ''
-              }`}
+      {/* Accessibility Controls */}
+      <Suspense fallback={<div>Loading accessibility controls...</div>}>
+        <LazyAccessibilityControls
+          currentTheme={currentTheme}
+          availableThemes={availableThemes}
+          highContrast={isHighContrastMode}
+          reducedMotion={state.accessibility.reducedMotion}
+          largeText={state.accessibility.largeText}
+          onThemeChange={setTheme}
+          onHighContrastToggle={() => {
+            toggleHighContrast();
+            handleAccessibilityChange({
+              highContrast: !state.accessibility.highContrast,
+            });
+          }}
+          onReducedMotionToggle={() =>
+            handleAccessibilityChange({
+              reducedMotion: !state.accessibility.reducedMotion,
+            })
+          }
+          onLargeTextToggle={() =>
+            handleAccessibilityChange({
+              largeText: !state.accessibility.largeText,
+            })
+          }
+          childMode={state.childMode}
+        />
+      </Suspense>
+
+      {/* Main Game Area */}
+      <main className={styles.gameArea}>
+        {/* Game Header */}
+        <header className={styles.gameHeader}>
+          <h1 className={styles.title}>
+            {state.childMode ? 'Sudoku Fun!' : 'Sudoku Challenge'}
+          </h1>
+          <p className={styles.subtitle}>
+            {state.childMode
+              ? `Playing ${currentGridConfig.size}×${currentGridConfig.size} - Have fun learning!`
+              : `${currentGridConfig.size}×${currentGridConfig.size} Grid - Test your logic`}
+          </p>
+        </header>
+
+        {/* Error Display */}
+        {state.error && (
+          <div
+            className={`${styles.errorMessage} ${
+              state.childMode ? styles.childError : ''
+            }`}
+          >
+            <span>
+              {state.childMode ? 'Oops! ' : '⚠️ '}
+              {state.error}
+            </span>
+            <button
+              type="button"
+              onClick={clearError}
+              className={styles.errorDismiss}
+              aria-label="Dismiss error"
             >
-              {/* PWA Status and Grid Selector */}
-              {enablePWA && (
-                <div className={styles.pwaSection}>
-                  <Suspense fallback={<div>Loading grid selector...</div>}>
-                    <LazyPWAGridSelector
-                      currentSize={currentGridConfig.size}
-                      onSizeChange={handleGridSizeChange}
-                      childMode={state.childMode}
-                      showDescriptions={true}
-                      disabled={isTransitioningOrLoading}
-                      offlineMode={enableOfflineMode && status.isOffline}
-                      onInstallPrompt={installApp}
-                      notificationPermission={notificationPermission}
-                    />
-                  </Suspense>
-                </div>
-              )}
+              ×
+            </button>
+          </div>
+        )}
 
-              {/* Accessibility Controls */}
-              <Suspense fallback={<div>Loading accessibility controls...</div>}>
-                <LazyAccessibilityControls
-                  currentTheme={currentTheme}
-                  availableThemes={availableThemes}
-                  highContrast={isHighContrastMode}
-                  reducedMotion={state.accessibility.reducedMotion}
-                  largeText={state.accessibility.largeText}
-                  onThemeChange={setTheme}
-                  onHighContrastToggle={() => {
-                    toggleHighContrast();
-                    handleAccessibilityChange({
-                      highContrast: !state.accessibility.highContrast,
-                    });
-                  }}
-                  onReducedMotionToggle={() =>
-                    handleAccessibilityChange({
-                      reducedMotion: !state.accessibility.reducedMotion,
-                    })
-                  }
-                  onLargeTextToggle={() =>
-                    handleAccessibilityChange({
-                      largeText: !state.accessibility.largeText,
-                    })
-                  }
-                  childMode={state.childMode}
-                />
-              </Suspense>
+        {/* Game Controls */}
+        <div className={styles.controlsSection}>
+          <DifficultySelector
+            difficulty={state.difficulty}
+            gridSize={state.gridConfig.size}
+            onChange={difficulty => {
+              startDifficultyTransition(() => {
+                dispatch({
+                  type: 'SET_DIFFICULTY',
+                  payload: difficulty,
+                });
+              });
+              fetchPuzzle(difficulty);
+            }}
+            disabled={isTransitioningOrLoading}
+            isLoading={state.isLoading || isDifficultyPending}
+          />
 
-              {/* Main Game Area */}
-              <main className={styles.gameArea}>
-                {/* Game Header */}
-                <header className={styles.gameHeader}>
-                  <h1 className={styles.title}>
-                    {state.childMode ? 'Sudoku Fun!' : 'Sudoku Challenge'}
-                  </h1>
-                  <p className={styles.subtitle}>
-                    {state.childMode
-                      ? `Playing ${currentGridConfig.size}×${currentGridConfig.size} - Have fun learning!`
-                      : `${currentGridConfig.size}×${currentGridConfig.size} Grid - Test your logic`}
-                  </p>
-                </header>
+          {state.puzzle && (
+            <Timer
+              time={state.time}
+              isActive={state.timerActive}
+              isPaused={state.isPaused}
+            />
+          )}
+        </div>
 
-                {/* Error Display */}
-                {state.error && (
-                  <div
-                    className={`${styles.errorMessage} ${
-                      state.childMode ? styles.childError : ''
-                    }`}
-                  >
-                    <span>
-                      {state.childMode ? 'Oops! ' : '⚠️ '}
-                      {state.error}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={clearError}
-                      className={styles.errorDismiss}
-                      aria-label="Dismiss error"
-                    >
-                      ×
-                    </button>
-                  </div>
-                )}
+        {/* Sudoku Grid */}
+        {state.puzzle ? (
+          <div className={styles.gridContainer}>
+            <Suspense
+              fallback={
+                <div className={styles.gridLoading}>Loading puzzle...</div>
+              }
+            >
+              <LazyGridRouter
+                gridConfig={currentGridConfig}
+                puzzle={state.puzzle}
+                userInput={optimisticUserInput}
+                onInputChange={handleInputChange}
+                disabled={isGameDisabled}
+                hintCell={state.showHint}
+                childMode={state.childMode}
+                accessibility={state.accessibility}
+              />
+            </Suspense>
 
-                {/* Game Controls */}
-                <div className={styles.controlsSection}>
-                  <DifficultySelector
-                    difficulty={state.difficulty}
-                    gridSize={state.gridConfig.size}
-                    onChange={difficulty => {
-                      startTransition(() => {
-                        dispatch({
-                          type: 'SET_DIFFICULTY',
-                          payload: difficulty,
-                        });
-                      });
-                      fetchPuzzle(difficulty);
-                    }}
-                    disabled={isTransitioningOrLoading}
-                    isLoading={state.isLoading}
-                  />
+            {/* Hint Display */}
+            {state.showHint && (
+              <div
+                className={`${styles.hintMessage} ${
+                  state.childMode ? styles.childHint : ''
+                }`}
+              >
+                💡 {state.showHint.message}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className={styles.loadingState}>
+            <div className={styles.loadingSpinner} />
+            <p>
+              {state.childMode
+                ? 'Creating your puzzle...'
+                : 'Generating puzzle...'}
+            </p>
+          </div>
+        )}
 
-                  {state.puzzle && (
-                    <Timer
-                      time={state.time}
-                      isActive={state.timerActive}
-                      isPaused={state.isPaused}
-                    />
-                  )}
-                </div>
+        {/* Game Action Controls */}
+        {state.puzzle && (
+          <div className={styles.actionControls}>
+            {state.childMode ? (
+              <TouchOptimizedControls
+                onHint={getGameHint}
+                onCelebrate={() =>
+                  visualFeedback.triggerCelebration('confetti')
+                }
+                onEncourage={() =>
+                  visualFeedback.triggerEncouragement(
+                    'Keep trying! You can do it! 💪'
+                  )
+                }
+                hintsRemaining={Math.max(0, 3 - state.hintsUsed)}
+                showMagicWand={true}
+                disabled={isGameDisabled}
+                childMode={state.childMode}
+                gridConfig={currentGridConfig}
+                reducedMotion={state.accessibility.reducedMotion}
+                highContrast={state.accessibility.highContrast}
+              />
+            ) : (
+              <GameControls
+                onSubmit={checkAnswer}
+                onReset={resetGame}
+                onPauseResume={pauseResumeGame}
+                onUndo={undoMove}
+                onHint={getGameHint}
+                isCorrect={state.isCorrect}
+                isPaused={state.isPaused}
+                disabled={!state.puzzle}
+                isLoading={state.isLoading}
+                canUndo={state.history.length > 1}
+                hintsUsed={state.hintsUsed}
+              />
+            )}
+          </div>
+        )}
+      </main>
 
-                {/* Sudoku Grid */}
-                {state.puzzle ? (
-                  <div className={styles.gridContainer}>
-                    <Suspense
-                      fallback={
-                        <div className={styles.gridLoading}>
-                          Loading puzzle...
-                        </div>
-                      }
-                    >
-                      <LazyGridRouter
-                        gridConfig={currentGridConfig}
-                        puzzle={state.puzzle}
-                        userInput={state.userInput}
-                        onInputChange={handleInputChange}
-                        disabled={isGameDisabled}
-                        hintCell={state.showHint}
-                        childMode={state.childMode}
-                        accessibility={state.accessibility}
-                      />
-                    </Suspense>
+      {/* Visual Feedback System */}
+      <Suspense fallback={null}>
+        <LazyVisualFeedbackSystem
+          theme={currentTheme}
+          childMode={state.childMode}
+          highContrast={state.accessibility.highContrast}
+          reducedMotion={state.accessibility.reducedMotion}
+          onHighContrastToggle={() => {
+            toggleHighContrast();
+            handleAccessibilityChange({
+              highContrast: !state.accessibility.highContrast,
+            });
+          }}
+        >
+          {triggers => {
+            visualFeedback.setFeedbackTriggers(triggers);
+            return null;
+          }}
+        </LazyVisualFeedbackSystem>
+      </Suspense>
 
-                    {/* Hint Display */}
-                    {state.showHint && (
-                      <div
-                        className={`${styles.hintMessage} ${
-                          state.childMode ? styles.childHint : ''
-                        }`}
-                      >
-                        💡 {state.showHint.message}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className={styles.loadingState}>
-                    <div className={styles.loadingSpinner} />
-                    <p>
-                      {state.childMode
-                        ? 'Creating your puzzle...'
-                        : 'Generating puzzle...'}
-                    </p>
-                  </div>
-                )}
+      {/* Performance Debug Info (Development Only) */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className={styles.debugInfo}>
+          <details>
+            <summary>Performance Metrics</summary>
+            <pre>{JSON.stringify(performanceMetrics, null, 2)}</pre>
+          </details>
+        </div>
+      )}
+    </div>
+  );
+};
 
-                {/* Game Action Controls */}
-                {state.puzzle && (
-                  <div className={styles.actionControls}>
-                    {state.childMode ? (
-                      <TouchOptimizedControls
-                        onHint={getGameHint}
-                        onCelebrate={() =>
-                          visualFeedback.triggerCelebration('confetti')
-                        }
-                        onEncourage={() =>
-                          visualFeedback.triggerEncouragement(
-                            'Keep trying! You can do it! 💪'
-                          )
-                        }
-                        hintsRemaining={Math.max(0, 3 - state.hintsUsed)}
-                        showMagicWand={true}
-                        disabled={isGameDisabled}
-                        childMode={state.childMode}
-                        gridConfig={currentGridConfig}
-                        reducedMotion={state.accessibility.reducedMotion}
-                        highContrast={state.accessibility.highContrast}
-                      />
-                    ) : (
-                      <GameControls
-                        onSubmit={checkAnswer}
-                        onReset={resetGame}
-                        onPauseResume={pauseResumeGame}
-                        onUndo={undoMove}
-                        onHint={getGameHint}
-                        isCorrect={state.isCorrect}
-                        isPaused={state.isPaused}
-                        disabled={!state.puzzle}
-                        isLoading={state.isLoading}
-                        canUndo={state.history.length > 1}
-                        hintsUsed={state.hintsUsed}
-                      />
-                    )}
-                  </div>
-                )}
-              </main>
-
-              {/* Visual Feedback System */}
-              <Suspense fallback={null}>
-                <LazyVisualFeedbackSystem
-                  theme={currentTheme}
-                  childMode={state.childMode}
-                  highContrast={state.accessibility.highContrast}
-                  reducedMotion={state.accessibility.reducedMotion}
-                  onHighContrastToggle={() => {
-                    toggleHighContrast();
-                    handleAccessibilityChange({
-                      highContrast: !state.accessibility.highContrast,
-                    });
-                  }}
-                >
-                  {triggers => {
-                    visualFeedback.setFeedbackTriggers(triggers);
-                    return null;
-                  }}
-                </LazyVisualFeedbackSystem>
-              </Suspense>
-
-              {/* Performance Debug Info (Development Only) */}
-              {process.env.NODE_ENV === 'development' && (
-                <div className={styles.debugInfo}>
-                  <details>
-                    <summary>Performance Metrics</summary>
-                    <pre>{JSON.stringify(performanceMetrics, null, 2)}</pre>
-                  </details>
-                </div>
-              )}
-            </div>
-          );
-        }}
-      </ThemeContext.Consumer>
+/**
+ * Outer wrapper that provides the ThemeProvider context.
+ * The inner component consumes it via useContext.
+ */
+const ModernSudokuApp: React.FC<ModernSudokuAppProps> = props => {
+  return (
+    <LazyThemeProvider>
+      <ModernSudokuAppInner {...props} />
     </LazyThemeProvider>
   );
 };

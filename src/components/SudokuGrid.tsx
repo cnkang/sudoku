@@ -1,13 +1,12 @@
 import type React from 'react';
 import {
   memo,
-  startTransition,
   useCallback,
-  useDeferredValue,
   useEffect,
   useMemo,
   useRef,
   useState,
+  useTransition,
 } from 'react';
 import { useAdaptiveTouchTargets } from '@/hooks/useAdaptiveTouchTargets';
 import { useAudioAccessibility } from '@/hooks/useAudioAccessibility';
@@ -825,9 +824,8 @@ const SudokuGrid = memo<SudokuGridProps>(
   }) => {
     'use memo'; // React Compiler directive for automatic memoization
 
-    // Use deferred values for non-critical updates to improve performance
-    const _deferredUserInput = useDeferredValue(userInput);
-    const _deferredHintCell = useDeferredValue(hintCell);
+    // React 19: useTransition for non-urgent input updates
+    const [, startInputTransition] = useTransition();
 
     const [selectedCell, setSelectedCell] = useState<CellPosition | null>(null);
     const incorrectMoveCountRef = useRef(0);
@@ -968,8 +966,8 @@ const SudokuGrid = memo<SudokuGridProps>(
       (row: number, col: number, value: number) => {
         const previousValue = userInput[row]?.[col] || 0;
 
-        // Use startTransition for non-urgent updates to improve responsiveness
-        startTransition(() => {
+        // React 19: useTransition for non-urgent updates with pending tracking
+        startInputTransition(() => {
           // Call the original input change handler
           onInputChange(row, col, value);
         });

@@ -1,4 +1,5 @@
-import { VALIDATION_CONSTANTS, validateSudokuGrid } from './validation';
+import type { GridConfig } from '@/types';
+import { validateSudokuGrid } from './validation';
 
 export interface HintResult {
   row: number;
@@ -37,11 +38,12 @@ const findMatchingCell = (
   puzzle: number[][],
   userInput: number[][],
   solution: number[][],
+  gridSize: number,
   predicate: (values: CellValues) => boolean,
   buildReason: (solutionCell: number, row: number, col: number) => string
 ): HintResult | null => {
-  for (let row = 0; row < VALIDATION_CONSTANTS.SUDOKU_SIZE; row++) {
-    for (let col = 0; col < VALIDATION_CONSTANTS.SUDOKU_SIZE; col++) {
+  for (let row = 0; row < gridSize; row++) {
+    for (let col = 0; col < gridSize; col++) {
       const values = getCellValues(puzzle, userInput, solution, row, col);
       if (!values) {
         continue;
@@ -62,17 +64,22 @@ const findMatchingCell = (
 export const getHint = (
   puzzle: number[][],
   userInput: number[][],
-  solution: number[][]
+  solution: number[][],
+  config?: GridConfig
 ): HintResult | null => {
-  // Validate inputs
-  validateSudokuGrid(puzzle);
-  validateSudokuGrid(userInput);
-  validateSudokuGrid(solution);
+  // Validate inputs using grid config if provided
+  validateSudokuGrid(puzzle, config);
+  validateSudokuGrid(userInput, config);
+  validateSudokuGrid(solution, config);
+
+  // Derive grid size from the puzzle itself for backward compatibility
+  const gridSize = config?.size ?? puzzle.length;
 
   const emptyCellHint = findMatchingCell(
     puzzle,
     userInput,
     solution,
+    gridSize,
     ({ puzzleCell, inputCell }) => puzzleCell === 0 && inputCell === 0,
     (solutionCell, row, col) =>
       `Try placing ${solutionCell} in row ${row + 1}, column ${col + 1}`
@@ -86,6 +93,7 @@ export const getHint = (
     puzzle,
     userInput,
     solution,
+    gridSize,
     ({ puzzleCell, inputCell, solutionCell }) =>
       puzzleCell === 0 && inputCell !== 0 && inputCell !== solutionCell,
     (solutionCell, row, col) =>

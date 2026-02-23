@@ -7,8 +7,24 @@ interface CachedResponse {
 class ClientCache {
   private readonly cache = new Map<string, CachedResponse>();
   private readonly maxAge = 30000; // 30 seconds
+  private readonly maxEntries = 50; // LRU eviction threshold
 
   set(key: string, data: unknown, etag?: string): void {
+    // If key already exists, delete first so re-insertion moves it to the end (most recent)
+    if (this.cache.has(key)) {
+      this.cache.delete(key);
+    }
+
+    // Evict oldest entries if at capacity
+    while (this.cache.size >= this.maxEntries) {
+      const oldestKey = this.cache.keys().next().value;
+      if (oldestKey !== undefined) {
+        this.cache.delete(oldestKey);
+      } else {
+        break;
+      }
+    }
+
     const entry: CachedResponse = {
       data,
       timestamp: Date.now(),
@@ -26,6 +42,10 @@ class ClientCache {
       return null;
     }
 
+    // Move to end (most recently used) for LRU ordering
+    this.cache.delete(key);
+    this.cache.set(key, item);
+
     return item.data;
   }
 
@@ -36,6 +56,10 @@ class ClientCache {
 
   clear(): void {
     this.cache.clear();
+  }
+
+  get size(): number {
+    return this.cache.size;
   }
 }
 
