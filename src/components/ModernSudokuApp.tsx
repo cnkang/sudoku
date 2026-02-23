@@ -48,14 +48,6 @@ interface ModernSudokuAppProps {
   enableOfflineMode?: boolean;
 }
 
-interface ViewTransitionAPI {
-  startViewTransition?: (callback: () => void) => {
-    finished: Promise<void>;
-    ready: Promise<void>;
-    updateCallbackDone: Promise<void>;
-  };
-}
-
 const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
   initialGridSize = 9,
   initialChildMode = false,
@@ -84,7 +76,6 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
   const { savePreferences } = usePreferences(state, dispatch);
 
   // Local state for UI management
-  const [isTransitioning, setIsTransitioning] = useState(false);
   const [lastFetchTime, setLastFetchTime] = useState(0);
   const [performanceMetrics, setPerformanceMetrics] = useState({
     gridTransitionTime: 0,
@@ -121,40 +112,42 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
   // Memoized grid configuration
   const currentGridConfig = useMemo(() => state.gridConfig, [state.gridConfig]);
 
-  // Enhanced grid size change with View Transitions API
+  // Grid size change handler — View Transition is managed by PWAGridSelector,
+  // so this function only handles state + data fetching to avoid nested transitions.
   const handleGridSizeChange = useCallback(
     async (newSize: 4 | 6 | 9) => {
-      if (isTransitioning || newSize === currentGridConfig.size) return;
+      if (newSize === currentGridConfig.size) return;
 
       const transitionStart = performance.now();
-      setIsTransitioning(true);
 
       try {
         const newConfig = GRID_CONFIGS[newSize];
 
-        // Use View Transitions API if available for smooth transitions
-        const document = globalThis.document as Document & ViewTransitionAPI;
+        // Update grid config and reset game state
+        dispatch({ type: 'CHANGE_GRID_SIZE', payload: newConfig });
 
-        if (
-          document.startViewTransition &&
-          !state.accessibility.reducedMotion
-        ) {
-          const transition = document.startViewTransition(() => {
-            startTransition(() => {
-              dispatch({ type: 'CHANGE_GRID_SIZE', payload: newConfig });
-            });
-          });
+        // Fetch new puzzle for the new grid size
+        const targetDifficulty = Math.min(
+          state.difficulty ?? 1,
+          newConfig.difficultyLevels
+        );
+        const url = `/api/solveSudoku?difficulty=${targetDifficulty}&gridSize=${newSize}&force=true`;
 
-          await transition.finished;
-        } else {
-          // Fallback for browsers without View Transitions
-          startTransition(() => {
-            dispatch({ type: 'CHANGE_GRID_SIZE', payload: newConfig });
-          });
+        clearError();
 
-          // Add artificial delay for smooth UX
-          await new Promise(resolve => setTimeout(resolve, 200));
-        }
+        const data = await fetchWithCache(
+          url,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+          true
+        );
+
+        const puzzle = data as SudokuPuzzle;
+        dispatch({ type: 'SET_PUZZLE', payload: puzzle });
 
         // Save preference
         await savePreferences();
@@ -169,16 +162,15 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
           gridTransitionTime: transitionTime,
         }));
       } catch (error) {
+        dispatch({ type: 'SET_LOADING', payload: false });
         handleError(error);
-      } finally {
-        setIsTransitioning(false);
       }
     },
     [
-      isTransitioning,
       currentGridConfig.size,
-      state.accessibility.reducedMotion,
+      state.difficulty,
       dispatch,
+      clearError,
       savePreferences,
       trackTransition,
       handleError,
@@ -187,15 +179,15 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
 
   // Enhanced puzzle fetching with multi-size support
   const fetchPuzzle = useCallback(
-    async (difficulty?: number, forceRefresh = false) => {
+    async (difficulty?: number, forceRefresh = false, isGridSizeChange = false) => {
       const now = Date.now();
 
-      // Rate limiting
-      if (!forceRefresh && now - lastFetchTime < 5000) {
+      // Rate limiting (bypass for grid size changes)
+      if (!isGridSizeChange && !forceRefresh && now - lastFetchTime < 5000) {
         return;
       }
 
-      if (forceRefresh && now - lastFetchTime < 10000) {
+      if (!isGridSizeChange && forceRefresh && now - lastFetchTime < 10000) {
         handleError(new Error('Please wait 10 seconds before resetting'));
         return;
       }
@@ -212,7 +204,7 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
 
         // Build API URL with grid size parameter
         const url = `/api/solveSudoku?difficulty=${targetDifficulty}&gridSize=${gridSize}${
-          forceRefresh ? '&force=true' : ''
+          forceRefresh || isGridSizeChange ? '&force=true' : ''
         }`;
 
         const data = await fetchWithCache(
@@ -223,7 +215,7 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
               'Content-Type': 'application/json',
             },
           },
-          forceRefresh
+          forceRefresh || isGridSizeChange
         );
 
         const puzzle = data as SudokuPuzzle;
@@ -415,7 +407,7 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
     savePreferences();
   }, [dispatch, savePreferences]);
 
-  // Fetch puzzle when difficulty or grid changes
+  // Fetch puzzle when difficulty changes (initial load)
   useEffect(() => {
     if (state.difficulty !== null && !state.puzzle && !state.isLoading) {
       fetchPuzzle();
@@ -436,6 +428,7 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
   }, [state.timerActive, state.isPaused, dispatch]);
 
   const isGameDisabled = state.isPaused || state.isCorrect === true;
+  const isTransitioningOrLoading = state.isLoading;
 
   return (
     <LazyThemeProvider>
@@ -466,7 +459,7 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
                       onSizeChange={handleGridSizeChange}
                       childMode={state.childMode}
                       showDescriptions={true}
-                      disabled={isTransitioning}
+                      disabled={isTransitioningOrLoading}
                       offlineMode={enableOfflineMode && status.isOffline}
                       onInstallPrompt={installApp}
                       notificationPermission={notificationPermission}
@@ -554,7 +547,7 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
                       });
                       fetchPuzzle(difficulty);
                     }}
-                    disabled={isTransitioning}
+                    disabled={isTransitioningOrLoading}
                     isLoading={state.isLoading}
                   />
 

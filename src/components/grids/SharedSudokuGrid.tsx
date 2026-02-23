@@ -125,6 +125,7 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
           <td
             key={`${row}-${col}`}
             className={cellClasses}
+            data-testid={`cell-${row}-${col}`}
             data-row={row}
             data-col={col}
             data-grid-size={String(gridSize)}

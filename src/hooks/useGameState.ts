@@ -247,6 +247,7 @@ const handleGridSupport = (
         accessibility: state.accessibility,
         progress: state.progress,
         difficulty: Math.min(state.difficulty, newGridConfig.difficultyLevels),
+        isLoading: true, // Prevent useEffect from triggering a competing fetch
       };
     }
 
