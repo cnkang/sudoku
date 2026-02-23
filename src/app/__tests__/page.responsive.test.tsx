@@ -92,11 +92,16 @@ describe('Home Page Responsive Tests', () => {
   });
 
   describe('CSS Media Query Integration', () => {
-    it('should include responsive styles in the page', () => {
-      render(<Home />);
+    it('should use CSS Modules instead of inline style tags', () => {
+      const { container } = render(<Home />);
 
+      // No inline <style> tags — all styles handled via CSS Modules
       const styleElements = document.querySelectorAll('style');
-      expect(styleElements.length).toBeGreaterThan(0);
+      expect(styleElements.length).toBe(0);
+
+      // Page wrapper should have CSS Module class names
+      const pageDiv = container.firstElementChild;
+      expect(pageDiv?.className).toBeTruthy();
     });
 
     it('should handle dark mode preferences', () => {

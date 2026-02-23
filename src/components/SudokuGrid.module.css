@@ -212,10 +212,15 @@
   opacity: 0.5;
 }
 
-.cellInput:focus {
+.cellInput:focus-visible {
   background-color: #dbeafe;
   outline: 2px solid #3b82f6;
   outline-offset: -2px;
+}
+
+/* Fallback for browsers without :focus-visible support */
+.cellInput:focus:not(:focus-visible) {
+  outline: none;
 }
 
 /* Large text accessibility option */
@@ -284,11 +289,12 @@
   }
 
   .sudokuGrid[data-grid-size="6"] {
-    --cell-size: 35px;
+    --cell-size: 38px;
   }
 
+  /* 9×9 at 320px: enforce 38px minimum for touch targets, allow horizontal scroll */
   .sudokuGrid[data-grid-size="9"] {
-    --cell-size: 30px;
+    --cell-size: 38px;
   }
 
   .fixedNumber,
@@ -324,15 +330,21 @@
 /* Touch device optimizations */
 @media (hover: none) and (pointer: coarse) {
   .sudokuCell {
-    /* Ensure minimum 44px touch targets on touch devices */
+    /* Enforce minimum 44px touch targets on touch devices */
     min-width: 44px !important;
     min-height: 44px !important;
   }
 
-  /* Child mode gets even larger touch targets */
+  /* Child mode enforces 50px per product requirements */
   .sudokuContainer[data-child-mode="true"] .sudokuCell {
     min-width: 50px !important;
     min-height: 50px !important;
+  }
+
+  /* On narrow touch screens, allow horizontal scroll rather than shrinking below minimum */
+  .sudokuContainer {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .cellInput {
@@ -371,6 +383,56 @@
 /* Smooth transitions with performance optimization */
 .sudokuGrid:hover .sudokuCell {
   transition: background-color 0.1s ease;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .sudokuGrid {
+    background-color: #1e293b;
+    border-color: #94a3b8;
+  }
+
+  .sudokuCell {
+    background-color: #1e293b;
+    border-color: #475569;
+  }
+
+  .sudokuCell.editable:hover {
+    background-color: #334155;
+  }
+
+  .sudokuCell.selected {
+    background-color: #1e3a5f !important;
+    box-shadow: inset 0 0 0 2px #60a5fa;
+  }
+
+  .sudokuCell.error {
+    background-color: #431407 !important;
+    box-shadow: inset 0 0 0 2px #fb923c;
+  }
+
+  .sudokuCell.hinted {
+    background-color: #052e16 !important;
+    box-shadow: inset 0 0 0 2px #34d399;
+  }
+
+  .sudokuCell.success {
+    background-color: #052e16 !important;
+    box-shadow: inset 0 0 0 2px #4ade80;
+  }
+
+  .fixedNumber {
+    color: #f1f5f9;
+  }
+
+  .cellInput {
+    color: #60a5fa;
+  }
+
+  .cellInput:focus-visible {
+    background-color: #1e3a5f;
+    outline-color: #60a5fa;
+  }
 }
 
 /* Print styles */
