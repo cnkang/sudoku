@@ -274,14 +274,23 @@ export const getPerformanceMonitor = (): PerformanceMonitor => {
 // React 19 optimization hooks
 export const usePerformanceTracking = (componentName: string) => {
   const monitor = getPerformanceMonitor();
+  const componentNameRef = React.useRef(componentName);
+  componentNameRef.current = componentName;
 
-  return {
-    trackRender: (renderTime: number, wasOptimized: boolean = false) => {
-      monitor.trackReactOptimization(componentName, renderTime, wasOptimized);
-    },
-    trackTransition: (_transitionTime: number) => {},
-    getMetrics: () => monitor.getReactMetrics().get(componentName),
-  };
+  return React.useMemo(
+    () => ({
+      trackRender: (renderTime: number, wasOptimized: boolean = false) => {
+        monitor.trackReactOptimization(
+          componentNameRef.current,
+          renderTime,
+          wasOptimized
+        );
+      },
+      trackTransition: (_transitionTime: number) => {},
+      getMetrics: () => monitor.getReactMetrics().get(componentNameRef.current),
+    }),
+    [monitor]
+  );
 };
 
 // Lazy loading utilities for code splitting
@@ -319,7 +328,8 @@ export const withPerformanceTracking = <P extends object>(
       // Assume React Compiler optimization if render time is below threshold
       const wasOptimized = renderTime < 16; // 60fps threshold
       trackRender(renderTime, wasOptimized);
-    });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return React.createElement(Component, props);
   });

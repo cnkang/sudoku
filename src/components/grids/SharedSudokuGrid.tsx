@@ -69,7 +69,8 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
     React.useEffect(() => {
       const renderTime = performance.now();
       trackRender(renderTime, true);
-    });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleCellChange = useCallback(
       (row: number, col: number, value: string) => {

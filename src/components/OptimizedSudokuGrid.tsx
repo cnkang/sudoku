@@ -187,7 +187,8 @@ const SudokuCell = React.memo(
     useEffect(() => {
       const renderTime = performance.now();
       trackRender(renderTime - performance.now(), true); // Assume optimized due to memoization
-    });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
       <td
@@ -370,7 +371,8 @@ const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
       const endTime = performance.now();
       trackRender(endTime - startTime, enableMemoization);
     };
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Container classes with modern CSS
   const containerClasses = useMemo(() => {
