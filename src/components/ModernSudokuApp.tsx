@@ -179,7 +179,11 @@ const ModernSudokuApp: React.FC<ModernSudokuAppProps> = ({
 
   // Enhanced puzzle fetching with multi-size support
   const fetchPuzzle = useCallback(
-    async (difficulty?: number, forceRefresh = false, isGridSizeChange = false) => {
+    async (
+      difficulty?: number,
+      forceRefresh = false,
+      isGridSizeChange = false
+    ) => {
       const now = Date.now();
 
       // Rate limiting (bypass for grid size changes)
