@@ -6,9 +6,18 @@
 
 ## 🎉 重大版本更新 / Major Version Release
 
-v2.0.0 是一个重大版本更新，带来了全面的安全加固、性能优化和代码质量提升。本版本专注于企业级安全标准、测试覆盖率提升和现代化工具链升级。
+v2.0.0 是一个里程碑式的重大版本更新！本版本引入了**多尺寸网格系统**（4×4、6×6、9×9），将数独游戏从单一的 9×9 模式扩展为适合所有年龄段的渐进式学习平台。同时带来了全面的安全加固、性能优化和代码质量提升。
 
-v2.0.0 is a major version release featuring comprehensive security hardening, performance optimizations, and code quality improvements. This release focuses on enterprise-grade security standards, enhanced test coverage, and modernized toolchain upgrades.
+v2.0.0 is a milestone major version release! This version introduces the **Multi-Size Grid System** (4×4, 6×6, 9×9), transforming the Sudoku game from a single 9×9 mode into a progressive learning platform suitable for all ages. It also features comprehensive security hardening, performance optimizations, and code quality improvements.
+
+### 🌟 核心亮点 / Key Highlights
+
+1. **🎮 多尺寸网格系统** - 支持 4×4、6×6、9×9 三种网格尺寸
+2. **👶 儿童友好设计** - 专为儿童优化的界面和交互
+3. **🔒 企业级安全** - 速率限制、输入验证、安全头部
+4. **🚀 性能优化** - 构建优化、智能缓存、代码重构
+5. **🧪 测试覆盖率 96.34%** - 从 87.5% 大幅提升
+6. **🛠️ 现代化工具链** - Next.js 16、React 19、pnpm 10.30.1
 
 ---
 
@@ -142,21 +151,86 @@ v2.0.0 is a major version release featuring comprehensive security hardening, pe
 
 ---
 
-## 📦 功能变更 / Feature Changes
+## 🎮 重大功能变更 / Major Feature Changes
 
-### 核心功能保持稳定 / Core Features Remain Stable
+### ⭐ 多尺寸网格系统 / Multi-Size Grid System (NEW!)
 
-v2.0.0 主要专注于安全性、性能和代码质量，核心游戏功能保持不变：
+**这是 v2.0.0 最重要的功能更新！/ This is the most significant feature update in v2.0.0!**
 
-v2.0.0 primarily focuses on security, performance, and code quality. Core game features remain unchanged:
+v1.x 版本只支持传统的 9×9 数独网格。v2.0.0 引入了完整的多尺寸网格系统，支持三种不同尺寸：
 
-- ✅ 交互式 9×9 数独网格 / Interactive 9×9 Sudoku grid
-- ✅ 10 个难度等级 / 10 difficulty levels
+v1.x only supported traditional 9×9 Sudoku grids. v2.0.0 introduces a complete multi-size grid system with three different sizes:
+
+#### 🆕 新增网格尺寸 / New Grid Sizes
+
+1. **4×4 数独网格** / 4×4 Sudoku Grid
+   - 2×2 子网格，数字 1-4
+   - 专为儿童和初学者设计
+   - 3-5 个难度等级
+   - 2×2 sub-grids, numbers 1-4
+   - Designed for children and beginners
+   - 3-5 difficulty levels
+
+2. **6×6 数独网格** / 6×6 Sudoku Grid
+   - 2×3 子网格，数字 1-6
+   - 中级难度，适合学习进阶
+   - 5-7 个难度等级
+   - 2×3 sub-grids, numbers 1-6
+   - Intermediate level for learning progression
+   - 5-7 difficulty levels
+
+3. **9×9 数独网格** / 9×9 Sudoku Grid (Enhanced)
+   - 传统 3×3 子网格，数字 1-9
+   - 保持完全兼容性
+   - 10 个难度等级
+   - Traditional 3×3 sub-grids, numbers 1-9
+   - Maintains full compatibility
+   - 10 difficulty levels
+
+#### 🎯 渐进式学习系统 / Progressive Learning System
+
+- **自适应难度** / Adaptive Difficulty
+  - 每个网格尺寸有独立的难度级别配置
+  - 4×4: 3-5 级，6×6: 5-7 级，9×9: 10 级
+  - Each grid size has independent difficulty level configuration
+  - 4×4: 3-5 levels, 6×6: 5-7 levels, 9×9: 10 levels
+
+- **无缝切换** / Seamless Switching
+  - 在不同网格尺寸间平滑过渡
+  - 保持状态和进度
+  - Smooth transitions between grid sizes
+  - State and progress preservation
+
+- **独立进度追踪** / Independent Progress Tracking
+  - 每个网格尺寸有独立的统计数据
+  - 分别追踪完成时间、最佳成绩、成就
+  - Separate statistics for each grid size
+  - Track completion time, best scores, achievements separately
+
+#### 🎨 儿童友好设计 / Child-Friendly Design
+
+- **大触摸目标** / Large Touch Targets
+  - 最小 50px 触摸区域，适合小手指
+  - Minimum 50px touch areas optimized for small fingers
+
+- **温和的错误处理** / Gentle Error Handling
+  - 使用暖色（橙色/黄色）而非刺眼的红色
+  - 鼓励性语言："再试一次！"、"快成功了！"
+  - Warm colors (orange/yellow) instead of harsh red
+  - Encouraging language: "Try again!", "Almost there!"
+
+- **正向强化** / Positive Reinforcement
+  - 庆祝动画、成就徽章、进度追踪
+  - Celebration animations, achievement badges, progress tracking
+
+### ✅ 保留的核心功能 / Retained Core Features
+
 - ✅ 实时计时器 / Real-time timer
-- ✅ 提示系统 / Hint system
+- ✅ 智能提示系统 / Smart hint system
 - ✅ 撤销/重做功能 / Undo/Redo functionality
 - ✅ 移动优先响应式设计 / Mobile-first responsive design
 - ✅ 离线支持 / Offline support
+- ✅ PWA 功能 / PWA features
 
 ### API 行为变更 / API Behavior Changes
 
