@@ -1,5 +1,5 @@
-import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 /** Click a grid size radio and wait for the new grid to render */
 async function switchGridSize(
@@ -7,15 +7,35 @@ async function switchGridSize(
   size: 4 | 6 | 9,
   expectedCells: number
 ) {
-  // Use evaluate to scroll into view and click, bypassing Playwright stability checks
-  // The grid option cards have CSS animations that prevent Playwright's stability detection
-  await page.evaluate((s: number) => {
-    const label = document.querySelector(`[data-testid="grid-option-${s}"]`);
-    if (label) {
-      label.scrollIntoView({ block: 'center' });
-      (label as HTMLElement).click();
-    }
-  }, size);
+  const optionLocator = page.locator(`[data-testid="grid-option-${size}"]`);
+
+  // Wait for the grid option to be visible and not disabled before clicking
+  await optionLocator.waitFor({ state: 'visible', timeout: 10000 });
+
+  // Wait until the selector is not disabled (isLoading may still be true from a prior fetch)
+  await page.waitForFunction(
+    (s: number) => {
+      const radio = document.querySelector<HTMLInputElement>(
+        `input[name="grid-size"][value="${s}"]`
+      );
+      return radio !== null && !radio.disabled;
+    },
+    size,
+    { timeout: 15000 }
+  );
+
+  // Use Playwright's native click with force to bypass CSS animation stability checks.
+  // This properly dispatches events through the browser unlike page.evaluate .click().
+  await optionLocator.click({ force: true });
+
+  // Wait for the API response that delivers the new puzzle
+  await page.waitForResponse(
+    response =>
+      response.url().includes('/api/solveSudoku') &&
+      response.url().includes(`gridSize=${size}`) &&
+      response.status() === 200,
+    { timeout: 20000 }
+  );
 
   // Wait for the grid to render with the expected cell count
   await page.waitForFunction(
@@ -143,7 +163,18 @@ test.describe('Grid Size Switching Tests', () => {
     // Change difficulty to level 2
     const difficultySelect = page.locator('#difficulty-select');
     await difficultySelect.selectOption('2');
-    await page.waitForTimeout(1000);
+
+    // Wait for the new puzzle to load after difficulty change before switching grid
+    await page.waitForResponse(
+      response =>
+        response.url().includes('/api/solveSudoku') &&
+        response.status() === 200,
+      { timeout: 15000 }
+    );
+    await page.waitForFunction(
+      () => document.querySelectorAll('[data-testid^="cell-"]').length === 81,
+      { timeout: 10000 }
+    );
 
     await switchGridSize(page, 4, 16);
 
