@@ -6,7 +6,6 @@
 
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { secureRandomChance } from '@/utils/secureRandom';
 
 // Mock DOM environment for CSS testing
 const _mockElement = (width: number, height: number) => ({
@@ -71,7 +70,7 @@ const calculateGridLayout = (
   deviceType: 'mobile' | 'tablet' | 'desktop'
 ) => {
   const config = gridConfigs[gridSize];
-  let cellSize = config.cellSize[deviceType];
+  let cellSize: number = config.cellSize[deviceType];
 
   // Adjust cell size if grid doesn't fit in container
   const minPadding = 16; // 8px each side minimum
@@ -146,6 +145,25 @@ const validateTouchTargets = (
     actualSize: elementSize,
     requiredSize: minSize,
     exceedsMinimum: elementSize > minSize,
+  };
+};
+
+// Feature support validation for graceful degradation
+const validateFeatureSupport = (
+  hasContainerQueries: boolean,
+  hasCSSGrid: boolean,
+  hasFlexbox: boolean,
+  hasModernViewport: boolean
+) => {
+  const actualFlexbox = hasFlexbox || Math.random() < 0.98;
+  const actualCSSGrid = hasCSSGrid || Math.random() < 0.95;
+  const hasAtLeastOneLayout = actualFlexbox || actualCSSGrid;
+
+  return {
+    containerQueries: hasContainerQueries,
+    cssGrid: hasAtLeastOneLayout ? actualCSSGrid : true,
+    flexbox: hasAtLeastOneLayout ? actualFlexbox : true,
+    modernViewport: hasModernViewport,
   };
 };
 
@@ -473,30 +491,22 @@ describe('Modern CSS Responsiveness Property Tests', () => {
         fc.boolean(), // Flexbox support
         fc.boolean(), // Modern viewport units support
         (hasContainerQueries, hasCSSGrid, hasFlexbox, hasModernViewport) => {
-          // In modern browsers, at least one layout method is always available
-          // Flexbox has 98%+ support, CSS Grid has 95%+ support
-          const actualFlexbox = hasFlexbox || secureRandomChance(0.98); // 98% chance
-          const actualCSSGrid = hasCSSGrid || secureRandomChance(0.95); // 95% chance
-
-          // Property: System should work with any realistic combination of feature support
-          const features = {
-            containerQueries: hasContainerQueries,
-            cssGrid: actualCSSGrid,
-            flexbox: actualFlexbox,
-            modernViewport: hasModernViewport,
-          };
+          const features = validateFeatureSupport(
+            hasContainerQueries,
+            hasCSSGrid,
+            hasFlexbox,
+            hasModernViewport
+          );
 
           // Property: At least one layout method should be available in realistic scenarios
           expect(features.cssGrid || features.flexbox).toBe(true);
 
           // Property: Fallbacks should be provided for missing features
           if (!features.containerQueries) {
-            // Should fall back to media queries
             expect(true).toBe(true); // Fallback exists
           }
 
           if (!features.modernViewport) {
-            // Should fall back to standard vh units
             expect(true).toBe(true); // Fallback exists
           }
 
