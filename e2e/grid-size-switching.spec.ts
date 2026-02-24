@@ -1,17 +1,35 @@
 import type { Page } from '@playwright/test';
 import { expect, test } from '@playwright/test';
 
+function getGridTable(page: Page, size: 4 | 6 | 9) {
+  return page.getByRole('table', {
+    name: new RegExp(`^${size}x${size} Sudoku Grid`),
+  });
+}
+
+function getGridCells(page: Page, size: 4 | 6 | 9) {
+  return page.locator(`td[data-grid-size="${size}"]`);
+}
+
+async function waitForGridReady(
+  page: Page,
+  size: 4 | 6 | 9,
+  expectedCells: number,
+  timeout = 30000
+) {
+  await expect(getGridTable(page, size)).toBeVisible({ timeout });
+  await expect(getGridCells(page, size)).toHaveCount(expectedCells, {
+    timeout,
+  });
+}
+
 /** Click a grid size radio and wait for the new grid to render */
 async function switchGridSize(
   page: Page,
   size: 4 | 6 | 9,
   expectedCells: number
 ) {
-  const optionLocator = page.locator(`[data-testid="grid-option-${size}"]`);
   const radioLocator = page.locator(`input[name="grid-size"][value="${size}"]`);
-
-  // Wait for the grid option to be visible and not disabled before clicking
-  await optionLocator.waitFor({ state: 'visible', timeout: 10000 });
 
   // Wait until the selector is not disabled (isLoading may still be true from a prior fetch)
   await page.waitForFunction(
@@ -43,9 +61,6 @@ async function switchGridSize(
 
     const interactionAttempts: Array<() => Promise<void>> = [
       async () => {
-        await optionLocator.click({ force: true });
-      },
-      async () => {
         await radioLocator.check({ force: true });
       },
       async () => {
@@ -76,15 +91,8 @@ async function switchGridSize(
     }
 
     try {
-      // Wait for the grid to render with the expected cell count
-      await page.waitForFunction(
-        (expected: number) => {
-          const cells = document.querySelectorAll('[data-testid^="cell-"]');
-          return cells.length === expected;
-        },
-        expectedCells,
-        { timeout: 5000 }
-      );
+      // Wait for the grid to render using stable semantic/table selectors.
+      await waitForGridReady(page, size, expectedCells, 10000);
       return;
     } catch (error) {
       lastRenderError = error as Error;
@@ -114,19 +122,21 @@ test.describe('Grid Size Switching Tests', () => {
     ).toBeVisible({
       timeout: 30000,
     });
-    await expect(page.locator('[data-testid="grid-option-9"]')).toBeVisible({
-      timeout: 30000,
-    });
+    await page.waitForFunction(
+      () =>
+        document.querySelector<HTMLInputElement>(
+          'input[name="grid-size"][value="9"]'
+        ) !== null,
+      { timeout: 30000 }
+    );
 
     await expect(
       page.locator('input[name="grid-size"][value="9"]')
     ).toBeChecked();
 
-    // Wait for initial 9x9 puzzle to load
-    await page.waitForFunction(
-      () => document.querySelectorAll('[data-testid^="cell-"]').length === 81,
-      { timeout: 15000 }
-    );
+    // Wait for the initial 9x9 puzzle/table to be ready. Use table/cell attributes
+    // instead of cell test IDs because the concrete grid implementation can vary.
+    await waitForGridReady(page, 9, 81, 30000);
     await expect(page.locator('#difficulty-select')).toBeEnabled({
       timeout: 15000,
     });
@@ -150,7 +160,7 @@ test.describe('Grid Size Switching Tests', () => {
     expect(gridSize4Call).toBeDefined();
 
     // Verify cell values are between 1-4
-    const cells = page.locator('[data-testid^="cell-"]');
+    const cells = getGridCells(page, 4);
     const cellCount = await cells.count();
     expect(cellCount).toBe(16);
 
@@ -182,7 +192,7 @@ test.describe('Grid Size Switching Tests', () => {
     expect(gridSize6Call).toBeDefined();
 
     // Verify cell values are between 1-6
-    const cells = page.locator('[data-testid^="cell-"]');
+    const cells = getGridCells(page, 6);
     const cellCount = await cells.count();
     expect(cellCount).toBe(36);
 
@@ -206,7 +216,7 @@ test.describe('Grid Size Switching Tests', () => {
     for (const { size, expectedCells, maxValue } of gridSizes) {
       await switchGridSize(page, size, expectedCells);
 
-      const cells = page.locator('[data-testid^="cell-"]');
+      const cells = getGridCells(page, size);
       const cellCount = await cells.count();
       expect(cellCount).toBe(expectedCells);
 

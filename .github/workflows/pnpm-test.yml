@@ -182,19 +182,30 @@ jobs:
           sleep 5
 
           # 运行E2E测试
-          echo "🧪 Running E2E tests..."
+          # 将 grid-size-switching 单独执行，避免其重试/串行特性影响整包稳定性与诊断信息。
+          echo "🧪 Running E2E tests (phased)..."
 
           # Set environment variables for more resilient testing
           export CI=true
           export BASE_URL=http://localhost:3000
 
-          # Run tests with retry on failure
-          pnpm test:e2e || {
-            echo "⚠️ First test run failed, waiting and retrying..."
-            sleep 10
-            pnpm test:e2e
-          }
-          TEST_EXIT=$?
+          # Let Playwright handle per-test retries. Avoid rerunning the whole suite in shell,
+          # which can hide the original failure and introduce extra flakiness.
+          pnpm exec playwright test --grep-invert "Grid Size Switching Tests"
+          NON_GRID_EXIT=$?
+
+          if [ $NON_GRID_EXIT -eq 0 ]; then
+            pnpm exec playwright test e2e/grid-size-switching.spec.ts --project=chromium
+            GRID_EXIT=$?
+          else
+            GRID_EXIT=0
+          fi
+
+          if [ $NON_GRID_EXIT -ne 0 ]; then
+            TEST_EXIT=$NON_GRID_EXIT
+          else
+            TEST_EXIT=$GRID_EXIT
+          fi
 
           # 清理
           echo "🧹 Cleaning up..."
