@@ -184,10 +184,10 @@ const SudokuCell = React.memo(
     );
 
     // Track render performance
+    // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally run once on mount
     useEffect(() => {
       const renderTime = performance.now();
       trackRender(renderTime - performance.now(), true); // Assume optimized due to memoization
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
@@ -365,13 +365,13 @@ const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
   );
 
   // Performance tracking
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally run once on mount
   useEffect(() => {
     const startTime = performance.now();
     return () => {
       const endTime = performance.now();
       trackRender(endTime - startTime, enableMemoization);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Container classes with modern CSS

@@ -52,23 +52,29 @@ for (const file of sourceMapFiles) {
 
 const relative = (filePath: string) => path.relative(rootDir, filePath);
 if (sourceMapFiles.length > 0) {
+  // biome-ignore lint/suspicious/noConsole: intentional script output
   console.log(
     `[strip-production-sourcemaps] Removed ${sourceMapFiles.length} source maps`
   );
   for (const file of sourceMapFiles.slice(0, 20)) {
+    // biome-ignore lint/suspicious/noConsole: intentional script output
     console.log(`- ${relative(file)}`);
   }
   if (sourceMapFiles.length > 20) {
+    // biome-ignore lint/suspicious/noConsole: intentional script output
     console.log(`... and ${sourceMapFiles.length - 20} more`);
   }
 } else {
+  // biome-ignore lint/suspicious/noConsole: intentional script output
   console.log('[strip-production-sourcemaps] No source maps found');
 }
 
 const remaining = await findAllSourceMaps();
 if (remaining.length > 0) {
+  // biome-ignore lint/suspicious/noConsole: intentional error output
   console.error('[strip-production-sourcemaps] Source maps still present:');
   for (const file of remaining.slice(0, 20)) {
+    // biome-ignore lint/suspicious/noConsole: intentional error output
     console.error(`- ${relative(file)}`);
   }
   process.exit(1);

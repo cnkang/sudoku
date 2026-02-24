@@ -104,6 +104,8 @@ describe('Hints Utility', () => {
 
     // Should return hint for first incorrect cell
     expect(hint).toBeDefined();
-    expect(hint?.value).toBe(mockSolution[hint!.row][hint!.col]);
+    if (hint) {
+      expect(hint.value).toBe(mockSolution[hint.row][hint.col]);
+    }
   });
 });

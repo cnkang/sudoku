@@ -186,7 +186,7 @@ const handleUserInteraction = (
       const isSolvedCorrectly =
         state.solution !== null &&
         state.userInput.every((row, i) =>
-          row.every((cell, j) => cell === state.solution![i]![j])
+          row.every((cell, j) => cell === state.solution?.[i]?.[j])
         );
       return {
         ...state,

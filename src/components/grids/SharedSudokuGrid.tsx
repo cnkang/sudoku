@@ -66,10 +66,10 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
       [accessibility, accessibilityDefaults]
     );
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally run once on mount
     React.useEffect(() => {
       const renderTime = performance.now();
       trackRender(renderTime, true);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleCellChange = useCallback(
@@ -110,6 +110,7 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
     );
 
     const renderCell = useCallback(
+      // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: cell rendering logic requires complexity
       (row: number, col: number) => {
         const puzzleValue = puzzle[row]?.[col] || 0;
         const userValue = userInput[row]?.[col] || 0;

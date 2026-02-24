@@ -322,13 +322,13 @@ export const withPerformanceTracking = <P extends object>(
     const startTime = performance.now();
     const { trackRender } = usePerformanceTracking(componentName);
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally run once on mount
     React.useEffect(() => {
       const endTime = performance.now();
       const renderTime = endTime - startTime;
       // Assume React Compiler optimization if render time is below threshold
       const wasOptimized = renderTime < 16; // 60fps threshold
       trackRender(renderTime, wasOptimized);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return React.createElement(Component, props);

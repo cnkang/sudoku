@@ -55,12 +55,12 @@ interface ModernSudokuAppProps {
  * Inner component that consumes ThemeContext via useContext hook.
  * Separated from the outer wrapper so it renders inside LazyThemeProvider.
  */
-// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: main game orchestration component
 const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
   initialGridSize = 9,
   initialChildMode = false,
   enablePWA = true,
   enableOfflineMode = true,
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: main game orchestration component
 }) => {
   'use memo'; // React Compiler directive for automatic optimization
 
@@ -83,10 +83,8 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
   const { savePreferences } = usePreferences(state, dispatch);
 
   // React 19: useOptimistic for instant cell rendering while reducer processes
-  const {
-    userInput: optimisticUserInput,
-    updateCell: optimisticUpdateCell,
-  } = useOptimisticSudoku(state.userInput);
+  const { userInput: optimisticUserInput, updateCell: optimisticUpdateCell } =
+    useOptimisticSudoku(state.userInput);
 
   // React 19: useTransition for non-urgent state updates with pending tracking
   const [isDifficultyPending, startDifficultyTransition] = useTransition();
@@ -307,7 +305,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
       dispatch({ type: 'CHECK_ANSWER' });
 
       const isCorrect = state.userInput.every((row, i) =>
-        row.every((cell, j) => cell === state.solution![i]![j])
+        row.every((cell, j) => cell === state.solution?.[i]?.[j])
       );
 
       if (isCorrect) {

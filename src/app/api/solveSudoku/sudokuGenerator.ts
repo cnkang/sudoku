@@ -7,10 +7,12 @@ import { getConfig, validateMove } from '@/utils/gridConfig';
 const logger = {
   debug: (message: string) => {
     if (process.env.NODE_ENV === 'development') {
+      // biome-ignore lint/suspicious/noConsole: intentional logging for development
       console.debug(`[sudoku-generator] ${message}`);
     }
   },
   warn: (message: string) => {
+    // biome-ignore lint/suspicious/noConsole: intentional logging for warnings
     console.warn(`[sudoku-generator] ${message}`);
   },
 };
