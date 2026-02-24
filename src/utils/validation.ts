@@ -3,6 +3,10 @@
  */
 
 import type { GridConfig } from '@/types';
+import {
+  createValidationError,
+  VALIDATION_ERRORS,
+} from '@/utils/errorMessages';
 import { GridConfigManager } from '@/utils/gridConfig';
 
 /**
@@ -48,26 +52,26 @@ export const validateDifficulty = (
     config?.difficultyLevels ?? VALIDATION_CONSTANTS.MAX_DIFFICULTY;
 
   if (difficulty === null || difficulty === undefined) {
-    throw new TypeError('Difficulty must be a valid number.');
+    throw new TypeError(VALIDATION_ERRORS.DIFFICULTY_REQUIRED);
   }
 
   if (typeof difficulty === 'string') {
     if (!POSITIVE_INTEGER_PATTERN.test(difficulty)) {
-      throw new TypeError('Difficulty must be a positive integer.');
+      throw new TypeError(VALIDATION_ERRORS.DIFFICULTY_POSITIVE_INTEGER);
     }
     const parsed = Number.parseInt(difficulty, 10);
     if (parsed < minDifficulty || parsed > maxDifficulty) {
-      throw new Error('Invalid difficulty level. Must be between 1 and 10.');
+      throw new Error(VALIDATION_ERRORS.INVALID_DIFFICULTY_RANGE);
     }
     return parsed;
   }
 
   if (typeof difficulty !== 'number' || Number.isNaN(difficulty)) {
-    throw new TypeError('Difficulty must be a valid number.');
+    throw new TypeError(VALIDATION_ERRORS.DIFFICULTY_REQUIRED);
   }
 
   if (difficulty < minDifficulty || difficulty > maxDifficulty) {
-    throw new Error('Invalid difficulty level. Must be between 1 and 10.');
+    throw new Error(VALIDATION_ERRORS.INVALID_DIFFICULTY_RANGE);
   }
 
   return difficulty;
@@ -114,15 +118,11 @@ export const validateCellCoordinates = (
   const gridSize = config?.size ?? VALIDATION_CONSTANTS.SUDOKU_SIZE;
 
   if (!Number.isInteger(row) || row < 0 || row >= gridSize) {
-    throw new Error(
-      `Invalid row: ${row}. Must be between 0 and ${gridSize - 1}.`
-    );
+    throw new Error(createValidationError.invalidRow(row, gridSize - 1));
   }
 
   if (!Number.isInteger(col) || col < 0 || col >= gridSize) {
-    throw new Error(
-      `Invalid column: ${col}. Must be between 0 and ${gridSize - 1}.`
-    );
+    throw new Error(createValidationError.invalidColumn(col, gridSize - 1));
   }
 };
 
@@ -136,9 +136,7 @@ export const validateCellValue = (value: number, config?: GridConfig): void => {
     !Number.isInteger(value) ||
     (value !== 0 && (value < 1 || value > maxValue))
   ) {
-    throw new Error(
-      `Invalid cell value: ${value}. Must be 0 or between 1 and ${maxValue}.`
-    );
+    throw new Error(createValidationError.invalidCellValue(value, maxValue));
   }
 };
 
@@ -152,14 +150,12 @@ export const validateSudokuGrid = (
   const gridSize = config?.size ?? VALIDATION_CONSTANTS.SUDOKU_SIZE;
 
   if (!Array.isArray(grid) || grid.length !== gridSize) {
-    throw new Error(`Invalid grid: must be a ${gridSize}x${gridSize} array.`);
+    throw new Error(createValidationError.invalidGrid(gridSize));
   }
 
   grid.forEach((row, rowIndex) => {
     if (!Array.isArray(row) || row.length !== gridSize) {
-      throw new Error(
-        `Invalid row ${rowIndex}: must contain exactly ${gridSize} elements.`
-      );
+      throw new Error(createValidationError.invalidRow_(rowIndex, gridSize));
     }
 
     row.forEach((cell, colIndex) => {
@@ -167,9 +163,11 @@ export const validateSudokuGrid = (
         validateCellValue(cell, config);
       } catch (error) {
         throw new Error(
-          `Invalid cell at [${rowIndex}, ${colIndex}]: ${
+          createValidationError.invalidCellAt(
+            rowIndex,
+            colIndex,
             error instanceof Error ? error.message : 'Unknown error'
-          }`
+          )
         );
       }
     });

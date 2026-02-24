@@ -1,3 +1,5 @@
+import { UTILITY_ERRORS } from '@/utils/errorMessages';
+
 interface CachedResponse {
   data: unknown;
   timestamp: number;
@@ -18,11 +20,10 @@ class ClientCache {
     // Evict oldest entries if at capacity
     while (this.cache.size >= this.maxEntries) {
       const oldestKey = this.cache.keys().next().value;
-      if (oldestKey !== undefined) {
-        this.cache.delete(oldestKey);
-      } else {
+      if (oldestKey === undefined) {
         break;
       }
+      this.cache.delete(oldestKey);
     }
 
     const entry: CachedResponse = {
@@ -98,7 +99,7 @@ export async function fetchWithCache(
   }
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    throw new Error(UTILITY_ERRORS.HTTP_ERROR(response.status));
   }
 
   const data = await response.json();

@@ -1,9 +1,10 @@
 import type {
-  ThemeConfig,
-  ThemeColors,
   ThemeAccessibility,
   ThemeChildFriendly,
+  ThemeColors,
+  ThemeConfig,
 } from '@/types';
+import { UTILITY_ERRORS } from '@/utils/errorMessages';
 
 /**
  * WCAG AAA Compliance Constants
@@ -620,7 +621,7 @@ export class AccessibilityManager {
 export function getDefaultTheme(): ThemeConfig {
   const theme = THEMES.ocean;
   if (!theme) {
-    throw new Error('Default theme not found');
+    throw new Error(UTILITY_ERRORS.DEFAULT_THEME_NOT_FOUND);
   }
   return theme;
 }

@@ -1,3 +1,5 @@
+import { UTILITY_ERRORS } from '@/utils/errorMessages';
+
 const TWO_POW_32 = 0x100000000;
 
 const getCrypto = (): Crypto | null => {
@@ -19,16 +21,14 @@ const getCrypto = (): Crypto | null => {
 const getRandomUint32 = (): number => {
   const crypto = getCrypto();
   if (!crypto) {
-    throw new Error(
-      'Secure random values are not available in this environment'
-    );
+    throw new Error(UTILITY_ERRORS.SECURE_RANDOM_UNAVAILABLE);
   }
 
   const array = new Uint32Array(1);
   crypto.getRandomValues(array);
   const value = array[0];
   if (value === undefined) {
-    throw new Error('Unable to generate secure random value');
+    throw new Error(UTILITY_ERRORS.SECURE_RANDOM_GENERATION_FAILED);
   }
   return value;
 };
