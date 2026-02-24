@@ -1,15 +1,4 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import type { SudokuPuzzle } from './types';
-import { generateSudokuPuzzle } from './sudokuGenerator';
-import { puzzleCache } from './cache';
-import { validateDifficulty } from '@/utils/validation';
-import { getConfig } from '@/utils/gridConfig';
-import {
-  createErrorResponse,
-  ERROR_MESSAGES,
-  ERROR_TYPES,
-} from '@/utils/error-handling';
-import { BackwardCompatibility } from '@/utils/backwardCompatibility';
 import {
   buildSecurityHeaders,
   createForbiddenResponse,
@@ -17,6 +6,18 @@ import {
   enforceRateLimit,
   isSameOriginRequest,
 } from '@/app/api/_lib/security';
+import { BackwardCompatibility } from '@/utils/backwardCompatibility';
+import {
+  createErrorResponse,
+  ERROR_MESSAGES,
+  ERROR_TYPES,
+} from '@/utils/error-handling';
+import { VALIDATION_ERRORS } from '@/utils/errorMessages';
+import { getConfig } from '@/utils/gridConfig';
+import { validateDifficulty } from '@/utils/validation';
+import { puzzleCache } from './cache';
+import { generateSudokuPuzzle } from './sudokuGenerator';
+import type { SudokuPuzzle } from './types';
 
 const SOLVE_SUDOKU_RATE_LIMIT = {
   key: 'solve-sudoku:post',
@@ -37,7 +38,7 @@ function validateGridSize(gridSizeParam: string | null): 4 | 6 | 9 {
   const gridSize = Number.parseInt(gridSizeParam, 10);
 
   if (![4, 6, 9].includes(gridSize)) {
-    throw new Error('Invalid grid size. Must be 4, 6, or 9.');
+    throw new Error(VALIDATION_ERRORS.INVALID_GRID_SIZE);
   }
 
   return gridSize as 4 | 6 | 9;
@@ -54,9 +55,7 @@ function validateSeed(seedParam: string | null): string {
   }
 
   if (seed.length > MAX_SEED_LENGTH || !SAFE_SEED_PATTERN.test(seed)) {
-    throw new Error(
-      'Invalid seed. Use 1-64 characters containing only letters, numbers, "_" or "-".'
-    );
+    throw new Error(VALIDATION_ERRORS.INVALID_SEED_FORMAT);
   }
 
   return seed;
@@ -165,10 +164,14 @@ export async function POST(request: NextRequest) {
       }),
     });
   } catch (error) {
-    const safeError =
-      process.env.NODE_ENV === 'production'
-        ? ERROR_MESSAGES.GENERATION_FAILED
-        : error;
+    // Sanitize error message for production
+    let safeError: unknown;
+    if (process.env.NODE_ENV === 'production') {
+      safeError = ERROR_MESSAGES.GENERATION_FAILED;
+    } else {
+      safeError = error;
+    }
+
     return NextResponse.json(
       createErrorResponse(safeError, ERROR_TYPES.GENERATION_ERROR),
       { status: 500, headers: buildSecurityHeaders() }
