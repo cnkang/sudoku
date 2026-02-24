@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import Timer from '../Timer';
-import { createTimerProps, setupTest, cleanupTest } from './test-utils';
 import {
-  createRenderingTests,
   createEdgeCaseTests,
+  createRenderingTests,
 } from './shared-test-suites';
+import { cleanupTest, createTimerProps, setupTest } from './test-utils';
 
 describe('Timer', () => {
   beforeEach(setupTest);

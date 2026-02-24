@@ -4,8 +4,8 @@
  * Validates: Requirements 8.2
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import fc from 'fast-check';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock React Compiler optimization tracking
 interface ReactCompilerMetrics {

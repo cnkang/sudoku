@@ -6,7 +6,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { usePWA, useOfflineStatus } from '@/hooks/usePWA';
+import { useOfflineStatus, usePWA } from '@/hooks/usePWA';
 import { secureRandomChance } from '@/utils/secureRandom';
 import styles from './PWAStatus.module.css';
 

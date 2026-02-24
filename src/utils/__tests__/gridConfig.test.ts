@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { GridConfigManager, GRID_CONFIGS } from '@/utils/gridConfig';
+import { describe, expect, it } from 'vitest';
 import type { GridConfig } from '@/types';
+import { GRID_CONFIGS, GridConfigManager } from '@/utils/gridConfig';
 
 describe('GridConfigManager', () => {
   describe('getConfig', () => {

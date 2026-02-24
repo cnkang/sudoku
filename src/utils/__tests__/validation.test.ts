@@ -1,15 +1,15 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { GridConfigManager } from '../gridConfig';
 import {
-  validateDifficulty,
-  validateCellCoordinates,
-  validateCellValue,
-  validateSudokuGrid,
-  validateInputChange,
   detectConflicts,
   getValidationConstants,
   VALIDATION_CONSTANTS,
+  validateCellCoordinates,
+  validateCellValue,
+  validateDifficulty,
+  validateInputChange,
+  validateSudokuGrid,
 } from '../validation';
-import { GridConfigManager } from '../gridConfig';
 
 const createGrid = (size: number, fillValue = 0): number[][] =>
   Array.from({ length: size }, () =>

@@ -1,8 +1,8 @@
-import type { SudokuPuzzle } from './types';
-import type { GridConfig } from '@/types';
-import { solveSudoku } from './dlxSolver';
 import crypto from 'node:crypto';
+import type { GridConfig } from '@/types';
 import { getConfig, validateMove } from '@/utils/gridConfig';
+import { solveSudoku } from './dlxSolver';
+import type { SudokuPuzzle } from './types';
 
 const logger = {
   debug: (message: string) => {

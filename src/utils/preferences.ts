@@ -1,4 +1,4 @@
-import type { AccessibilitySettings, ProgressStats, GridConfig } from '@/types';
+import type { AccessibilitySettings, GridConfig, ProgressStats } from '@/types';
 
 /**
  * Keys for localStorage

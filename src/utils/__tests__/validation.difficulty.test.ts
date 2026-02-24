@@ -2,9 +2,9 @@
  * Tests for the legacy-friendly difficulty normalizer
  */
 
-import { describe, it, expect } from 'vitest';
-import { normalizeDifficulty } from '../validation';
+import { describe, expect, it } from 'vitest';
 import { getConfig } from '../gridConfig';
+import { normalizeDifficulty } from '../validation';
 
 describe('normalizeDifficulty - Protective Clamping', () => {
   describe('Valid inputs', () => {

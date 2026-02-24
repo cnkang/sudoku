@@ -4,13 +4,13 @@
  * Validates: Requirements 8.9
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as fc from 'fast-check';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  PERFORMANCE_THRESHOLDS,
   createLazyComponent,
   getBundleSize,
   getPerformanceMonitor,
+  PERFORMANCE_THRESHOLDS,
   withPerformanceTracking,
 } from '../performance-monitoring';
 

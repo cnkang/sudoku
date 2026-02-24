@@ -1,6 +1,6 @@
 import React from 'react';
-import type { DifficultySelectProps } from '../types';
 import { getConfig } from '@/utils/gridConfig';
+import type { DifficultySelectProps } from '../types';
 
 const DIFFICULTY_LABEL_RANGES: Record<
   4 | 6 | 9,

@@ -1,5 +1,5 @@
-import { describe, it } from 'vitest';
 import fc from 'fast-check';
+import { describe, it } from 'vitest';
 import { GridConfigManager } from '@/utils/gridConfig';
 
 const createEmptyGrid = (size: number) =>

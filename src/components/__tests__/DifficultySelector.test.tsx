@@ -1,19 +1,19 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import DifficultySelector from '../DifficultySelector';
 import {
+  createAccessibilityTests,
+  createDisabledStateTests,
+  createEdgeCaseTests,
+  createLoadingStateTests,
+  createRenderingTests,
+  createUserInteractionTests,
+} from './shared-test-suites';
+import {
+  cleanupTest,
   createDifficultySelectorProps,
   setupTest,
-  cleanupTest,
 } from './test-utils';
-import {
-  createRenderingTests,
-  createDisabledStateTests,
-  createLoadingStateTests,
-  createUserInteractionTests,
-  createAccessibilityTests,
-  createEdgeCaseTests,
-} from './shared-test-suites';
 
 describe('DifficultySelector', () => {
   let mockOnChange: ReturnType<typeof vi.fn>;

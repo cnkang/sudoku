@@ -1,4 +1,4 @@
-import { useOptimistic, useCallback } from 'react';
+import { useCallback, useOptimistic } from 'react';
 
 interface SudokuState {
   userInput: number[][];

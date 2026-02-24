@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as fc from 'fast-check';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 // Create localStorage mock that works with the preferences module
 const localStorageMock = (() => {
@@ -35,25 +35,25 @@ Object.defineProperty(globalThis, 'localStorage', {
   configurable: true,
 });
 
-import {
-  loadAccessibilitySettings,
-  saveAccessibilitySettings,
-  loadProgressStats,
-  saveProgressStats,
-  updateGridProgress,
-  loadChildMode,
-  saveChildMode,
-  loadGridConfig,
-  saveGridConfig,
-  loadDifficulty,
-  saveDifficulty,
-  loadUserPreferences,
-  saveUserPreferences,
-  clearAllPreferences,
-  getStorageInfo,
-} from '../preferences';
 import type { AccessibilitySettings, ProgressStats } from '../../types';
 import { GRID_CONFIGS } from '../gridConfig';
+import {
+  clearAllPreferences,
+  getStorageInfo,
+  loadAccessibilitySettings,
+  loadChildMode,
+  loadDifficulty,
+  loadGridConfig,
+  loadProgressStats,
+  loadUserPreferences,
+  saveAccessibilitySettings,
+  saveChildMode,
+  saveDifficulty,
+  saveGridConfig,
+  saveProgressStats,
+  saveUserPreferences,
+  updateGridProgress,
+} from '../preferences';
 
 /**
  * Property 11: Preference persistence

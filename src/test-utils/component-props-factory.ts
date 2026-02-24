@@ -2,12 +2,12 @@
  * Centralized component props factory to reduce duplication in tests
  */
 import { vi } from 'vitest';
-import { TEST_DATA } from './common-test-setup';
 import type {
-  GameControlsProps,
   DifficultySelectProps,
+  GameControlsProps,
   TimerProps,
 } from '../types';
+import { TEST_DATA } from './common-test-setup';
 
 /**
  * Factory for GameControls props with sensible defaults

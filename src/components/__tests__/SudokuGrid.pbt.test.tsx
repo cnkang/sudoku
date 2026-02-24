@@ -1,8 +1,8 @@
 import { render } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
 import * as fc from 'fast-check';
-import SudokuGrid from '../SudokuGrid';
+import { describe, expect, it, vi } from 'vitest';
 import { GRID_CONFIGS } from '@/utils/gridConfig';
+import SudokuGrid from '../SudokuGrid';
 
 vi.mock('@/hooks/useKeyboardNavigation', () => ({
   useKeyboardNavigation: () => [

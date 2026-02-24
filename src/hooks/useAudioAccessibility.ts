@@ -4,7 +4,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { GridConfig, AccessibilitySettings } from '@/types';
+import type { AccessibilitySettings, GridConfig } from '@/types';
 import { getAccessibilityManager } from '@/utils/accessibilityManager';
 
 export interface AudioSettings {

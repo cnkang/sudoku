@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ThemeContext } from '@/hooks/useTheme';
-import ThemeSelector from '../ThemeSelector';
-import { THEMES } from '@/utils/themes';
 import type { ThemeContextValue } from '@/types';
+import { THEMES } from '@/utils/themes';
+import ThemeSelector from '../ThemeSelector';
 
 // Mock theme context value
 const createMockThemeContext = (

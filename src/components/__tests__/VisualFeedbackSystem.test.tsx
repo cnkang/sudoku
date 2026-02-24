@@ -1,8 +1,8 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import VisualFeedbackSystem from '../VisualFeedbackSystem';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ThemeConfig } from '@/types';
 import { THEMES } from '@/utils/themes';
+import VisualFeedbackSystem from '../VisualFeedbackSystem';
 
 // Mock theme for testing
 const mockTheme: ThemeConfig = THEMES.ocean;

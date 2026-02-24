@@ -1,13 +1,13 @@
-import { useReducer, useCallback } from 'react';
+import { useCallback, useReducer } from 'react';
 import type {
-  GameState,
-  GameAction,
   AccessibilitySettings,
+  GameAction,
+  GameState,
   ProgressStats,
 } from '../types';
 import { GRID_CONFIGS } from '../utils/gridConfig';
-import { usePreferences } from './usePreferences';
 import { normalizeDifficulty } from '../utils/validation';
+import { usePreferences } from './usePreferences';
 
 const defaultAccessibilitySettings: AccessibilitySettings = {
   highContrast: false,

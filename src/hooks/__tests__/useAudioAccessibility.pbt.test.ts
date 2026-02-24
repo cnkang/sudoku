@@ -7,11 +7,11 @@
  * Validates: Requirements 10.7
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import fc from 'fast-check';
-import { useAudioAccessibility } from '../useAudioAccessibility';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { GridConfig } from '@/types';
+import { useAudioAccessibility } from '../useAudioAccessibility';
 
 vi.mock('@/utils/accessibilityManager', () => {
   const mockManager = {

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { updateStats, getStats } from '../stats';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getStats, updateStats } from '../stats';
 
 // Mock localStorage
 const mockLocalStorage = {

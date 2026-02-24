@@ -5,10 +5,10 @@
  * Feature: multi-size-sudoku, Property 12: Performance timing compliance
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fc from 'fast-check';
-import { GRID_CONFIGS } from '@/utils/gridConfig';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { GridConfig } from '@/types';
+import { GRID_CONFIGS } from '@/utils/gridConfig';
 import { secureRandomFraction } from '@/utils/secureRandom';
 
 type GridSize = 4 | 6 | 9;

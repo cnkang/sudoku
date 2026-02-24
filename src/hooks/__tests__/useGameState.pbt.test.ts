@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import * as fc from 'fast-check';
-import { useGameState } from '../useGameState';
-import { GRID_CONFIGS } from '../../utils/gridConfig';
+import { describe, expect, it } from 'vitest';
 import type { AccessibilitySettings, ProgressStats } from '../../types';
+import { GRID_CONFIGS } from '../../utils/gridConfig';
+import { useGameState } from '../useGameState';
 
 const setAccessibility = (
   result: ReturnType<typeof renderHook<typeof useGameState>>['result'],

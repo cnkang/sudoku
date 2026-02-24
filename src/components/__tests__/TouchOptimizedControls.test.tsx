@@ -1,9 +1,9 @@
-import { render, screen, fireEvent, act } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import TouchOptimizedControls from '../TouchOptimizedControls';
-import type { TouchOptimizedControlsProps } from '../TouchOptimizedControls';
 import { GRID_CONFIGS } from '../../utils/gridConfig';
+import type { TouchOptimizedControlsProps } from '../TouchOptimizedControls';
+import TouchOptimizedControls from '../TouchOptimizedControls';
 
 // Mock navigator.vibrate
 const mockVibrate = vi.fn();

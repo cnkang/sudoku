@@ -3,14 +3,14 @@
  * This file is kept for backward compatibility but should be migrated
  */
 export {
-  standardTestSetup as setupTest,
   standardTestCleanup as cleanupTest,
+  standardTestSetup as setupTest,
   TEST_DATA,
 } from '@/test-utils/common-test-setup';
 
 export {
-  createGameControlsProps,
   createDifficultySelectorProps,
+  createGameControlsProps,
   createSudokuGridProps,
   createTimerProps,
 } from '@/test-utils/component-props-factory';

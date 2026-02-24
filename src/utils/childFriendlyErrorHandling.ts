@@ -3,8 +3,8 @@
  * Provides encouraging language and educational explanations for all error conditions
  */
 
-import { pickSecureRandomElement } from '@/utils/secureRandom';
 import type { GridSize } from '@/types';
+import { pickSecureRandomElement } from '@/utils/secureRandom';
 
 type StruggleLevel = 'mild' | 'moderate' | 'significant';
 

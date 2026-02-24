@@ -4,11 +4,11 @@
  * **Validates: Requirements 6.3, 10.2**
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import * as fc from 'fast-check';
-import { useKeyboardNavigation } from '../useKeyboardNavigation';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GRID_CONFIGS } from '@/utils/gridConfig';
+import { useKeyboardNavigation } from '../useKeyboardNavigation';
 
 // Mock the accessibility manager
 vi.mock('@/utils/accessibilityManager', () => ({

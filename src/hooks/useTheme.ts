@@ -1,17 +1,17 @@
 import {
   createContext,
-  useContext,
   useCallback,
+  useContext,
   useEffect,
   useState,
 } from 'react';
 import type { ThemeConfig, ThemeContextValue } from '@/types';
 import {
-  getDefaultTheme,
-  getThemeById,
-  getAllThemes,
   AccessibilityManager,
   applyThemeToDocument,
+  getAllThemes,
+  getDefaultTheme,
+  getThemeById,
 } from '@/utils/themes';
 
 /**

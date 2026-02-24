@@ -10,39 +10,39 @@
 
 import type React from 'react';
 import {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  useContext,
-  useRef,
-  useTransition,
   Suspense,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
 } from 'react';
-import {
-  LazyGridRouter,
-  LazyPWAGridSelector,
-  LazyAccessibilityControls,
-  LazyVisualFeedbackSystem,
-  LazyThemeProvider,
-} from './LazyGridComponents';
-import Timer from './Timer';
-import DifficultySelector from './DifficultySelector';
-import GameControls from './GameControls';
-import TouchOptimizedControls from './TouchOptimizedControls';
 import { useGameState } from '@/hooks/useGameState';
 import { useOptimisticSudoku } from '@/hooks/useOptimisticSudoku';
 import { usePreferences } from '@/hooks/usePreferences';
 import { usePWA } from '@/hooks/usePWA';
-import { useVisualFeedback } from '@/hooks/useVisualFeedback';
 import { ThemeContext } from '@/hooks/useTheme';
-import { usePerformanceTracking } from '@/utils/performance-monitoring';
-import { GRID_CONFIGS } from '@/utils/gridConfig';
-import { fetchWithCache } from '@/utils/apiCache';
-import { getHint } from '@/utils/hints';
-import { updateStats } from '@/utils/stats';
+import { useVisualFeedback } from '@/hooks/useVisualFeedback';
 import type { SudokuPuzzle } from '@/types';
+import { fetchWithCache } from '@/utils/apiCache';
+import { GRID_CONFIGS } from '@/utils/gridConfig';
+import { getHint } from '@/utils/hints';
+import { usePerformanceTracking } from '@/utils/performance-monitoring';
+import { updateStats } from '@/utils/stats';
+import DifficultySelector from './DifficultySelector';
+import GameControls from './GameControls';
+import {
+  LazyAccessibilityControls,
+  LazyGridRouter,
+  LazyPWAGridSelector,
+  LazyThemeProvider,
+  LazyVisualFeedbackSystem,
+} from './LazyGridComponents';
 import styles from './ModernSudokuApp.module.css';
+import Timer from './Timer';
+import TouchOptimizedControls from './TouchOptimizedControls';
 
 interface ModernSudokuAppProps {
   initialGridSize?: 4 | 6 | 9;

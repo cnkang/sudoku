@@ -1,14 +1,14 @@
-import { useEffect, useCallback, useRef } from 'react';
-import type { GameState, GameAction } from '@/types';
+import { useCallback, useEffect, useRef } from 'react';
+import type { GameAction, GameState } from '@/types';
+import { GRID_CONFIGS } from '@/utils/gridConfig';
 import {
   loadUserPreferences,
   saveAccessibilitySettings,
-  saveProgressStats,
   saveChildMode,
-  saveGridConfig,
   saveDifficulty,
+  saveGridConfig,
+  saveProgressStats,
 } from '@/utils/preferences';
-import { GRID_CONFIGS } from '@/utils/gridConfig';
 
 /**
  * Custom hook for managing user preferences persistence.

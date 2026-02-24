@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { POST } from '../route';
 import { NextRequest } from 'next/server';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { POST } from '../route';
 
 // Mock the sudoku generator
 vi.mock('../sudokuGenerator', () => ({

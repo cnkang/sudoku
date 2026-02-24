@@ -1,10 +1,9 @@
-import { renderHook, act } from '@testing-library/react';
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-
+import { act, renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { SudokuPuzzle } from '../../types';
 import { useGameState } from '../useGameState';
 import { useOptimisticSudoku } from '../useOptimisticSudoku';
 import { usePuzzleLoader } from '../usePuzzleLoader';
-import type { SudokuPuzzle } from '../../types';
 
 const runPuzzleLoaderCase = (
   difficulty: number,

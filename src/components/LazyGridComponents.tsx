@@ -3,7 +3,7 @@
  * Implements Requirements 8.2, 8.9 for React 19 performance optimization
  */
 
-import React, { lazy, Suspense, memo } from 'react';
+import React, { lazy, memo, Suspense } from 'react';
 import type { GridConfig, PWAGridSelectorProps } from '@/types';
 import type { AccessibilityControlsProps } from './AccessibilityControls';
 import type { VisualFeedbackSystemProps } from './VisualFeedbackSystem';

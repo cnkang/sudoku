@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
-import { usePreferences } from '../usePreferences';
-import { useGameState } from '../useGameState';
-import * as preferencesModule from '../../utils/preferences';
+import { act, renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GRID_CONFIGS } from '../../utils/gridConfig';
+import * as preferencesModule from '../../utils/preferences';
+import { useGameState } from '../useGameState';
+import { usePreferences } from '../usePreferences';
 
 // Mock the preferences module
 vi.mock('../../utils/preferences', () => ({

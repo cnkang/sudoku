@@ -1,8 +1,8 @@
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
-import SudokuGrid from '../SudokuGrid';
 import { GRID_CONFIGS } from '@/utils/gridConfig';
+import SudokuGrid from '../SudokuGrid';
 
 const createGrid = (size: number, fillValue = 0): number[][] =>
   Array.from({ length: size }, () =>

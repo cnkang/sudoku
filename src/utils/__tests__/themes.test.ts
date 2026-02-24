@@ -1,18 +1,18 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { ThemeConfig } from '@/types';
 import {
-  calculateContrastRatio,
-  meetsWCAGAAA,
-  meetsWCAGAA,
   AccessibilityManager,
-  getDefaultTheme,
-  getThemeById,
+  applyThemeToDocument,
+  calculateContrastRatio,
   getAllThemes,
   getChildFriendlyThemes,
+  getDefaultTheme,
   getHighContrastThemes,
-  applyThemeToDocument,
+  getThemeById,
+  meetsWCAGAA,
+  meetsWCAGAAA,
   THEMES,
 } from '../themes';
-import type { ThemeConfig } from '@/types';
 
 describe('Theme Utilities', () => {
   describe('calculateContrastRatio', () => {

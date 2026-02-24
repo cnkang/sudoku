@@ -1,9 +1,9 @@
 'use client';
 
 import type React from 'react';
-import { useState, useEffect, useCallback } from 'react';
-import { GRID_CONFIGS } from '@/utils/gridConfig';
+import { useCallback, useEffect, useState } from 'react';
 import type { GridConfig } from '@/types';
+import { GRID_CONFIGS } from '@/utils/gridConfig';
 import styles from './PWAGridSelector.module.css';
 
 type GridSize = 4 | 6 | 9;

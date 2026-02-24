@@ -1,18 +1,18 @@
 import type React from 'react';
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type {
   Achievement,
-  ProgressReward,
   CelebrationEffect,
+  ProgressReward,
   ProgressStats,
 } from '@/utils/progressTracking';
 import {
   checkForNewAchievements,
-  generateCompletionReward,
   generateCelebrationEffect,
+  generateCompletionReward,
+  getAllAchievements,
   getCelebrationMessage,
   updateProgressStats,
-  getAllAchievements,
 } from '@/utils/progressTracking';
 import styles from './ProgressTracker.module.css';
 

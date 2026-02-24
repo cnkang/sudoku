@@ -4,13 +4,13 @@
  * **Validates: Requirements 6.4, 8.5**
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as fc from 'fast-check';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  pwaManager,
-  isPWASupported,
-  isPWAInstalled,
   isOffline,
+  isPWAInstalled,
+  isPWASupported,
+  pwaManager,
 } from '@/utils/pwa';
 
 // Create comprehensive mocks for browser APIs

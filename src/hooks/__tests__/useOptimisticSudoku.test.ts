@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { useOptimisticSudoku } from '../useOptimisticSudoku';
 
 const createGrid = (size: number, fillValue = 0): number[][] =>

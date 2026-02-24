@@ -1,19 +1,19 @@
 import type React from 'react';
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { GameState } from '@/types';
 import type {
   Achievement,
-  ProgressReward,
   CelebrationEffect,
+  ProgressReward,
   ProgressStats,
 } from '@/utils/progressTracking';
 import {
+  calculateOverallProgress,
   checkForNewAchievements,
-  generateCompletionReward,
   generateCelebrationEffect,
+  generateCompletionReward,
   getCelebrationMessage,
   updateProgressStats,
-  calculateOverallProgress,
 } from '@/utils/progressTracking';
 
 const scheduleCelebrationRemoval = (

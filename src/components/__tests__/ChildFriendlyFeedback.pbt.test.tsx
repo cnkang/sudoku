@@ -1,9 +1,9 @@
-import { render, fireEvent } from '@testing-library/react';
-import { describe, it, vi, afterEach } from 'vitest';
+import { fireEvent, render } from '@testing-library/react';
 import * as fc from 'fast-check';
-import VisualFeedbackSystem from '../VisualFeedbackSystem';
-import { getChildFriendlyThemes } from '@/utils/themes';
+import { afterEach, describe, it, vi } from 'vitest';
 import { secureRandomId } from '@/utils/secureRandom';
+import { getChildFriendlyThemes } from '@/utils/themes';
+import VisualFeedbackSystem from '../VisualFeedbackSystem';
 
 type ChildFriendlyTheme = ReturnType<typeof getChildFriendlyThemes>[number];
 type FeedbackType = 'success' | 'error' | 'encouragement' | 'hint';

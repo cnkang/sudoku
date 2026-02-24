@@ -3,12 +3,12 @@
  * Provides PWA status, installation, and offline capabilities
  */
 
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
-  pwaManager,
-  type PWAStatus,
-  type ProgressData,
   type AchievementData,
+  type ProgressData,
+  type PWAStatus,
+  pwaManager,
 } from '@/utils/pwa';
 
 export interface UsePWAReturn {

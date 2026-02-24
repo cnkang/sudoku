@@ -6,11 +6,11 @@
  * Requirements: 7.1, 7.4
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { BackwardCompatibility } from '../backwardCompatibility';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { SudokuPuzzle } from '@/types';
-import { GRID_CONFIGS } from '../gridConfig';
 import { secureRandomInt } from '@/utils/secureRandom';
+import { BackwardCompatibility } from '../backwardCompatibility';
+import { GRID_CONFIGS } from '../gridConfig';
 
 const createGrid = (
   rows: number,

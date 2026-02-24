@@ -6,12 +6,12 @@
 import React, {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
-  useMemo,
 } from 'react';
-import type { GridConfig } from '@/types';
 import { useVisualFeedback } from '@/hooks/useVisualFeedback';
+import type { GridConfig } from '@/types';
 import {
   usePerformanceTracking,
   withPerformanceTracking,

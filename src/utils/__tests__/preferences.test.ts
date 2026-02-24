@@ -1,23 +1,23 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import {
-  loadAccessibilitySettings,
-  saveAccessibilitySettings,
-  loadProgressStats,
-  saveProgressStats,
-  updateGridProgress,
-  loadChildMode,
-  saveChildMode,
-  loadGridConfig,
-  saveGridConfig,
-  loadDifficulty,
-  saveDifficulty,
-  loadUserPreferences,
-  saveUserPreferences,
-  clearAllPreferences,
-  getStorageInfo,
-} from '../preferences';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AccessibilitySettings } from '../../types';
 import { GRID_CONFIGS } from '../gridConfig';
+import {
+  clearAllPreferences,
+  getStorageInfo,
+  loadAccessibilitySettings,
+  loadChildMode,
+  loadDifficulty,
+  loadGridConfig,
+  loadProgressStats,
+  loadUserPreferences,
+  saveAccessibilitySettings,
+  saveChildMode,
+  saveDifficulty,
+  saveGridConfig,
+  saveProgressStats,
+  saveUserPreferences,
+  updateGridProgress,
+} from '../preferences';
 
 describe('preferences', () => {
   const createLocalStorageMock = () => {

@@ -1,13 +1,13 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import type { GameState, GameAction } from '@/types';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { GameAction, GameState } from '@/types';
 import {
+  type ChildFriendlyError,
   createChildFriendlyError,
   detectStruggle,
-  getEncouragementMessage,
-  resetStruggleDetection,
-  getRecoveryActions,
   formatErrorMessage,
-  type ChildFriendlyError,
+  getEncouragementMessage,
+  getRecoveryActions,
+  resetStruggleDetection,
   type StruggleDetection,
 } from '@/utils/childFriendlyErrorHandling';
 

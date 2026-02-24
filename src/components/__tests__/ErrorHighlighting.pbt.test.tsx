@@ -1,10 +1,10 @@
-import React from 'react';
-import { render, fireEvent, cleanup } from '@testing-library/react';
-import { describe, it, vi, afterEach } from 'vitest';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 import * as fc from 'fast-check';
-import VisualFeedbackSystem from '../VisualFeedbackSystem';
-import { getChildFriendlyThemes } from '@/utils/themes';
+import React from 'react';
+import { afterEach, describe, it, vi } from 'vitest';
 import { secureRandomId } from '@/utils/secureRandom';
+import { getChildFriendlyThemes } from '@/utils/themes';
+import VisualFeedbackSystem from '../VisualFeedbackSystem';
 
 // Clean up after each test to prevent DOM pollution
 afterEach(() => {

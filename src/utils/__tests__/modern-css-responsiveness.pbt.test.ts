@@ -4,8 +4,8 @@
  * Validates: Requirements 6.2, 8.3
  */
 
-import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
+import { describe, expect, it } from 'vitest';
 import { secureRandomChance } from '@/utils/secureRandom';
 
 // Mock DOM environment for CSS testing

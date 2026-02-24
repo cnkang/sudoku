@@ -3,8 +3,8 @@
  * Implements colorful rewards, separate tracking per grid size, and celebration animations
  */
 
-import { pickSecureRandomElement } from '@/utils/secureRandom';
 import type { GridSize } from '@/types';
+import { pickSecureRandomElement } from '@/utils/secureRandom';
 
 export interface Achievement {
   id: string;

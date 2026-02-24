@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
-import { generateSudokuPuzzle } from '../sudokuGenerator';
+import { describe, expect, it } from 'vitest';
 import { getConfig } from '@/utils/gridConfig';
+import { generateSudokuPuzzle } from '../sudokuGenerator';
 
 // Simple solver for testing purposes
 type TestConfig = {

@@ -1,8 +1,8 @@
-import { render, fireEvent, cleanup } from '@testing-library/react';
-import { describe, it, vi, afterEach, beforeEach } from 'vitest';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 import * as fc from 'fast-check';
-import VisualFeedbackSystem from '../VisualFeedbackSystem';
+import { afterEach, beforeEach, describe, it, vi } from 'vitest';
 import { getAllThemes } from '@/utils/themes';
+import VisualFeedbackSystem from '../VisualFeedbackSystem';
 
 // Enhanced cleanup for property-based testing
 afterEach(() => {
