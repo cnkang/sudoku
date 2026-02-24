@@ -48,14 +48,16 @@ const getNavigator = (): Navigator | undefined => {
 const getCaches = (): CacheStorage | undefined => {
   const windowRef = getWindow();
   if (windowRef?.caches) return windowRef.caches;
-  if (caches !== undefined) return caches;
+  // Safely check for global caches without throwing ReferenceError
+  if (typeof caches !== 'undefined') return caches;
   return undefined;
 };
 
 const getNotificationApi = (): typeof Notification | undefined => {
   const windowRef = getWindow();
   if (windowRef?.Notification) return windowRef.Notification;
-  if (Notification !== undefined) return Notification;
+  // Safely check for global Notification without throwing ReferenceError
+  if (typeof Notification !== 'undefined') return Notification;
   return undefined;
 };
 
