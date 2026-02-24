@@ -106,7 +106,15 @@ test.describe('Grid Size Switching Tests', () => {
     });
 
     await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await page.waitForSelector('[data-testid="pwa-grid-selector"]', {
+
+    // CI occasionally renders the grid-size controls while the outer PWA wrapper test id
+    // is still missing/non-visible. Wait for the actual user-facing control instead.
+    await expect(
+      page.getByRole('radiogroup', { name: 'Grid size selection' })
+    ).toBeVisible({
+      timeout: 30000,
+    });
+    await expect(page.locator('[data-testid="grid-option-9"]')).toBeVisible({
       timeout: 30000,
     });
 
