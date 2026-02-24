@@ -153,10 +153,12 @@ const validateFeatureSupport = (
   hasContainerQueries: boolean,
   hasCSSGrid: boolean,
   hasFlexbox: boolean,
-  hasModernViewport: boolean
+  hasModernViewport: boolean,
+  flexboxFallback: boolean,
+  gridFallback: boolean
 ) => {
-  const actualFlexbox = hasFlexbox || Math.random() < 0.98;
-  const actualCSSGrid = hasCSSGrid || Math.random() < 0.95;
+  const actualFlexbox = hasFlexbox || flexboxFallback;
+  const actualCSSGrid = hasCSSGrid || gridFallback;
   const hasAtLeastOneLayout = actualFlexbox || actualCSSGrid;
 
   return {
@@ -490,12 +492,23 @@ describe('Modern CSS Responsiveness Property Tests', () => {
         fc.boolean(), // CSS Grid support
         fc.boolean(), // Flexbox support
         fc.boolean(), // Modern viewport units support
-        (hasContainerQueries, hasCSSGrid, hasFlexbox, hasModernViewport) => {
+        fc.boolean(), // Flexbox fallback (98% chance)
+        fc.boolean(), // Grid fallback (95% chance)
+        (
+          hasContainerQueries,
+          hasCSSGrid,
+          hasFlexbox,
+          hasModernViewport,
+          flexboxFallback,
+          gridFallback
+        ) => {
           const features = validateFeatureSupport(
             hasContainerQueries,
             hasCSSGrid,
             hasFlexbox,
-            hasModernViewport
+            hasModernViewport,
+            flexboxFallback,
+            gridFallback
           );
 
           // Property: At least one layout method should be available in realistic scenarios
