@@ -152,7 +152,9 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
           state.difficulty ?? 1,
           newConfig.difficultyLevels
         );
-        const url = `/api/solveSudoku?difficulty=${targetDifficulty}&gridSize=${newSize}&force=true`;
+        // Grid size changes already alter the cache key, so force refresh is unnecessary
+        // and can trip the route's force-refresh throttle during fast UI/E2E flows.
+        const url = `/api/solveSudoku?difficulty=${targetDifficulty}&gridSize=${newSize}`;
 
         clearError();
 
