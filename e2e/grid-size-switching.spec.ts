@@ -105,24 +105,10 @@ test.describe('Grid Size Switching Tests', () => {
       globalThis.sessionStorage?.clear();
     });
 
-    await page.goto('/', { waitUntil: 'networkidle', timeout: 30000 });
-
-    // Wait for either the grid selector or its loading fallback to appear
-    await page.waitForSelector(
-      '[data-testid="pwa-grid-selector"], :text("Loading grid selector")',
-      { timeout: 30000 }
-    );
-
-    // If we see the loading fallback, wait for the actual component
-    const hasLoadingFallback = await page
-      .locator(':text("Loading grid selector")')
-      .isVisible()
-      .catch(() => false);
-    if (hasLoadingFallback) {
-      await page.waitForSelector('[data-testid="pwa-grid-selector"]', {
-        timeout: 30000,
-      });
-    }
+    await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.waitForSelector('[data-testid="pwa-grid-selector"]', {
+      timeout: 30000,
+    });
 
     await expect(
       page.locator('input[name="grid-size"][value="9"]')
