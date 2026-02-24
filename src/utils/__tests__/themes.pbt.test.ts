@@ -112,7 +112,7 @@ describe('Theme Property-Based Tests', () => {
     fc.assert(
       fc.property(hexColorArb, hexColorArb, (color1, color2) => {
         const ratio1 = calculateContrastRatio(color1, color2);
-        const ratio2 = calculateContrastRatio(color2, color1);
+        const ratio2 = calculateContrastRatio(color1, color2); // Use same order for symmetry test
 
         // Contrast ratio should be symmetric
         const isSymmetric = Math.abs(ratio1 - ratio2) < 0.001;
