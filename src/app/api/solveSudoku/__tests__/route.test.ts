@@ -282,7 +282,7 @@ describe('/api/solveSudoku', () => {
 
   describe('Error Handling', () => {
     it('should reject cross-origin requests', async () => {
-      const security = await import('@/app/api/_lib/security');
+      const security = await import('../../_lib/security');
       const sameOriginSpy = vi
         .spyOn(security, 'isSameOriginRequest')
         .mockReturnValue(false);
@@ -299,7 +299,7 @@ describe('/api/solveSudoku', () => {
     });
 
     it('should return 429 when endpoint-level rate limit is exceeded', async () => {
-      const security = await import('@/app/api/_lib/security');
+      const security = await import('../../_lib/security');
       const rateLimitSpy = vi
         .spyOn(security, 'enforceRateLimit')
         .mockReturnValue({
