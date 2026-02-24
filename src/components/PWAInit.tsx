@@ -16,9 +16,7 @@ const SW_MESSAGE_TYPES = new Set([
 
 const isTrustedServiceWorkerMessage = (event: MessageEvent): boolean => {
   const currentOrigin =
-    typeof globalThis.location !== 'undefined'
-      ? globalThis.location.origin
-      : undefined;
+    globalThis.location === undefined ? undefined : globalThis.location.origin;
   if (!currentOrigin) return false;
 
   const eventOrigin =

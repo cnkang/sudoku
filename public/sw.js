@@ -527,6 +527,8 @@ globalThis.addEventListener('notificationclick', event => {
 
 // Message handling for communication with main thread
 globalThis.addEventListener('message', event => {
+  // SECURITY: Verify the origin of the received message to prevent XSS attacks
+  // This validation ensures messages only come from the same origin as the service worker
   const eventOrigin =
     typeof event.origin === 'string' ? event.origin : undefined;
   const sourceUrl =
@@ -546,19 +548,21 @@ globalThis.addEventListener('message', event => {
     }
   }
 
+  // Validate that the message comes from a trusted origin (same-origin policy)
   const isTrustedOrigin =
     eventOrigin === globalThis.location.origin ||
     sourceOrigin === globalThis.location.origin;
 
   if (!isTrustedOrigin) {
-    swError('[SW] Ignoring message from untrusted origin/source');
+    swError('[SW] Security: Rejecting message from untrusted origin/source');
     return;
   }
 
-  swLog('[SW] Message received:', event.data);
+  swLog('[SW] Message received from trusted origin:', event.data);
 
+  // Validate message structure and type
   if (!isValidMessageData(event.data)) {
-    swError('[SW] Ignoring message with invalid payload/type');
+    swError('[SW] Security: Rejecting message with invalid payload/type');
     return;
   }
 
