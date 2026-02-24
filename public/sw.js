@@ -527,7 +527,21 @@ globalThis.addEventListener('notificationclick', event => {
 
 // Message handling for communication with main thread
 globalThis.addEventListener('message', event => {
-  if (!hasTrustedMessageOrigin(event)) {
+  const expectedOrigin = globalThis.location.origin;
+
+  // SECURITY: Explicit origin verification in the message handler (Sonar S2819)
+  if (event.origin !== '' && event.origin !== expectedOrigin) {
+    swError('[SW] Security: Rejecting message from untrusted origin', {
+      eventOrigin: event.origin,
+      expectedOrigin,
+    });
+    return;
+  }
+
+  if (
+    event.origin === '' &&
+    !hasTrustedMessageSourceOrigin(event, expectedOrigin)
+  ) {
     return;
   }
 
@@ -570,46 +584,31 @@ globalThis.addEventListener('message', event => {
   }
 });
 
-function hasTrustedMessageOrigin(event) {
-  // SECURITY: Explicitly verify message origin before processing payload
-  const expectedOrigin = globalThis.location.origin;
-  const eventOrigin = typeof event.origin === 'string' ? event.origin : '';
+function hasTrustedMessageSourceOrigin(event, expectedOrigin) {
+  // Some browsers/contexts may omit origin on service worker messages.
+  // In that case, fall back to validating the sender client URL when available.
+  let sourceOrigin;
+  if (
+    event.source &&
+    typeof event.source === 'object' &&
+    'url' in event.source &&
+    typeof event.source.url === 'string'
+  ) {
+    try {
+      sourceOrigin = new URL(event.source.url, expectedOrigin).origin;
+    } catch {
+      swError('[SW] Security: Invalid source URL in message');
+      return false;
+    }
+  }
 
-  // Primary check for static analyzers and runtime safety
-  if (eventOrigin && eventOrigin !== expectedOrigin) {
-    swError('[SW] Security: Rejecting message from untrusted origin', {
-      eventOrigin,
+  if (sourceOrigin !== expectedOrigin) {
+    swError('[SW] Security: Rejecting message without trusted origin', {
+      eventOrigin: '',
+      sourceOrigin,
       expectedOrigin,
     });
     return false;
-  }
-
-  // Some browsers/contexts may omit origin on service worker messages.
-  // In that case, fall back to validating the sender client URL when available.
-  if (!eventOrigin) {
-    let sourceOrigin;
-    if (
-      event.source &&
-      typeof event.source === 'object' &&
-      'url' in event.source &&
-      typeof event.source.url === 'string'
-    ) {
-      try {
-        sourceOrigin = new URL(event.source.url, expectedOrigin).origin;
-      } catch {
-        swError('[SW] Security: Invalid source URL in message');
-        return false;
-      }
-    }
-
-    if (sourceOrigin !== expectedOrigin) {
-      swError('[SW] Security: Rejecting message without trusted origin', {
-        eventOrigin,
-        sourceOrigin,
-        expectedOrigin,
-      });
-      return false;
-    }
   }
 
   return true;
