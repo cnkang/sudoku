@@ -77,8 +77,8 @@ importers:
         specifier: 4.5.3
         version: 4.5.3
       happy-dom:
-        specifier: 20.7.0
-        version: 20.7.0
+        specifier: 20.8.3
+        version: 20.8.3
       husky:
         specifier: 9.1.7
         version: 9.1.7
@@ -96,7 +96,7 @@ importers:
         version: 7.3.1(@types/node@25.3.3)(jiti@2.6.1)(terser@5.46.0)(yaml@2.8.2)
       vitest:
         specifier: 4.0.18
-        version: 4.0.18(@types/node@25.3.3)(@vitest/ui@4.0.18)(happy-dom@20.7.0)(jiti@2.6.1)(terser@5.46.0)(yaml@2.8.2)
+        version: 4.0.18(@types/node@25.3.3)(@vitest/ui@4.0.18)(happy-dom@20.8.3)(jiti@2.6.1)(terser@5.46.0)(yaml@2.8.2)
 
 packages:
 
@@ -1241,8 +1241,8 @@ packages:
     resolution: {integrity: sha512-CQ+bEO+Tva/qlmw24dCejulK5pMzVnUOFOijVogd3KQs07HnRIgp8TGipvCCRT06xeYEbpbgwaCxglFyiuIcmA==}
     engines: {node: '>=18'}
 
-  happy-dom@20.7.0:
-    resolution: {integrity: sha512-hR/uLYQdngTyEfxnOoa+e6KTcfBFyc1hgFj/Cc144A5JJUuHFYqIEBDcD4FeGqUeKLRZqJ9eN9u7/GDjYEgS1g==}
+  happy-dom@20.8.3:
+    resolution: {integrity: sha512-lMHQRRwIPyJ70HV0kkFT7jH/gXzSI7yDkQFe07E2flwmNDFoWUTRMKpW2sglsnpeA7b6S2TJPp98EbQxai8eaQ==}
     engines: {node: '>=20.0.0'}
 
   has-flag@4.0.0:
@@ -2355,7 +2355,7 @@ snapshots:
       obug: 2.1.1
       std-env: 3.10.0
       tinyrainbow: 3.0.3
-      vitest: 4.0.18(@types/node@25.3.3)(@vitest/ui@4.0.18)(happy-dom@20.7.0)(jiti@2.6.1)(terser@5.46.0)(yaml@2.8.2)
+      vitest: 4.0.18(@types/node@25.3.3)(@vitest/ui@4.0.18)(happy-dom@20.8.3)(jiti@2.6.1)(terser@5.46.0)(yaml@2.8.2)
 
   '@vitest/expect@4.0.18':
     dependencies:
@@ -2400,7 +2400,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.0.3
-      vitest: 4.0.18(@types/node@25.3.3)(@vitest/ui@4.0.18)(happy-dom@20.7.0)(jiti@2.6.1)(terser@5.46.0)(yaml@2.8.2)
+      vitest: 4.0.18(@types/node@25.3.3)(@vitest/ui@4.0.18)(happy-dom@20.8.3)(jiti@2.6.1)(terser@5.46.0)(yaml@2.8.2)
 
   '@vitest/utils@4.0.18':
     dependencies:
@@ -2577,7 +2577,7 @@ snapshots:
 
   get-east-asian-width@1.5.0: {}
 
-  happy-dom@20.7.0:
+  happy-dom@20.8.3:
     dependencies:
       '@types/node': 25.3.3
       '@types/whatwg-mimetype': 3.0.2
@@ -2985,7 +2985,7 @@ snapshots:
       terser: 5.46.0
       yaml: 2.8.2
 
-  vitest@4.0.18(@types/node@25.3.3)(@vitest/ui@4.0.18)(happy-dom@20.7.0)(jiti@2.6.1)(terser@5.46.0)(yaml@2.8.2):
+  vitest@4.0.18(@types/node@25.3.3)(@vitest/ui@4.0.18)(happy-dom@20.8.3)(jiti@2.6.1)(terser@5.46.0)(yaml@2.8.2):
     dependencies:
       '@vitest/expect': 4.0.18
       '@vitest/mocker': 4.0.18(vite@7.3.1(@types/node@25.3.3)(jiti@2.6.1)(terser@5.46.0)(yaml@2.8.2))
@@ -3010,7 +3010,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 25.3.3
       '@vitest/ui': 4.0.18(vitest@4.0.18)
-      happy-dom: 20.7.0
+      happy-dom: 20.8.3
     transitivePeerDependencies:
       - jiti
       - less
