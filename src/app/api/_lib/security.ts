@@ -114,14 +114,17 @@ export function enforceRateLimit(
  * List of allowed origins for CORS requests
  * In production, this should be configured via environment variables
  */
-const ALLOWED_ORIGINS = [
-  process.env.NEXT_PUBLIC_APP_URL,
-  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
-  // Allow localhost in development and test environments
-  ...(process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
-    ? ['http://localhost:3000', 'http://127.0.0.1:3000']
-    : []),
-].filter((origin): origin is string => Boolean(origin));
+const ALLOWED_ORIGINS = new Set(
+  [
+    process.env.NEXT_PUBLIC_APP_URL,
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
+    // Allow localhost in development and test environments
+    ...(process.env.NODE_ENV === 'development' ||
+    process.env.NODE_ENV === 'test'
+      ? ['http://localhost:3000', 'http://127.0.0.1:3000']
+      : []),
+  ].filter((origin): origin is string => Boolean(origin))
+);
 
 /**
  * Allowed HTTP methods for CORS requests
@@ -165,7 +168,7 @@ export function isSameOriginRequest(request: NextRequest): boolean {
     }
 
     // Check if it's in the allowed origins list
-    return ALLOWED_ORIGINS.includes(originUrl);
+    return ALLOWED_ORIGINS.has(originUrl);
   } catch {
     // Invalid origin URL format
     return false;
@@ -199,7 +202,7 @@ export function buildCorsHeaders(
 
       // Check if origin is allowed (same-origin or in allowed list)
       const isAllowed =
-        originUrl === requestOrigin || ALLOWED_ORIGINS.includes(originUrl);
+        originUrl === requestOrigin || ALLOWED_ORIGINS.has(originUrl);
 
       if (isAllowed) {
         // Set the specific origin that made the request

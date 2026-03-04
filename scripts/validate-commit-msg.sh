@@ -31,7 +31,7 @@ fi
 
 # Check header length (max 100 characters)
 header=$(echo "$commit_msg" | head -n 1)
-if [ ${#header} -gt 100 ]; then
+if [[ ${#header} -gt 100 ]]; then
   echo "❌ Commit header too long (${#header} > 100 characters)"
   exit 1
 fi

@@ -186,19 +186,25 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
   );
 
   const getGridConfig = (size: 4 | 6 | 9): GridConfig => GRID_CONFIGS[size];
+  let statusIndicator = (
+    <span className={styles.statusPlaceholder} aria-hidden="true" />
+  );
+  if (offlineMode) {
+    statusIndicator = (
+      <div className={styles.offlineIndicator}>📱 Playing offline</div>
+    );
+  } else if (isInstalled) {
+    statusIndicator = (
+      <div className={styles.installedIndicator}>✅ App installed</div>
+    );
+  }
 
   return (
     <div className={styles.gridSelector} data-testid="pwa-grid-selector">
       {/* PWA Status Bar */}
       <div className={styles.pwaStatus}>
         <div className={styles.statusLeft} aria-live="polite">
-          {offlineMode ? (
-            <div className={styles.offlineIndicator}>📱 Playing offline</div>
-          ) : isInstalled ? (
-            <div className={styles.installedIndicator}>✅ App installed</div>
-          ) : (
-            <span className={styles.statusPlaceholder} aria-hidden="true" />
-          )}
+          {statusIndicator}
         </div>
 
         <div className={styles.statusRight}>

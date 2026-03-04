@@ -144,16 +144,16 @@ export function createDetailedErrorLog(
 function extractSafeErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     // Remove any potential file paths or internal details
-    return error.message.replace(/\/[^\s]+/g, '[path]');
+    return error.message.replaceAll(/\/[^\s]+/g, '[path]');
   }
 
   if (typeof error === 'string') {
-    return error.replace(/\/[^\s]+/g, '[path]');
+    return error.replaceAll(/\/[^\s]+/g, '[path]');
   }
 
   if (error && typeof error === 'object' && 'message' in error) {
     const message = String(error.message);
-    return message.replace(/\/[^\s]+/g, '[path]');
+    return message.replaceAll(/\/[^\s]+/g, '[path]');
   }
 
   return GENERIC_ERROR_MESSAGES.INTERNAL_ERROR;
@@ -251,7 +251,7 @@ export function extractRequestContext(request: {
   return {
     url: request.url,
     method: request.method,
-    userAgent: userAgent === null ? undefined : userAgent,
+    userAgent: userAgent ?? undefined,
   };
 }
 

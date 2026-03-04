@@ -10,6 +10,8 @@ import { cache } from 'react';
 import type { SudokuPuzzle } from '@/types';
 import { generateSudokuPuzzle } from '../solveSudoku/sudokuGenerator';
 
+type GridSize = 4 | 6 | 9;
+
 /**
  * Cache metrics for monitoring
  */
@@ -66,7 +68,7 @@ export const cacheMetrics = new CacheMetricsTracker();
  * Rule: server-cache-react
  */
 export const getCachedPuzzle = cache(
-  async (difficulty: number, gridSize: 4 | 6 | 9): Promise<SudokuPuzzle> => {
+  async (difficulty: number, gridSize: GridSize): Promise<SudokuPuzzle> => {
     return await generateSudokuPuzzle(difficulty, gridSize);
   }
 );
@@ -75,7 +77,7 @@ export const getCachedPuzzle = cache(
  * Cached configuration lookup
  * Prevents redundant config reads within a single request
  */
-export const getCachedConfig = cache((gridSize: 4 | 6 | 9) => {
+export const getCachedConfig = cache((gridSize: GridSize) => {
   // Import dynamically to avoid circular dependencies
   const { getConfig } = require('@/utils/gridConfig');
   return getConfig(gridSize);
@@ -87,7 +89,7 @@ export const getCachedConfig = cache((gridSize: 4 | 6 | 9) => {
  * Requirements 7.2, 7.4, 7.6: LRU cache with TTL and eviction
  */
 class ServerLRUCache<K, V> {
-  private cache: Map<K, { value: V; timestamp: number }>;
+  private readonly cache: Map<K, { value: V; timestamp: number }>;
   private readonly maxSize: number;
   private readonly ttl: number;
 
@@ -161,7 +163,7 @@ export const puzzleLRUCache = new ServerLRUCache<string, SudokuPuzzle>(
  */
 export function getPuzzleCacheKey(
   difficulty: number,
-  gridSize: 4 | 6 | 9,
+  gridSize: GridSize,
   seed = 'default'
 ): string {
   return `puzzle-${gridSize}-${difficulty}-${seed}`;
@@ -193,7 +195,7 @@ export function resetCacheMetrics(): void {
  */
 export async function getOptimizedPuzzle(
   difficulty: number,
-  gridSize: 4 | 6 | 9,
+  gridSize: GridSize,
   seed = 'default',
   forceRefresh = false
 ): Promise<SudokuPuzzle & { cached?: boolean }> {

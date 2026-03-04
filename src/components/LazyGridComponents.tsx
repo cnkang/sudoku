@@ -5,7 +5,12 @@
 'use client';
 
 import React, { lazy, memo, Suspense } from 'react';
-import type { GridConfig, PWAGridSelectorProps } from '@/types';
+import type {
+  DifficultySelectProps,
+  GameControlsProps,
+  GridConfig,
+  PWAGridSelectorProps,
+} from '@/types';
 import type { AccessibilityControlsProps } from './AccessibilityControls';
 import AccessibilityControlsComponent from './AccessibilityControls';
 import DifficultySelectorComponent from './DifficultySelector';
@@ -148,8 +153,6 @@ type ThemeProviderProps = {
   children: React.ReactNode;
 };
 
-// Import types for game controls
-import type { DifficultySelectProps, GameControlsProps } from '@/types';
 import type { TouchOptimizedControlsProps } from './TouchOptimizedControls';
 
 // Grid size router with code splitting

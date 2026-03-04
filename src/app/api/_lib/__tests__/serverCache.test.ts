@@ -19,8 +19,12 @@ import {
 vi.mock('../../solveSudoku/sudokuGenerator', () => ({
   generateSudokuPuzzle: vi.fn(
     async (difficulty: number, gridSize: 4 | 6 | 9) => ({
-      puzzle: Array.from({ length: gridSize }, () => Array(gridSize).fill(0)),
-      solution: Array.from({ length: gridSize }, () => Array(gridSize).fill(1)),
+      puzzle: Array.from({ length: gridSize }, () =>
+        Array.from({ length: gridSize }, () => 0)
+      ),
+      solution: Array.from({ length: gridSize }, () =>
+        Array.from({ length: gridSize }, () => 1)
+      ),
       difficulty,
     })
   ),

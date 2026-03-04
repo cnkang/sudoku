@@ -17,7 +17,8 @@ interface PendingRequest<T> {
  * Shares results across duplicate requests within a 5-second window
  */
 class RequestDeduplicator {
-  private pendingRequests: Map<string, PendingRequest<unknown>> = new Map();
+  private readonly pendingRequests: Map<string, PendingRequest<unknown>> =
+    new Map();
   private readonly DEDUPLICATION_WINDOW = 5000; // 5 seconds
 
   /**

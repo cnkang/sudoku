@@ -193,18 +193,18 @@ export function recordMonitoringMetric(
     timestamp,
     url: clampString(event.url, MAX_URL_LENGTH),
     userAgent: clampString(event.userAgent, MAX_USER_AGENT_LENGTH),
-    ...(event.delta !== undefined
-      ? { delta: toFiniteNumber(event.delta) }
-      : {}),
-    ...(event.navigationType
-      ? {
-          navigationType: clampString(
-            event.navigationType,
-            MAX_NAVIGATION_TYPE_LENGTH
-          ),
-        }
-      : {}),
   };
+
+  if (typeof event.delta === 'number') {
+    normalized.delta = toFiniteNumber(event.delta);
+  }
+
+  if (event.navigationType) {
+    normalized.navigationType = clampString(
+      event.navigationType,
+      MAX_NAVIGATION_TYPE_LENGTH
+    );
+  }
 
   pushBounded(metricEvents, normalized, MAX_METRIC_EVENTS);
 

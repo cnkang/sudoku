@@ -89,21 +89,38 @@ function recordWebVitalPayload(
   payload: MonitoringMetricEventPayload,
   fallback: MonitoringRequestFallback
 ): boolean {
-  const result = recordMonitoringMetric({
+  const event: {
+    name: MonitoringMetricEventPayload['name'];
+    value: number;
+    rating: MonitoringMetricEventPayload['rating'];
+    id: string;
+    url: string;
+    userAgent: string;
+    delta?: number;
+    navigationType?: string;
+    timestamp?: number;
+  } = {
     name: payload.name,
     value: payload.value,
     rating: payload.rating,
     id: payload.id,
-    ...(payload.delta !== undefined ? { delta: payload.delta } : {}),
-    ...(payload.navigationType
-      ? { navigationType: payload.navigationType }
-      : {}),
-    ...(payload.timestamp !== undefined
-      ? { timestamp: payload.timestamp }
-      : {}),
     url: payload.url ?? fallback.url,
     userAgent: payload.userAgent ?? fallback.userAgent,
-  });
+  };
+
+  if (typeof payload.delta === 'number') {
+    event.delta = payload.delta;
+  }
+
+  if (payload.navigationType) {
+    event.navigationType = payload.navigationType;
+  }
+
+  if (typeof payload.timestamp === 'number') {
+    event.timestamp = payload.timestamp;
+  }
+
+  const result = recordMonitoringMetric(event);
 
   return Boolean(result.alert);
 }
@@ -112,16 +129,29 @@ function recordClientErrorPayload(
   payload: MonitoringClientErrorEventPayload,
   fallback: MonitoringRequestFallback
 ): boolean {
-  const result = recordMonitoringClientError({
+  const event: {
+    message: string;
+    source: MonitoringClientErrorEventPayload['source'];
+    url: string;
+    userAgent: string;
+    stack?: string;
+    timestamp?: number;
+  } = {
     message: payload.message,
     source: payload.source,
-    ...(payload.stack ? { stack: payload.stack } : {}),
-    ...(payload.timestamp !== undefined
-      ? { timestamp: payload.timestamp }
-      : {}),
     url: payload.url ?? fallback.url,
     userAgent: payload.userAgent ?? fallback.userAgent,
-  });
+  };
+
+  if (payload.stack) {
+    event.stack = payload.stack;
+  }
+
+  if (typeof payload.timestamp === 'number') {
+    event.timestamp = payload.timestamp;
+  }
+
+  const result = recordMonitoringClientError(event);
 
   return Boolean(result.alert);
 }

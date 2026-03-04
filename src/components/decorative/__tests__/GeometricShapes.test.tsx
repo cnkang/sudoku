@@ -22,7 +22,6 @@ describe('GeometricShapes', () => {
 
       expect(circle).toBeInTheDocument();
       expect(circle).toHaveAttribute('aria-hidden', 'true');
-      expect(circle).toHaveAttribute('role', 'presentation');
     });
 
     it('should apply size variant classes', () => {
@@ -61,7 +60,6 @@ describe('GeometricShapes', () => {
 
       expect(triangle).toBeInTheDocument();
       expect(triangle).toHaveAttribute('aria-hidden', 'true');
-      expect(triangle).toHaveAttribute('role', 'presentation');
     });
 
     it('should apply size and variant classes', () => {
@@ -80,7 +78,6 @@ describe('GeometricShapes', () => {
 
       expect(square).toBeInTheDocument();
       expect(square).toHaveAttribute('aria-hidden', 'true');
-      expect(square).toHaveAttribute('role', 'presentation');
     });
 
     it('should apply size and variant classes', () => {
@@ -99,7 +96,6 @@ describe('GeometricShapes', () => {
 
       expect(mesh).toBeInTheDocument();
       expect(mesh).toHaveAttribute('aria-hidden', 'true');
-      expect(mesh).toHaveAttribute('role', 'presentation');
 
       // Should contain multiple child shapes
       expect(mesh.children.length).toBeGreaterThan(0);
@@ -120,7 +116,6 @@ describe('GeometricShapes', () => {
 
       expect(decoration).toBeInTheDocument();
       expect(decoration).toHaveAttribute('aria-hidden', 'true');
-      expect(decoration).toHaveAttribute('role', 'presentation');
       expect(decoration.className).toContain('top-left');
     });
 
@@ -185,7 +180,7 @@ describe('GeometricShapes', () => {
       expect(cornerContainer.firstChild).toHaveAttribute('aria-hidden', 'true');
     });
 
-    it('should use presentation role for all shapes', () => {
+    it('should not require explicit presentation role for hidden shapes', () => {
       const { container: circleContainer } = render(<Circle />);
       const { container: triangleContainer } = render(<Triangle />);
       const { container: squareContainer } = render(<Square />);
@@ -194,23 +189,11 @@ describe('GeometricShapes', () => {
         <CornerDecoration position="top-left" />
       );
 
-      expect(circleContainer.firstChild).toHaveAttribute(
-        'role',
-        'presentation'
-      );
-      expect(triangleContainer.firstChild).toHaveAttribute(
-        'role',
-        'presentation'
-      );
-      expect(squareContainer.firstChild).toHaveAttribute(
-        'role',
-        'presentation'
-      );
-      expect(meshContainer.firstChild).toHaveAttribute('role', 'presentation');
-      expect(cornerContainer.firstChild).toHaveAttribute(
-        'role',
-        'presentation'
-      );
+      expect(circleContainer.firstChild).not.toHaveAttribute('role');
+      expect(triangleContainer.firstChild).not.toHaveAttribute('role');
+      expect(squareContainer.firstChild).not.toHaveAttribute('role');
+      expect(meshContainer.firstChild).not.toHaveAttribute('role');
+      expect(cornerContainer.firstChild).not.toHaveAttribute('role');
     });
   });
 

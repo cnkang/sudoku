@@ -116,7 +116,7 @@ function formatSecurityEvent(event: SecurityEvent): string {
  * - Splunk
  */
 function sendToMonitoringService(_event: SecurityEvent): void {
-  // TODO: Integrate with actual monitoring service
+  // Monitoring service integration placeholder.
   // Example: Sentry.captureMessage(formatSecurityEvent(_event), { level: _event.severity });
 }
 

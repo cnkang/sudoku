@@ -110,7 +110,7 @@ test.describe('Accessibility E2E', () => {
       if (!candidate) return null;
       const style = getComputedStyle(candidate);
       return {
-        mediaMatches: window.matchMedia('(prefers-reduced-motion: reduce)')
+        mediaMatches: globalThis.matchMedia('(prefers-reduced-motion: reduce)')
           .matches,
         animationDuration: style.animationDuration,
         animationIterationCount: style.animationIterationCount,

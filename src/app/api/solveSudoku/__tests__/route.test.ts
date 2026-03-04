@@ -28,8 +28,9 @@ let _mockCallCount = 0;
 vi.mock('@/app/api/_lib/serverCache', () => {
   return {
     getOptimizedPuzzle: vi.fn(
-      async (difficulty, gridSize, seed = 'default', forceRefresh) => {
-        const cacheKey = `puzzle-${gridSize}-${difficulty}-${seed}`;
+      async (difficulty, gridSize, seed, forceRefresh) => {
+        const normalizedSeed = seed ?? 'default';
+        const cacheKey = `puzzle-${gridSize}-${difficulty}-${normalizedSeed}`;
 
         // Check cache first (unless force refresh)
         if (!forceRefresh && cacheState.has(cacheKey)) {
