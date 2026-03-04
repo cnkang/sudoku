@@ -272,6 +272,7 @@ export function useMultipleIntersectionObserver(
   );
   const observerRef = useRef<IntersectionObserver | null>(null);
   const elementsRef = useRef<Map<string, Element>>(new Map());
+  const elementIdsRef = useRef<WeakMap<Element, string>>(new WeakMap());
 
   const {
     root = null,
@@ -291,18 +292,18 @@ export function useMultipleIntersectionObserver(
         const updates: Record<string, boolean> = {};
 
         for (const entry of entries) {
-          // Find the ID for this element
-          for (const [id, element] of elementsRef.current.entries()) {
-            if (element === entry.target) {
-              updates[id] = entry.isIntersecting;
+          const id = elementIdsRef.current.get(entry.target);
+          if (!id) {
+            continue;
+          }
 
-              // Unobserve if triggerOnce and now visible
-              if (triggerOnce && entry.isIntersecting && observerRef.current) {
-                observerRef.current.unobserve(element);
-                elementsRef.current.delete(id);
-              }
-              break;
-            }
+          updates[id] = entry.isIntersecting;
+
+          // Unobserve if triggerOnce and now visible
+          if (triggerOnce && entry.isIntersecting && observerRef.current) {
+            observerRef.current.unobserve(entry.target);
+            elementsRef.current.delete(id);
+            elementIdsRef.current.delete(entry.target);
           }
         }
 
@@ -326,18 +327,26 @@ export function useMultipleIntersectionObserver(
 
   // Register an element to observe
   const registerElement = useCallback((id: string, element: Element | null) => {
+    const existingElement = elementsRef.current.get(id);
+
     if (!element) {
       // Unregister
-      const existingElement = elementsRef.current.get(id);
       if (existingElement && observerRef.current) {
         observerRef.current.unobserve(existingElement);
+        elementIdsRef.current.delete(existingElement);
       }
       elementsRef.current.delete(id);
       return;
     }
 
+    if (existingElement && existingElement !== element && observerRef.current) {
+      observerRef.current.unobserve(existingElement);
+      elementIdsRef.current.delete(existingElement);
+    }
+
     // Register new element
     elementsRef.current.set(id, element);
+    elementIdsRef.current.set(element, id);
     if (observerRef.current) {
       observerRef.current.observe(element);
     }

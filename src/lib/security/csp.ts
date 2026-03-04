@@ -30,8 +30,7 @@ export interface CSPDirectives {
  */
 export function generateCSPHeader(
   directives: CSPDirectives,
-  nonce?: string,
-  reportOnly = false
+  nonce?: string
 ): string {
   const cspDirectives: string[] = [];
 

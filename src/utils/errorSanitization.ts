@@ -212,25 +212,23 @@ function getGenericErrorMessage(code?: string): string {
  */
 export function logErrorServerSide(errorLog: DetailedErrorLog): void {
   // In production, send to logging service (e.g., Sentry, DataDog, CloudWatch)
-  // For now, use console.error with structured logging
+  // For now, write to stderr with structured payloads.
 
   if (process.env.NODE_ENV === 'production') {
-    // Structured logging for production
-    console.error(
-      JSON.stringify({
-        level: 'error',
-        ...errorLog,
-      })
-    );
+    const payload = JSON.stringify({
+      level: 'error',
+      ...errorLog,
+    });
+    process.stderr.write(`${payload}\n`);
   } else {
-    // Readable logging for development
-    console.error('Error occurred:', {
+    const payload = {
       message: errorLog.error,
       code: errorLog.code,
       timestamp: new Date(errorLog.timestamp).toISOString(),
       context: errorLog.context,
       stack: errorLog.stack,
-    });
+    };
+    process.stderr.write(`Error occurred: ${JSON.stringify(payload)}\n`);
   }
 }
 

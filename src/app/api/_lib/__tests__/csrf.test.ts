@@ -171,7 +171,7 @@ describe('CSRF Protection', () => {
 
       const token = response.headers.get('x-csrf-token');
       expect(token).toBeTruthy();
-      expect(token!.length).toBeGreaterThan(0);
+      expect(token?.length).toBeGreaterThan(0);
     });
 
     it('includes CSRF token in cookie', () => {
