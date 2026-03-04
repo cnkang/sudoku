@@ -115,7 +115,7 @@ export function sanitizeFilename(filename: string): string {
   return filename
     .replaceAll(/[/\\]/g, '')
     .replaceAll('\0', '')
-    .replaceAll(/\.\./g, '')
+    .replaceAll('..', '')
     .trim();
 }
 
