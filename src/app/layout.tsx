@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import MonitoringInit from '@/components/MonitoringInit';
 import PWAInit from '@/components/PWAInit';
-import { getNonce } from '@/lib/security/nonce';
 import './globals.css';
 import '../styles/cursors.css';
 
@@ -23,7 +22,26 @@ const jetbrainsMono = JetBrains_Mono({
   preload: false,
 });
 
+const toAbsoluteUrl = (value: string): URL | null => {
+  try {
+    return new URL(value);
+  } catch {
+    try {
+      return new URL(`https://${value}`);
+    } catch {
+      return null;
+    }
+  }
+};
+
+const metadataBase =
+  toAbsoluteUrl(process.env.NEXT_PUBLIC_SITE_URL ?? '') ??
+  toAbsoluteUrl(process.env.SITE_URL ?? '') ??
+  toAbsoluteUrl(process.env.VERCEL_PROJECT_PRODUCTION_URL ?? '') ??
+  new URL('http://localhost:3000');
+
 export const metadata: Metadata = {
+  metadataBase,
   title: 'Multi-Size Sudoku Challenge - Educational Puzzle Game for Children',
   description:
     'Educational Sudoku game with 4×4, 6×6, and 9×9 grids designed for children. Child-friendly interface with hints, celebrations, and WCAG AAA accessibility.',
@@ -139,22 +157,20 @@ const structuredData = {
   ],
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Get CSP nonce for inline scripts
-  const nonce = await getNonce();
-
   return (
     <html lang="en">
       <head>
         <script
           type="application/ld+json"
-          nonce={nonce}
           // biome-ignore lint/security/noDangerouslySetInnerHtml: Structured data is static and safe
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(structuredData).replace(/</g, '\\u003c'),
+          }}
         />
       </head>
       <body className={`${inter.variable} ${jetbrainsMono.variable}`}>
