@@ -87,12 +87,9 @@ test.describe('Grid Size Switching Tests', () => {
       state: 'hidden',
       timeout: 45000,
     });
-    await expect(page.locator('[data-testid="pwa-grid-selector"]')).toHaveCount(
-      1,
-      {
-        timeout: 30000,
-      }
-    );
+    await expect(
+      page.getByRole('region', { name: 'PWA and grid size settings' })
+    ).toBeVisible({ timeout: 30000 });
     await expect(
       page.getByRole('radiogroup', { name: 'Grid size selection' })
     ).toBeVisible({ timeout: 30000 });
