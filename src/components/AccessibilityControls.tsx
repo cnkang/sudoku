@@ -63,13 +63,13 @@ function AccessibilityControls({
   return (
     <div className={controlsClassName} data-testid="accessibility-controls">
       <h3 className={styles.title}>
-        {childMode ? '🎨 Make it Perfect for You!' : 'Accessibility Settings'}
+        {childMode ? '🎨 Quick Display Settings' : 'Accessibility Settings'}
       </h3>
 
       {/* Theme Selector */}
       <div className={styles.controlGroup}>
         <label htmlFor="theme-selector" className={styles.label}>
-          {childMode ? '🌈 Choose Your Adventure Theme:' : 'Theme:'}
+          {childMode ? '🌈 Pick a Theme:' : 'Theme:'}
         </label>
         <select
           id="theme-selector"
@@ -108,7 +108,7 @@ function AccessibilityControls({
         </label>
         <div id="high-contrast-description" className={styles.description}>
           {childMode
-            ? 'Makes colors extra clear and easy to see!'
+            ? 'Makes everything easier to see.'
             : 'Increases contrast for better visibility'}
         </div>
       </div>
@@ -126,12 +126,12 @@ function AccessibilityControls({
           />
           <span className={styles.toggleSlider} aria-hidden="true" />
           <span className={styles.toggleText}>
-            {childMode ? '🐌 Calm Animations' : 'Reduce Motion'}
+            {childMode ? '🐌 Calm Motion' : 'Reduce Motion'}
           </span>
         </label>
         <div id="reduced-motion-description" className={styles.description}>
           {childMode
-            ? 'Makes animations slower and gentler'
+            ? 'Uses fewer moving effects.'
             : 'Reduces animations and motion effects'}
         </div>
       </div>
@@ -149,45 +149,51 @@ function AccessibilityControls({
           />
           <span className={styles.toggleSlider} aria-hidden="true" />
           <span className={styles.toggleText}>
-            {childMode ? '🔍 Big Numbers' : 'Large Text'}
+            {childMode ? '🔍 Bigger Numbers' : 'Large Text'}
           </span>
         </label>
         <div id="large-text-description" className={styles.description}>
           {childMode
-            ? 'Makes all numbers bigger and easier to read!'
+            ? 'Makes numbers easier to read.'
             : 'Increases text size for better readability'}
         </div>
       </div>
 
       {/* Pattern-based Visual Cues Info */}
       {childMode && (
-        <div className={styles.infoSection}>
-          <h4 className={styles.infoTitle}>🎯 Special Visual Helpers</h4>
-          <div className={styles.patternExamples}>
-            <div className={styles.patternExample}>
-              <div
-                className={`${styles.patternSample} ${styles.successPattern}`}
-              />
-              <span>Great job! (stripes)</span>
+        <section className={styles.infoSection}>
+          <details className={styles.infoSectionDetails}>
+            <summary className={styles.infoSectionSummary}>
+              🎯 Visual Helpers (optional)
+            </summary>
+            <div className={styles.infoSectionBody}>
+              <h4 className={styles.infoTitle}>Pattern Guide</h4>
+              <div className={styles.patternExamples}>
+                <div className={styles.patternExample}>
+                  <div
+                    className={`${styles.patternSample} ${styles.successPattern}`}
+                  />
+                  <span>Great job! (stripes)</span>
+                </div>
+                <div className={styles.patternExample}>
+                  <div
+                    className={`${styles.patternSample} ${styles.errorPattern}`}
+                  />
+                  <span>Try again! (dots)</span>
+                </div>
+                <div className={styles.patternExample}>
+                  <div
+                    className={`${styles.patternSample} ${styles.hintPattern}`}
+                  />
+                  <span>Hint! (waves)</span>
+                </div>
+              </div>
+              <p className={styles.infoText}>
+                Patterns help if colors look similar.
+              </p>
             </div>
-            <div className={styles.patternExample}>
-              <div
-                className={`${styles.patternSample} ${styles.errorPattern}`}
-              />
-              <span>Try again! (dots)</span>
-            </div>
-            <div className={styles.patternExample}>
-              <div
-                className={`${styles.patternSample} ${styles.hintPattern}`}
-              />
-              <span>Helpful hint! (waves)</span>
-            </div>
-          </div>
-          <p className={styles.infoText}>
-            These patterns help you see different messages, even if colors look
-            the same to you!
-          </p>
-        </div>
+          </details>
+        </section>
       )}
 
       {/* Quick Access Buttons */}
@@ -199,7 +205,7 @@ function AccessibilityControls({
           className={`${styles.quickButton} ${styles.contrastButton}`}
           aria-label="Switch to high contrast theme"
         >
-          {childMode ? '🌙 Super Clear' : 'High Contrast'}
+          {childMode ? '🌙 Clear View' : 'High Contrast'}
         </button>
 
         <button
@@ -209,7 +215,7 @@ function AccessibilityControls({
           className={`${styles.quickButton} ${styles.oceanButton}`}
           aria-label="Switch to ocean theme"
         >
-          {childMode ? '🌊 Ocean Fun' : 'Ocean Theme'}
+          {childMode ? '🌊 Ocean' : 'Ocean Theme'}
         </button>
 
         {childMode && (
@@ -221,7 +227,7 @@ function AccessibilityControls({
               className={`${styles.quickButton} ${styles.forestButton}`}
               aria-label="Switch to forest theme"
             >
-              🌲 Forest Adventure
+              🌲 Forest
             </button>
 
             <button
@@ -231,7 +237,7 @@ function AccessibilityControls({
               className={`${styles.quickButton} ${styles.spaceButton}`}
               aria-label="Switch to space theme"
             >
-              🚀 Space Journey
+              🚀 Space
             </button>
           </>
         )}
