@@ -66,6 +66,82 @@ const MonitoringEventSchema = z.discriminatedUnion('kind', [
   MonitoringClientErrorEventSchema,
 ]);
 
+type MonitoringMetricEventPayload = z.infer<typeof MonitoringMetricEventSchema>;
+type MonitoringClientErrorEventPayload = z.infer<
+  typeof MonitoringClientErrorEventSchema
+>;
+
+type MonitoringRequestFallback = {
+  url: string;
+  userAgent: string;
+};
+
+function getMonitoringRequestFallback(
+  request: NextRequest
+): MonitoringRequestFallback {
+  return {
+    url: request.nextUrl.href,
+    userAgent: request.headers.get('user-agent') ?? 'unknown',
+  };
+}
+
+function recordWebVitalPayload(
+  payload: MonitoringMetricEventPayload,
+  fallback: MonitoringRequestFallback
+): boolean {
+  const result = recordMonitoringMetric({
+    name: payload.name,
+    value: payload.value,
+    rating: payload.rating,
+    id: payload.id,
+    ...(payload.delta !== undefined ? { delta: payload.delta } : {}),
+    ...(payload.navigationType
+      ? { navigationType: payload.navigationType }
+      : {}),
+    ...(payload.timestamp !== undefined
+      ? { timestamp: payload.timestamp }
+      : {}),
+    url: payload.url ?? fallback.url,
+    userAgent: payload.userAgent ?? fallback.userAgent,
+  });
+
+  return Boolean(result.alert);
+}
+
+function recordClientErrorPayload(
+  payload: MonitoringClientErrorEventPayload,
+  fallback: MonitoringRequestFallback
+): boolean {
+  const result = recordMonitoringClientError({
+    message: payload.message,
+    source: payload.source,
+    ...(payload.stack ? { stack: payload.stack } : {}),
+    ...(payload.timestamp !== undefined
+      ? { timestamp: payload.timestamp }
+      : {}),
+    url: payload.url ?? fallback.url,
+    userAgent: payload.userAgent ?? fallback.userAgent,
+  });
+
+  return Boolean(result.alert);
+}
+
+function createAcceptedMonitoringResponse(
+  request: NextRequest,
+  recorded: 'web-vital' | 'client-error',
+  alertTriggered: boolean
+) {
+  return createNoStoreJsonResponse(
+    request,
+    {
+      success: true,
+      recorded,
+      alertTriggered,
+    },
+    202
+  );
+}
+
 export function OPTIONS(request: NextRequest) {
   return createOptionsResponse(request);
 }
@@ -157,56 +233,20 @@ export async function POST(request: NextRequest) {
     }
 
     const payload = MonitoringEventSchema.parse(bodyResult.data);
-    const fallbackUrl = request.nextUrl.href;
-    const fallbackUserAgent = request.headers.get('user-agent') ?? 'unknown';
+    const fallback = getMonitoringRequestFallback(request);
 
     if (payload.kind === 'web-vital') {
-      const result = recordMonitoringMetric({
-        name: payload.name,
-        value: payload.value,
-        rating: payload.rating,
-        id: payload.id,
-        ...(payload.delta !== undefined ? { delta: payload.delta } : {}),
-        ...(payload.navigationType
-          ? { navigationType: payload.navigationType }
-          : {}),
-        ...(payload.timestamp !== undefined
-          ? { timestamp: payload.timestamp }
-          : {}),
-        url: payload.url ?? fallbackUrl,
-        userAgent: payload.userAgent ?? fallbackUserAgent,
-      });
-
-      return createNoStoreJsonResponse(
+      return createAcceptedMonitoringResponse(
         request,
-        {
-          success: true,
-          recorded: 'web-vital',
-          alertTriggered: Boolean(result.alert),
-        },
-        202
+        'web-vital',
+        recordWebVitalPayload(payload, fallback)
       );
     }
 
-    const result = recordMonitoringClientError({
-      message: payload.message,
-      source: payload.source,
-      ...(payload.stack ? { stack: payload.stack } : {}),
-      ...(payload.timestamp !== undefined
-        ? { timestamp: payload.timestamp }
-        : {}),
-      url: payload.url ?? fallbackUrl,
-      userAgent: payload.userAgent ?? fallbackUserAgent,
-    });
-
-    return createNoStoreJsonResponse(
+    return createAcceptedMonitoringResponse(
       request,
-      {
-        success: true,
-        recorded: 'client-error',
-        alertTriggered: Boolean(result.alert),
-      },
-      202
+      'client-error',
+      recordClientErrorPayload(payload, fallback)
     );
   } catch (error) {
     if (error instanceof z.ZodError) {

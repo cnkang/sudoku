@@ -110,7 +110,8 @@ export function sanitizeFilename(filename: string): string {
   // Remove path separators and null bytes
   return filename
     .replace(/[/\\]/g, '')
-    .replace(/\0/g, '')
+    .split('\0')
+    .join('')
     .replace(/\.\./g, '')
     .trim();
 }

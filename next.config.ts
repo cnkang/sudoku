@@ -104,11 +104,7 @@ const nextConfig: NextConfig = {
   async headers() {
     // Generate CSP header (report-only mode initially for testing)
     const cspReportOnly = process.env.CSP_REPORT_ONLY === 'true';
-    const cspHeader = generateCSPHeader(
-      defaultCSPDirectives,
-      undefined,
-      cspReportOnly
-    );
+    const cspHeader = generateCSPHeader(defaultCSPDirectives);
     const cspHeaderName = getCSPHeaderName(cspReportOnly);
 
     return [

@@ -36,6 +36,11 @@ interface ValidationResult {
   wcagLevel: 'AAA' | 'AA' | 'FAIL';
 }
 
+type ColorPairDefinition = {
+  foregroundName: string;
+  backgroundName: string;
+};
+
 /**
  * Convert hex color to RGB
  */
@@ -145,92 +150,78 @@ function parseColorsFromCSS(cssContent: string): Map<string, string> {
   return colors;
 }
 
+function addPairIfPresent(
+  pairs: ColorPair[],
+  colors: Map<string, string>,
+  foregroundName: string,
+  backgroundName: string
+): void {
+  const foreground = colors.get(foregroundName);
+  const background = colors.get(backgroundName);
+
+  if (!foreground || !background) {
+    return;
+  }
+
+  pairs.push({
+    foreground,
+    background,
+    foregroundName,
+    backgroundName,
+  });
+}
+
+function addCrossProductPairs(
+  pairs: ColorPair[],
+  colors: Map<string, string>,
+  foregrounds: string[],
+  backgrounds: string[]
+): void {
+  for (const backgroundName of backgrounds) {
+    for (const foregroundName of foregrounds) {
+      addPairIfPresent(pairs, colors, foregroundName, backgroundName);
+    }
+  }
+}
+
+function addDefinedPairs(
+  pairs: ColorPair[],
+  colors: Map<string, string>,
+  definitions: ColorPairDefinition[]
+): void {
+  for (const { foregroundName, backgroundName } of definitions) {
+    addPairIfPresent(pairs, colors, foregroundName, backgroundName);
+  }
+}
+
 /**
  * Define color combinations to test
  * These represent actual usage patterns in the application
  */
 function getColorCombinationsToTest(colors: Map<string, string>): ColorPair[] {
   const pairs: ColorPair[] = [];
-
-  // Primary colors on cream background
   const backgrounds = ['cream', 'cream-dark'];
-  const foregrounds = ['coral', 'amber', 'teal', 'indigo', 'charcoal', 'slate'];
-
-  for (const bg of backgrounds) {
-    const bgColor = colors.get(bg);
-    if (!bgColor) continue;
-
-    for (const fg of foregrounds) {
-      const fgColor = colors.get(fg);
-      if (!fgColor) continue;
-
-      pairs.push({
-        foreground: fgColor,
-        background: bgColor,
-        foregroundName: fg,
-        backgroundName: bg,
-      });
-    }
-  }
-
-  // Accent colors on cream background
-  const accentForegrounds = ['hot-pink', 'electric', 'lime'];
-  for (const bg of backgrounds) {
-    const bgColor = colors.get(bg);
-    if (!bgColor) continue;
-
-    for (const fg of accentForegrounds) {
-      const fgColor = colors.get(fg);
-      if (!fgColor) continue;
-
-      pairs.push({
-        foreground: fgColor,
-        background: bgColor,
-        foregroundName: fg,
-        backgroundName: bg,
-      });
-    }
-  }
-
-  // Semantic colors on their backgrounds
-  const semanticPairs = [
-    { fg: 'teal', bg: 'cream' }, // success
-    { fg: 'amber', bg: 'cream' }, // warning
-    { fg: 'coral', bg: 'cream' }, // error
-    { fg: 'indigo', bg: 'cream' }, // hint
+  const primaryForegrounds = [
+    'coral',
+    'amber',
+    'teal',
+    'indigo',
+    'charcoal',
+    'slate',
   ];
+  const accentForegrounds = ['hot-pink', 'electric', 'lime'];
+  const semanticPairs: ColorPairDefinition[] = [
+    { foregroundName: 'teal', backgroundName: 'cream' }, // success
+    { foregroundName: 'amber', backgroundName: 'cream' }, // warning
+    { foregroundName: 'coral', backgroundName: 'cream' }, // error
+    { foregroundName: 'indigo', backgroundName: 'cream' }, // hint
+  ];
+  const darkTextForegrounds = ['charcoal', 'slate'];
 
-  for (const { fg, bg } of semanticPairs) {
-    const fgColor = colors.get(fg);
-    const bgColor = colors.get(bg);
-    if (!fgColor || !bgColor) continue;
-
-    pairs.push({
-      foreground: fgColor,
-      background: bgColor,
-      foregroundName: fg,
-      backgroundName: bg,
-    });
-  }
-
-  // Dark text on light backgrounds
-  const darkTexts = ['charcoal', 'slate'];
-  for (const fg of darkTexts) {
-    const fgColor = colors.get(fg);
-    if (!fgColor) continue;
-
-    for (const bg of backgrounds) {
-      const bgColor = colors.get(bg);
-      if (!bgColor) continue;
-
-      pairs.push({
-        foreground: fgColor,
-        background: bgColor,
-        foregroundName: fg,
-        backgroundName: bg,
-      });
-    }
-  }
+  addCrossProductPairs(pairs, colors, primaryForegrounds, backgrounds);
+  addCrossProductPairs(pairs, colors, accentForegrounds, backgrounds);
+  addDefinedPairs(pairs, colors, semanticPairs);
+  addCrossProductPairs(pairs, colors, darkTextForegrounds, backgrounds);
 
   return pairs;
 }
@@ -318,7 +309,7 @@ function main(): void {
 
     // Output results
     const report = formatResults(results);
-    console.log(report);
+    process.stdout.write(report);
 
     // Exit with error if any combinations failed
     const failedCount = results.filter(r => !r.passes).length;
@@ -327,7 +318,9 @@ function main(): void {
     }
     process.exit(0);
   } catch (error) {
-    console.error('Contrast validation failed:', error);
+    const errorOutput =
+      error instanceof Error ? (error.stack ?? error.message) : String(error);
+    process.stderr.write(`Contrast validation failed: ${errorOutput}\n`);
     process.exit(1);
   }
 }

@@ -229,8 +229,8 @@ describe('Server Cache System', () => {
       expect(puzzle2.cached).toBe(true);
 
       // Compare puzzle data (excluding cached flag)
-      const { cached: cached1, ...data1 } = puzzle1;
-      const { cached: cached2, ...data2 } = puzzle2;
+      const { cached: _cached1, ...data1 } = puzzle1;
+      const { cached: _cached2, ...data2 } = puzzle2;
       expect(data2).toEqual(data1);
     });
 
