@@ -4,7 +4,8 @@
   min-height: 100dvh; /* Modern dynamic viewport height */
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: grid;
-  place-items: center;
+  justify-items: center;
+  align-items: start;
   padding: clamp(1rem, 3vw, 2rem);
   padding-block: clamp(1rem, 3vh, 2rem);
   padding-inline: clamp(0.5rem, 2vw, 1rem);
@@ -18,6 +19,10 @@
   /* Container query setup */
   container-type: inline-size;
   container-name: page-container;
+  
+  /* Position context for geometric decorations */
+  position: relative;
+  overflow: hidden;
 }
 
 .main {
@@ -43,10 +48,26 @@
   /* Container Query Support - set on parent */
   container-type: inline-size;
   container-name: sudoku-app;
+  
+  /* Position context for corner decorations */
+  position: relative;
+  z-index: 1;
+}
 
-  /* Performance optimization */
-  contain: layout style;
-  will-change: transform;
+.lcpHero {
+  width: 100%;
+  text-align: center;
+  padding-bottom: 0.5rem;
+}
+
+.lcpHeroTitle {
+  margin: 0;
+  font-size: 1.625rem;
+  line-height: 1.2;
+  color: #1e293b;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
 }
 
 /* Container Queries for Page Layout */
@@ -83,6 +104,10 @@
     padding: 2.5rem;
     gap: 2rem;
     max-width: 1200px; /* Increased from 1400px to give more space */
+  }
+
+  .lcpHero {
+    display: none;
   }
 }
 
@@ -186,13 +211,6 @@
     background: #fff;
     color: #000;
     border: 3px solid #000;
-  }
-}
-
-/* Reduced Motion Support */
-@media (prefers-reduced-motion: reduce) {
-  .main {
-    will-change: auto;
   }
 }
 

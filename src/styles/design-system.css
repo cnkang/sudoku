@@ -1,0 +1,443 @@
+/**
+ * Design System - "Playful Precision"
+ * A bold, geometric design system for Sudoku Challenge
+ * 
+ * Philosophy: Celebrating mathematical beauty through geometric playfulness
+ * Direction: Mid-century modern meets contemporary digital design
+ * Goal: Create an unforgettable, distinctive visual identity
+ */
+
+/* ============================================
+   TYPOGRAPHY SYSTEM
+   ============================================ */
+
+:root {
+  /* Font Families - Distinctive & Purposeful */
+  --font-display: 'Space Grotesk', 'Helvetica Neue', sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  
+  /* Font Sizes - Harmonious Scale */
+  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --text-sm: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-lg: clamp(1.125rem, 1rem + 0.625vw, 1.5rem);
+  --text-xl: clamp(1.25rem, 1.1rem + 0.75vw, 1.875rem);
+  --text-2xl: clamp(1.5rem, 1.3rem + 1vw, 2.25rem);
+  --text-3xl: clamp(1.875rem, 1.5rem + 1.875vw, 3rem);
+  --text-4xl: clamp(2.25rem, 1.8rem + 2.25vw, 3.75rem);
+  
+  /* Font Weights */
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-extrabold: 800;
+  
+  /* Line Heights */
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+}
+
+/* ============================================
+   COLOR SYSTEM - "Geometric Sunset"
+   ============================================ */
+
+:root {
+  /* Primary Colors - Warm & Inviting */
+  --color-coral: #951626;
+  --color-coral-light: #C41E3A;
+  --color-coral-dark: #7A1220;
+  
+  --color-amber: #5F4605;
+  --color-amber-light: #8B6508;
+  --color-amber-dark: #4D3804;
+  
+  --color-teal: #005555;
+  --color-teal-light: #006666;
+  --color-teal-dark: #003D3D;
+  
+  --color-indigo: #3D4373;
+  --color-indigo-light: #5B5F97;
+  --color-indigo-dark: #2A2E52;
+  
+  /* Accent Colors - Sharp & Memorable */
+  --color-hot-pink: #8B0035;
+  --color-electric: #004D73;
+  --color-lime: #3D4D00;
+  
+  /* Neutrals - Warm & Sophisticated */
+  --color-cream: #FFF8F0;
+  --color-cream-dark: #F5EBE0;
+  --color-charcoal: #2B2D42;
+  --color-slate: #3D4A5C;
+  --color-fog: #A0AEC0;
+  --color-mist: #E2E8F0;
+  
+  /* Semantic Colors - Child-Friendly */
+  --color-success: var(--color-teal);
+  --color-success-bg: #E6FFF7;
+  --color-warning: var(--color-amber);
+  --color-warning-bg: #FFF4E6;
+  --color-error: var(--color-coral);
+  --color-error-bg: #FFE6F0;
+  --color-hint: var(--color-indigo-light);
+  --color-hint-bg: #F0F2FA;
+  
+  /* Gradients - Atmospheric */
+  --gradient-sunset: linear-gradient(135deg, var(--color-coral) 0%, var(--color-amber) 100%);
+  --gradient-ocean: linear-gradient(135deg, var(--color-teal) 0%, var(--color-indigo) 100%);
+  --gradient-warm: linear-gradient(135deg, var(--color-cream) 0%, #FFE5D9 100%);
+  --gradient-mesh: 
+    radial-gradient(circle at 20% 50%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 50%, rgba(78, 205, 196, 0.1) 0%, transparent 50%);
+}
+
+/* Dark Mode Colors */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-cream: #1A1D2E;
+    --color-cream-dark: #13151F;
+    --color-charcoal: #F5F5F5;
+    --color-slate: #D1D5DB;
+    --color-fog: #6B7280;
+    --color-mist: #374151;
+    
+    --gradient-warm: linear-gradient(135deg, #1A1D2E 0%, #252838 100%);
+  }
+}
+
+/* ============================================
+   SPACING SYSTEM - Harmonious Scale
+   ============================================ */
+
+:root {
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0-5: 0.125rem;  /* 2px */
+  --space-1: 0.25rem;     /* 4px */
+  --space-1-5: 0.375rem;  /* 6px */
+  --space-2: 0.5rem;      /* 8px */
+  --space-2-5: 0.625rem;  /* 10px */
+  --space-3: 0.75rem;     /* 12px */
+  --space-3-5: 0.875rem;  /* 14px */
+  --space-4: 1rem;        /* 16px */
+  --space-5: 1.25rem;     /* 20px */
+  --space-6: 1.5rem;      /* 24px */
+  --space-7: 1.75rem;     /* 28px */
+  --space-8: 2rem;        /* 32px */
+  --space-9: 2.25rem;     /* 36px */
+  --space-10: 2.5rem;     /* 40px */
+  --space-11: 2.75rem;    /* 44px */
+  --space-12: 3rem;       /* 48px */
+  --space-14: 3.5rem;     /* 56px */
+  --space-16: 4rem;       /* 64px */
+  --space-20: 5rem;       /* 80px */
+  --space-24: 6rem;       /* 96px */
+  --space-32: 8rem;       /* 128px */
+}
+
+/* ============================================
+   BORDER RADIUS - Geometric Softness
+   ============================================ */
+
+:root {
+  --radius-none: 0;
+  --radius-sm: 0.25rem;
+  --radius-base: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-3xl: 3rem;
+  --radius-full: 9999px;
+  
+  /* Child-friendly radius */
+  --radius-child: 0.75rem;
+}
+
+/* ============================================
+   SHADOWS - Depth & Atmosphere
+   ============================================ */
+
+:root {
+  /* Subtle Shadows */
+  --shadow-xs: 0 1px 2px rgba(45, 49, 66, 0.05);
+  --shadow-sm: 
+    0 1px 3px rgba(45, 49, 66, 0.1),
+    0 1px 2px rgba(45, 49, 66, 0.06);
+  
+  /* Medium Shadows */
+  --shadow-base: 
+    0 4px 6px rgba(45, 49, 66, 0.07),
+    0 2px 4px rgba(45, 49, 66, 0.06);
+  --shadow-md: 
+    0 10px 15px rgba(45, 49, 66, 0.1),
+    0 4px 6px rgba(45, 49, 66, 0.05);
+  
+  /* Large Shadows */
+  --shadow-lg: 
+    0 20px 25px rgba(45, 49, 66, 0.1),
+    0 10px 10px rgba(45, 49, 66, 0.04);
+  --shadow-xl: 
+    0 25px 50px rgba(45, 49, 66, 0.15),
+    0 10px 20px rgba(45, 49, 66, 0.1);
+  
+  /* Colored Shadows - Distinctive */
+  --shadow-coral: 
+    0 10px 40px rgba(255, 107, 107, 0.2),
+    0 4px 12px rgba(255, 107, 107, 0.15);
+  --shadow-teal: 
+    0 10px 40px rgba(78, 205, 196, 0.2),
+    0 4px 12px rgba(78, 205, 196, 0.15);
+  --shadow-amber: 
+    0 10px 40px rgba(255, 184, 77, 0.2),
+    0 4px 12px rgba(255, 184, 77, 0.15);
+  
+  /* Floating Effect */
+  --shadow-float: 
+    0 20px 60px rgba(255, 107, 107, 0.2),
+    0 10px 30px rgba(78, 205, 196, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  
+  /* Inner Shadows */
+  --shadow-inner: inset 0 2px 4px rgba(45, 49, 66, 0.06);
+  --shadow-inner-lg: inset 0 4px 8px rgba(45, 49, 66, 0.1);
+}
+
+/* ============================================
+   TRANSITIONS - Smooth & Delightful
+   ============================================ */
+
+:root {
+  /* Durations */
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-medium: 300ms;
+  --duration-slow: 500ms;
+  --duration-slower: 700ms;
+  
+  /* Easing Functions */
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* Common Transitions */
+  --transition-base: all var(--duration-base) var(--ease-in-out);
+  --transition-colors: color var(--duration-base) var(--ease-in-out),
+                       background-color var(--duration-base) var(--ease-in-out),
+                       border-color var(--duration-base) var(--ease-in-out);
+  --transition-transform: transform var(--duration-medium) var(--ease-bounce);
+  --transition-opacity: opacity var(--duration-base) var(--ease-in-out);
+}
+
+/* ============================================
+   Z-INDEX SCALE - Layering System
+   ============================================ */
+
+:root {
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-fixed: 1200;
+  --z-modal-backdrop: 1300;
+  --z-modal: 1400;
+  --z-popover: 1500;
+  --z-tooltip: 1600;
+  --z-notification: 1700;
+  --z-max: 9999;
+}
+
+/* ============================================
+   BREAKPOINTS - Responsive Design
+   ============================================ */
+
+:root {
+  --breakpoint-xs: 320px;
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 640px;
+  --breakpoint-lg: 768px;
+  --breakpoint-xl: 1024px;
+  --breakpoint-2xl: 1280px;
+  --breakpoint-3xl: 1536px;
+}
+
+/* ============================================
+   CHILD-FRIENDLY ENHANCEMENTS
+   ============================================ */
+
+:root {
+  --child-touch-target: 50px;
+  --child-border-radius: 0.75rem;
+  --child-animation-duration: 300ms;
+  --child-font-scale: 1.1;
+}
+
+/* ============================================
+   GEOMETRIC DECORATIONS
+   ============================================ */
+
+:root {
+  /* Geometric Shapes */
+  --shape-circle: 50%;
+  --shape-rounded: var(--radius-lg);
+  --shape-pill: 9999px;
+  
+  /* Rotation Angles */
+  --rotate-slight: 2deg;
+  --rotate-medium: 5deg;
+  --rotate-strong: 15deg;
+  
+  /* Scale Factors */
+  --scale-sm: 0.95;
+  --scale-base: 1;
+  --scale-lg: 1.05;
+  --scale-xl: 1.1;
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+:root {
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 2px;
+  --focus-ring-color: var(--color-electric);
+  --focus-ring: 0 0 0 var(--focus-ring-offset) var(--color-cream),
+                0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--focus-ring-color);
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  :root {
+    --focus-ring-width: 4px;
+    --shadow-base: 0 4px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-medium: 0ms;
+    --duration-slow: 0ms;
+    --duration-slower: 0ms;
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Typography */
+.font-display { font-family: var(--font-display); }
+.font-body { font-family: var(--font-body); }
+.font-mono { font-family: var(--font-mono); }
+
+/* Colors */
+.text-coral { color: var(--color-coral); }
+.text-amber { color: var(--color-amber); }
+.text-teal { color: var(--color-teal); }
+.text-indigo { color: var(--color-indigo); }
+
+.bg-coral { background-color: var(--color-coral); }
+.bg-amber { background-color: var(--color-amber); }
+.bg-teal { background-color: var(--color-teal); }
+.bg-indigo { background-color: var(--color-indigo); }
+
+/* Gradients */
+.bg-gradient-sunset { background: var(--gradient-sunset); }
+.bg-gradient-ocean { background: var(--gradient-ocean); }
+.bg-gradient-warm { background: var(--gradient-warm); }
+
+/* Shadows */
+.shadow-coral { box-shadow: var(--shadow-coral); }
+.shadow-teal { box-shadow: var(--shadow-teal); }
+.shadow-amber { box-shadow: var(--shadow-amber); }
+.shadow-float { box-shadow: var(--shadow-float); }
+
+/* Focus Ring */
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes geometric-reveal {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-180deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 20px rgba(255, 107, 107, 0);
+  }
+}
+
+@keyframes success-burst {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(6, 255, 165, 0.7);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 20px rgba(6, 255, 165, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(6, 255, 165, 0);
+  }
+}
+
+@keyframes gentle-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

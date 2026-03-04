@@ -1,0 +1,62 @@
+/**
+ * Ripple Effect Animation
+ * 
+ * Geometric expanding circle effect for cell selection.
+ * Uses transform and opacity for GPU-accelerated 60fps performance.
+ * Respects prefers-reduced-motion for accessibility.
+ */
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(78, 205, 196, 0.4) 0%, rgba(78, 205, 196, 0) 70%);
+  pointer-events: none;
+  transform: scale(0);
+  opacity: 1;
+}
+
+/* Animation only for users who haven't disabled motion */
+@media (prefers-reduced-motion: no-preference) {
+  .rippleActive {
+    animation: rippleExpand 600ms cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+  }
+}
+
+/* Instant transition for reduced-motion users */
+@media (prefers-reduced-motion: reduce) {
+  .rippleActive {
+    transform: scale(2);
+    opacity: 0;
+    transition: none;
+  }
+}
+
+@keyframes rippleExpand {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* Variant for different grid sizes */
+.rippleSmall {
+  width: 40px;
+  height: 40px;
+}
+
+.rippleMedium {
+  width: 60px;
+  height: 60px;
+}
+
+.rippleLarge {
+  width: 80px;
+  height: 80px;
+}

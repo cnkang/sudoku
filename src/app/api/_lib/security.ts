@@ -110,8 +110,46 @@ export function enforceRateLimit(
   };
 }
 
+/**
+ * List of allowed origins for CORS requests
+ * In production, this should be configured via environment variables
+ */
+const ALLOWED_ORIGINS = [
+  process.env.NEXT_PUBLIC_APP_URL,
+  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
+  // Allow localhost in development and test environments
+  ...(process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
+    ? ['http://localhost:3000', 'http://127.0.0.1:3000']
+    : []),
+].filter((origin): origin is string => Boolean(origin));
+
+/**
+ * Allowed HTTP methods for CORS requests
+ */
+const ALLOWED_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'] as const;
+
+/**
+ * Allowed headers for CORS requests
+ */
+const ALLOWED_HEADERS = [
+  'Content-Type',
+  'Authorization',
+  'X-Requested-With',
+  'Accept',
+] as const;
+
+/**
+ * Validates that the request origin is either same-origin or in the allowed origins list
+ *
+ * @param request - The incoming request
+ * @returns true if the origin is valid, false otherwise
+ *
+ * Requirements: 12.1 - Validate request origin against allowed origins
+ */
 export function isSameOriginRequest(request: NextRequest): boolean {
   const origin = getHeaderValue(request, 'origin');
+
+  // No origin header means same-origin request (e.g., direct navigation)
   if (!origin) {
     return true;
   }
@@ -119,14 +157,78 @@ export function isSameOriginRequest(request: NextRequest): boolean {
   try {
     const requestOrigin =
       request.nextUrl?.origin ?? new URL(request.url).origin;
-    return new URL(origin).origin === requestOrigin;
+    const originUrl = new URL(origin).origin;
+
+    // Check if it's same-origin
+    if (originUrl === requestOrigin) {
+      return true;
+    }
+
+    // Check if it's in the allowed origins list
+    return ALLOWED_ORIGINS.includes(originUrl);
   } catch {
+    // Invalid origin URL format
     return false;
   }
 }
 
-export function buildSecurityHeaders(headersInit?: HeadersInit): Headers {
-  const headers = new Headers(headersInit);
+/**
+ * Builds CORS headers based on the request origin
+ * Sets Access-Control-Allow-Origin to the request origin if it's allowed,
+ * otherwise omits CORS headers (which will cause the browser to block the request)
+ *
+ * @param request - The incoming request
+ * @param additionalHeaders - Optional additional headers to include
+ * @returns Headers object with CORS headers if origin is allowed
+ *
+ * Requirements: 12.3 - Configure CORS headers to restrict allowed origins
+ */
+export function buildCorsHeaders(
+  request: NextRequest,
+  additionalHeaders?: HeadersInit
+): Headers {
+  const headers = new Headers(additionalHeaders);
+  const origin = getHeaderValue(request, 'origin');
+
+  // Only add CORS headers if there's an origin header (cross-origin request)
+  if (origin) {
+    try {
+      const requestOrigin =
+        request.nextUrl?.origin ?? new URL(request.url).origin;
+      const originUrl = new URL(origin).origin;
+
+      // Check if origin is allowed (same-origin or in allowed list)
+      const isAllowed =
+        originUrl === requestOrigin || ALLOWED_ORIGINS.includes(originUrl);
+
+      if (isAllowed) {
+        // Set the specific origin that made the request
+        headers.set('Access-Control-Allow-Origin', originUrl);
+        // Allow credentials for same-origin or trusted origins
+        headers.set('Access-Control-Allow-Credentials', 'true');
+        // Specify allowed methods
+        headers.set('Access-Control-Allow-Methods', ALLOWED_METHODS.join(', '));
+        // Specify allowed headers
+        headers.set('Access-Control-Allow-Headers', ALLOWED_HEADERS.join(', '));
+        // Cache preflight requests for 1 hour
+        headers.set('Access-Control-Max-Age', '3600');
+      }
+    } catch {
+      // Invalid origin URL format - don't add CORS headers
+    }
+  }
+
+  return headers;
+}
+
+export function buildSecurityHeaders(
+  request: NextRequest,
+  headersInit?: HeadersInit
+): Headers {
+  // Build CORS headers first
+  const headers = buildCorsHeaders(request, headersInit);
+
+  // Add other security headers
   if (!headers.has('X-Content-Type-Options')) {
     headers.set('X-Content-Type-Options', 'nosniff');
   }
@@ -140,9 +242,10 @@ export function buildSecurityHeaders(headersInit?: HeadersInit): Headers {
 }
 
 export function buildNoStoreSecurityHeaders(
+  request: NextRequest,
   headersInit?: HeadersInit
 ): Headers {
-  const headers = buildSecurityHeaders(headersInit);
+  const headers = buildSecurityHeaders(request, headersInit);
   if (!headers.has('Cache-Control')) {
     headers.set('Cache-Control', NO_STORE_CACHE_CONTROL);
   }
@@ -150,32 +253,36 @@ export function buildNoStoreSecurityHeaders(
 }
 
 export function createJsonResponse<T>(
+  request: NextRequest,
   payload: T,
   status = 200,
   headersInit?: HeadersInit
 ): NextResponse {
   return NextResponse.json(payload, {
     status,
-    headers: buildSecurityHeaders(headersInit),
+    headers: buildSecurityHeaders(request, headersInit),
   });
 }
 
 export function createNoStoreJsonResponse<T>(
+  request: NextRequest,
   payload: T,
   status = 200,
   headersInit?: HeadersInit
 ): NextResponse {
   return NextResponse.json(payload, {
     status,
-    headers: buildNoStoreSecurityHeaders(headersInit),
+    headers: buildNoStoreSecurityHeaders(request, headersInit),
   });
 }
 
 export function createRateLimitedResponse(
+  request: NextRequest,
   retryAfterSeconds: number,
   message = 'Too many requests. Please try again later.'
 ): NextResponse {
   return createJsonResponse(
+    request,
     {
       success: false,
       error: message,
@@ -188,9 +295,11 @@ export function createRateLimitedResponse(
 }
 
 export function createForbiddenResponse(
+  request: NextRequest,
   message = 'Cross-origin request denied.'
 ): NextResponse {
   return createJsonResponse(
+    request,
     {
       success: false,
       error: message,
@@ -200,10 +309,12 @@ export function createForbiddenResponse(
 }
 
 export function createPayloadTooLargeResponse(
+  request: NextRequest,
   maxBytes: number,
   message = 'Request payload too large.'
 ): NextResponse {
   return createJsonResponse(
+    request,
     {
       success: false,
       error: message,
@@ -213,8 +324,11 @@ export function createPayloadTooLargeResponse(
   );
 }
 
-export function createUnsupportedMediaTypeResponse(): NextResponse {
+export function createUnsupportedMediaTypeResponse(
+  request: NextRequest
+): NextResponse {
   return createJsonResponse(
+    request,
     {
       success: false,
       error: 'Unsupported media type. Use application/json.',
@@ -224,9 +338,11 @@ export function createUnsupportedMediaTypeResponse(): NextResponse {
 }
 
 export function createBadRequestResponse(
+  request: NextRequest,
   message = 'Invalid JSON payload.'
 ): NextResponse {
   return createJsonResponse(
+    request,
     {
       success: false,
       error: message,
@@ -235,34 +351,50 @@ export function createBadRequestResponse(
   );
 }
 
+/**
+ * Creates a response for OPTIONS preflight requests
+ * Returns 204 No Content with appropriate CORS headers
+ *
+ * @param request - The incoming OPTIONS request
+ * @returns NextResponse with CORS headers for preflight
+ *
+ * Requirements: 12.3 - Configure CORS headers for preflight requests
+ */
+export function createOptionsResponse(request: NextRequest): NextResponse {
+  return new NextResponse(null, {
+    status: 204,
+    headers: buildCorsHeaders(request),
+  });
+}
+
 export async function readJsonBodyWithLimit<T>(
   request: NextRequest,
   maxBytes: number
 ): Promise<{ ok: true; data: T } | { ok: false; response: NextResponse }> {
   const contentType = getHeaderValue(request, 'content-type');
   if (contentType && !contentType.toLowerCase().includes('application/json')) {
-    return { ok: false, response: createUnsupportedMediaTypeResponse() };
+    return { ok: false, response: createUnsupportedMediaTypeResponse(request) };
   }
 
   let rawBody = '';
   try {
     rawBody = await request.text();
   } catch {
-    return { ok: false, response: createBadRequestResponse() };
+    return { ok: false, response: createBadRequestResponse(request) };
   }
 
   const bodySize = new TextEncoder().encode(rawBody).byteLength;
   if (bodySize > maxBytes) {
     return {
       ok: false,
-      response: createPayloadTooLargeResponse(maxBytes),
+      response: createPayloadTooLargeResponse(request, maxBytes),
     };
   }
 
   if (!rawBody.trim()) {
     return {
       ok: false,
-      response: createBadRequestResponse('Request body is required.'),
+      response: createBadRequestResponse(request, 'Request body is required.'),
     };
   }
 
@@ -272,6 +404,6 @@ export async function readJsonBodyWithLimit<T>(
       data: JSON.parse(rawBody) as T,
     };
   } catch {
-    return { ok: false, response: createBadRequestResponse() };
+    return { ok: false, response: createBadRequestResponse(request) };
   }
 }

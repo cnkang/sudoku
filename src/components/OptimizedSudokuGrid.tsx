@@ -141,7 +141,9 @@ const SudokuCell = React.memo(
       [disabled, isFixed, row, col, gridConfig.maxValue, onCellChange]
     );
 
-    // Touch event handlers for mobile optimization
+    // Touch event handlers for mobile optimization (client-passive-event-listeners)
+    // Note: React synthetic events don't support passive option directly
+    // For scroll performance, use native addEventListener in useEffect if needed
     const handleTouchStart = useCallback(
       (e: React.TouchEvent) => {
         if (disabled || isFixed) return;

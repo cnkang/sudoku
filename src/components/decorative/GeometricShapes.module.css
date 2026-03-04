@@ -1,0 +1,303 @@
+/**
+ * Geometric Shapes Styles
+ * 
+ * Pure CSS geometric shapes with mesh gradient backgrounds.
+ * All shapes are decorative and don't interfere with layout or accessibility.
+ */
+
+/* ============================================
+   BASE SHAPES
+   ============================================ */
+
+.circle,
+.triangle,
+.square {
+  position: absolute;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Circle - Using border-radius */
+.circle {
+  border-radius: 50%;
+}
+
+/* Triangle - Using clip-path */
+.triangle {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+/* Square - With slight rotation for visual interest */
+.square {
+  border-radius: var(--radius-sm);
+  transform: rotate(var(--rotate-slight));
+}
+
+/* ============================================
+   SIZE VARIANTS
+   ============================================ */
+
+.sm {
+  width: 40px;
+  height: 40px;
+}
+
+.md {
+  width: 80px;
+  height: 80px;
+}
+
+.lg {
+  width: 120px;
+  height: 120px;
+}
+
+.xl {
+  width: 200px;
+  height: 200px;
+}
+
+/* ============================================
+   COLOR VARIANTS
+   ============================================ */
+
+.coral {
+  background: var(--gradient-sunset);
+  opacity: 0.15;
+}
+
+.amber {
+  background: linear-gradient(135deg, var(--color-amber) 0%, var(--color-amber-light) 100%);
+  opacity: 0.15;
+}
+
+.teal {
+  background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-teal-light) 100%);
+  opacity: 0.15;
+}
+
+.indigo {
+  background: linear-gradient(135deg, var(--color-indigo) 0%, var(--color-indigo-light) 100%);
+  opacity: 0.15;
+}
+
+.mesh {
+  background: var(--gradient-mesh);
+  opacity: 0.2;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+.animate {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate.circle {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate.triangle {
+  animation: float 7s ease-in-out infinite, rotate-slow 20s linear infinite;
+}
+
+.animate.square {
+  animation: float 9s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  25% {
+    transform: translateY(-10px) translateX(5px);
+  }
+  50% {
+    transform: translateY(-5px) translateX(-5px);
+  }
+  75% {
+    transform: translateY(-15px) translateX(3px);
+  }
+}
+
+@keyframes rotate-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
+   GEOMETRIC MESH CONTAINER
+   ============================================ */
+
+.geometricMesh {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Mesh shape positioning */
+.meshCircle1 {
+  top: 10%;
+  left: 15%;
+  animation-delay: 0s;
+}
+
+.meshTriangle1 {
+  top: 20%;
+  right: 10%;
+  animation-delay: 1s;
+}
+
+.meshSquare1 {
+  bottom: 30%;
+  left: 5%;
+  animation-delay: 2s;
+}
+
+.meshCircle2 {
+  bottom: 15%;
+  right: 20%;
+  animation-delay: 3s;
+}
+
+.meshTriangle2 {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: 4s;
+}
+
+/* ============================================
+   CORNER DECORATIONS
+   ============================================ */
+
+.cornerDecoration {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cornerDecoration .corner1,
+.cornerDecoration .corner2 {
+  position: absolute;
+}
+
+/* Top Left */
+.topLeft {
+  top: var(--space-4);
+  left: var(--space-4);
+}
+
+.topLeft .corner1 {
+  top: 0;
+  left: 0;
+}
+
+.topLeft .corner2 {
+  top: var(--space-6);
+  left: var(--space-8);
+}
+
+/* Top Right */
+.topRight {
+  top: var(--space-4);
+  right: var(--space-4);
+}
+
+.topRight .corner1 {
+  top: 0;
+  right: 0;
+}
+
+.topRight .corner2 {
+  top: var(--space-8);
+  right: var(--space-6);
+}
+
+/* Bottom Left */
+.bottomLeft {
+  bottom: var(--space-4);
+  left: var(--space-4);
+}
+
+.bottomLeft .corner1 {
+  bottom: 0;
+  left: 0;
+}
+
+.bottomLeft .corner2 {
+  bottom: var(--space-6);
+  left: var(--space-8);
+}
+
+/* Bottom Right */
+.bottomRight {
+  bottom: var(--space-4);
+  right: var(--space-4);
+}
+
+.bottomRight .corner1 {
+  bottom: 0;
+  right: 0;
+}
+
+.bottomRight .corner2 {
+  bottom: var(--space-8);
+  right: var(--space-6);
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+  .xl {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .lg {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .cornerDecoration {
+    display: none; /* Hide corner decorations on mobile to reduce clutter */
+  }
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .animate {
+    animation: none !important;
+  }
+  
+  .square {
+    transform: none;
+  }
+}
+
+/* ============================================
+   HIGH CONTRAST MODE
+   ============================================ */
+
+@media (prefers-contrast: high) {
+  .coral,
+  .amber,
+  .teal,
+  .indigo,
+  .mesh {
+    opacity: 0.3;
+    border: 2px solid currentColor;
+  }
+}

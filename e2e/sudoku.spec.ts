@@ -1,15 +1,25 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Sudoku Game E2E Tests', () => {
+  const waitForAppReady = async (page: import('@playwright/test').Page) => {
+    await page.waitForSelector('main', { timeout: 15000 });
+    await page.waitForSelector('text=Loading grid...', {
+      state: 'hidden',
+      timeout: 45000,
+    });
+    await expect(
+      page.locator('#difficulty-select:visible').first()
+    ).toBeVisible({ timeout: 20000 });
+  };
+
   // Increase timeout for CI environments
   test.setTimeout(process.env.CI ? 90000 : 60000);
   test.beforeEach(async ({ page }) => {
     // Navigate to homepage with more resilient wait strategy
     await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 30000 });
 
-    // Wait for the main content to be visible instead of networkidle
-    // This is more reliable in CI environments where API calls might be slower
-    await page.waitForSelector('main', { timeout: 15000 });
+    // Wait for hydration + initial puzzle load to complete.
+    await waitForAppReady(page);
   });
 
   test('should load the homepage', async ({ page }) => {
@@ -27,7 +37,7 @@ test.describe('Sudoku Game E2E Tests', () => {
     await expect(page.locator('h1')).toContainText('Sudoku Challenge');
 
     // Verify difficulty selector is present and functional
-    const difficultySelect = page.locator('#difficulty-select').first();
+    const difficultySelect = page.locator('#difficulty-select:visible').first();
     await expect(difficultySelect).toBeVisible();
     await expect(difficultySelect).toBeEnabled();
   });
@@ -63,7 +73,7 @@ test.describe('Sudoku Game E2E Tests', () => {
 
     // Test difficulty selector interaction
     const difficultySelector = page
-      .getByLabel('Select difficulty level')
+      .locator('#difficulty-select:visible')
       .first();
     await expect(difficultySelector).toBeVisible();
     await expect(difficultySelector).toBeEnabled();

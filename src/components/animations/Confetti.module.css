@@ -1,0 +1,191 @@
+/**
+ * Confetti Explosion Animation
+ * 
+ * Geometric shapes explosion for puzzle completion celebration.
+ * Uses transform and opacity for GPU-accelerated 60fps performance.
+ * Respects prefers-reduced-motion for accessibility.
+ * Child-friendly celebration with colorful geometric shapes.
+ */
+
+.confettiContainer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.confettiPiece {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Geometric shape variants */
+.confettiCircle {
+  border-radius: 50%;
+  background: var(--confetti-color, #4ECDC4);
+}
+
+.confettiSquare {
+  border-radius: 2px;
+  background: var(--confetti-color, #FFB84D);
+}
+
+.confettiTriangle {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 12px solid var(--confetti-color, #FF6B6B);
+  background: transparent;
+}
+
+.confettiRectangle {
+  width: 16px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--confetti-color, #5B5F97);
+}
+
+.confettiStar {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 10px solid var(--confetti-color, #FF6B9D);
+  position: relative;
+  background: transparent;
+}
+
+.confettiStar::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 10px solid var(--confetti-color, #FF6B9D);
+  top: 3px;
+  left: -6px;
+}
+
+/* Color variants using design system colors */
+.colorCoral { --confetti-color: var(--color-coral, #FF6B6B); }
+.colorAmber { --confetti-color: var(--color-amber, #FFB84D); }
+.colorTeal { --confetti-color: var(--color-teal, #4ECDC4); }
+.colorIndigo { --confetti-color: var(--color-indigo, #5B5F97); }
+.colorHotPink { --confetti-color: var(--color-hot-pink, #FF6B9D); }
+.colorElectric { --confetti-color: var(--color-electric, #00D9FF); }
+.colorLime { --confetti-color: var(--color-lime, #A8E063); }
+
+/* Animation only for users who haven't disabled motion */
+@media (prefers-reduced-motion: no-preference) {
+  .confettiActive .confettiPiece {
+    animation: confettiFall 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+
+  /* Stagger confetti pieces for natural effect */
+  .confettiActive .confettiPiece:nth-child(odd) {
+    animation-timing-function: cubic-bezier(0.33, 0.66, 0.66, 1);
+  }
+
+  .confettiActive .confettiPiece:nth-child(even) {
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+}
+
+/* Instant transition for reduced-motion users */
+@media (prefers-reduced-motion: reduce) {
+  .confettiActive .confettiPiece {
+    opacity: 0;
+    transition: none;
+  }
+}
+
+@keyframes confettiFall {
+  0% {
+    opacity: 1;
+    transform: 
+      translateY(var(--confetti-start-y, -20px)) 
+      translateX(var(--confetti-start-x, 0)) 
+      rotate(0deg) 
+      scale(1);
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: 
+      translateY(var(--confetti-end-y, 100vh)) 
+      translateX(var(--confetti-end-x, 0)) 
+      rotate(var(--confetti-rotation, 720deg)) 
+      scale(0.5);
+  }
+}
+
+/* Burst pattern - pieces explode from center */
+.confettiBurst .confettiPiece {
+  left: 50%;
+  top: 50%;
+}
+
+/* Rain pattern - pieces fall from top */
+.confettiRain .confettiPiece {
+  top: -20px;
+}
+
+/* Fountain pattern - pieces shoot up from bottom */
+.confettiFountain .confettiPiece {
+  bottom: 0;
+  --confetti-start-y: 0;
+  --confetti-end-y: -100vh;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .confettiFountain.confettiActive .confettiPiece {
+    animation: confettiFountain 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+}
+
+@keyframes confettiFountain {
+  0% {
+    opacity: 1;
+    transform: 
+      translateY(0) 
+      translateX(var(--confetti-start-x, 0)) 
+      rotate(0deg) 
+      scale(1);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: 
+      translateY(var(--confetti-end-y, -100vh)) 
+      translateX(var(--confetti-end-x, 0)) 
+      rotate(var(--confetti-rotation, 720deg)) 
+      scale(0.5);
+  }
+}
+
+/* Side burst pattern - pieces explode from sides */
+.confettiSideBurst .confettiPiece {
+  top: 50%;
+}
+
+.confettiSideBurst .confettiPiece:nth-child(odd) {
+  left: 0;
+  --confetti-start-x: 0;
+  --confetti-end-x: 50vw;
+}
+
+.confettiSideBurst .confettiPiece:nth-child(even) {
+  right: 0;
+  --confetti-start-x: 0;
+  --confetti-end-x: -50vw;
+}

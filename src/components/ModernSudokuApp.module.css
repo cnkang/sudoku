@@ -11,7 +11,7 @@
   grid-template-columns: 1fr;
   gap: clamp(1rem, 2vw, 2rem);
   width: 100%;
-  min-height: 100dvh;
+  min-height: 0;
   padding: clamp(0.5rem, 2vw, 1.5rem);
   padding-inline: clamp(0.5rem, 2vw, 1.5rem);
   padding-block: clamp(0.5rem, 2vw, 1.5rem);
@@ -75,15 +75,22 @@
   padding: clamp(0.75rem, 2vw, 1rem);
   box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
   border: 1px solid var(--border-color, #e2e8f0);
-  overflow: auto;
-  max-height: 80vh;
+  overflow: visible;
+  max-height: none;
 }
 
 /* Desktop: More compact, fixed height */
 @media (min-width: 768px) {
   .pwaSection {
+    overflow: auto;
     max-height: 35vh;
     padding: clamp(0.75rem, 1.5vw, 1rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .pwaSection {
+    min-height: 46rem;
   }
 }
 
@@ -95,13 +102,14 @@
   padding: clamp(0.75rem, 2vw, 1rem);
   box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
   border: 1px solid var(--border-color, #e2e8f0);
-  overflow: auto;
-  max-height: 60vh;
+  overflow: visible;
+  max-height: none;
 }
 
 /* Desktop: Scrollable with max height */
 @media (min-width: 768px) {
   .accessibilitySection {
+    overflow: auto;
     max-height: calc(65vh - 2rem);
     padding: clamp(0.75rem, 1.5vw, 1rem);
   }
@@ -141,6 +149,15 @@
   font-weight: 500;
 }
 
+@media (max-width: 768px) {
+  .title,
+  .subtitle {
+    /* Avoid mobile LCP delays caused by late display-font swap */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+      'Helvetica Neue', Arial, sans-serif;
+  }
+}
+
 /* Controls Section */
 .controlsSection {
   display: flex;
@@ -159,8 +176,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: clamp(1rem, 2vw, 1.5rem);
   padding: clamp(1rem, 2vw, 1.5rem);
+  min-height: 24rem;
   background: var(--surface, white);
   border-radius: var(--border-radius, 0.75rem);
   box-shadow: var(--shadow-inner, inset 0 2px 4px rgba(0, 0, 0, 0.05));
@@ -176,12 +195,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 200px;
+  min-height: 100%;
+  width: 100%;
   font-size: 1.125rem;
   color: var(--text-secondary, #64748b);
   background: var(--background-secondary, #f8fafc);
   border-radius: var(--border-radius, 0.5rem);
   border: 2px dashed var(--border-color, #e2e8f0);
+}
+
+@media (max-width: 768px) {
+  .gridContainer {
+    min-height: 26rem;
+  }
 }
 
 /* Loading State */
@@ -193,6 +219,33 @@
   gap: 1rem;
   padding: clamp(2rem, 4vw, 3rem);
   text-align: center;
+}
+
+.timerPlaceholder {
+  min-height: 2.75rem;
+  min-width: 8rem;
+  border-radius: 0.5rem;
+  border: 1px dashed var(--border-color, #e2e8f0);
+  background: var(--surface, #ffffff);
+}
+
+.actionPlaceholder {
+  width: 100%;
+  min-height: 3.5rem;
+  border-radius: 0.5rem;
+  border: 1px dashed var(--border-color, #e2e8f0);
+  background: var(--surface, #ffffff);
+}
+
+.controlSkeleton {
+  border-radius: 0.5rem;
+  border: 1px dashed var(--border-color, #e2e8f0);
+  background: var(--background-secondary, #f8fafc);
+}
+
+.controlSkeleton {
+  width: min(18rem, 100%);
+  min-height: 2.75rem;
 }
 
 .loadingSpinner {

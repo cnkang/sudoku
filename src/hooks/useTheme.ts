@@ -173,10 +173,13 @@ export function useTheme(): ThemeContextValue {
         }
       };
 
-      mediaQuery.addEventListener('change', handleChange);
+      // Using passive: true for better performance (Requirement 8.1)
+      mediaQuery.addEventListener('change', handleChange, { passive: true });
 
       return () => {
-        mediaQuery.removeEventListener('change', handleChange);
+        mediaQuery.removeEventListener('change', handleChange, {
+          passive: true,
+        } as EventListenerOptions);
       };
     } catch {
       // Silently fail if media queries are not supported

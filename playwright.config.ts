@@ -80,7 +80,7 @@ export default defineConfig({
         },
       ],
 
-  // 开发服务器配置
+  // Development server configuration
   ...(process.env.CI
     ? {}
     : {

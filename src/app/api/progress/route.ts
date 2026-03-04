@@ -14,6 +14,13 @@ import {
   isSameOriginRequest,
   readJsonBodyWithLimit,
 } from '@/app/api/_lib/security';
+import {
+  sanitizeErrorForClient,
+  sanitizeZodError,
+  createDetailedErrorLog,
+  logErrorServerSide,
+  extractRequestContext,
+} from '@/utils/errorSanitization';
 
 const MAX_JSON_BODY_BYTES = 64 * 1024;
 const MAX_PROGRESS_BATCH_SIZE = 100;
@@ -46,10 +53,10 @@ const ProgressArraySchema = z
 export async function POST(request: NextRequest) {
   const rateLimit = enforceRateLimit(request, POST_RATE_LIMIT);
   if (rateLimit.limited) {
-    return createRateLimitedResponse(rateLimit.retryAfterSeconds);
+    return createRateLimitedResponse(request, rateLimit.retryAfterSeconds);
   }
   if (!isSameOriginRequest(request)) {
-    return createForbiddenResponse();
+    return createForbiddenResponse(request);
   }
 
   try {
@@ -88,6 +95,7 @@ export async function POST(request: NextRequest) {
 
     // Return success response
     return createNoStoreJsonResponse(
+      request,
       {
         success: true,
         message: `Successfully processed ${progressData.length} progress entries`,
@@ -97,22 +105,38 @@ export async function POST(request: NextRequest) {
       200
     );
   } catch (error) {
+    // Handle Zod validation errors
     if (error instanceof z.ZodError) {
-      return createNoStoreJsonResponse(
-        {
-          success: false,
-          error: 'Invalid progress data format',
-          details: error.issues,
-        },
-        400
+      const sanitizedZodError = sanitizeZodError(error);
+
+      // Log detailed validation error server-side
+      const detailedLog = createDetailedErrorLog(
+        error,
+        'VALIDATION_ERROR',
+        extractRequestContext(request)
       );
+      logErrorServerSide(detailedLog);
+
+      return createNoStoreJsonResponse(request, sanitizedZodError, 400);
     }
 
+    // Log detailed error server-side (Requirement 12.4)
+    const detailedLog = createDetailedErrorLog(
+      error,
+      'INTERNAL_ERROR',
+      extractRequestContext(request)
+    );
+    logErrorServerSide(detailedLog);
+
+    // Return sanitized error to client (Requirements 12.4, 18.2)
+    const sanitizedError = sanitizeErrorForClient(error);
+
     return createNoStoreJsonResponse(
+      request,
       {
         success: false,
-        error: 'Internal server error',
-        message: 'Failed to process progress data',
+        error: sanitizedError.error,
+        timestamp: sanitizedError.timestamp,
       },
       500
     );
@@ -122,7 +146,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const rateLimit = enforceRateLimit(request, GET_RATE_LIMIT);
   if (rateLimit.limited) {
-    return createRateLimitedResponse(rateLimit.retryAfterSeconds);
+    return createRateLimitedResponse(request, rateLimit.retryAfterSeconds);
   }
 
   // Get progress statistics (for future implementation)
@@ -169,6 +193,7 @@ export async function GET(request: NextRequest) {
   };
 
   return createNoStoreJsonResponse(
+    request,
     {
       success: true,
       stats: mockStats,

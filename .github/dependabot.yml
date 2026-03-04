@@ -1,22 +1,65 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+# Dependabot configuration for automated dependency updates
+# Documentation: https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
 updates:
+  # npm dependencies
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
       interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'UTC'
     open-pull-requests-limit: 5
-    # 忽略Playwright的自动更新，手动控制版本
+    # Group patch updates for auto-merge
+    groups:
+      patch-updates:
+        patterns:
+          - '*'
+        update-types:
+          - 'patch'
+      minor-updates:
+        patterns:
+          - '*'
+        update-types:
+          - 'minor'
+    # Ignore Playwright auto-updates (manual version control)
     ignore:
       - dependency-name: '@playwright/test'
         update-types:
-          ['version-update:semver-major', 'version-update:semver-minor']
+          - 'version-update:semver-major'
+          - 'version-update:semver-minor'
+    # Labels for PR categorization
+    labels:
+      - 'dependencies'
+      - 'automated'
+    # Commit message prefix
+    commit-message:
+      prefix: 'chore(deps)'
+      include: 'scope'
+    # Enable auto-merge for patch updates (requires GitHub repo settings)
+    pull-request-branch-name:
+      separator: '-'
+
+  # GitHub Actions dependencies
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
       interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'UTC'
     open-pull-requests-limit: 3
+    # Group all action updates
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+    labels:
+      - 'dependencies'
+      - 'github-actions'
+      - 'automated'
+    commit-message:
+      prefix: 'chore(ci)'
+      include: 'scope'

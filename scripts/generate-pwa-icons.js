@@ -3,7 +3,7 @@
 // Simple PWA icon generator for Multi-Size Sudoku
 // Creates basic SVG-based icons for different sizes
 
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];

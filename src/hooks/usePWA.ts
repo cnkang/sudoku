@@ -140,12 +140,21 @@ export function useOfflineStatus(): boolean {
     updateOnlineStatus();
 
     // Listen for online/offline events
-    globalThis.addEventListener('online', updateOnlineStatus);
-    globalThis.addEventListener('offline', updateOnlineStatus);
+    // Using passive: true for better performance (Requirement 8.1)
+    globalThis.addEventListener('online', updateOnlineStatus, {
+      passive: true,
+    });
+    globalThis.addEventListener('offline', updateOnlineStatus, {
+      passive: true,
+    });
 
     return () => {
-      globalThis.removeEventListener('online', updateOnlineStatus);
-      globalThis.removeEventListener('offline', updateOnlineStatus);
+      globalThis.removeEventListener('online', updateOnlineStatus, {
+        passive: true,
+      } as EventListenerOptions);
+      globalThis.removeEventListener('offline', updateOnlineStatus, {
+        passive: true,
+      } as EventListenerOptions);
     };
   }, []);
 

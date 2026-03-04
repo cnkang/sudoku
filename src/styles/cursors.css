@@ -1,0 +1,372 @@
+/**
+ * Custom Cursor Designs
+ * 
+ * Custom cursor styles for interactive areas with system cursor fallbacks.
+ * Enhances the playful, geometric design system while maintaining accessibility.
+ * 
+ * Requirements: 1.10
+ */
+
+/* ============================================
+   BASE CURSOR STYLES
+   ============================================ */
+
+/* Default cursor - subtle geometric hint */
+body {
+  cursor: default;
+}
+
+/* ============================================
+   INTERACTIVE ELEMENT CURSORS
+   ============================================ */
+
+/* Buttons and clickable elements */
+button,
+[role="button"],
+.clickable,
+a:not([disabled]) {
+  cursor: pointer;
+  position: relative;
+}
+
+/* Enhanced pointer for primary actions */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
+/* Disabled state */
+button:disabled,
+[aria-disabled="true"],
+.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ============================================
+   SUDOKU GRID CURSORS
+   ============================================ */
+
+/* Grid cells - indicate interactivity */
+.sudoku-cell,
+[data-cell],
+[role="gridcell"]:not([aria-readonly="true"]) {
+  cursor: pointer;
+}
+
+/* Filled cells (read-only) */
+.sudoku-cell[data-prefilled="true"],
+[role="gridcell"][aria-readonly="true"] {
+  cursor: default;
+}
+
+/* Selected cell - indicate active state */
+.sudoku-cell[data-selected="true"],
+[role="gridcell"][aria-selected="true"] {
+  cursor: default;
+}
+
+/* Hover state for empty cells */
+.sudoku-cell:not([data-prefilled="true"]):hover,
+[role="gridcell"]:not([aria-readonly="true"]):hover {
+  cursor: pointer;
+}
+
+/* ============================================
+   DRAG AND DROP CURSORS
+   ============================================ */
+
+/* Draggable elements */
+[draggable="true"] {
+  cursor: grab;
+}
+
+[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+/* Drop zones */
+.drop-zone {
+  cursor: copy;
+}
+
+.drop-zone-active {
+  cursor: move;
+}
+
+/* ============================================
+   TEXT AND INPUT CURSORS
+   ============================================ */
+
+/* Text inputs */
+input[type="text"],
+input[type="number"],
+textarea,
+[contenteditable="true"] {
+  cursor: text;
+}
+
+/* Number inputs in Sudoku context */
+input[type="number"].sudoku-input {
+  cursor: pointer;
+}
+
+/* ============================================
+   CONTROL CURSORS
+   ============================================ */
+
+/* Sliders and range inputs */
+input[type="range"] {
+  cursor: ew-resize;
+}
+
+/* Checkboxes and radio buttons */
+input[type="checkbox"],
+input[type="radio"] {
+  cursor: pointer;
+}
+
+/* Select dropdowns */
+select {
+  cursor: pointer;
+}
+
+/* ============================================
+   HINT AND HELP CURSORS
+   ============================================ */
+
+/* Help and hint buttons */
+.hint-button,
+.help-button,
+[aria-label*="hint"],
+[aria-label*="help"] {
+  cursor: help;
+}
+
+/* Info icons */
+.info-icon,
+[role="tooltip"],
+[data-tooltip] {
+  cursor: help;
+}
+
+/* ============================================
+   RESIZE CURSORS
+   ============================================ */
+
+/* Resizable elements */
+.resizable {
+  cursor: nwse-resize;
+}
+
+.resizable-horizontal {
+  cursor: ew-resize;
+}
+
+.resizable-vertical {
+  cursor: ns-resize;
+}
+
+/* ============================================
+   LOADING AND WAIT STATES
+   ============================================ */
+
+/* Loading state */
+.loading,
+[aria-busy="true"] {
+  cursor: wait;
+}
+
+/* Progress indicator */
+.progress,
+[role="progressbar"] {
+  cursor: wait;
+}
+
+/* ============================================
+   CUSTOM GEOMETRIC CURSORS (CSS-based)
+   ============================================ */
+
+/* Primary interactive areas with custom cursor hint */
+.custom-cursor-primary {
+  cursor: pointer;
+  position: relative;
+}
+
+/* Add subtle visual feedback on hover */
+.custom-cursor-primary:hover::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--color-coral);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.5;
+  animation: cursor-pulse 1s ease-in-out infinite;
+}
+
+@keyframes cursor-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.2;
+  }
+}
+
+/* Secondary interactive areas */
+.custom-cursor-secondary {
+  cursor: pointer;
+}
+
+.custom-cursor-secondary:hover::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--color-teal);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+/* ============================================
+   TOUCH DEVICE OVERRIDES
+   ============================================ */
+
+/* Remove custom cursors on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .custom-cursor-primary:hover::after,
+  .custom-cursor-secondary:hover::after {
+    display: none;
+  }
+  
+  /* Ensure standard cursors on touch */
+  * {
+    cursor: default !important;
+  }
+  
+  button,
+  [role="button"],
+  a {
+    cursor: pointer !important;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY OVERRIDES
+   ============================================ */
+
+/* High contrast mode - ensure visible cursors */
+@media (prefers-contrast: high) {
+  .custom-cursor-primary:hover::after,
+  .custom-cursor-secondary:hover::after {
+    border: 2px solid currentColor;
+    opacity: 1;
+  }
+}
+
+/* Reduced motion - disable cursor animations */
+@media (prefers-reduced-motion: reduce) {
+  .custom-cursor-primary:hover::after {
+    animation: none;
+  }
+}
+
+/* ============================================
+   FOCUS VISIBLE STATES
+   ============================================ */
+
+/* Ensure cursor changes are accompanied by focus indicators */
+*:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Remove outline for mouse users, keep for keyboard */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  /* Remove all custom cursor styles for print */
+  * {
+    cursor: default !important;
+  }
+  
+  .custom-cursor-primary:hover::after,
+  .custom-cursor-secondary:hover::after {
+    display: none;
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Force specific cursor types */
+.cursor-default { cursor: default !important; }
+.cursor-pointer { cursor: pointer !important; }
+.cursor-help { cursor: help !important; }
+.cursor-wait { cursor: wait !important; }
+.cursor-not-allowed { cursor: not-allowed !important; }
+.cursor-grab { cursor: grab !important; }
+.cursor-grabbing { cursor: grabbing !important; }
+.cursor-text { cursor: text !important; }
+.cursor-move { cursor: move !important; }
+.cursor-none { cursor: none !important; }
+
+/* ============================================
+   CHILD-FRIENDLY ENHANCEMENTS
+   ============================================ */
+
+/* Larger hit areas for child-friendly interactions */
+.child-friendly-cursor {
+  cursor: pointer;
+  position: relative;
+}
+
+/* Visual feedback for children */
+.child-friendly-cursor:hover::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border: 2px dashed var(--color-coral);
+  border-radius: var(--radius-child);
+  pointer-events: none;
+  opacity: 0.3;
+  animation: child-cursor-hint 2s ease-in-out infinite;
+}
+
+@keyframes child-cursor-hint {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.5;
+  }
+}
+
+/* Disable on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .child-friendly-cursor:hover::before {
+    display: none;
+  }
+}
+
+/* Disable with reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .child-friendly-cursor:hover::before {
+    animation: none;
+    opacity: 0.3;
+  }
+}

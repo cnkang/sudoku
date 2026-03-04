@@ -1,6 +1,8 @@
 import { NextRequest } from 'next/server';
 import {
+  buildCorsHeaders,
   buildSecurityHeaders,
+  createOptionsResponse,
   enforceRateLimit,
   isSameOriginRequest,
   readJsonBodyWithLimit,
@@ -26,6 +28,39 @@ describe('API security helpers', () => {
       const request = {
         headers: new Headers({
           origin: 'https://attacker.example',
+        }),
+        nextUrl: new URL('http://localhost:3000/api/progress'),
+      } as unknown as NextRequest;
+
+      expect(isSameOriginRequest(request)).toBe(false);
+    });
+
+    it('returns true when no origin header is present (same-origin request)', () => {
+      const request = {
+        headers: new Headers({}),
+        nextUrl: new URL('http://localhost:3000/api/progress'),
+      } as unknown as NextRequest;
+
+      expect(isSameOriginRequest(request)).toBe(true);
+    });
+
+    it('returns true for localhost origins (allowed in development)', () => {
+      // In development mode, localhost and 127.0.0.1 are in the allowed origins list
+      const request = {
+        headers: new Headers({
+          origin: 'http://localhost:3000',
+        }),
+        nextUrl: new URL('http://localhost:3000/api/progress'),
+      } as unknown as NextRequest;
+
+      // This should pass because localhost:3000 matches the request origin (same-origin)
+      expect(isSameOriginRequest(request)).toBe(true);
+    });
+
+    it('returns false for invalid origin URL format', () => {
+      const request = {
+        headers: new Headers({
+          origin: 'not-a-valid-url',
         }),
         nextUrl: new URL('http://localhost:3000/api/progress'),
       } as unknown as NextRequest;
@@ -122,7 +157,15 @@ describe('API security helpers', () => {
 
   describe('buildSecurityHeaders', () => {
     it('sets baseline headers while preserving existing values', () => {
-      const headers = buildSecurityHeaders({ 'Cache-Control': 'no-store' });
+      const request = {
+        headers: new Headers(),
+        nextUrl: new URL('http://localhost:3000/api/test'),
+        url: 'http://localhost:3000/api/test',
+      } as unknown as NextRequest;
+
+      const headers = buildSecurityHeaders(request, {
+        'Cache-Control': 'no-store',
+      });
 
       expect(headers.get('Cache-Control')).toBe('no-store');
       expect(headers.get('X-Content-Type-Options')).toBe('nosniff');
@@ -130,6 +173,182 @@ describe('API security helpers', () => {
         'strict-origin-when-cross-origin'
       );
       expect(headers.get('Cross-Origin-Resource-Policy')).toBe('same-origin');
+    });
+
+    it('includes CORS headers for allowed cross-origin requests', () => {
+      const request = {
+        headers: new Headers({
+          origin: 'http://localhost:3000',
+        }),
+        nextUrl: new URL('http://localhost:3000/api/test'),
+        url: 'http://localhost:3000/api/test',
+      } as unknown as NextRequest;
+
+      const headers = buildSecurityHeaders(request);
+
+      expect(headers.get('Access-Control-Allow-Origin')).toBe(
+        'http://localhost:3000'
+      );
+      expect(headers.get('Access-Control-Allow-Credentials')).toBe('true');
+      expect(headers.get('Access-Control-Allow-Methods')).toContain('GET');
+      expect(headers.get('Access-Control-Allow-Methods')).toContain('POST');
+      expect(headers.get('Access-Control-Allow-Headers')).toContain(
+        'Content-Type'
+      );
+    });
+
+    it('does not include CORS headers for disallowed origins', () => {
+      const request = {
+        headers: new Headers({
+          origin: 'https://attacker.example',
+        }),
+        nextUrl: new URL('http://localhost:3000/api/test'),
+        url: 'http://localhost:3000/api/test',
+      } as unknown as NextRequest;
+
+      const headers = buildSecurityHeaders(request);
+
+      expect(headers.get('Access-Control-Allow-Origin')).toBeNull();
+      expect(headers.get('Access-Control-Allow-Credentials')).toBeNull();
+    });
+
+    it('does not include CORS headers for same-origin requests without origin header', () => {
+      const request = {
+        headers: new Headers(),
+        nextUrl: new URL('http://localhost:3000/api/test'),
+        url: 'http://localhost:3000/api/test',
+      } as unknown as NextRequest;
+
+      const headers = buildSecurityHeaders(request);
+
+      // No origin header means same-origin, so no CORS headers needed
+      expect(headers.get('Access-Control-Allow-Origin')).toBeNull();
+    });
+  });
+
+  describe('buildCorsHeaders', () => {
+    it('adds CORS headers for allowed same-origin requests', () => {
+      const request = {
+        headers: new Headers({
+          origin: 'http://localhost:3000',
+        }),
+        nextUrl: new URL('http://localhost:3000/api/test'),
+        url: 'http://localhost:3000/api/test',
+      } as unknown as NextRequest;
+
+      const headers = buildCorsHeaders(request);
+
+      expect(headers.get('Access-Control-Allow-Origin')).toBe(
+        'http://localhost:3000'
+      );
+      expect(headers.get('Access-Control-Allow-Credentials')).toBe('true');
+      expect(headers.get('Access-Control-Allow-Methods')).toBe(
+        'GET, POST, PUT, DELETE, OPTIONS'
+      );
+      expect(headers.get('Access-Control-Allow-Headers')).toBe(
+        'Content-Type, Authorization, X-Requested-With, Accept'
+      );
+      expect(headers.get('Access-Control-Max-Age')).toBe('3600');
+    });
+
+    it('does not add CORS headers for disallowed origins', () => {
+      const request = {
+        headers: new Headers({
+          origin: 'https://malicious.example',
+        }),
+        nextUrl: new URL('http://localhost:3000/api/test'),
+        url: 'http://localhost:3000/api/test',
+      } as unknown as NextRequest;
+
+      const headers = buildCorsHeaders(request);
+
+      expect(headers.get('Access-Control-Allow-Origin')).toBeNull();
+      expect(headers.get('Access-Control-Allow-Credentials')).toBeNull();
+      expect(headers.get('Access-Control-Allow-Methods')).toBeNull();
+    });
+
+    it('does not add CORS headers when no origin header is present', () => {
+      const request = {
+        headers: new Headers(),
+        nextUrl: new URL('http://localhost:3000/api/test'),
+        url: 'http://localhost:3000/api/test',
+      } as unknown as NextRequest;
+
+      const headers = buildCorsHeaders(request);
+
+      expect(headers.get('Access-Control-Allow-Origin')).toBeNull();
+    });
+
+    it('preserves additional headers passed in', () => {
+      const request = {
+        headers: new Headers({
+          origin: 'http://localhost:3000',
+        }),
+        nextUrl: new URL('http://localhost:3000/api/test'),
+        url: 'http://localhost:3000/api/test',
+      } as unknown as NextRequest;
+
+      const headers = buildCorsHeaders(request, {
+        'X-Custom-Header': 'custom-value',
+      });
+
+      expect(headers.get('X-Custom-Header')).toBe('custom-value');
+      expect(headers.get('Access-Control-Allow-Origin')).toBe(
+        'http://localhost:3000'
+      );
+    });
+
+    it('handles invalid origin URLs gracefully', () => {
+      const request = {
+        headers: new Headers({
+          origin: 'not-a-valid-url',
+        }),
+        nextUrl: new URL('http://localhost:3000/api/test'),
+        url: 'http://localhost:3000/api/test',
+      } as unknown as NextRequest;
+
+      const headers = buildCorsHeaders(request);
+
+      expect(headers.get('Access-Control-Allow-Origin')).toBeNull();
+    });
+  });
+
+  describe('createOptionsResponse', () => {
+    it('returns 204 No Content with CORS headers for allowed origins', () => {
+      const request = {
+        headers: new Headers({
+          origin: 'http://localhost:3000',
+        }),
+        nextUrl: new URL('http://localhost:3000/api/test'),
+        url: 'http://localhost:3000/api/test',
+        method: 'OPTIONS',
+      } as unknown as NextRequest;
+
+      const response = createOptionsResponse(request);
+
+      expect(response.status).toBe(204);
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBe(
+        'http://localhost:3000'
+      );
+      expect(response.headers.get('Access-Control-Allow-Methods')).toContain(
+        'OPTIONS'
+      );
+    });
+
+    it('returns 204 without CORS headers for disallowed origins', () => {
+      const request = {
+        headers: new Headers({
+          origin: 'https://attacker.example',
+        }),
+        nextUrl: new URL('http://localhost:3000/api/test'),
+        url: 'http://localhost:3000/api/test',
+        method: 'OPTIONS',
+      } as unknown as NextRequest;
+
+      const response = createOptionsResponse(request);
+
+      expect(response.status).toBe(204);
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBeNull();
     });
   });
 });

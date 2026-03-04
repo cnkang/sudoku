@@ -1,17 +1,26 @@
 import type { Metadata, Viewport } from 'next';
-import localFont from 'next/font/local';
+import { Inter, JetBrains_Mono } from 'next/font/google';
+import MonitoringInit from '@/components/MonitoringInit';
 import PWAInit from '@/components/PWAInit';
+import { getNonce } from '@/lib/security/nonce';
 import './globals.css';
+import '../styles/cursors.css';
 
-const geistSans = localFont({
-  src: './fonts/GeistVF.woff',
-  variable: '--font-geist-sans',
-  weight: '100 900',
+// Inter Variable for body text
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-body',
+  display: 'swap',
+  preload: false,
 });
-const geistMono = localFont({
-  src: './fonts/GeistMonoVF.woff',
-  variable: '--font-geist-mono',
-  weight: '100 900',
+
+// JetBrains Mono for grid numbers
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-mono',
+  display: 'swap',
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -130,22 +139,29 @@ const structuredData = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Get CSP nonce for inline scripts
+  const nonce = await getNonce();
+
   return (
     <html lang="en">
       <head>
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
+        <script
+          type="application/ld+json"
+          nonce={nonce}
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: Structured data is static and safe
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className={`${inter.variable} ${jetbrainsMono.variable}`}>
         <a href="#main-content" className="skip-to-content">
           Skip to main content
         </a>
+        <MonitoringInit />
         <PWAInit />
         {children}
       </body>

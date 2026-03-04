@@ -340,8 +340,12 @@ export const withAdaptiveTouchTargets = <
         };
 
         // Add event listeners for interaction end
+        // Using passive: true for touch events to improve scroll performance (Requirement 8.2)
         if ('touches' in event) {
-          document.addEventListener('touchend', handleEnd, { once: true });
+          document.addEventListener('touchend', handleEnd, {
+            once: true,
+            passive: true,
+          });
         } else {
           document.addEventListener('mouseup', handleEnd, { once: true });
         }

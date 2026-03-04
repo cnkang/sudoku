@@ -11,6 +11,7 @@ import {
 import { useAdaptiveTouchTargets } from '@/hooks/useAdaptiveTouchTargets';
 import { useAudioAccessibility } from '@/hooks/useAudioAccessibility';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
+import { useThrottledTouchMove } from '@/hooks/useOptimizedTouchHandlers';
 import {
   getContextualFeedback,
   useVisualFeedback,
@@ -339,7 +340,9 @@ const useCellTouchHandlers = ({
     [touchState, onCellClick, reducedMotion, rowIndex, colIndex]
   );
 
-  const handleTouchMove = useCallback(
+  // Throttled touchmove handler for 60fps performance (Requirement 8.5)
+  // Using 16ms throttle interval (1000ms / 60fps ≈ 16.67ms)
+  const handleTouchMoveUnthrottled = useCallback(
     (e: React.TouchEvent) => {
       if (!touchState) return;
 
@@ -355,6 +358,11 @@ const useCellTouchHandlers = ({
     },
     [touchState]
   );
+
+  // Apply throttling to maintain 60fps (Requirement 8.5)
+  const handleTouchMove = useThrottledTouchMove(handleTouchMoveUnthrottled, {
+    throttleMs: 16, // 60fps
+  });
 
   useEffect(() => {
     return () => {

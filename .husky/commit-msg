@@ -1,2 +1,5 @@
-# pnpm commitlint --edit $1
-echo "commitlint temporarily disabled due to ESM compatibility issues"
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Validate commit message format
+./scripts/validate-commit-msg.sh "$1"

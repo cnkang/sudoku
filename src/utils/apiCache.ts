@@ -1,4 +1,8 @@
 import { UTILITY_ERRORS } from '@/utils/errorMessages';
+import {
+  createRequestKey,
+  deduplicateRequest,
+} from '@/utils/requestDeduplication';
 
 interface CachedResponse {
   data: unknown;
@@ -81,32 +85,37 @@ export async function fetchWithCache(
     }
   }
 
-  // Add conditional request headers
-  const etag = clientCache.getETag(cacheKey);
-  if (etag) {
-    options.headers = {
-      ...options.headers,
-      'If-None-Match': etag,
-    };
-  }
+  // Use request deduplication to prevent duplicate API calls within 5s window
+  const deduplicationKey = createRequestKey(url, options);
 
-  const response = await fetch(url, options);
+  return deduplicateRequest(deduplicationKey, async () => {
+    // Add conditional request headers
+    const etag = clientCache.getETag(cacheKey);
+    if (etag) {
+      options.headers = {
+        ...options.headers,
+        'If-None-Match': etag,
+      };
+    }
 
-  // 304 Not Modified - use cache
-  const cachedData = clientCache.get(cacheKey);
-  if (response.status === 304 && cachedData) {
-    return cachedData;
-  }
+    const response = await fetch(url, options);
 
-  if (!response.ok) {
-    throw new Error(UTILITY_ERRORS.HTTP_ERROR(response.status));
-  }
+    // 304 Not Modified - use cache
+    const cachedData = clientCache.get(cacheKey);
+    if (response.status === 304 && cachedData) {
+      return cachedData;
+    }
 
-  const data = await response.json();
-  const responseETag = response.headers.get('ETag');
+    if (!response.ok) {
+      throw new Error(UTILITY_ERRORS.HTTP_ERROR(response.status));
+    }
 
-  // Cache response
-  clientCache.set(cacheKey, data, responseETag ?? undefined);
+    const data = await response.json();
+    const responseETag = response.headers.get('ETag');
 
-  return data;
+    // Cache response
+    clientCache.set(cacheKey, data, responseETag ?? undefined);
+
+    return data;
+  });
 }

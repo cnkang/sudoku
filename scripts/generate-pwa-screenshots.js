@@ -3,7 +3,7 @@
 // Simple PWA screenshot generator for Multi-Size Sudoku
 // Creates basic SVG-based screenshots for the manifest
 
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const screenshotsDir = 'public/screenshots';

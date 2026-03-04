@@ -225,16 +225,25 @@ class PWAManager {
     const windowRef = getWindow();
     if (!windowRef) return;
 
-    windowRef.addEventListener('beforeinstallprompt', event => {
-      event.preventDefault();
-      this.installPromptEvent = event as BeforeInstallPromptEvent;
-      this.updateStatus();
-    });
+    // Using passive: true for better performance (Requirement 8.1)
+    windowRef.addEventListener(
+      'beforeinstallprompt',
+      event => {
+        event.preventDefault();
+        this.installPromptEvent = event as BeforeInstallPromptEvent;
+        this.updateStatus();
+      },
+      { passive: false }
+    ); // Note: passive: false because we call preventDefault()
 
-    windowRef.addEventListener('appinstalled', () => {
-      this.installPromptEvent = null;
-      this.updateStatus();
-    });
+    windowRef.addEventListener(
+      'appinstalled',
+      () => {
+        this.installPromptEvent = null;
+        this.updateStatus();
+      },
+      { passive: true }
+    );
   }
 
   /**
@@ -244,16 +253,25 @@ class PWAManager {
     const windowRef = getWindow();
     if (!windowRef) return;
 
-    windowRef.addEventListener('online', () => {
-      logInfo('[PWA] Back online');
-      this.updateStatus();
-      this.syncPendingData();
-    });
+    // Using passive: true for better performance (Requirement 8.1)
+    windowRef.addEventListener(
+      'online',
+      () => {
+        logInfo('[PWA] Back online');
+        this.updateStatus();
+        this.syncPendingData();
+      },
+      { passive: true }
+    );
 
-    windowRef.addEventListener('offline', () => {
-      logInfo('[PWA] Gone offline');
-      this.updateStatus();
-    });
+    windowRef.addEventListener(
+      'offline',
+      () => {
+        logInfo('[PWA] Gone offline');
+        this.updateStatus();
+      },
+      { passive: true }
+    );
   }
 
   /**

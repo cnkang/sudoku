@@ -112,8 +112,12 @@ export const useMotionPreferences = (
       setPreferences(newPreferences);
     };
 
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    // Using passive: true for better performance (Requirement 8.1)
+    mediaQuery.addEventListener('change', handleChange, { passive: true });
+    return () =>
+      mediaQuery.removeEventListener('change', handleChange, {
+        passive: true,
+      } as EventListenerOptions);
   }, [settings]);
 
   const updateSettings = React.useCallback(

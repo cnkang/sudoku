@@ -9,8 +9,23 @@
   --success-color: #10b981;
   --error-color: #ef4444;
   --warning-color: #f59e0b;
-  --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-    "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+  
+  /* Typography system with fallbacks */
+  /* Space Grotesk for display text with geometric sans-serif fallbacks */
+  --font-display: 'Futura', 'Century Gothic', 'Avenir Next', -apple-system,
+    BlinkMacSystemFont, sans-serif;
+  
+  /* Inter for body text with system UI fallbacks */
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Helvetica Neue', Arial, sans-serif;
+  
+  /* JetBrains Mono for grid numbers with monospace fallbacks */
+  --font-mono: 'SF Mono', 'Monaco', 'Cascadia Code', 'Consolas', 'Courier New',
+    monospace;
+  
+  /* Legacy font-family-sans for backward compatibility */
+  --font-family-sans: var(--font-body);
+  
   --font-size-base: 16px;
   --line-height-base: 1.6;
   --spacing-base: 1rem;
@@ -142,7 +157,7 @@ input {
   transform: translateX(-50%);
   z-index: 9999;
   padding: 0.75rem 1.5rem;
-  background: var(--primary-color);
+  background: #1e3a8a;
   color: #ffffff;
   font-weight: 600;
   border-radius: var(--border-radius);

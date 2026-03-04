@@ -1,0 +1,8 @@
+{
+  "requests": 20,
+  "cachedTrueCount": 19,
+  "headerHitRateLast": 0.88,
+  "headerHitRateAvgLast5": 0.86,
+  "bodyHitRateLast": 0.88,
+  "bodyHitRateAvgLast5": 0.86
+}

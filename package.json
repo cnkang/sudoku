@@ -23,6 +23,7 @@
     "test:pbt": "PBT_PROPERTY_TIME_LIMIT_MS=${PBT_PROPERTY_TIME_LIMIT_MS:-2500} vitest run --reporter=verbose src/**/*.pbt.test.ts",
     "test:coverage": "vitest run --coverage --reporter=verbose",
     "test:responsive": "./scripts/test-responsive.sh",
+    "test:contrast": "node --experimental-strip-types scripts/validate-contrast.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
@@ -31,37 +32,36 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "fast-sudoku-solver": "^3.0.0",
-    "next": "^16.1.6",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "zod": "^4.3.6"
+    "fast-sudoku-solver": "3.0.0",
+    "next": "16.1.6",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "web-vitals": "5.1.0",
+    "zod": "4.3.6"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.4",
-    "@commitlint/cli": "^20.4.2",
-    "@commitlint/config-conventional": "^20.4.2",
-    "@commitlint/types": "^20.4.0",
-    "@playwright/test": "^1.58.2",
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.1",
-    "@types/node": "^25.3.3",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^5.1.4",
-    "@vitest/coverage-v8": "^4.0.18",
-    "@vitest/ui": "^4.0.18",
+    "@axe-core/playwright": "4.10.2",
+    "@biomejs/biome": "2.4.4",
+    "@playwright/test": "1.58.2",
+    "@testing-library/dom": "10.4.1",
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.2",
+    "@testing-library/user-event": "14.6.1",
+    "@types/node": "25.3.3",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "5.1.4",
+    "@vitest/coverage-v8": "4.0.18",
+    "@vitest/ui": "4.0.18",
     "babel-plugin-react-compiler": "19.1.0-rc.3",
-    "fast-check": "^4.5.3",
-    "happy-dom": "^20.7.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.3.1",
-    "oxlint": "^1.50.0",
-    "typescript": "^5.9.3",
-    "vite": "^7.3.1",
-    "vitest": "^4.0.18"
+    "fast-check": "4.5.3",
+    "happy-dom": "20.7.0",
+    "husky": "9.1.7",
+    "lint-staged": "16.3.1",
+    "oxlint": "1.50.0",
+    "typescript": "5.9.3",
+    "vite": "7.3.1",
+    "vitest": "4.0.18"
   },
   "browserslist": [
     "last 2 versions",
@@ -71,8 +71,8 @@
   ],
   "pnpm": {
     "overrides": {
-      "postcss": "^8.5.6",
-      "source-map": "^0.7.4"
+      "postcss": "8.5.6",
+      "source-map": "0.7.4"
     },
     "onlyBuiltDependencies": [
       "sharp"

@@ -2,10 +2,15 @@
  * Lazy-loaded grid components for code splitting optimization
  * Implements Requirements 8.2, 8.9 for React 19 performance optimization
  */
+'use client';
 
 import React, { lazy, memo, Suspense } from 'react';
 import type { GridConfig, PWAGridSelectorProps } from '@/types';
 import type { AccessibilityControlsProps } from './AccessibilityControls';
+import AccessibilityControlsComponent from './AccessibilityControls';
+import DifficultySelectorComponent from './DifficultySelector';
+import PWAGridSelectorComponent from './PWAGridSelector';
+import ThemeProviderComponent from './ThemeProvider';
 import type { VisualFeedbackSystemProps } from './VisualFeedbackSystem';
 
 // Loading fallback component with modern CSS
@@ -76,22 +81,12 @@ const Grid9x9Component = lazy(() =>
   import('./grids/Grid9x9').then(module => ({ default: module.Grid9x9 }))
 );
 
-// Lazy load PWA components
-const PWAGridSelectorComponent = lazy(() =>
-  import('./PWAGridSelector').then(module => ({ default: module.default }))
-);
-
+// Lazy load non-critical PWA components
 const PWAInstallPromptComponent = lazy(() =>
   import('./PWAInstallPrompt').then(module => ({ default: module.default }))
 );
 
-// Lazy load accessibility components
-const AccessibilityControlsComponent = lazy(() =>
-  import('./AccessibilityControls').then(module => ({
-    default: module.default,
-  }))
-);
-
+// Lazy load non-critical accessibility components
 const VisualFeedbackSystemComponent = lazy(() =>
   import('./VisualFeedbackSystem').then(module => ({
     default: module.default,
@@ -103,8 +98,28 @@ const ThemeSelectorComponent = lazy(() =>
   import('./ThemeSelector').then(module => ({ default: module.default }))
 );
 
-const ThemeProviderComponent = lazy(() =>
-  import('./ThemeProvider').then(module => ({ default: module.default }))
+// Lazy load game control components (Requirements 4.3, 18.7)
+const GameControlsComponent = lazy(() =>
+  import('./GameControls').then(module => ({ default: module.default }))
+);
+
+const TouchOptimizedControlsComponent = lazy(() =>
+  import('./TouchOptimizedControls').then(module => ({
+    default: module.default,
+  }))
+);
+
+// Lazy load decorative components
+const GeometricMeshComponent = lazy(() =>
+  import('./decorative/GeometricShapes').then(module => ({
+    default: module.GeometricMesh,
+  }))
+);
+
+const CornerDecorationComponent = lazy(() =>
+  import('./decorative/GeometricShapes').then(module => ({
+    default: module.CornerDecoration,
+  }))
 );
 
 // Props interfaces
@@ -132,6 +147,10 @@ type ThemeSelectorProps = {
 type ThemeProviderProps = {
   children: React.ReactNode;
 };
+
+// Import types for game controls
+import type { DifficultySelectProps, GameControlsProps } from '@/types';
+import type { TouchOptimizedControlsProps } from './TouchOptimizedControls';
 
 // Grid size router with code splitting
 export const LazyGridRouter = memo<LazyGridProps>(
@@ -163,11 +182,9 @@ export const LazyGridRouter = memo<LazyGridProps>(
 
 LazyGridRouter.displayName = 'LazyGridRouter';
 
-// PWA Components with lazy loading
+// PWA Components on the critical path are loaded eagerly to reduce LCP/CLS.
 export const LazyPWAGridSelector = memo((props: PWAGridSelectorProps) => (
-  <Suspense fallback={<GridLoadingFallback />}>
-    <PWAGridSelectorComponent {...props} />
-  </Suspense>
+  <PWAGridSelectorComponent {...props} />
 ));
 
 LazyPWAGridSelector.displayName = 'LazyPWAGridSelector';
@@ -180,12 +197,10 @@ export const LazyPWAInstallPrompt = memo((props: Record<string, never>) => (
 
 LazyPWAInstallPrompt.displayName = 'LazyPWAInstallPrompt';
 
-// Accessibility Components with lazy loading
+// Accessibility controls are on the critical path and loaded eagerly.
 export const LazyAccessibilityControls = memo(
   (props: AccessibilityControlsProps) => (
-    <Suspense fallback={<div>Loading accessibility controls...</div>}>
-      <AccessibilityControlsComponent {...props} />
-    </Suspense>
+    <AccessibilityControlsComponent {...props} />
   )
 );
 
@@ -212,13 +227,59 @@ LazyThemeSelector.displayName = 'LazyThemeSelector';
 
 export const LazyThemeProvider = memo(
   ({ children, ...props }: ThemeProviderProps) => (
-    <Suspense fallback={<div>Loading theme provider...</div>}>
-      <ThemeProviderComponent {...props}>{children}</ThemeProviderComponent>
-    </Suspense>
+    <ThemeProviderComponent {...props}>{children}</ThemeProviderComponent>
   )
 );
 
 LazyThemeProvider.displayName = 'LazyThemeProvider';
+
+// Game Control Components with lazy loading (Requirements 4.3, 18.7)
+export const LazyGameControls = memo((props: GameControlsProps) => (
+  <Suspense fallback={<div>Loading controls...</div>}>
+    <GameControlsComponent {...props} />
+  </Suspense>
+));
+
+LazyGameControls.displayName = 'LazyGameControls';
+
+export const LazyTouchOptimizedControls = memo(
+  (props: TouchOptimizedControlsProps) => (
+    <Suspense fallback={<div>Loading touch controls...</div>}>
+      <TouchOptimizedControlsComponent {...props} />
+    </Suspense>
+  )
+);
+
+LazyTouchOptimizedControls.displayName = 'LazyTouchOptimizedControls';
+
+export const LazyDifficultySelector = memo((props: DifficultySelectProps) => (
+  <DifficultySelectorComponent {...props} />
+));
+
+LazyDifficultySelector.displayName = 'LazyDifficultySelector';
+
+// Decorative Components with lazy loading
+export const LazyGeometricMesh = memo(() => (
+  <Suspense fallback={null}>
+    <GeometricMeshComponent />
+  </Suspense>
+));
+
+LazyGeometricMesh.displayName = 'LazyGeometricMesh';
+
+interface CornerDecorationProps {
+  position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+}
+
+export const LazyCornerDecoration = memo(
+  ({ position }: CornerDecorationProps) => (
+    <Suspense fallback={null}>
+      <CornerDecorationComponent position={position} />
+    </Suspense>
+  )
+);
+
+LazyCornerDecoration.displayName = 'LazyCornerDecoration';
 
 // Higher-order component for lazy loading with error boundary
 interface LazyWrapperProps {
@@ -319,6 +380,23 @@ export const preloadAccessibilityComponents = () => {
 
 export const preloadThemeComponents = () => {
   return Promise.all([import('./ThemeSelector'), import('./ThemeProvider')]);
+};
+
+// Preload game control components
+export const preloadGameControls = () => {
+  return import('./GameControls');
+};
+
+export const preloadTouchControls = () => {
+  return import('./TouchOptimizedControls');
+};
+
+export const preloadDifficultySelector = () => {
+  return import('./DifficultySelector');
+};
+
+export const preloadDecorativeComponents = () => {
+  return import('./decorative/GeometricShapes');
 };
 
 // Bundle size optimization utilities

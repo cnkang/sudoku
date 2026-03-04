@@ -52,7 +52,7 @@ const GRID_OPTIONS: GridOption[] = [
     childLabel: 'Easy 4×4',
     description: 'Perfect for beginners and young learners',
     childDescription: 'Great for starting your Sudoku journey! 🌟',
-    icon: '🟦',
+    icon: '4×4',
     color: '#0077BE',
     difficulty: 'Beginner',
   },
@@ -62,7 +62,7 @@ const GRID_OPTIONS: GridOption[] = [
     childLabel: 'Fun 6×6',
     description: 'Intermediate challenge with more complexity',
     childDescription: 'Ready for more fun? Try this bigger puzzle! 🎯',
-    icon: '🟨',
+    icon: '6×6',
     color: '#FF6B35',
     difficulty: 'Intermediate',
   },
@@ -72,7 +72,7 @@ const GRID_OPTIONS: GridOption[] = [
     childLabel: 'Challenge 9×9',
     description: 'Classic Sudoku experience for experts',
     childDescription: 'The ultimate Sudoku challenge awaits! 🏆',
-    icon: '🟩',
+    icon: '9×9',
     color: '#32CD32',
     difficulty: 'Expert',
   },
@@ -191,28 +191,30 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
     <div className={styles.gridSelector} data-testid="pwa-grid-selector">
       {/* PWA Status Bar */}
       <div className={styles.pwaStatus}>
-        {offlineMode && (
-          <div className={styles.offlineIndicator} aria-live="polite">
-            📱 Playing offline
-          </div>
-        )}
+        <div className={styles.statusLeft} aria-live="polite">
+          {offlineMode ? (
+            <div className={styles.offlineIndicator}>📱 Playing offline</div>
+          ) : isInstalled ? (
+            <div className={styles.installedIndicator}>✅ App installed</div>
+          ) : (
+            <span className={styles.statusPlaceholder} aria-hidden="true" />
+          )}
+        </div>
 
-        {isInstallable && !isInstalled && (
-          <button
-            type="button"
-            onClick={handleInstallClick}
-            className={styles.installButton}
-            aria-label="Install Sudoku app for offline play"
-          >
-            📲 Install App
-          </button>
-        )}
-
-        {isInstalled && (
-          <div className={styles.installedIndicator} aria-live="polite">
-            ✅ App installed
-          </div>
-        )}
+        <div className={styles.statusRight}>
+          {isInstallable && !isInstalled ? (
+            <button
+              type="button"
+              onClick={handleInstallClick}
+              className={styles.installButton}
+              aria-label="Install Sudoku app for offline play"
+            >
+              📲 Install App
+            </button>
+          ) : (
+            <span className={styles.installPlaceholder} aria-hidden="true" />
+          )}
+        </div>
       </div>
 
       {/* Grid Size Selection */}

@@ -15,6 +15,13 @@ import {
   isSameOriginRequest,
   readJsonBodyWithLimit,
 } from '@/app/api/_lib/security';
+import {
+  sanitizeErrorForClient,
+  sanitizeZodError,
+  createDetailedErrorLog,
+  logErrorServerSide,
+  extractRequestContext,
+} from '@/utils/errorSanitization';
 
 const MAX_JSON_BODY_BYTES = 64 * 1024;
 const MAX_SUBSCRIPTIONS = 5000;
@@ -75,10 +82,10 @@ const DELIVERY_SUCCESS_THRESHOLD = 90;
 export async function POST(request: NextRequest) {
   const rateLimit = enforceRateLimit(request, POST_RATE_LIMIT);
   if (rateLimit.limited) {
-    return createRateLimitedResponse(rateLimit.retryAfterSeconds);
+    return createRateLimitedResponse(request, rateLimit.retryAfterSeconds);
   }
   if (!isSameOriginRequest(request)) {
-    return createForbiddenResponse();
+    return createForbiddenResponse(request);
   }
 
   try {
@@ -93,11 +100,14 @@ export async function POST(request: NextRequest) {
       if (!bodyResult.ok) {
         return bodyResult.response;
       }
-      return handleSubscribe(bodyResult.data);
+      return handleSubscribe(request, bodyResult.data);
     } else if (action === 'send') {
       const sendRateLimit = enforceRateLimit(request, SEND_RATE_LIMIT);
       if (sendRateLimit.limited) {
-        return createRateLimitedResponse(sendRateLimit.retryAfterSeconds);
+        return createRateLimitedResponse(
+          request,
+          sendRateLimit.retryAfterSeconds
+        );
       }
 
       const bodyResult = await readJsonBodyWithLimit<unknown>(
@@ -107,9 +117,10 @@ export async function POST(request: NextRequest) {
       if (!bodyResult.ok) {
         return bodyResult.response;
       }
-      return handleSendNotification(bodyResult.data);
+      return handleSendNotification(request, bodyResult.data);
     } else {
       return createJsonResponse(
+        request,
         {
           success: false,
           error: 'Invalid action. Use ?action=subscribe or ?action=send',
@@ -117,18 +128,31 @@ export async function POST(request: NextRequest) {
         400
       );
     }
-  } catch {
+  } catch (error) {
+    // Log detailed error server-side (Requirement 12.4)
+    const detailedLog = createDetailedErrorLog(
+      error,
+      'INTERNAL_ERROR',
+      extractRequestContext(request)
+    );
+    logErrorServerSide(detailedLog);
+
+    // Return sanitized error to client (Requirements 12.4, 18.2)
+    const sanitizedError = sanitizeErrorForClient(error);
+
     return createJsonResponse(
+      request,
       {
         success: false,
-        error: 'Internal server error',
+        error: sanitizedError.error,
+        timestamp: sanitizedError.timestamp,
       },
       500
     );
   }
 }
 
-async function handleSubscribe(body: unknown) {
+async function handleSubscribe(request: NextRequest, body: unknown) {
   try {
     const subscription = PushSubscriptionSchema.parse(body);
 
@@ -139,6 +163,7 @@ async function handleSubscribe(body: unknown) {
       !subscriptions.has(subscriptionKey)
     ) {
       return createJsonResponse(
+        request,
         {
           success: false,
           error: 'Subscription capacity reached. Please retry later.',
@@ -149,6 +174,7 @@ async function handleSubscribe(body: unknown) {
     subscriptions.add(subscriptionKey);
 
     return createNoStoreJsonResponse(
+      request,
       {
         success: true,
         message: 'Push notification subscription registered successfully',
@@ -158,28 +184,45 @@ async function handleSubscribe(body: unknown) {
       200
     );
   } catch (error) {
+    // Handle Zod validation errors
     if (error instanceof z.ZodError) {
-      return createNoStoreJsonResponse(
-        {
-          success: false,
-          error: 'Invalid subscription format',
-          details: error.issues,
-        },
-        400
-      );
+      const sanitizedZodError = sanitizeZodError(error);
+
+      // Log detailed validation error server-side
+      const detailedLog = createDetailedErrorLog(error, 'VALIDATION_ERROR', {
+        url: request.url,
+        method: request.method,
+        userAgent: request.headers.get('user-agent') ?? undefined,
+      });
+      logErrorServerSide(detailedLog);
+
+      return createNoStoreJsonResponse(request, sanitizedZodError, 400);
     }
 
+    // Log detailed error server-side (Requirement 12.4)
+    const detailedLog = createDetailedErrorLog(error, 'INTERNAL_ERROR', {
+      url: request.url,
+      method: request.method,
+      userAgent: request.headers.get('user-agent') ?? undefined,
+    });
+    logErrorServerSide(detailedLog);
+
+    // Return sanitized error to client (Requirements 12.4, 18.2)
+    const sanitizedError = sanitizeErrorForClient(error);
+
     return createNoStoreJsonResponse(
+      request,
       {
         success: false,
-        error: 'Failed to register subscription',
+        error: sanitizedError.error,
+        timestamp: sanitizedError.timestamp,
       },
       500
     );
   }
 }
 
-async function handleSendNotification(body: unknown) {
+async function handleSendNotification(request: NextRequest, body: unknown) {
   try {
     const payload = NotificationPayloadSchema.parse(body);
 
@@ -205,6 +248,7 @@ async function handleSendNotification(body: unknown) {
     const failureCount = notificationResults.length - successCount;
 
     return createNoStoreJsonResponse(
+      request,
       {
         success: true,
         message: 'Notifications sent successfully',
@@ -225,21 +269,38 @@ async function handleSendNotification(body: unknown) {
       200
     );
   } catch (error) {
+    // Handle Zod validation errors
     if (error instanceof z.ZodError) {
-      return createNoStoreJsonResponse(
-        {
-          success: false,
-          error: 'Invalid notification payload',
-          details: error.issues,
-        },
-        400
-      );
+      const sanitizedZodError = sanitizeZodError(error);
+
+      // Log detailed validation error server-side
+      const detailedLog = createDetailedErrorLog(error, 'VALIDATION_ERROR', {
+        url: request.url,
+        method: request.method,
+        userAgent: request.headers.get('user-agent') ?? undefined,
+      });
+      logErrorServerSide(detailedLog);
+
+      return createNoStoreJsonResponse(request, sanitizedZodError, 400);
     }
 
+    // Log detailed error server-side (Requirement 12.4)
+    const detailedLog = createDetailedErrorLog(error, 'INTERNAL_ERROR', {
+      url: request.url,
+      method: request.method,
+      userAgent: request.headers.get('user-agent') ?? undefined,
+    });
+    logErrorServerSide(detailedLog);
+
+    // Return sanitized error to client (Requirements 12.4, 18.2)
+    const sanitizedError = sanitizeErrorForClient(error);
+
     return createNoStoreJsonResponse(
+      request,
       {
         success: false,
-        error: 'Failed to send notifications',
+        error: sanitizedError.error,
+        timestamp: sanitizedError.timestamp,
       },
       500
     );
@@ -249,7 +310,7 @@ async function handleSendNotification(body: unknown) {
 export async function GET(request: NextRequest) {
   const rateLimit = enforceRateLimit(request, GET_RATE_LIMIT);
   if (rateLimit.limited) {
-    return createRateLimitedResponse(rateLimit.retryAfterSeconds);
+    return createRateLimitedResponse(request, rateLimit.retryAfterSeconds);
   }
 
   // Get notification statistics
@@ -280,6 +341,7 @@ export async function GET(request: NextRequest) {
   };
 
   return createNoStoreJsonResponse(
+    request,
     {
       success: true,
       stats,
@@ -292,10 +354,10 @@ export async function GET(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const rateLimit = enforceRateLimit(request, DELETE_RATE_LIMIT);
   if (rateLimit.limited) {
-    return createRateLimitedResponse(rateLimit.retryAfterSeconds);
+    return createRateLimitedResponse(request, rateLimit.retryAfterSeconds);
   }
   if (!isSameOriginRequest(request)) {
-    return createForbiddenResponse();
+    return createForbiddenResponse(request);
   }
 
   // Unsubscribe from notifications
@@ -314,6 +376,7 @@ export async function DELETE(request: NextRequest) {
     const wasRemoved = subscriptions.delete(subscriptionKey);
 
     return createNoStoreJsonResponse(
+      request,
       {
         success: true,
         message: wasRemoved
@@ -326,21 +389,38 @@ export async function DELETE(request: NextRequest) {
       200
     );
   } catch (error) {
+    // Handle Zod validation errors
     if (error instanceof z.ZodError) {
-      return createNoStoreJsonResponse(
-        {
-          success: false,
-          error: 'Invalid subscription format',
-          details: error.issues,
-        },
-        400
-      );
+      const sanitizedZodError = sanitizeZodError(error);
+
+      // Log detailed validation error server-side
+      const detailedLog = createDetailedErrorLog(error, 'VALIDATION_ERROR', {
+        url: request.url,
+        method: request.method,
+        userAgent: request.headers.get('user-agent') ?? undefined,
+      });
+      logErrorServerSide(detailedLog);
+
+      return createNoStoreJsonResponse(request, sanitizedZodError, 400);
     }
 
+    // Log detailed error server-side (Requirement 12.4)
+    const detailedLog = createDetailedErrorLog(error, 'INTERNAL_ERROR', {
+      url: request.url,
+      method: request.method,
+      userAgent: request.headers.get('user-agent') ?? undefined,
+    });
+    logErrorServerSide(detailedLog);
+
+    // Return sanitized error to client (Requirements 12.4, 18.2)
+    const sanitizedError = sanitizeErrorForClient(error);
+
     return createNoStoreJsonResponse(
+      request,
       {
         success: false,
-        error: 'Failed to unsubscribe',
+        error: sanitizedError.error,
+        timestamp: sanitizedError.timestamp,
       },
       500
     );

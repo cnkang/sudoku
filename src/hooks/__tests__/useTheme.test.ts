@@ -255,14 +255,16 @@ describe('useTheme', () => {
       expect(mockMatchMedia).toHaveBeenCalledWith('(prefers-contrast: high)');
       expect(mockAddEventListener).toHaveBeenCalledWith(
         'change',
-        expect.any(Function)
+        expect.any(Function),
+        { passive: true }
       );
 
       unmount();
 
       expect(mockRemoveEventListener).toHaveBeenCalledWith(
         'change',
-        expect.any(Function)
+        expect.any(Function),
+        { passive: true } as EventListenerOptions
       );
     });
 

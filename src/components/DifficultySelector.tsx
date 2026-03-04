@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { getConfig } from '@/utils/gridConfig';
 import type { DifficultySelectProps } from '../types';
 
@@ -25,79 +25,81 @@ const DIFFICULTY_LABEL_RANGES: Record<
   ],
 };
 
-const DifficultySelector: React.FC<DifficultySelectProps> = ({
-  difficulty,
-  onChange,
-  disabled = false,
-  isLoading = false,
-  gridSize = 9, // Default to 9x9 for backward compatibility
-}) => {
-  const gridSizeKey = gridSize as 4 | 6 | 9;
+const DifficultySelector: React.FC<DifficultySelectProps> = memo(
+  ({
+    difficulty,
+    onChange,
+    disabled = false,
+    isLoading = false,
+    gridSize = 9, // Default to 9x9 for backward compatibility
+  }) => {
+    const gridSizeKey = gridSize as 4 | 6 | 9;
 
-  // Get the configuration for the current grid size
-  const config = getConfig(gridSizeKey);
-  const minDifficulty = 1;
-  const maxDifficulty = config.difficultyLevels;
+    // Get the configuration for the current grid size
+    const config = getConfig(gridSizeKey);
+    const minDifficulty = 1;
+    const maxDifficulty = config.difficultyLevels;
 
-  // Normalize difficulty value with protective clamping
-  const normalizedDifficulty = React.useMemo(() => {
-    if (typeof difficulty !== 'number' || Number.isNaN(difficulty)) {
-      return minDifficulty;
-    }
-    const rounded = Math.round(difficulty);
-    if (rounded < minDifficulty || rounded > maxDifficulty) {
-      return minDifficulty;
-    }
-    return rounded;
-  }, [difficulty, maxDifficulty]);
+    // Normalize difficulty value with protective clamping (rerender-simple-expression-in-memo)
+    // useMemo is appropriate here as it involves computation
+    const normalizedDifficulty = React.useMemo(() => {
+      if (typeof difficulty !== 'number' || Number.isNaN(difficulty)) {
+        return minDifficulty;
+      }
+      const rounded = Math.round(difficulty);
+      if (rounded < minDifficulty || rounded > maxDifficulty) {
+        return minDifficulty;
+      }
+      return rounded;
+    }, [difficulty, maxDifficulty]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = Number.parseInt(e.target.value, 10);
-    if (!Number.isNaN(value)) {
-      // Apply clamping before calling onChange
-      const clampedValue = Math.max(
-        minDifficulty,
-        Math.min(maxDifficulty, value)
-      );
-      onChange(clampedValue);
-    }
-  };
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const value = Number.parseInt(e.target.value, 10);
+      if (!Number.isNaN(value)) {
+        // Apply clamping before calling onChange
+        const clampedValue = Math.max(
+          minDifficulty,
+          Math.min(maxDifficulty, value)
+        );
+        onChange(clampedValue);
+      }
+    };
 
-  const getDifficultyLabel = (level: number): string => {
-    const pool = DIFFICULTY_LABEL_RANGES[gridSizeKey];
-    const fallback = pool.at(-1) ?? { max: Infinity, label: 'Expert' };
-    const foundRange = pool.find(range => level <= range.max);
-    const range = foundRange ?? fallback;
-    return `${level} (${range.label})`;
-  };
+    const getDifficultyLabel = (level: number): string => {
+      const pool = DIFFICULTY_LABEL_RANGES[gridSizeKey];
+      const fallback = pool.at(-1) ?? { max: Infinity, label: 'Expert' };
+      const foundRange = pool.find(range => level <= range.max);
+      const range = foundRange ?? fallback;
+      return `${level} (${range.label})`;
+    };
 
-  return (
-    <div className="difficulty-selector modern-flex-controls">
-      <label htmlFor="difficulty-select" className="difficulty-label">
-        Difficulty Level:
-      </label>
-      <select
-        id="difficulty-select"
-        aria-label="Select difficulty level"
-        value={normalizedDifficulty}
-        onChange={handleChange}
-        disabled={disabled || isLoading}
-        className="difficulty-select modern-flex-button modern-transition modern-focus-ring"
-        title="Change difficulty to get a new puzzle"
-      >
-        {Array.from({ length: maxDifficulty }, (_, i) => (
-          <option key={`difficulty-${i + 1}`} value={i + 1}>
-            {getDifficultyLabel(i + 1)}
-          </option>
-        ))}
-      </select>
-      <p className="difficulty-hint">
-        {isLoading
-          ? '🔄 Generating new puzzle...'
-          : '💡 Changing difficulty will generate a new puzzle'}
-      </p>
+    return (
+      <div className="difficulty-selector modern-flex-controls">
+        <label htmlFor="difficulty-select" className="difficulty-label">
+          Difficulty Level:
+        </label>
+        <select
+          id="difficulty-select"
+          aria-label="Select difficulty level"
+          value={normalizedDifficulty}
+          onChange={handleChange}
+          disabled={disabled || isLoading}
+          className="difficulty-select modern-flex-button modern-transition modern-focus-ring"
+          title="Change difficulty to get a new puzzle"
+        >
+          {Array.from({ length: maxDifficulty }, (_, i) => (
+            <option key={`difficulty-${i + 1}`} value={i + 1}>
+              {getDifficultyLabel(i + 1)}
+            </option>
+          ))}
+        </select>
+        <p className="difficulty-hint">
+          {isLoading
+            ? '🔄 Generating new puzzle...'
+            : '💡 Changing difficulty will generate a new puzzle'}
+        </p>
 
-      <style>{`
+        <style>{`
           .difficulty-selector {
             margin-bottom: 1.5rem;
           }
@@ -192,8 +194,11 @@ const DifficultySelector: React.FC<DifficultySelectProps> = ({
             }
           }
         `}</style>
-    </div>
-  );
-};
+      </div>
+    );
+  }
+);
+
+DifficultySelector.displayName = 'DifficultySelector';
 
 export default DifficultySelector;

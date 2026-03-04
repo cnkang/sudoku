@@ -6,6 +6,11 @@ import {
   enforceRateLimit,
   isSameOriginRequest,
 } from '@/app/api/_lib/security';
+import {
+  getCacheMetrics,
+  getOptimizedPuzzle,
+  getPuzzleCacheKey,
+} from '@/app/api/_lib/serverCache';
 import { BackwardCompatibility } from '@/utils/backwardCompatibility';
 import {
   createErrorResponse,
@@ -13,11 +18,15 @@ import {
   ERROR_TYPES,
 } from '@/utils/error-handling';
 import { VALIDATION_ERRORS } from '@/utils/errorMessages';
+import {
+  sanitizeErrorForClient,
+  createDetailedErrorLog,
+  logErrorServerSide,
+  extractRequestContext,
+} from '@/utils/errorSanitization';
 import { getConfig } from '@/utils/gridConfig';
 import { validateDifficulty } from '@/utils/validation';
 import { puzzleCache } from './cache';
-import { generateSudokuPuzzle } from './sudokuGenerator';
-import type { SudokuPuzzle } from './types';
 
 const SOLVE_SUDOKU_RATE_LIMIT = {
   key: 'solve-sudoku:post',
@@ -72,12 +81,13 @@ export async function POST(request: NextRequest) {
   const rateLimit = enforceRateLimit(request, SOLVE_SUDOKU_RATE_LIMIT);
   if (rateLimit.limited) {
     return createRateLimitedResponse(
+      request,
       rateLimit.retryAfterSeconds,
       ERROR_MESSAGES.RATE_LIMITED
     );
   }
   if (!isSameOriginRequest(request)) {
-    return createForbiddenResponse();
+    return createForbiddenResponse(request);
   }
 
   try {
@@ -96,8 +106,8 @@ export async function POST(request: NextRequest) {
     const seed = validateSeed(searchParams.get('seed'));
     const forceRefresh = searchParams.get('force') === 'true';
 
-    // Include grid size in cache key for proper separation
-    const cacheKey = `sudoku-${gridSize}x${gridSize}-${difficulty}-${seed}`;
+    // Generate cache key for force refresh tracking
+    const cacheKey = getPuzzleCacheKey(difficulty, gridSize, seed);
     const forceKey = `force-${gridSize}x${gridSize}-${difficulty}`;
 
     // Check force refresh limit (10 seconds)
@@ -115,37 +125,30 @@ export async function POST(request: NextRequest) {
       puzzleCache.set(forceKey, Date.now(), 10000);
     }
 
-    // Check cache (when not force refreshing)
-    if (!forceRefresh) {
-      const cachedPuzzle = puzzleCache.get(cacheKey);
-      if (cachedPuzzle) {
-        return NextResponse.json(
-          { ...cachedPuzzle, cached: true },
-          {
-            status: 200,
-            headers: buildSecurityHeaders({
-              'Cache-Control': 'public, max-age=30, s-maxage=30',
-              ETag: `"${cacheKey}-${Date.now()}"`,
-            }),
-          }
-        );
-      }
-    }
-
-    // Generate a new Sudoku puzzle with specified grid size
-    const puzzle: SudokuPuzzle = await generateSudokuPuzzle(
+    // Use two-tier caching system (Requirements 7.3, 7.5)
+    // 1. Check per-request cache (React.cache)
+    // 2. Check cross-request cache (LRU)
+    // 3. Generate only on cache miss
+    const puzzleResult = await getOptimizedPuzzle(
       difficulty,
-      gridSize
+      gridSize,
+      seed,
+      forceRefresh
     );
 
-    // Cache newly generated puzzle (30 second TTL)
-    puzzleCache.set(cacheKey, puzzle, 30000);
+    // Extract cached flag
+    const { cached, ...puzzle } = puzzleResult;
+
+    // Get cache metrics for monitoring (Requirement 7.7)
+    const metrics = getCacheMetrics();
 
     // Ensure backward compatibility for API response
     const response = {
       ...puzzle,
       solved: true,
       gridSize,
+      cached: cached || false,
+      cacheMetrics: metrics, // Include cache metrics for monitoring
     };
 
     // Apply backward compatibility formatting if needed
@@ -154,27 +157,39 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(compatibleResponse, {
       status: 200,
-      headers: buildSecurityHeaders({
+      headers: buildSecurityHeaders(request, {
         'Cache-Control': 'public, max-age=30, s-maxage=30',
         ETag: `"${cacheKey}-${Date.now()}"`,
         // Add backward compatibility headers
         'X-Sudoku-Version': '3.0.0',
         'X-Grid-Size': gridSize.toString(),
         'X-Backward-Compatible': 'true',
+        // Add cache metrics headers
+        'X-Cache-Hit-Rate': metrics.hitRate.toFixed(2),
       }),
     });
   } catch (error) {
-    // Sanitize error message for production
-    let safeError: unknown;
-    if (process.env.NODE_ENV === 'production') {
-      safeError = ERROR_MESSAGES.GENERATION_FAILED;
-    } else {
-      safeError = error;
-    }
+    // Log detailed error server-side (Requirement 12.4)
+    const detailedLog = createDetailedErrorLog(
+      error,
+      ERROR_TYPES.GENERATION_ERROR,
+      extractRequestContext(request)
+    );
+    logErrorServerSide(detailedLog);
+
+    // Return sanitized error to client (Requirements 12.4, 18.2)
+    const sanitizedError = sanitizeErrorForClient(
+      error,
+      ERROR_TYPES.GENERATION_ERROR
+    );
 
     return NextResponse.json(
-      createErrorResponse(safeError, ERROR_TYPES.GENERATION_ERROR),
-      { status: 500, headers: buildSecurityHeaders() }
+      {
+        error: sanitizedError.error,
+        code: sanitizedError.code,
+        timestamp: sanitizedError.timestamp,
+      },
+      { status: 500, headers: buildSecurityHeaders(request) }
     );
   }
 }

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { clientCache, fetchWithCache } from '../apiCache';
+import { clearPendingRequests } from '../requestDeduplication';
 
 // Mock fetch
 globalThis.fetch = vi.fn();
@@ -8,6 +9,7 @@ describe('apiCache', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     clientCache.clear();
+    clearPendingRequests();
   });
 
   describe('ClientCache', () => {
@@ -141,6 +143,57 @@ describe('apiCache', () => {
       await expect(fetchWithCache('test-url')).rejects.toThrow(
         'HTTP error! status: 500'
       );
+    });
+
+    it('should deduplicate concurrent identical requests', async () => {
+      const mockResponse = {
+        ok: true,
+        json: vi.fn().mockResolvedValue({ data: 'shared' }),
+        headers: new Headers(),
+      };
+      vi.mocked(fetch).mockResolvedValue(mockResponse as Response);
+
+      // Make three concurrent requests with same URL
+      const [result1, result2, result3] = await Promise.all([
+        fetchWithCache('dedup-url'),
+        fetchWithCache('dedup-url'),
+        fetchWithCache('dedup-url'),
+      ]);
+
+      // All should return the same result
+      expect(result1).toEqual({ data: 'shared' });
+      expect(result2).toEqual({ data: 'shared' });
+      expect(result3).toEqual({ data: 'shared' });
+
+      // But fetch should only be called once due to deduplication
+      expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('should deduplicate requests within 5-second window', async () => {
+      let callCount = 0;
+      const mockResponse = () => ({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ data: `call-${++callCount}` }),
+        headers: new Headers(),
+      });
+
+      vi.mocked(fetch).mockImplementation(async () => {
+        await new Promise(resolve => setTimeout(resolve, 10));
+        return mockResponse() as Response;
+      });
+
+      // First request
+      const promise1 = fetchWithCache('window-test', {}, true);
+
+      // Second request immediately after (within deduplication window, while first is pending)
+      await new Promise(resolve => setTimeout(resolve, 5));
+      const promise2 = fetchWithCache('window-test', {}, true);
+
+      const [result1, result2] = await Promise.all([promise1, promise2]);
+
+      // Both should get the same result due to deduplication
+      expect(result1).toEqual(result2);
+      expect(fetch).toHaveBeenCalledTimes(1);
     });
   });
 });

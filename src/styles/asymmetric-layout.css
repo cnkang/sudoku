@@ -1,0 +1,337 @@
+/**
+ * Asymmetric Layout Composition with Diagonal Flow
+ * 
+ * Implements geometric, asymmetric layouts with diagonal flow patterns
+ * for a distinctive, memorable visual identity.
+ * 
+ * Requirements: 1.9
+ */
+
+/* ============================================
+   ASYMMETRIC GRID SYSTEM
+   ============================================ */
+
+.asymmetric-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--space-6);
+  position: relative;
+  
+  /* Diagonal flow using transform */
+  transform: perspective(1000px) rotateX(0deg);
+}
+
+/* Diagonal flow pattern */
+.diagonal-flow {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--space-4);
+  position: relative;
+}
+
+.diagonal-flow > * {
+  /* Stagger items diagonally */
+  transform: translateY(calc(var(--diagonal-offset, 0) * 1rem));
+}
+
+.diagonal-flow > *:nth-child(1) { --diagonal-offset: 0; }
+.diagonal-flow > *:nth-child(2) { --diagonal-offset: 1; }
+.diagonal-flow > *:nth-child(3) { --diagonal-offset: 2; }
+.diagonal-flow > *:nth-child(4) { --diagonal-offset: 1; }
+.diagonal-flow > *:nth-child(5) { --diagonal-offset: 0; }
+
+/* ============================================
+   ASYMMETRIC CARD LAYOUTS
+   ============================================ */
+
+.asymmetric-card {
+  position: relative;
+  background: var(--color-cream);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  
+  /* Subtle rotation for asymmetry */
+  transform: rotate(var(--card-rotation, 0deg));
+  box-shadow: var(--shadow-md);
+  
+  /* Prevent layout shift */
+  will-change: transform;
+}
+
+.asymmetric-card:nth-child(odd) {
+  --card-rotation: 0.5deg;
+}
+
+.asymmetric-card:nth-child(even) {
+  --card-rotation: -0.5deg;
+}
+
+/* ============================================
+   DIAGONAL GRID OVERLAY
+   ============================================ */
+
+.diagonal-grid-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+  
+  /* Diagonal lines pattern */
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 50px,
+      rgba(255, 107, 107, 0.03) 50px,
+      rgba(255, 107, 107, 0.03) 51px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 50px,
+      rgba(78, 205, 196, 0.03) 50px,
+      rgba(78, 205, 196, 0.03) 51px
+    );
+}
+
+/* ============================================
+   GEOMETRIC CORNER DECORATIONS
+   ============================================ */
+
+.with-corner-decorations {
+  position: relative;
+}
+
+.with-corner-decorations::before,
+.with-corner-decorations::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.1;
+}
+
+/* Top-left geometric accent */
+.with-corner-decorations::before {
+  top: 0;
+  left: 0;
+  width: 100px;
+  height: 100px;
+  background: var(--gradient-sunset);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+  border-radius: var(--radius-sm) 0 0 0;
+}
+
+/* Bottom-right geometric accent */
+.with-corner-decorations::after {
+  bottom: 0;
+  right: 0;
+  width: 120px;
+  height: 120px;
+  background: var(--gradient-ocean);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  border-radius: 0 0 var(--radius-sm) 0;
+}
+
+/* ============================================
+   ASYMMETRIC CONTENT FLOW
+   ============================================ */
+
+.asymmetric-content {
+  display: grid;
+  grid-template-columns: 1.618fr 1fr; /* Golden ratio */
+  gap: var(--space-8);
+  align-items: start;
+}
+
+.asymmetric-content-reverse {
+  grid-template-columns: 1fr 1.618fr;
+}
+
+/* Stagger content vertically */
+.asymmetric-content > *:first-child {
+  margin-top: var(--space-8);
+}
+
+.asymmetric-content > *:last-child {
+  margin-top: 0;
+}
+
+/* ============================================
+   DIAGONAL SECTION DIVIDERS
+   ============================================ */
+
+.diagonal-divider {
+  position: relative;
+  margin-block: var(--space-12);
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-coral) 20%,
+    var(--color-teal) 80%,
+    transparent 100%
+  );
+  transform: skewY(-1deg);
+  opacity: 0.3;
+}
+
+.diagonal-divider::before,
+.diagonal-divider::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: var(--color-coral);
+  opacity: 0.2;
+}
+
+.diagonal-divider::before {
+  left: 10%;
+  top: -9px;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.diagonal-divider::after {
+  right: 10%;
+  top: -9px;
+  border-radius: 50%;
+}
+
+/* ============================================
+   ZIGZAG LAYOUT PATTERN
+   ============================================ */
+
+.zigzag-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+.zigzag-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  align-items: center;
+}
+
+.zigzag-item:nth-child(even) {
+  direction: rtl;
+}
+
+.zigzag-item:nth-child(even) > * {
+  direction: ltr;
+}
+
+/* ============================================
+   RESPONSIVE ASYMMETRIC LAYOUTS
+   ============================================ */
+
+@container (max-width: 768px) {
+  .asymmetric-container {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  
+  .diagonal-flow {
+    grid-template-columns: 1fr;
+  }
+  
+  .diagonal-flow > * {
+    transform: none;
+  }
+  
+  .asymmetric-content,
+  .asymmetric-content-reverse {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  
+  .asymmetric-content > *:first-child {
+    margin-top: 0;
+  }
+  
+  .asymmetric-card {
+    --card-rotation: 0deg;
+  }
+  
+  .zigzag-item {
+    grid-template-columns: 1fr;
+  }
+  
+  .zigzag-item:nth-child(even) {
+    direction: ltr;
+  }
+  
+  .with-corner-decorations::before,
+  .with-corner-decorations::after {
+    display: none;
+  }
+}
+
+@container (min-width: 769px) and (max-width: 1024px) {
+  .asymmetric-container {
+    grid-template-columns: 1fr 3fr 1fr;
+  }
+  
+  .diagonal-flow {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .asymmetric-card,
+  .diagonal-flow > * {
+    transform: none !important;
+  }
+  
+  .diagonal-divider {
+    transform: none;
+  }
+}
+
+/* ============================================
+   HIGH CONTRAST MODE
+   ============================================ */
+
+@media (prefers-contrast: high) {
+  .diagonal-grid-overlay {
+    display: none;
+  }
+  
+  .with-corner-decorations::before,
+  .with-corner-decorations::after {
+    opacity: 0.3;
+    border: 2px solid currentColor;
+  }
+  
+  .diagonal-divider {
+    opacity: 0.6;
+    height: 3px;
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .diagonal-grid-overlay,
+  .with-corner-decorations::before,
+  .with-corner-decorations::after {
+    display: none;
+  }
+  
+  .asymmetric-card {
+    transform: none;
+  }
+  
+  .diagonal-flow > * {
+    transform: none;
+  }
+}

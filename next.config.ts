@@ -1,4 +1,9 @@
 import type { NextConfig } from 'next';
+import {
+  defaultCSPDirectives,
+  generateCSPHeader,
+  getCSPHeaderName,
+} from './src/lib/security/csp';
 
 const reactCompilerOptions: Record<string, unknown> = {
   compilationMode: 'annotation',
@@ -97,6 +102,15 @@ const nextConfig: NextConfig = {
     ];
   },
   async headers() {
+    // Generate CSP header (report-only mode initially for testing)
+    const cspReportOnly = process.env.CSP_REPORT_ONLY === 'true';
+    const cspHeader = generateCSPHeader(
+      defaultCSPDirectives,
+      undefined,
+      cspReportOnly
+    );
+    const cspHeaderName = getCSPHeaderName(cspReportOnly);
+
     return [
       {
         source: '/sw.js',
@@ -136,6 +150,12 @@ const nextConfig: NextConfig = {
       {
         source: '/(.*)',
         headers: [
+          // Content Security Policy
+          {
+            key: cspHeaderName,
+            value: cspHeader,
+          },
+          // Security headers
           {
             key: 'X-Content-Type-Options',
             value: 'nosniff',

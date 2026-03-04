@@ -12,13 +12,13 @@ const HEALTH_RATE_LIMIT = {
 } as const;
 
 /**
- * 健康检查端点
- * 用于CI/CD中验证应用是否正常运行
+ * Health check endpoint
+ * Used in CI/CD to verify the application is running properly
  */
 export async function GET(request: NextRequest) {
   const rateLimit = enforceRateLimit(request, HEALTH_RATE_LIMIT);
   if (rateLimit.limited) {
-    return createRateLimitedResponse(rateLimit.retryAfterSeconds);
+    return createRateLimitedResponse(request, rateLimit.retryAfterSeconds);
   }
 
   const isProduction = process.env.NODE_ENV === 'production';
@@ -34,9 +34,10 @@ export async function GET(request: NextRequest) {
           }),
     };
 
-    return createNoStoreJsonResponse(healthPayload, 200);
+    return createNoStoreJsonResponse(request, healthPayload, 200);
   } catch (error) {
     return createNoStoreJsonResponse(
+      request,
       {
         status: 'error',
         message:

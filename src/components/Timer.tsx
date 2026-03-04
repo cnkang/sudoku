@@ -1,4 +1,5 @@
 import type React from 'react';
+import { memo } from 'react';
 import type { TimerProps } from '../types';
 
 const formatTime = (seconds: number): string => {
@@ -8,13 +9,13 @@ const formatTime = (seconds: number): string => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
-const Timer: React.FC<TimerProps> = ({ time, isActive, isPaused }) => {
+const Timer: React.FC<TimerProps> = memo(({ time, isActive, isPaused }) => {
   'use memo';
   let timerColor = '#6b7280';
   if (isPaused) {
-    timerColor = '#f59e0b';
+    timerColor = '#92400e';
   } else if (isActive) {
-    timerColor = '#10b981';
+    timerColor = '#047857';
   }
   return (
     <div className="timer">
@@ -88,6 +89,8 @@ const Timer: React.FC<TimerProps> = ({ time, isActive, isPaused }) => {
       `}</style>
     </div>
   );
-};
+});
+
+Timer.displayName = 'Timer';
 
 export default Timer;

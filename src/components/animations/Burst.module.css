@@ -1,0 +1,93 @@
+/**
+ * Particle Burst Animation
+ * 
+ * Geometric particle explosion effect for correct number entries.
+ * Uses transform and opacity for GPU-accelerated 60fps performance.
+ * Respects prefers-reduced-motion for accessibility.
+ */
+
+.burstContainer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* Geometric shapes for particles */
+.particleCircle {
+  border-radius: 50%;
+  background: var(--color-teal, #4ECDC4);
+}
+
+.particleSquare {
+  border-radius: 2px;
+  background: var(--color-amber, #FFB84D);
+}
+
+.particleTriangle {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 8px solid var(--color-coral, #FF6B6B);
+  background: transparent;
+}
+
+/* Animation only for users who haven't disabled motion */
+@media (prefers-reduced-motion: no-preference) {
+  .burstActive .particle {
+    animation: particleBurst 800ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  /* Stagger particle animations for visual effect */
+  .burstActive .particle:nth-child(1) { animation-delay: 0ms; }
+  .burstActive .particle:nth-child(2) { animation-delay: 50ms; }
+  .burstActive .particle:nth-child(3) { animation-delay: 100ms; }
+  .burstActive .particle:nth-child(4) { animation-delay: 150ms; }
+  .burstActive .particle:nth-child(5) { animation-delay: 200ms; }
+  .burstActive .particle:nth-child(6) { animation-delay: 250ms; }
+  .burstActive .particle:nth-child(7) { animation-delay: 300ms; }
+  .burstActive .particle:nth-child(8) { animation-delay: 350ms; }
+}
+
+/* Instant transition for reduced-motion users */
+@media (prefers-reduced-motion: reduce) {
+  .burstActive .particle {
+    opacity: 0;
+    transition: none;
+  }
+}
+
+@keyframes particleBurst {
+  0% {
+    transform: translate(0, 0) scale(0) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--particle-x, 0), var(--particle-y, 0)) scale(1.5) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Particle direction variants (set via CSS variables) */
+.particle1 { --particle-x: 30px; --particle-y: -30px; }
+.particle2 { --particle-x: 40px; --particle-y: 0px; }
+.particle3 { --particle-x: 30px; --particle-y: 30px; }
+.particle4 { --particle-x: 0px; --particle-y: 40px; }
+.particle5 { --particle-x: -30px; --particle-y: 30px; }
+.particle6 { --particle-x: -40px; --particle-y: 0px; }
+.particle7 { --particle-x: -30px; --particle-y: -30px; }
+.particle8 { --particle-x: 0px; --particle-y: -40px; }

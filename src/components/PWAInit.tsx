@@ -161,9 +161,11 @@ export default function PWAInit() {
       );
     };
 
+    // Using passive: true for better performance (Requirement 8.1)
     globalThis.addEventListener(
       'beforeinstallprompt',
-      handleBeforeInstallPrompt
+      handleBeforeInstallPrompt,
+      { passive: true }
     );
 
     // Handle app installation
@@ -172,7 +174,9 @@ export default function PWAInit() {
       globalThis.dispatchEvent(new CustomEvent('pwa-installed'));
     };
 
-    globalThis.addEventListener('appinstalled', handleAppInstalled);
+    globalThis.addEventListener('appinstalled', handleAppInstalled, {
+      passive: true,
+    });
 
     // Handle online/offline events
     const handleOnline = () => {
@@ -182,8 +186,8 @@ export default function PWAInit() {
 
     const handleOffline = () => {};
 
-    globalThis.addEventListener('online', handleOnline);
-    globalThis.addEventListener('offline', handleOffline);
+    globalThis.addEventListener('online', handleOnline, { passive: true });
+    globalThis.addEventListener('offline', handleOffline, { passive: true });
 
     // Handle visibility change for background sync
     const handleVisibilityChange = () => {
@@ -193,18 +197,29 @@ export default function PWAInit() {
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange, {
+      passive: true,
+    });
 
     // Cleanup event listeners
     return () => {
       globalThis.removeEventListener(
         'beforeinstallprompt',
-        handleBeforeInstallPrompt
+        handleBeforeInstallPrompt,
+        { passive: true } as EventListenerOptions
       );
-      globalThis.removeEventListener('appinstalled', handleAppInstalled);
-      globalThis.removeEventListener('online', handleOnline);
-      globalThis.removeEventListener('offline', handleOffline);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      globalThis.removeEventListener('appinstalled', handleAppInstalled, {
+        passive: true,
+      } as EventListenerOptions);
+      globalThis.removeEventListener('online', handleOnline, {
+        passive: true,
+      } as EventListenerOptions);
+      globalThis.removeEventListener('offline', handleOffline, {
+        passive: true,
+      } as EventListenerOptions);
+      document.removeEventListener('visibilitychange', handleVisibilityChange, {
+        passive: true,
+      } as EventListenerOptions);
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.removeEventListener(
           'message',

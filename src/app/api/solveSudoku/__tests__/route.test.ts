@@ -3,21 +3,72 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { POST } from '../route';
 
 // Mock the sudoku generator
-vi.mock('../sudokuGenerator', () => ({
-  generateSudokuPuzzle: vi.fn(() => ({
-    puzzle: [
-      [1, 0, 3],
-      [0, 2, 0],
-      [3, 0, 1],
-    ],
-    solution: [
-      [1, 2, 3],
-      [4, 2, 5],
-      [3, 6, 1],
-    ],
-    difficulty: 1,
-  })),
+const mockGenerateSudokuPuzzle = vi.fn(() => ({
+  puzzle: [
+    [1, 0, 3],
+    [0, 2, 0],
+    [3, 0, 1],
+  ],
+  solution: [
+    [1, 2, 3],
+    [4, 2, 5],
+    [3, 6, 1],
+  ],
+  difficulty: 1,
 }));
+
+vi.mock('../sudokuGenerator', () => ({
+  generateSudokuPuzzle: mockGenerateSudokuPuzzle,
+}));
+
+// Mock the server cache
+const cacheState = new Map();
+let _mockCallCount = 0;
+
+vi.mock('@/app/api/_lib/serverCache', () => {
+  return {
+    getOptimizedPuzzle: vi.fn(
+      async (difficulty, gridSize, seed = 'default', forceRefresh) => {
+        const cacheKey = `puzzle-${gridSize}-${difficulty}-${seed}`;
+
+        // Check cache first (unless force refresh)
+        if (!forceRefresh && cacheState.has(cacheKey)) {
+          return {
+            ...cacheState.get(cacheKey),
+            cached: true,
+          };
+        }
+
+        // Generate new puzzle
+        _mockCallCount++;
+        const puzzle = mockGenerateSudokuPuzzle(difficulty, gridSize);
+        cacheState.set(cacheKey, puzzle);
+
+        return {
+          ...puzzle,
+          cached: false,
+        };
+      }
+    ),
+    getPuzzleCacheKey: vi.fn(
+      (difficulty, gridSize, seed = 'default') =>
+        `puzzle-${gridSize}-${difficulty}-${seed}`
+    ),
+    getCacheMetrics: vi.fn(() => ({
+      hits: 0,
+      misses: 0,
+      evictions: 0,
+      hitRate: 0,
+    })),
+    resetCacheMetrics: vi.fn(),
+    puzzleLRUCache: {
+      clear: vi.fn(),
+      get: vi.fn(),
+      set: vi.fn(),
+      size: 0,
+    },
+  };
+});
 
 // Mock the cache
 vi.mock('../cache', () => {
@@ -32,12 +83,19 @@ vi.mock('../cache', () => {
 });
 
 describe('/api/solveSudoku', () => {
+  const GENERIC_CLIENT_ERROR =
+    'An error occurred while processing your request';
   let mockRequest: NextRequest;
 
   beforeEach(async () => {
     vi.clearAllMocks();
     vi.clearAllTimers();
     vi.useFakeTimers();
+
+    // Clear cache state
+    cacheState.clear();
+    _mockCallCount = 0;
+
     // Clear cache before each test
     const { puzzleCache } = await import('../cache');
     puzzleCache.clear();
@@ -115,7 +173,7 @@ describe('/api/solveSudoku', () => {
       const data = await response.json();
 
       expect(response.status).toBe(500);
-      expect(data.error).toBe('Invalid grid size. Must be 4, 6, or 9.');
+      expect(data.error).toBe(GENERIC_CLIENT_ERROR);
     });
   });
 
@@ -125,26 +183,22 @@ describe('/api/solveSudoku', () => {
         method: 'POST',
       });
 
-      await assertErrorResponse(
-        request,
-        500,
-        'Difficulty must be a valid number.'
-      );
+      await assertErrorResponse(request, 500, GENERIC_CLIENT_ERROR);
     });
 
     it.each([
-      ['', 'Difficulty must be a positive integer.'],
-      ['abc', 'Difficulty must be a positive integer.'],
-      ['-1', 'Difficulty must be a positive integer.'],
-      ['5.5', 'Difficulty must be a positive integer.'],
-      ['5!', 'Difficulty must be a positive integer.'],
-      ['0', 'Invalid difficulty level. Must be between 1 and 10.'],
-      ['11', 'Invalid difficulty level. Must be between 1 and 10.'],
-    ])('should reject invalid difficulty "%s"', async (difficulty, expectedError) => {
+      '',
+      'abc',
+      '-1',
+      '5.5',
+      '5!',
+      '0',
+      '11',
+    ])('should reject invalid difficulty "%s"', async difficulty => {
       await assertErrorResponse(
         createMockRequest(difficulty),
         500,
-        expectedError
+        GENERIC_CLIENT_ERROR
       );
     });
   });
@@ -331,7 +385,7 @@ describe('/api/solveSudoku', () => {
       const data = await response.json();
 
       expect(response.status).toBe(500);
-      expect(data.error).toBe('Generator failed');
+      expect(data.error).toBe(GENERIC_CLIENT_ERROR);
     });
 
     it('should return a generic generation error in production', async () => {
@@ -347,7 +401,7 @@ describe('/api/solveSudoku', () => {
         await assertErrorResponse(
           createMockRequest('5'),
           500,
-          'Failed to generate puzzle'
+          GENERIC_CLIENT_ERROR
         );
       } finally {
         process.env.NODE_ENV = previousNodeEnv;
@@ -406,14 +460,14 @@ describe('/api/solveSudoku', () => {
     });
 
     it.each([
-      [' 5 ', 'Difficulty must be a positive integer.'],
-      ['999999', 'Invalid difficulty level. Must be between 1 and 10.'],
-      ['1e1', 'Difficulty must be a positive integer.'],
-    ])('should reject edge-case difficulty "%s"', async (difficulty, expectedError) => {
+      ' 5 ',
+      '999999',
+      '1e1',
+    ])('should reject edge-case difficulty "%s"', async difficulty => {
       await assertErrorResponse(
         createMockRequest(difficulty),
         500,
-        expectedError
+        GENERIC_CLIENT_ERROR
       );
     });
 
@@ -424,7 +478,7 @@ describe('/api/solveSudoku', () => {
       await assertErrorResponse(
         createRequestFromQuery(query),
         500,
-        'Invalid seed. Use 1-64 characters containing only letters, numbers, "_" or "-".'
+        GENERIC_CLIENT_ERROR
       );
     });
 

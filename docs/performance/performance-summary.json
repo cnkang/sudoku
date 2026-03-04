@@ -1,0 +1,50 @@
+{
+  "results": {
+    "homeDesktop": {
+      "performance": 100,
+      "accessibility": 96,
+      "bestPractices": 96,
+      "seo": 100,
+      "lcpMs": 583,
+      "cls": 0.033,
+      "tbtMs": 0,
+      "fcpMs": 245
+    },
+    "homeMobile": {
+      "performance": 77,
+      "accessibility": 96,
+      "bestPractices": 96,
+      "seo": 100,
+      "lcpMs": 2706,
+      "cls": 0.444,
+      "tbtMs": 51,
+      "fcpMs": 904
+    },
+    "gameDesktop": {
+      "performance": 96,
+      "accessibility": 96,
+      "bestPractices": 96,
+      "seo": 100,
+      "lcpMs": 579,
+      "cls": 0.116,
+      "tbtMs": 0,
+      "fcpMs": 245
+    },
+    "gameMobile": {
+      "performance": 76,
+      "accessibility": 96,
+      "bestPractices": 96,
+      "seo": 100,
+      "lcpMs": 2705,
+      "cls": 0.489,
+      "tbtMs": 63,
+      "fcpMs": 904
+    }
+  },
+  "bundle": {
+    "scriptKB": 176.3,
+    "cssKB": 30.5,
+    "fontKB": 103,
+    "totalKB": 309.7
+  }
+}
