@@ -87,3 +87,6 @@ Thumbs.db
 .temp/
 .tmp/
 .vercel
+
+# Local UI verification artifacts
+artifacts/ui-audit/
