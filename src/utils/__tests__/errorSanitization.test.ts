@@ -142,7 +142,7 @@ describe('errorSanitization', () => {
         url: '/api/test',
         method: 'POST',
         userAgent: 'Mozilla/5.0',
-        ip: '192.168.1.1',
+        ip: 'client.internal.test',
       };
 
       const log = createDetailedErrorLog(error, 'REQUEST_ERROR', context);
@@ -241,14 +241,16 @@ describe('errorSanitization', () => {
   });
 
   describe('logErrorServerSide', () => {
-    let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+    let stderrWriteSpy: ReturnType<typeof vi.spyOn>;
 
     beforeEach(() => {
-      consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      stderrWriteSpy = vi
+        .spyOn(process.stderr, 'write')
+        .mockImplementation(() => true);
     });
 
     afterEach(() => {
-      consoleErrorSpy.mockRestore();
+      stderrWriteSpy.mockRestore();
     });
 
     it('should log structured JSON in production', () => {
@@ -262,8 +264,10 @@ describe('errorSanitization', () => {
 
       logErrorServerSide(errorLog);
 
-      expect(consoleErrorSpy).toHaveBeenCalledOnce();
-      const loggedData = JSON.parse(consoleErrorSpy.mock.calls[0][0] as string);
+      expect(stderrWriteSpy).toHaveBeenCalledOnce();
+      const loggedData = JSON.parse(
+        (stderrWriteSpy.mock.calls[0][0] as string).trim()
+      );
       expect(loggedData.level).toBe('error');
       expect(loggedData.error).toBe('Test error');
       expect(loggedData.code).toBe('TEST_ERROR');
@@ -283,9 +287,11 @@ describe('errorSanitization', () => {
 
       logErrorServerSide(errorLog);
 
-      expect(consoleErrorSpy).toHaveBeenCalledOnce();
-      expect(consoleErrorSpy.mock.calls[0][0]).toBe('Error occurred:');
-      expect(consoleErrorSpy.mock.calls[0][1]).toMatchObject({
+      expect(stderrWriteSpy).toHaveBeenCalledOnce();
+      const output = stderrWriteSpy.mock.calls[0][0] as string;
+      expect(output.startsWith('Error occurred: ')).toBe(true);
+      const parsed = JSON.parse(output.replace(/^Error occurred: /, '').trim());
+      expect(parsed).toMatchObject({
         message: 'Test error',
         code: 'TEST_ERROR',
       });
@@ -309,7 +315,9 @@ describe('errorSanitization', () => {
 
       logErrorServerSide(errorLog);
 
-      const loggedData = JSON.parse(consoleErrorSpy.mock.calls[0][0] as string);
+      const loggedData = JSON.parse(
+        (stderrWriteSpy.mock.calls[0][0] as string).trim()
+      );
       expect(loggedData).toMatchObject({
         level: 'error',
         error: 'Complete error',
@@ -356,9 +364,9 @@ describe('errorSanitization', () => {
     });
 
     it('should log detailed errors server-side only', () => {
-      const consoleErrorSpy = vi
-        .spyOn(console, 'error')
-        .mockImplementation(() => {});
+      const stderrWriteSpy = vi
+        .spyOn(process.stderr, 'write')
+        .mockImplementation(() => true);
       process.env.NODE_ENV = 'production';
 
       const error = new Error(
@@ -369,23 +377,25 @@ describe('errorSanitization', () => {
       const detailedLog = createDetailedErrorLog(error, 'DATABASE_ERROR', {
         url: '/api/data',
         method: 'POST',
-        ip: '192.168.1.100',
+        ip: 'db-client.internal.test',
       });
 
       logErrorServerSide(detailedLog);
 
       // Server-side log should have full details
-      const loggedData = JSON.parse(consoleErrorSpy.mock.calls[0][0] as string);
+      const loggedData = JSON.parse(
+        (stderrWriteSpy.mock.calls[0][0] as string).trim()
+      );
       expect(loggedData.error).toContain('Database connection failed');
       expect(loggedData.stack).toContain('db.ts:42:10');
-      expect(loggedData.context?.ip).toBe('192.168.1.100');
+      expect(loggedData.context?.ip).toBe('db-client.internal.test');
 
       // Client response should be sanitized
       const clientResponse = sanitizeErrorForClient(error);
       expect(clientResponse.error).not.toContain('Database');
       expect(clientResponse.error).not.toContain('/var/lib/postgresql');
 
-      consoleErrorSpy.mockRestore();
+      stderrWriteSpy.mockRestore();
     });
   });
 });

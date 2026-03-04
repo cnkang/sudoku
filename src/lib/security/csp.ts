@@ -122,14 +122,22 @@ export const defaultCSPDirectives: CSPDirectives = {
  * Generate a cryptographically secure nonce for CSP
  */
 export function generateNonce(): string {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
+  const webCrypto =
+    typeof globalThis !== 'undefined' ? globalThis.crypto : undefined;
+
+  if (webCrypto?.randomUUID) {
+    return webCrypto.randomUUID();
   }
-  // Fallback for environments without crypto.randomUUID
-  return (
-    Math.random().toString(36).substring(2, 15) +
-    Math.random().toString(36).substring(2, 15)
-  );
+
+  if (webCrypto?.getRandomValues) {
+    const bytes = new Uint8Array(16);
+    webCrypto.getRandomValues(bytes);
+    return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join(
+      ''
+    );
+  }
+
+  throw new Error('Secure random generator unavailable for CSP nonce');
 }
 
 /**
