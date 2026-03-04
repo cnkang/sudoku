@@ -1,10 +1,10 @@
 /**
- * Next.js Middleware for security headers and CSP nonce generation
+ * Next.js Proxy for security headers and CSP nonce generation
  *
  * Generates a unique nonce per request for Content Security Policy.
  * The nonce is stored in request headers and can be accessed by components.
  *
- * @see https://nextjs.org/docs/app/building-your-application/routing/middleware
+ * @see https://nextjs.org/docs/app/building-your-application/routing/proxy
  * @see Requirements 9.7
  */
 
@@ -12,7 +12,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { generateNonce } from './lib/security/csp';
 
-export function middleware(request: NextRequest): NextResponse {
+export function proxy(request: NextRequest): NextResponse {
   // Generate unique nonce for this request
   const nonce = generateNonce();
 
@@ -35,7 +35,7 @@ export function middleware(request: NextRequest): NextResponse {
   return response;
 }
 
-// Configure which routes use this middleware
+// Configure which routes use this proxy
 export const config = {
   matcher: [
     /*
