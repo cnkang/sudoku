@@ -135,7 +135,9 @@ describe('Sanitization Utilities', () => {
     });
 
     it('should remove backslashes', () => {
-      expect(sanitizeFilename('path\\to\\file.txt')).toBe('pathtofile.txt');
+      expect(sanitizeFilename(String.raw`path\to\file.txt`)).toBe(
+        'pathtofile.txt'
+      );
     });
 
     it('should remove null bytes', () => {

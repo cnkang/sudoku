@@ -5,8 +5,7 @@
  * Requirements: 12.8 - CSRF protection for state-changing endpoints
  */
 
-import type { NextRequest } from 'next/server';
-import type { NextResponse } from 'next/server';
+import type { NextRequest, NextResponse } from 'next/server';
 import { createJsonResponse } from './security';
 
 /**
@@ -86,7 +85,7 @@ function timingSafeEqual(a: string, b: string): boolean {
 
   let result = 0;
   for (let i = 0; i < a.length; i++) {
-    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+    result |= (a.codePointAt(i) ?? 0) ^ (b.codePointAt(i) ?? 0);
   }
 
   return result === 0;

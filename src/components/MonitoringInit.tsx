@@ -82,7 +82,7 @@ const createMetricReporter = (reportedIds: Set<string>) => {
       delta: metric.delta,
       navigationType: metric.navigationType,
       timestamp: Date.now(),
-      url: window.location.href,
+      url: globalThis.location.href,
       userAgent: navigator.userAgent,
     });
   };
@@ -117,7 +117,7 @@ export default function MonitoringInit() {
           ? { stack: truncate(event.error.stack, MAX_STACK_LENGTH) }
           : {}),
         timestamp: Date.now(),
-        url: window.location.href,
+        url: globalThis.location.href,
         userAgent: navigator.userAgent,
       });
     };
@@ -141,17 +141,17 @@ export default function MonitoringInit() {
         source: 'unhandledrejection',
         ...(stack ? { stack } : {}),
         timestamp: Date.now(),
-        url: window.location.href,
+        url: globalThis.location.href,
         userAgent: navigator.userAgent,
       });
     };
 
-    window.addEventListener('error', handleError);
-    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    globalThis.addEventListener('error', handleError);
+    globalThis.addEventListener('unhandledrejection', handleUnhandledRejection);
 
     return () => {
-      window.removeEventListener('error', handleError);
-      window.removeEventListener(
+      globalThis.removeEventListener('error', handleError);
+      globalThis.removeEventListener(
         'unhandledrejection',
         handleUnhandledRejection
       );

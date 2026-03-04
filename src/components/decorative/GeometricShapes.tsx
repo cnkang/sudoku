@@ -30,7 +30,6 @@ export const Circle: React.FC<ShapeProps> = ({
     <div
       className={`${styles.circle} ${styles[size]} ${styles[variant]} ${animate ? styles.animate : ''} ${className}`}
       aria-hidden="true"
-      role="presentation"
     />
   );
 };
@@ -48,7 +47,6 @@ export const Triangle: React.FC<ShapeProps> = ({
     <div
       className={`${styles.triangle} ${styles[size]} ${styles[variant]} ${animate ? styles.animate : ''} ${className}`}
       aria-hidden="true"
-      role="presentation"
     />
   );
 };
@@ -66,7 +64,6 @@ export const Square: React.FC<ShapeProps> = ({
     <div
       className={`${styles.square} ${styles[size]} ${styles[variant]} ${animate ? styles.animate : ''} ${className}`}
       aria-hidden="true"
-      role="presentation"
     />
   );
 };
@@ -78,11 +75,7 @@ export const GeometricMesh: React.FC<{ className?: string }> = ({
   className = '',
 }) => {
   return (
-    <div
-      className={`${styles.geometricMesh} ${className}`}
-      aria-hidden="true"
-      role="presentation"
-    >
+    <div className={`${styles.geometricMesh} ${className}`} aria-hidden="true">
       <Circle size="xl" variant="mesh" className={styles.meshCircle1} animate />
       <Triangle
         size="lg"
@@ -113,7 +106,6 @@ export const CornerDecoration: React.FC<{
     <div
       className={`${styles.cornerDecoration} ${styles[position]} ${className}`}
       aria-hidden="true"
-      role="presentation"
     >
       {position === 'top-left' && (
         <>

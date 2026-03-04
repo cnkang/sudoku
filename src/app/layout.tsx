@@ -169,7 +169,10 @@ export default function RootLayout({
           type="application/ld+json"
           // biome-ignore lint/security/noDangerouslySetInnerHtml: Structured data is static and safe
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData).replace(/</g, '\\u003c'),
+            __html: JSON.stringify(structuredData).replaceAll(
+              '<',
+              String.raw`\u003c`
+            ),
           }}
         />
       </head>

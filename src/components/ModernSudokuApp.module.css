@@ -251,14 +251,11 @@
 }
 
 .controlSkeleton {
+  width: min(18rem, 100%);
+  min-height: 2.75rem;
   border-radius: 0.5rem;
   border: 1px dashed var(--border-color, #e2e8f0);
   background: var(--background-secondary, #f8fafc);
-}
-
-.controlSkeleton {
-  width: min(18rem, 100%);
-  min-height: 2.75rem;
 }
 
 .loadingSpinner {

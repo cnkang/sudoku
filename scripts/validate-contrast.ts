@@ -20,7 +20,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 // WCAG AAA contrast ratio requirement
-const WCAG_AAA_RATIO = 7.0;
+const WCAG_AAA_RATIO = 7;
 
 interface ColorPair {
   foreground: string;
@@ -112,7 +112,7 @@ function getContrastRatio(color1: string, color2: string): number {
  * Determine WCAG level based on contrast ratio
  */
 function getWCAGLevel(ratio: number): 'AAA' | 'AA' | 'FAIL' {
-  if (ratio >= 7.0) return 'AAA';
+  if (ratio >= 7) return 'AAA';
   if (ratio >= 4.5) return 'AA';
   return 'FAIL';
 }
@@ -132,7 +132,7 @@ function parseColorsFromCSS(cssContent: string): Map<string, string> {
 
   // Find the end of the first :root block (before @media)
   const mediaQueryStart = cssContent.indexOf('@media', rootStart);
-  const rootEnd = mediaQueryStart !== -1 ? mediaQueryStart : cssContent.length;
+  const rootEnd = mediaQueryStart === -1 ? cssContent.length : mediaQueryStart;
   const rootContent = cssContent.substring(rootStart, rootEnd);
 
   // Match CSS custom property declarations: --color-name: #HEXVALUE;

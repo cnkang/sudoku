@@ -39,9 +39,8 @@ describe('Nonce Utilities', () => {
       const { headers } = await import('next/headers');
       const { getNonce } = await import('../nonce');
 
-      const mockHeaders = new Map();
       vi.mocked(headers).mockResolvedValue({
-        get: (key: string) => mockHeaders.get(key) || null,
+        get: () => null,
       } as any);
 
       const nonce = await getNonce();
@@ -77,9 +76,8 @@ describe('Nonce Utilities', () => {
       const { headers } = await import('next/headers');
       const { getNonceAttr } = await import('../nonce');
 
-      const mockHeaders = new Map();
       vi.mocked(headers).mockResolvedValue({
-        get: (key: string) => mockHeaders.get(key) || null,
+        get: () => null,
       } as any);
 
       const attr = await getNonceAttr();

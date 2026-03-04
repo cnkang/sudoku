@@ -32,8 +32,6 @@ export function generateCSPHeader(
   directives: CSPDirectives,
   nonce?: string
 ): string {
-  const cspDirectives: string[] = [];
-
   // Add nonce to script-src and style-src if provided
   const scriptSrc = [...directives['script-src']];
   const styleSrc = [...directives['style-src']];
@@ -44,33 +42,28 @@ export function generateCSPHeader(
   }
 
   // Build directive strings
-  cspDirectives.push(`default-src ${directives['default-src'].join(' ')}`);
-  cspDirectives.push(`script-src ${scriptSrc.join(' ')}`);
-  if (directives['script-src-elem']) {
-    cspDirectives.push(
-      `script-src-elem ${directives['script-src-elem'].join(' ')}`
-    );
-  }
-  if (directives['script-src-attr']) {
-    cspDirectives.push(
-      `script-src-attr ${directives['script-src-attr'].join(' ')}`
-    );
-  }
-  cspDirectives.push(`style-src ${styleSrc.join(' ')}`);
-  cspDirectives.push(`img-src ${directives['img-src'].join(' ')}`);
-  cspDirectives.push(`font-src ${directives['font-src'].join(' ')}`);
-  cspDirectives.push(`connect-src ${directives['connect-src'].join(' ')}`);
-  cspDirectives.push(`frame-src ${directives['frame-src'].join(' ')}`);
-  cspDirectives.push(`object-src ${directives['object-src'].join(' ')}`);
-  cspDirectives.push(`base-uri ${directives['base-uri'].join(' ')}`);
-  cspDirectives.push(`form-action ${directives['form-action'].join(' ')}`);
-  cspDirectives.push(
-    `frame-ancestors ${directives['frame-ancestors'].join(' ')}`
-  );
-
-  if (directives['upgrade-insecure-requests']) {
-    cspDirectives.push('upgrade-insecure-requests');
-  }
+  const cspDirectives: string[] = [
+    `default-src ${directives['default-src'].join(' ')}`,
+    `script-src ${scriptSrc.join(' ')}`,
+    ...(directives['script-src-elem']
+      ? [`script-src-elem ${directives['script-src-elem'].join(' ')}`]
+      : []),
+    ...(directives['script-src-attr']
+      ? [`script-src-attr ${directives['script-src-attr'].join(' ')}`]
+      : []),
+    `style-src ${styleSrc.join(' ')}`,
+    `img-src ${directives['img-src'].join(' ')}`,
+    `font-src ${directives['font-src'].join(' ')}`,
+    `connect-src ${directives['connect-src'].join(' ')}`,
+    `frame-src ${directives['frame-src'].join(' ')}`,
+    `object-src ${directives['object-src'].join(' ')}`,
+    `base-uri ${directives['base-uri'].join(' ')}`,
+    `form-action ${directives['form-action'].join(' ')}`,
+    `frame-ancestors ${directives['frame-ancestors'].join(' ')}`,
+    ...(directives['upgrade-insecure-requests']
+      ? ['upgrade-insecure-requests']
+      : []),
+  ];
 
   return cspDirectives.join('; ');
 }
@@ -122,8 +115,7 @@ export const defaultCSPDirectives: CSPDirectives = {
  * Generate a cryptographically secure nonce for CSP
  */
 export function generateNonce(): string {
-  const webCrypto =
-    typeof globalThis !== 'undefined' ? globalThis.crypto : undefined;
+  const webCrypto = globalThis.crypto;
 
   if (webCrypto?.randomUUID) {
     return webCrypto.randomUUID();

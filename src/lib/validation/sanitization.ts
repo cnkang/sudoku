@@ -35,7 +35,7 @@ const HTML_ESCAPE_MAP: Record<string, string> = {
  * ```
  */
 export function sanitizeString(input: string): string {
-  return input.replace(/[&<>"'/]/g, char => HTML_ESCAPE_MAP[char] || char);
+  return input.replaceAll(/[&<>"'/]/g, char => HTML_ESCAPE_MAP[char] || char);
 }
 
 /**
@@ -54,13 +54,17 @@ export function sanitizeObject<T extends Record<string, unknown>>(obj: T): T {
     if (typeof value === 'string') {
       sanitized[key] = sanitizeString(value);
     } else if (Array.isArray(value)) {
-      sanitized[key] = value.map(item =>
-        typeof item === 'string'
-          ? sanitizeString(item)
-          : typeof item === 'object' && item !== null
-            ? sanitizeObject(item as Record<string, unknown>)
-            : item
-      );
+      sanitized[key] = value.map(item => {
+        if (typeof item === 'string') {
+          return sanitizeString(item);
+        }
+
+        if (typeof item === 'object' && item !== null) {
+          return sanitizeObject(item as Record<string, unknown>);
+        }
+
+        return item;
+      });
     } else if (typeof value === 'object' && value !== null) {
       sanitized[key] = sanitizeObject(value as Record<string, unknown>);
     } else {
@@ -109,10 +113,9 @@ export function sanitizeStringLength(input: string, maxLength: number): string {
 export function sanitizeFilename(filename: string): string {
   // Remove path separators and null bytes
   return filename
-    .replace(/[/\\]/g, '')
-    .split('\0')
-    .join('')
-    .replace(/\.\./g, '')
+    .replaceAll(/[/\\]/g, '')
+    .replaceAll('\0', '')
+    .replaceAll(/\.\./g, '')
     .trim();
 }
 
@@ -160,7 +163,7 @@ export function sanitizeUrl(url: string): string {
  */
 export function sanitizeClassName(className: string): string {
   // Only allow alphanumeric, hyphen, and underscore
-  return className.replace(/[^a-zA-Z0-9_-]/g, '');
+  return className.replaceAll(/[^a-zA-Z0-9_-]/g, '');
 }
 
 /**
