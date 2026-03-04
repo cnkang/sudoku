@@ -70,6 +70,15 @@
   },
   "overrides": [
     {
+      "includes": ["next-env.d.ts"],
+      "formatter": {
+        "enabled": false
+      },
+      "linter": {
+        "enabled": false
+      }
+    },
+    {
       "includes": [
         "src/test-setup.ts",
         "src/**/*.test.{ts,tsx}",
