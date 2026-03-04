@@ -455,57 +455,6 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
         state.childMode ? styles.childMode : ''
       }`}
     >
-      {/* PWA Status and Grid Selector */}
-      {enablePWA && (
-        <section
-          className={styles.pwaSection}
-          aria-label="PWA and grid size settings"
-        >
-          <LazyPWAGridSelector
-            currentSize={currentGridConfig.size}
-            onSizeChange={handleGridSizeChange}
-            childMode={state.childMode}
-            showDescriptions={true}
-            disabled={isGridSelectorDisabled}
-            offlineMode={enableOfflineMode && status.isOffline}
-            onInstallPrompt={installApp}
-            notificationPermission={notificationPermission}
-          />
-        </section>
-      )}
-
-      {/* Accessibility Controls */}
-      <section
-        className={styles.accessibilitySection}
-        aria-label="Accessibility settings"
-      >
-        <LazyAccessibilityControls
-          currentTheme={currentTheme}
-          availableThemes={availableThemes}
-          highContrast={isHighContrastMode}
-          reducedMotion={state.accessibility.reducedMotion}
-          largeText={state.accessibility.largeText}
-          onThemeChange={setTheme}
-          onHighContrastToggle={() => {
-            toggleHighContrast();
-            handleAccessibilityChange({
-              highContrast: !state.accessibility.highContrast,
-            });
-          }}
-          onReducedMotionToggle={() =>
-            handleAccessibilityChange({
-              reducedMotion: !state.accessibility.reducedMotion,
-            })
-          }
-          onLargeTextToggle={() =>
-            handleAccessibilityChange({
-              largeText: !state.accessibility.largeText,
-            })
-          }
-          childMode={state.childMode}
-        />
-      </section>
-
       {/* Main Game Area */}
       <section className={styles.gameArea} aria-label="Game area">
         {/* Game Header */}
@@ -669,6 +618,57 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
             <div className={styles.actionPlaceholder} />
           </div>
         )}
+      </section>
+
+      {/* PWA Status and Grid Selector */}
+      {enablePWA && (
+        <section
+          className={styles.pwaSection}
+          aria-label="PWA and grid size settings"
+        >
+          <LazyPWAGridSelector
+            currentSize={currentGridConfig.size}
+            onSizeChange={handleGridSizeChange}
+            childMode={state.childMode}
+            showDescriptions={state.childMode}
+            disabled={isGridSelectorDisabled}
+            offlineMode={enableOfflineMode && status.isOffline}
+            onInstallPrompt={installApp}
+            notificationPermission={notificationPermission}
+          />
+        </section>
+      )}
+
+      {/* Accessibility Controls */}
+      <section
+        className={styles.accessibilitySection}
+        aria-label="Accessibility settings"
+      >
+        <LazyAccessibilityControls
+          currentTheme={currentTheme}
+          availableThemes={availableThemes}
+          highContrast={isHighContrastMode}
+          reducedMotion={state.accessibility.reducedMotion}
+          largeText={state.accessibility.largeText}
+          onThemeChange={setTheme}
+          onHighContrastToggle={() => {
+            toggleHighContrast();
+            handleAccessibilityChange({
+              highContrast: !state.accessibility.highContrast,
+            });
+          }}
+          onReducedMotionToggle={() =>
+            handleAccessibilityChange({
+              reducedMotion: !state.accessibility.reducedMotion,
+            })
+          }
+          onLargeTextToggle={() =>
+            handleAccessibilityChange({
+              largeText: !state.accessibility.largeText,
+            })
+          }
+          childMode={state.childMode}
+        />
       </section>
 
       {/* Visual Feedback System */}

@@ -6,8 +6,8 @@
   display: grid;
   justify-items: center;
   align-items: start;
-  padding: clamp(1rem, 3vw, 2rem);
-  padding-block: clamp(1rem, 3vh, 2rem);
+  padding: clamp(0.75rem, 2vw, 1.5rem);
+  padding-block: clamp(0.75rem, 2vh, 1.5rem);
   padding-inline: clamp(0.5rem, 2vw, 1rem);
 
   /* Safe area support for mobile devices */
@@ -22,7 +22,7 @@
   
   /* Position context for geometric decorations */
   position: relative;
-  overflow: hidden;
+  overflow-x: clip;
 }
 
 .main {
@@ -35,8 +35,7 @@
     95vw
   ); /* Increased from 1400px to 1200px for better desktop layout */
   width: 100%;
-  min-height: min(600px, 80vh);
-  min-height: min(600px, 80dvh); /* Modern dynamic viewport height */
+  min-height: auto;
   display: flex;
   flex-direction: column;
   gap: clamp(1rem, 3vw, 1.5rem);
@@ -55,9 +54,7 @@
 }
 
 .lcpHero {
-  width: 100%;
-  text-align: center;
-  padding-bottom: 0.5rem;
+  display: none;
 }
 
 .lcpHeroTitle {
@@ -106,9 +103,6 @@
     max-width: 1200px; /* Increased from 1400px to give more space */
   }
 
-  .lcpHero {
-    display: none;
-  }
 }
 
 /* Modern Viewport Units Support */
@@ -128,13 +122,6 @@
   }
 }
 
-@supports (height: 100lvh) {
-  .main {
-    max-height: 90lvh; /* Large viewport height for desktop */
-    overflow-y: auto;
-  }
-}
-
 /* Landscape Orientation with Modern CSS */
 @media (orientation: landscape) and (max-height: 600px) {
   .page {
@@ -144,8 +131,6 @@
 
   .main {
     min-height: auto;
-    max-height: 95svh;
-    overflow-y: auto;
     gap: 0.75rem;
     padding-block: 1rem;
   }
@@ -159,8 +144,6 @@
 
   .main {
     min-height: auto;
-    max-height: 90dvh;
-    overflow-y: auto;
   }
 }
 
