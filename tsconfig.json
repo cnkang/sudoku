@@ -27,6 +27,7 @@
     // TypeScript 5.9+ optimizations
     "verbatimModuleSyntax": true,
     "useDefineForClassFields": true,
+    "ignoreDeprecations": "6.0",
     "plugins": [
       {
         "name": "next"
