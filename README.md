@@ -135,7 +135,7 @@ This application has undergone comprehensive optimization across four key areas,
 
 ## Prerequisites
 
-- Node.js `24.13.0` (see `.nvmrc`)
+- Node.js `24.14.1` (see `.nvmrc`)
 - `pnpm 10.29.2+`
 
 ## Installation
