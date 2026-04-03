@@ -1,3 +1,4 @@
 [[IgnoredVulns]]
 id = "CVE-2025-59472"
-reason = "False positive for this project: Next.js PPR resume DoS requires PPR/cacheComponents with NEXT_PRIVATE_MINIMAL_MODE=1, which this app does not enable."
+ignoreUntil = 2026-10-03
+reason = "Advisory: https://github.com/vercel/next.js/security/advisories/GHSA-5f7q-jpqc-wp7h . This exception is for next@16.2.2 in this repo only. The issue requires experimental.ppr=true or cacheComponents=true with NEXT_PRIVATE_MINIMAL_MODE=1, which are not enabled here. Revalidate on Next.js version changes or Next runtime/config changes."
