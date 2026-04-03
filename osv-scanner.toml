@@ -1,0 +1,3 @@
+[[IgnoredVulns]]
+id = "CVE-2025-59472"
+reason = "False positive for this project: Next.js PPR resume DoS requires PPR/cacheComponents with NEXT_PRIVATE_MINIMAL_MODE=1, which this app does not enable."
