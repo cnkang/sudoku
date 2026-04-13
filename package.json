@@ -58,7 +58,7 @@
     "happy-dom": "20.8.9",
     "husky": "9.1.7",
     "lint-staged": "16.4.0",
-    "oxlint": "1.58.0",
+    "oxlint": "1.59.0",
     "typescript": "6.0.2",
     "vite": "8.0.8",
     "vitest": "4.1.4"
