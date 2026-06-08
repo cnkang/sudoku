@@ -55,7 +55,7 @@
     "@vitest/ui": "4.1.7",
     "babel-plugin-react-compiler": "1.0.0",
     "fast-check": "4.8.0",
-    "happy-dom": "20.9.0",
+    "happy-dom": "20.10.2",
     "husky": "9.1.7",
     "lint-staged": "17.0.5",
     "oxlint": "1.68.0",
