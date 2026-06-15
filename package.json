@@ -69,16 +69,5 @@
     "not dead",
     "not ie 11"
   ],
-  "pnpm": {
-    "overrides": {
-      "flatted": "3.4.2",
-      "postcss": "8.5.13",
-      "source-map": "0.7.4",
-      "ws": "8.20.1"
-    },
-    "onlyBuiltDependencies": [
-      "sharp"
-    ]
-  },
-  "packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be"
+  "packageManager": "pnpm@11.6.0+sha512.9a36518224080c6fe5165afdcfe79bfa118c29be703f3f462b1e32efe1e98e47e8750b148e08286250aad4113cc7993ca413c4e2cd447752708c2ee5751bc95f"
 }
