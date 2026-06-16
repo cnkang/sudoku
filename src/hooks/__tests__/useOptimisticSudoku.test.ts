@@ -2,9 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import { useOptimisticSudoku } from '../useOptimisticSudoku';
 
 const createGrid = (size: number, fillValue = 0): number[][] =>
-  Array.from({ length: size }, () =>
-    Array.from({ length: size }, () => fillValue)
-  );
+  Array.from({ length: size }, () => Array.from({ length: size }, () => fillValue));
 
 // Mock useOptimistic since it's not fully supported in test environment
 vi.mock('react', async () => {
@@ -13,7 +11,7 @@ vi.mock('react', async () => {
     ...actual,
     useOptimistic: vi.fn((initialState, updateFn) => {
       const [state, setState] = actual.useState(initialState);
-      const addOptimisticUpdate = vi.fn(action => {
+      const addOptimisticUpdate = vi.fn((action) => {
         const newState = updateFn(state, action);
         setState(newState);
       });
@@ -31,9 +29,7 @@ describe('useOptimisticSudoku', () => {
 
   describe('Initial state', () => {
     it('should initialize with provided user input', () => {
-      const { result } = renderHook(() =>
-        useOptimisticSudoku(initialUserInput)
-      );
+      const { result } = renderHook(() => useOptimisticSudoku(initialUserInput));
 
       expect(result.current.userInput).toEqual(initialUserInput);
       expect(result.current.isValidating).toBe(false);
@@ -52,9 +48,7 @@ describe('useOptimisticSudoku', () => {
 
   describe('Cell updates', () => {
     it('should update cell value optimistically', () => {
-      const { result } = renderHook(() =>
-        useOptimisticSudoku(initialUserInput)
-      );
+      const { result } = renderHook(() => useOptimisticSudoku(initialUserInput));
 
       act(() => {
         result.current.updateCell(0, 1, 5);
@@ -71,9 +65,7 @@ describe('useOptimisticSudoku', () => {
     });
 
     it('should update multiple cells correctly', () => {
-      const { result } = renderHook(() =>
-        useOptimisticSudoku(initialUserInput)
-      );
+      const { result } = renderHook(() => useOptimisticSudoku(initialUserInput));
 
       act(() => {
         result.current.updateCell(0, 1, 5);
@@ -98,9 +90,7 @@ describe('useOptimisticSudoku', () => {
     });
 
     it('should handle updating with zero value', () => {
-      const { result } = renderHook(() =>
-        useOptimisticSudoku(initialUserInput)
-      );
+      const { result } = renderHook(() => useOptimisticSudoku(initialUserInput));
 
       act(() => {
         result.current.updateCell(0, 0, 0);
@@ -119,9 +109,7 @@ describe('useOptimisticSudoku', () => {
 
   describe('Callback stability', () => {
     it('should provide updateCell callback function', () => {
-      const { result } = renderHook(() =>
-        useOptimisticSudoku(initialUserInput)
-      );
+      const { result } = renderHook(() => useOptimisticSudoku(initialUserInput));
 
       expect(typeof result.current.updateCell).toBe('function');
 
@@ -141,7 +129,7 @@ describe('useOptimisticSudoku', () => {
         [0, 2, 0],
         [3, 0, 1],
       ];
-      const inputCopy = originalInput.map(row => [...row]);
+      const inputCopy = originalInput.map((row) => [...row]);
 
       const { result } = renderHook(() => useOptimisticSudoku(originalInput));
 

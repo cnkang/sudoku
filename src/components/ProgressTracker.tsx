@@ -42,23 +42,21 @@ interface DisplayedAchievement {
 const scheduleRewardRemoval = (
   setDisplayedRewards: React.Dispatch<React.SetStateAction<DisplayedReward[]>>,
   rewardId: string,
-  duration: number
+  duration: number,
 ) => {
   setTimeout(() => {
-    setDisplayedRewards(prev => prev.filter(reward => reward.id !== rewardId));
+    setDisplayedRewards((prev) => prev.filter((reward) => reward.id !== rewardId));
   }, duration);
 };
 
 const scheduleAchievementRemoval = (
-  setDisplayedAchievements: React.Dispatch<
-    React.SetStateAction<DisplayedAchievement[]>
-  >,
+  setDisplayedAchievements: React.Dispatch<React.SetStateAction<DisplayedAchievement[]>>,
   achievementId: string,
-  duration: number
+  duration: number,
 ) => {
   setTimeout(() => {
-    setDisplayedAchievements(prev =>
-      prev.filter(achievement => achievement.id !== achievementId)
+    setDisplayedAchievements((prev) =>
+      prev.filter((achievement) => achievement.id !== achievementId),
     );
   }, duration + 2000);
 };
@@ -67,11 +65,9 @@ const scheduleAchievementDisplay = (
   achievement: Achievement,
   index: number,
   childMode: boolean,
-  setDisplayedAchievements: React.Dispatch<
-    React.SetStateAction<DisplayedAchievement[]>
-  >,
+  setDisplayedAchievements: React.Dispatch<React.SetStateAction<DisplayedAchievement[]>>,
   onAchievementUnlocked?: (achievement: Achievement) => void,
-  onCelebrationTriggered?: (effect: CelebrationEffect) => void
+  onCelebrationTriggered?: (effect: CelebrationEffect) => void,
 ) => {
   setTimeout(() => {
     const celebrationEffect = generateCelebrationEffect(achievement, childMode);
@@ -84,15 +80,11 @@ const scheduleAchievementDisplay = (
       celebrationEffect,
     };
 
-    setDisplayedAchievements(prev => [...prev, newDisplayedAchievement]);
+    setDisplayedAchievements((prev) => [...prev, newDisplayedAchievement]);
     onAchievementUnlocked?.(achievement);
     onCelebrationTriggered?.(celebrationEffect);
 
-    scheduleAchievementRemoval(
-      setDisplayedAchievements,
-      achievementId,
-      celebrationEffect.duration
-    );
+    scheduleAchievementRemoval(setDisplayedAchievements, achievementId, celebrationEffect.duration);
   }, index * 1000);
 };
 
@@ -106,20 +98,12 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = memo(
     onRewardEarned,
     onCelebrationTriggered,
   }) => {
-    const [displayedRewards, setDisplayedRewards] = useState<DisplayedReward[]>(
-      []
-    );
-    const [displayedAchievements, setDisplayedAchievements] = useState<
-      DisplayedAchievement[]
-    >([]);
+    const [displayedRewards, setDisplayedRewards] = useState<DisplayedReward[]>([]);
+    const [displayedAchievements, setDisplayedAchievements] = useState<DisplayedAchievement[]>([]);
 
     // Handle puzzle completion
     const _handlePuzzleCompletion = useCallback(
-      (gameData: {
-        completionTime: number;
-        hintsUsed: number;
-        difficulty: number;
-      }) => {
+      (gameData: { completionTime: number; hintsUsed: number; difficulty: number }) => {
         // Update statistics
         const updatedStats = updateProgressStats(currentStats, {
           ...gameData,
@@ -127,22 +111,14 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = memo(
         });
 
         // Check for new achievements
-        const newAchievements = checkForNewAchievements(
-          updatedStats,
-          gridSize,
-          {
-            completionTime: gameData.completionTime,
-            hintsUsed: gameData.hintsUsed,
-            isPerfectGame: gameData.hintsUsed === 0,
-          }
-        );
+        const newAchievements = checkForNewAchievements(updatedStats, gridSize, {
+          completionTime: gameData.completionTime,
+          hintsUsed: gameData.hintsUsed,
+          isPerfectGame: gameData.hintsUsed === 0,
+        });
 
         // Generate completion reward
-        const completionReward = generateCompletionReward(
-          updatedStats,
-          gridSize,
-          gameData
-        );
+        const completionReward = generateCompletionReward(updatedStats, gridSize, gameData);
 
         // Update stats
         onStatsUpdate?.(updatedStats);
@@ -155,15 +131,11 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = memo(
           timestamp: Date.now(),
         };
 
-        setDisplayedRewards(prev => [...prev, newDisplayedReward]);
+        setDisplayedRewards((prev) => [...prev, newDisplayedReward]);
         onRewardEarned?.(completionReward);
 
         // Auto-remove reward after duration
-        scheduleRewardRemoval(
-          setDisplayedRewards,
-          rewardId,
-          completionReward.duration
-        );
+        scheduleRewardRemoval(setDisplayedRewards, rewardId, completionReward.duration);
 
         // Handle new achievements
         newAchievements.forEach((achievement, index) => {
@@ -173,7 +145,7 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = memo(
             childMode,
             setDisplayedAchievements,
             onAchievementUnlocked,
-            onCelebrationTriggered
+            onCelebrationTriggered,
           );
         });
       },
@@ -185,64 +157,51 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = memo(
         onAchievementUnlocked,
         onRewardEarned,
         onCelebrationTriggered,
-      ]
+      ],
     );
 
     // Calculate progress display data
     const allAchievements = getAllAchievements();
-    const unlockedAchievements = allAchievements.filter(a =>
-      currentStats.achievements.includes(a.id)
+    const unlockedAchievements = allAchievements.filter((a) =>
+      currentStats.achievements.includes(a.id),
     );
-    const progressPercentage =
-      (unlockedAchievements.length / allAchievements.length) * 100;
+    const progressPercentage = (unlockedAchievements.length / allAchievements.length) * 100;
 
     // Get recent achievements for display
     const recentAchievements = unlockedAchievements
-      .filter(
-        (achievement): achievement is Achievement & { unlockedAt: Date } =>
-          Boolean(achievement.unlockedAt)
+      .filter((achievement): achievement is Achievement & { unlockedAt: Date } =>
+        Boolean(achievement.unlockedAt),
       )
       .sort((a, b) => b.unlockedAt.getTime() - a.unlockedAt.getTime())
       .slice(0, 3);
 
     const confettiPieces = useMemo(
-      () =>
-        Array.from({ length: 20 }, (_, index) => ({ id: `confetti-${index}` })),
-      []
+      () => Array.from({ length: 20 }, (_, index) => ({ id: `confetti-${index}` })),
+      [],
     );
     const sparklePieces = useMemo(
-      () =>
-        Array.from({ length: 10 }, (_, index) => ({ id: `sparkle-${index}` })),
-      []
+      () => Array.from({ length: 10 }, (_, index) => ({ id: `sparkle-${index}` })),
+      [],
     );
     const fireworkPieces = useMemo(
-      () =>
-        Array.from({ length: 5 }, (_, index) => ({ id: `firework-${index}` })),
-      []
+      () => Array.from({ length: 5 }, (_, index) => ({ id: `firework-${index}` })),
+      [],
     );
 
     return (
-      <div
-        className={`${styles.progressTracker} ${
-          childMode ? styles.childMode : ''
-        }`}
-      >
+      <div className={`${styles.progressTracker} ${childMode ? styles.childMode : ''}`}>
         {/* Progress Overview */}
         <div className={styles.progressOverview}>
           <div className={styles.statsGrid}>
             <div className={styles.statItem}>
               <div className={styles.statIcon}>🧩</div>
-              <div className={styles.statValue}>
-                {currentStats.puzzlesCompleted}
-              </div>
+              <div className={styles.statValue}>{currentStats.puzzlesCompleted}</div>
               <div className={styles.statLabel}>Puzzles Solved</div>
             </div>
 
             <div className={styles.statItem}>
               <div className={styles.statIcon}>🏆</div>
-              <div className={styles.statValue}>
-                {unlockedAchievements.length}
-              </div>
+              <div className={styles.statValue}>{unlockedAchievements.length}</div>
               <div className={styles.statLabel}>Achievements</div>
             </div>
 
@@ -265,10 +224,7 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = memo(
               Achievement Progress: {Math.round(progressPercentage)}%
             </div>
             <div className={styles.progressBarTrack}>
-              <div
-                className={styles.progressBarFill}
-                style={{ width: `${progressPercentage}%` }}
-              />
+              <div className={styles.progressBarFill} style={{ width: `${progressPercentage}%` }} />
             </div>
           </div>
         </div>
@@ -278,24 +234,14 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = memo(
           <div className={styles.recentAchievements}>
             <h3 className={styles.sectionTitle}>Recent Achievements 🎉</h3>
             <div className={styles.achievementsList}>
-              {recentAchievements.map(achievement => (
+              {recentAchievements.map((achievement) => (
                 <div key={achievement.id} className={styles.achievementItem}>
-                  <div className={styles.achievementIcon}>
-                    {achievement.icon}
-                  </div>
+                  <div className={styles.achievementIcon}>{achievement.icon}</div>
                   <div className={styles.achievementInfo}>
-                    <div className={styles.achievementName}>
-                      {achievement.name}
-                    </div>
-                    <div className={styles.achievementDescription}>
-                      {achievement.description}
-                    </div>
+                    <div className={styles.achievementName}>{achievement.name}</div>
+                    <div className={styles.achievementDescription}>{achievement.description}</div>
                   </div>
-                  <div
-                    className={`${styles.achievementRarity} ${
-                      styles[achievement.rarity]
-                    }`}
-                  >
+                  <div className={`${styles.achievementRarity} ${styles[achievement.rarity]}`}>
                     {achievement.rarity}
                   </div>
                 </div>
@@ -308,9 +254,7 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = memo(
         {displayedRewards.map(({ id, reward }) => (
           <div
             key={id}
-            className={`${styles.rewardDisplay} ${styles[reward.animation]} ${
-              styles[reward.size]
-            }`}
+            className={`${styles.rewardDisplay} ${styles[reward.animation]} ${styles[reward.size]}`}
             style={
               {
                 '--reward-color': getRewardColor(reward.color),
@@ -318,9 +262,7 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = memo(
               } as React.CSSProperties
             }
           >
-            <div className={styles.rewardIcon}>
-              {getRewardIcon(reward.type)}
-            </div>
+            <div className={styles.rewardIcon}>{getRewardIcon(reward.type)}</div>
             <div className={styles.rewardMessage}>{reward.message}</div>
           </div>
         ))}
@@ -329,30 +271,20 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = memo(
         {displayedAchievements.map(({ id, achievement, celebrationEffect }) => (
           <div
             key={id}
-            className={`${styles.achievementCelebration} ${
-              styles[celebrationEffect.intensity]
-            }`}
+            className={`${styles.achievementCelebration} ${styles[celebrationEffect.intensity]}`}
             style={{
               animationDuration: `${celebrationEffect.duration}ms`,
             }}
           >
             <div className={styles.celebrationContent}>
               <div className={styles.celebrationIcon}>{achievement.icon}</div>
-              <div className={styles.celebrationTitle}>
-                Achievement Unlocked!
-              </div>
+              <div className={styles.celebrationTitle}>Achievement Unlocked!</div>
               <div className={styles.celebrationName}>{achievement.name}</div>
-              <div className={styles.celebrationMessage}>
-                {getCelebrationMessage(achievement)}
-              </div>
+              <div className={styles.celebrationMessage}>{getCelebrationMessage(achievement)}</div>
             </div>
 
             {/* Celebration Effects */}
-            <div
-              className={`${styles.celebrationEffects} ${
-                styles[celebrationEffect.type]
-              }`}
-            >
+            <div className={`${styles.celebrationEffects} ${styles[celebrationEffect.type]}`}>
               {celebrationEffect.type === 'confetti' && (
                 <div className={styles.confettiContainer}>
                   {confettiPieces.map((piece, i) => (
@@ -362,10 +294,7 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = memo(
                       style={
                         {
                           '--delay': `${i * 0.1}s`,
-                          '--color':
-                            celebrationEffect.colors[
-                              i % celebrationEffect.colors.length
-                            ],
+                          '--color': celebrationEffect.colors[i % celebrationEffect.colors.length],
                         } as React.CSSProperties
                       }
                     />
@@ -400,10 +329,7 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = memo(
                       style={
                         {
                           '--delay': `${i * 0.5}s`,
-                          '--color':
-                            celebrationEffect.colors[
-                              i % celebrationEffect.colors.length
-                            ],
+                          '--color': celebrationEffect.colors[i % celebrationEffect.colors.length],
                         } as React.CSSProperties
                       }
                     />
@@ -425,13 +351,13 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = memo(
                     className={styles.soundEffect}
                     data-sound={celebrationEffect.soundEffect}
                   />
-                )
+                ),
             )}
           </div>
         )}
       </div>
     );
-  }
+  },
 );
 
 ProgressTracker.displayName = 'ProgressTracker';

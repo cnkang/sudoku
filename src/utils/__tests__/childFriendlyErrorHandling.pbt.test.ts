@@ -5,7 +5,7 @@
  */
 
 import fc from 'fast-check';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import {
   createChildFriendlyError,
   formatErrorMessage,
@@ -20,14 +20,10 @@ const errorTypeGen = fc.constantFrom(
   'DUPLICATE_IN_COLUMN',
   'DUPLICATE_IN_BOX',
   'INVALID_NUMBER_RANGE',
-  'PUZZLE_GENERATION_FAILED'
+  'PUZZLE_GENERATION_FAILED',
 );
 
-const encouragementTypeGen = fc.constantFrom(
-  'STRUGGLING',
-  'MULTIPLE_ERRORS',
-  'FIRST_SUCCESS'
-);
+const encouragementTypeGen = fc.constantFrom('STRUGGLING', 'MULTIPLE_ERRORS', 'FIRST_SUCCESS');
 
 const harshWords = ['error', 'wrong', 'incorrect', 'failed', 'invalid', 'bad'];
 const encouragingElements = ['!', 'try', "let's", 'you', '🌟', '💪'];
@@ -40,13 +36,11 @@ const assertEncouragingLanguage = (errorType: string, gridSize: number) => {
   });
 
   const messageWords = error.childMessage.toLowerCase();
-  const containsHarshWords = harshWords.some(word =>
-    messageWords.includes(word)
-  );
+  const containsHarshWords = harshWords.some((word) => messageWords.includes(word));
   expect(containsHarshWords).toBe(false);
 
-  const containsEncouragement = encouragingElements.some(element =>
-    messageWords.includes(element.toLowerCase())
+  const containsEncouragement = encouragingElements.some((element) =>
+    messageWords.includes(element.toLowerCase()),
   );
   expect(containsEncouragement).toBe(true);
 };
@@ -76,14 +70,14 @@ const assertRecoveryActions = (errorType: string, canUndo: boolean) => {
   });
 
   expect(recoveryActions.length).toBeGreaterThan(0);
-  recoveryActions.forEach(action => {
+  recoveryActions.forEach((action) => {
     expect(action.action).toBeDefined();
     expect(action.label).toBeDefined();
     expect(action.icon).toBeDefined();
     expect(typeof action.primary).toBe('boolean');
   });
 
-  const hasPrimaryAction = recoveryActions.some(action => action.primary);
+  const hasPrimaryAction = recoveryActions.some((action) => action.primary);
   expect(hasPrimaryAction).toBe(true);
 };
 
@@ -98,7 +92,7 @@ const assertEncouragementMessage = (encouragementType: string) => {
   expect(message.message.length).toBeGreaterThan(10);
 
   const messageText = message.message.toLowerCase();
-  negativeWords.forEach(word => {
+  negativeWords.forEach((word) => {
     expect(messageText).not.toContain(word);
   });
 
@@ -125,10 +119,7 @@ const assertFormattedMessage = (errorType: string, audience: string) => {
 describe('Child-Friendly Error Handling - Property Tests', () => {
   describe('Property 14: Gentle error messaging', () => {
     it('should always use encouraging language in child mode', () => {
-      fc.assert(
-        fc.property(errorTypeGen, gridSizeGen, assertEncouragingLanguage),
-        { numRuns: 5 }
-      );
+      fc.assert(fc.property(errorTypeGen, gridSizeGen, assertEncouragingLanguage), { numRuns: 5 });
     });
 
     it('should provide educational explanations for all error types', () => {
@@ -142,9 +133,9 @@ describe('Child-Friendly Error Handling - Property Tests', () => {
         fc.property(
           errorTypeGen,
           fc.boolean(), // can undo
-          assertRecoveryActions
+          assertRecoveryActions,
         ),
-        { numRuns: 5 }
+        { numRuns: 5 },
       );
     });
 
@@ -156,12 +147,8 @@ describe('Child-Friendly Error Handling - Property Tests', () => {
 
     it('should format messages appropriately for different audiences', () => {
       fc.assert(
-        fc.property(
-          errorTypeGen,
-          fc.constantFrom('child', 'adult'),
-          assertFormattedMessage
-        ),
-        { numRuns: 5 }
+        fc.property(errorTypeGen, fc.constantFrom('child', 'adult'), assertFormattedMessage),
+        { numRuns: 5 },
       );
     });
   });

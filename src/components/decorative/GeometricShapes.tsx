@@ -71,26 +71,14 @@ export const Square: React.FC<ShapeProps> = ({
 /**
  * Geometric Mesh - Background decorative element with multiple shapes
  */
-export const GeometricMesh: React.FC<{ className?: string }> = ({
-  className = '',
-}) => {
+export const GeometricMesh: React.FC<{ className?: string }> = ({ className = '' }) => {
   return (
     <div className={`${styles.geometricMesh} ${className}`} aria-hidden="true">
       <Circle size="xl" variant="mesh" className={styles.meshCircle1} animate />
-      <Triangle
-        size="lg"
-        variant="mesh"
-        className={styles.meshTriangle1}
-        animate
-      />
+      <Triangle size="lg" variant="mesh" className={styles.meshTriangle1} animate />
       <Square size="md" variant="mesh" className={styles.meshSquare1} animate />
       <Circle size="lg" variant="mesh" className={styles.meshCircle2} animate />
-      <Triangle
-        size="sm"
-        variant="mesh"
-        className={styles.meshTriangle2}
-        animate
-      />
+      <Triangle size="sm" variant="mesh" className={styles.meshTriangle2} animate />
     </div>
   );
 };

@@ -5,7 +5,7 @@
  */
 
 import fc from 'fast-check';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 // Mock React Compiler optimization tracking
 interface ReactCompilerMetrics {
@@ -23,7 +23,7 @@ const simulateReactCompilerOptimization = (
   componentName: string,
   renderCount: number,
   baseRenderTime: number,
-  optimizationLevel: number // 0-1 scale
+  optimizationLevel: number, // 0-1 scale
 ): ReactCompilerMetrics => {
   // Guard against invalid inputs
   const safeRenderCount = Math.max(1, renderCount || 1);
@@ -36,24 +36,17 @@ const simulateReactCompilerOptimization = (
   }
 
   // React Compiler should automatically optimize based on patterns
-  const automaticOptimizations = Math.floor(
-    safeRenderCount * safeOptimizationLevel * 0.8
-  );
-  const manualOptimizations = Math.floor(
-    safeRenderCount * safeOptimizationLevel * 0.2
-  );
+  const automaticOptimizations = Math.floor(safeRenderCount * safeOptimizationLevel * 0.8);
+  const manualOptimizations = Math.floor(safeRenderCount * safeOptimizationLevel * 0.2);
   const optimizedRenders = automaticOptimizations + manualOptimizations;
 
   // Optimized renders should be faster
-  const optimizedRenderTime =
-    safeBaseRenderTime * (1 - safeOptimizationLevel * 0.4); // Up to 40% improvement
+  const optimizedRenderTime = safeBaseRenderTime * (1 - safeOptimizationLevel * 0.4); // Up to 40% improvement
   const unoptimizedRenderTime = safeBaseRenderTime;
 
   const totalOptimizedTime = optimizedRenders * optimizedRenderTime;
-  const totalUnoptimizedTime =
-    (safeRenderCount - optimizedRenders) * unoptimizedRenderTime;
-  const averageRenderTime =
-    (totalOptimizedTime + totalUnoptimizedTime) / safeRenderCount;
+  const totalUnoptimizedTime = (safeRenderCount - optimizedRenders) * unoptimizedRenderTime;
+  const averageRenderTime = (totalOptimizedTime + totalUnoptimizedTime) / safeRenderCount;
 
   const memoizationHitRate = optimizedRenders / safeRenderCount;
 
@@ -72,13 +65,13 @@ const simulateReactCompilerOptimization = (
 const simulateBundleSizeImpact = (
   originalSize: number,
   componentCount: number,
-  optimizationLevel: number
+  optimizationLevel: number,
 ) => {
   const safeOriginalSize = Math.max(1024, originalSize); // At least 1KB
   const safeComponentCount = Math.max(1, componentCount);
   const safeOptimizationLevel = Math.max(
     0,
-    Math.min(1, Number.isNaN(optimizationLevel) ? 0 : optimizationLevel)
+    Math.min(1, Number.isNaN(optimizationLevel) ? 0 : optimizationLevel),
   );
 
   // React Compiler may slightly increase bundle size due to optimization code
@@ -98,21 +91,18 @@ const simulateBundleSizeImpact = (
 const simulateMemoryOptimization = (
   baseMemoryUsage: number,
   renderCount: number,
-  optimizationLevel: number
+  optimizationLevel: number,
 ) => {
   const safeBaseMemoryUsage = Math.max(1024, baseMemoryUsage); // At least 1KB
   const _safeRenderCount = Math.max(1, renderCount);
   const safeOptimizationLevel = Math.max(
     0,
-    Math.min(1, Number.isNaN(optimizationLevel) ? 0 : optimizationLevel)
+    Math.min(1, Number.isNaN(optimizationLevel) ? 0 : optimizationLevel),
   );
 
   // React Compiler should reduce memory allocations through better memoization
   const memoryReduction = safeBaseMemoryUsage * safeOptimizationLevel * 0.3; // Up to 30% reduction
-  const optimizedMemoryUsage = Math.max(
-    0,
-    safeBaseMemoryUsage - memoryReduction
-  );
+  const optimizedMemoryUsage = Math.max(0, safeBaseMemoryUsage - memoryReduction);
 
   return {
     baseMemoryUsage: safeBaseMemoryUsage,
@@ -143,34 +133,23 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
             return true; // Skip this test case
           }
 
-          const metrics = componentNames.map(name =>
-            simulateReactCompilerOptimization(
-              name,
-              renderCount,
-              baseRenderTime,
-              optimizationLevel
-            )
+          const metrics = componentNames.map((name) =>
+            simulateReactCompilerOptimization(name, renderCount, baseRenderTime, optimizationLevel),
           );
 
           // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: property test covers multiple branches
-          metrics.forEach(metric => {
+          metrics.forEach((metric) => {
             // Property: React Compiler should provide automatic optimizations
             // Only expect optimizations for valid component names and reasonable optimization levels
-            if (
-              optimizationLevel > 0.3 &&
-              metric.componentName.trim().length > 2
-            ) {
+            if (optimizationLevel > 0.3 && metric.componentName.trim().length > 2) {
               expect(metric.automaticOptimizations).toBeGreaterThan(0);
             }
             expect(metric.automaticOptimizations).toBeGreaterThanOrEqual(
-              metric.manualOptimizations
+              metric.manualOptimizations,
             );
 
             // Property: Higher optimization level should result in more optimized renders
-            if (
-              optimizationLevel > 0.7 &&
-              metric.componentName.trim().length > 2
-            ) {
+            if (optimizationLevel > 0.7 && metric.componentName.trim().length > 2) {
               expect(metric.memoizationHitRate).toBeGreaterThan(0.5);
             }
 
@@ -180,9 +159,9 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
             }
 
             // Property: Total optimizations should not exceed total renders
-            expect(
-              metric.automaticOptimizations + metric.manualOptimizations
-            ).toBeLessThanOrEqual(metric.totalRenders);
+            expect(metric.automaticOptimizations + metric.manualOptimizations).toBeLessThanOrEqual(
+              metric.totalRenders,
+            );
 
             // Property: Memoization hit rate should correlate with optimization level
             const expectedHitRate = optimizationLevel * 0.8; // 80% of optimization level
@@ -191,42 +170,28 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
               expect(metric.memoizationHitRate).toBeLessThanOrEqual(1); // Very lenient for invalid/minimal names
             } else if (optimizationLevel > 0.4) {
               // Use a range check instead of toBeCloseTo for better tolerance
-              expect(metric.memoizationHitRate).toBeGreaterThanOrEqual(
-                expectedHitRate - 0.2
-              );
-              expect(metric.memoizationHitRate).toBeLessThanOrEqual(
-                expectedHitRate + 0.2
-              );
+              expect(metric.memoizationHitRate).toBeGreaterThanOrEqual(expectedHitRate - 0.2);
+              expect(metric.memoizationHitRate).toBeLessThanOrEqual(expectedHitRate + 0.2);
             } else {
               // For very low optimization levels, just check it's reasonable
               expect(metric.memoizationHitRate).toBeGreaterThanOrEqual(0);
-              expect(metric.memoizationHitRate).toBeLessThanOrEqual(
-                expectedHitRate + 0.3
-              );
+              expect(metric.memoizationHitRate).toBeLessThanOrEqual(expectedHitRate + 0.3);
             }
           });
 
           // Property: Overall system should benefit from React Compiler
-          const totalRenders = metrics.reduce(
-            (sum, m) => sum + m.totalRenders,
-            0
-          );
-          const totalOptimized = metrics.reduce(
-            (sum, m) => sum + m.optimizedRenders,
-            0
-          );
+          const totalRenders = metrics.reduce((sum, m) => sum + m.totalRenders, 0);
+          const totalOptimized = metrics.reduce((sum, m) => sum + m.optimizedRenders, 0);
           const overallHitRate = totalOptimized / totalRenders;
 
           // Only expect optimization if we have valid component names
-          const hasValidComponents = componentNames.some(
-            name => name.trim().length > 2
-          );
+          const hasValidComponents = componentNames.some((name) => name.trim().length > 2);
           if (optimizationLevel > 0.5 && hasValidComponents) {
             expect(overallHitRate).toBeGreaterThan(0.3); // At least 30% optimization
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -245,31 +210,24 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
               `Component${i}`,
               rendersPerComponent,
               baseRenderTime,
-              optimizationLevel
-            )
+              optimizationLevel,
+            ),
           );
 
           // Property: More complex components should benefit more from optimization
           if (complexity > 5) {
             const avgHitRate =
-              metrics.reduce((sum, m) => sum + m.memoizationHitRate, 0) /
-              metrics.length;
+              metrics.reduce((sum, m) => sum + m.memoizationHitRate, 0) / metrics.length;
             expect(avgHitRate).toBeGreaterThan(0.4); // Complex components should have higher hit rates
           }
 
           // Property: Optimization should scale linearly with component count
-          const totalOptimizations = metrics.reduce(
-            (sum, m) => sum + m.automaticOptimizations,
-            0
-          );
-          expect(totalOptimizations).toBeGreaterThan(
-            componentCount * rendersPerComponent * 0.1
-          ); // At least 10% optimization
+          const totalOptimizations = metrics.reduce((sum, m) => sum + m.automaticOptimizations, 0);
+          expect(totalOptimizations).toBeGreaterThan(componentCount * rendersPerComponent * 0.1); // At least 10% optimization
 
           // Property: Average render time should improve with complexity
           const avgRenderTime =
-            metrics.reduce((sum, m) => sum + m.averageRenderTime, 0) /
-            metrics.length;
+            metrics.reduce((sum, m) => sum + m.averageRenderTime, 0) / metrics.length;
           if (complexity > 3) {
             expect(avgRenderTime).toBeLessThan(baseRenderTime * 0.9); // At least 10% improvement
           }
@@ -277,13 +235,12 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
           // Property: Optimization effectiveness should not degrade with scale
           if (componentCount > 20) {
             const avgHitRate =
-              metrics.reduce((sum, m) => sum + m.memoizationHitRate, 0) /
-              metrics.length;
+              metrics.reduce((sum, m) => sum + m.memoizationHitRate, 0) / metrics.length;
             expect(avgHitRate).toBeGreaterThan(0.2); // Maintain minimum effectiveness at scale
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -298,18 +255,17 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
           const bundleImpact = simulateBundleSizeImpact(
             originalSize,
             componentCount,
-            optimizationLevel
+            optimizationLevel,
           );
 
           // Property: Bundle size increase should be minimal (< 5% of original)
-          const sizeIncreaseRatio =
-            Math.abs(bundleImpact.netChange) / bundleImpact.originalSize;
+          const sizeIncreaseRatio = Math.abs(bundleImpact.netChange) / bundleImpact.originalSize;
           expect(sizeIncreaseRatio).toBeLessThanOrEqual(0.05);
 
           // Property: Runtime savings should outweigh overhead
           if (optimizationLevel > 0.5) {
             expect(bundleImpact.savings).toBeGreaterThanOrEqual(
-              bundleImpact.overhead * 0.9 // Allow 10% tolerance
+              bundleImpact.overhead * 0.9, // Allow 10% tolerance
             );
           }
 
@@ -324,12 +280,10 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
 
           // Property: Optimized bundle should not exceed 15% increase from baseline
           const maxAllowedSize = bundleImpact.originalSize * 1.15;
-          expect(bundleImpact.optimizedSize).toBeLessThanOrEqual(
-            maxAllowedSize
-          );
-        }
+          expect(bundleImpact.optimizedSize).toBeLessThanOrEqual(maxAllowedSize);
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -344,12 +298,12 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
           const memoryOptimization = simulateMemoryOptimization(
             baseMemoryUsage,
             renderCount,
-            optimizationLevel
+            optimizationLevel,
           );
 
           // Property: Memory usage should decrease with optimization
           expect(memoryOptimization.optimizedMemoryUsage).toBeLessThanOrEqual(
-            memoryOptimization.baseMemoryUsage
+            memoryOptimization.baseMemoryUsage,
           );
 
           // Property: Higher optimization levels should provide more memory savings
@@ -360,29 +314,19 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
           // Property: Memory reduction should be proportional to optimization level
           // Skip this check if optimization level is NaN
           if (!Number.isNaN(optimizationLevel)) {
-            const expectedReduction =
-              memoryOptimization.baseMemoryUsage * optimizationLevel * 0.3;
-            expect(memoryOptimization.memoryReduction).toBeCloseTo(
-              expectedReduction,
-              -5
-            ); // Within 100KB tolerance
+            const expectedReduction = memoryOptimization.baseMemoryUsage * optimizationLevel * 0.3;
+            expect(memoryOptimization.memoryReduction).toBeCloseTo(expectedReduction, -5); // Within 100KB tolerance
           }
 
           // Property: Memory usage should never go negative
-          expect(
-            memoryOptimization.optimizedMemoryUsage
-          ).toBeGreaterThanOrEqual(0);
+          expect(memoryOptimization.optimizedMemoryUsage).toBeGreaterThanOrEqual(0);
 
           // Property: Reduction percentage should be reasonable
-          expect(memoryOptimization.reductionPercentage).toBeLessThanOrEqual(
-            50
-          ); // Max 50% reduction
-          expect(memoryOptimization.reductionPercentage).toBeGreaterThanOrEqual(
-            0
-          );
-        }
+          expect(memoryOptimization.reductionPercentage).toBeLessThanOrEqual(50); // Max 50% reduction
+          expect(memoryOptimization.reductionPercentage).toBeGreaterThanOrEqual(0);
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -397,13 +341,7 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
         fc.boolean(), // Has side effects
         fc.boolean(), // Uses refs
         fc.boolean(), // Has complex state
-        (
-          componentNames,
-          renderCycles,
-          hasSideEffects,
-          usesRefs,
-          hasComplexState
-        ) => {
+        (componentNames, renderCycles, hasSideEffects, usesRefs, hasComplexState) => {
           // Simulate different component patterns that React Compiler must handle correctly
           let optimizationLevel = 0.8;
           if (hasSideEffects) {
@@ -412,12 +350,12 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
             optimizationLevel = 0.6;
           }
 
-          componentNames.forEach(componentName => {
+          componentNames.forEach((componentName) => {
             const metrics = simulateReactCompilerOptimization(
               componentName,
               renderCycles,
               10, // base render time
-              optimizationLevel
+              optimizationLevel,
             );
 
             // Property: Components with side effects should be optimized more conservatively
@@ -449,18 +387,16 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
 
             // Property: All components should have some level of optimization
             expect(
-              metrics.automaticOptimizations + metrics.manualOptimizations
+              metrics.automaticOptimizations + metrics.manualOptimizations,
             ).toBeGreaterThanOrEqual(0); // Allow zero optimizations for edge cases
 
             // Property: Optimization should not break component behavior (simulated)
             expect(metrics.totalRenders).toBe(renderCycles); // All renders should complete
-            expect(metrics.optimizedRenders).toBeLessThanOrEqual(
-              metrics.totalRenders
-            );
+            expect(metrics.optimizedRenders).toBeLessThanOrEqual(metrics.totalRenders);
           });
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -477,7 +413,7 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
           contextCount,
           renderCount,
           usesSuspense,
-          usesConcurrent
+          usesConcurrent,
           // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: property test covers multiple branches
         ) => {
           // Modern React patterns should be optimizable
@@ -494,53 +430,37 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
             'ModernComponent',
             renderCount,
             hookCount * 2, // More hooks = slower base render
-            optimizationLevel
+            optimizationLevel,
           );
 
           // Property: Modern patterns should not prevent optimization
           expect(metrics.automaticOptimizations).toBeGreaterThanOrEqual(0); // Allow zero for edge cases
 
           // Property: Suspense components should be optimizable (relaxed conditions)
-          if (
-            usesSuspense &&
-            optimizationLevel > 0.7 &&
-            hookCount > 5 &&
-            renderCount > 10
-          ) {
+          if (usesSuspense && optimizationLevel > 0.7 && hookCount > 5 && renderCount > 10) {
             expect(metrics.memoizationHitRate).toBeGreaterThanOrEqual(0.4); // Relaxed from 0.5
           }
 
           // Property: Concurrent features should enhance optimization (relaxed conditions)
-          if (
-            usesConcurrent &&
-            optimizationLevel > 0.7 &&
-            hookCount > 5 &&
-            renderCount > 10
-          ) {
+          if (usesConcurrent && optimizationLevel > 0.7 && hookCount > 5 && renderCount > 10) {
             expect(metrics.memoizationHitRate).toBeGreaterThanOrEqual(0.5); // Relaxed from 0.6
           }
 
           // Property: Hook-heavy components should benefit from optimization
           if (hookCount > 10 && optimizationLevel > 0.6 && renderCount > 20) {
-            const renderTimeImprovement =
-              hookCount * 2 - metrics.averageRenderTime;
+            const renderTimeImprovement = hookCount * 2 - metrics.averageRenderTime;
             expect(renderTimeImprovement).toBeGreaterThan(0);
           }
 
           // Property: Context consumers should not prevent optimization (relaxed conditions)
-          if (
-            contextCount > 5 &&
-            optimizationLevel > 0.6 &&
-            hookCount > 8 &&
-            renderCount > 20
-          ) {
+          if (contextCount > 5 && optimizationLevel > 0.6 && hookCount > 8 && renderCount > 20) {
             expect(metrics.automaticOptimizations).toBeGreaterThanOrEqual(
-              renderCount * 0.1 // Relaxed from 0.2
+              renderCount * 0.1, // Relaxed from 0.2
             );
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -552,8 +472,7 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
         fc.integer({ min: 5, max: 100 }), // Renders per component
         (environment, componentCount, rendersPerComponent) => {
           // Optimization behavior should be consistent but may vary by environment
-          const baseOptimizationLevel =
-            environment === 'production' ? 0.8 : 0.6;
+          const baseOptimizationLevel = environment === 'production' ? 0.8 : 0.6;
           const environmentMultiplier = environment === 'development' ? 0.8 : 1;
 
           const metrics = Array.from({ length: componentCount }, (_, i) =>
@@ -561,15 +480,14 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
               `Component${i}`,
               rendersPerComponent,
               10,
-              baseOptimizationLevel * environmentMultiplier
-            )
+              baseOptimizationLevel * environmentMultiplier,
+            ),
           );
 
           // Property: Production should have highest optimization level
           if (environment === 'production') {
             const avgHitRate =
-              metrics.reduce((sum, m) => sum + m.memoizationHitRate, 0) /
-              metrics.length;
+              metrics.reduce((sum, m) => sum + m.memoizationHitRate, 0) / metrics.length;
             expect(avgHitRate).toBeGreaterThanOrEqual(0.5); // Use >= instead of >
           }
 
@@ -577,30 +495,28 @@ describe('React 19 Optimization Effectiveness Property Tests', () => {
           if (environment === 'development') {
             const totalOptimizations = metrics.reduce(
               (sum, m) => sum + m.automaticOptimizations,
-              0
+              0,
             );
             expect(totalOptimizations).toBeGreaterThanOrEqual(0); // Allow zero for edge cases
           }
 
           // Property: All environments should provide some optimization
-          metrics.forEach(metric => {
+          metrics.forEach((metric) => {
             expect(metric.automaticOptimizations).toBeGreaterThanOrEqual(0);
             expect(metric.memoizationHitRate).toBeGreaterThanOrEqual(0);
           });
 
           // Property: Optimization consistency across components
-          const hitRates = metrics.map(m => m.memoizationHitRate);
-          const avgHitRate =
-            hitRates.reduce((sum, rate) => sum + rate, 0) / hitRates.length;
+          const hitRates = metrics.map((m) => m.memoizationHitRate);
+          const avgHitRate = hitRates.reduce((sum, rate) => sum + rate, 0) / hitRates.length;
           const variance =
-            hitRates.reduce((sum, rate) => sum + (rate - avgHitRate) ** 2, 0) /
-            hitRates.length;
+            hitRates.reduce((sum, rate) => sum + (rate - avgHitRate) ** 2, 0) / hitRates.length;
 
           // Variance should be reasonable (not too high)
           expect(variance).toBeLessThan(0.1); // Low variance indicates consistency
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });

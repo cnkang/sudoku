@@ -6,17 +6,13 @@
  * Requirements: 7.1, 7.4
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import type { SudokuPuzzle } from '@/types';
 import { secureRandomInt } from '@/utils/secureRandom';
 import { BackwardCompatibility } from '../backwardCompatibility';
 import { GRID_CONFIGS } from '../gridConfig';
 
-const createGrid = (
-  rows: number,
-  cols: number,
-  value: number | (() => number)
-) => {
+const createGrid = (rows: number, cols: number, value: number | (() => number)) => {
   const grid: number[][] = [];
   for (let row = 0; row < rows; row++) {
     const rowValues: number[] = [];
@@ -89,8 +85,7 @@ describe('Backward Compatibility Layer', () => {
         difficulty: 5,
       };
 
-      const legacyPuzzle =
-        BackwardCompatibility.toLegacyPuzzleFormat(modernPuzzle);
+      const legacyPuzzle = BackwardCompatibility.toLegacyPuzzleFormat(modernPuzzle);
 
       expect(legacyPuzzle).toEqual({
         puzzle: modernPuzzle.puzzle,
@@ -129,8 +124,7 @@ describe('Backward Compatibility Layer', () => {
         cached: false,
       };
 
-      const modernPuzzle =
-        BackwardCompatibility.fromLegacyPuzzleFormat(legacyPuzzle);
+      const modernPuzzle = BackwardCompatibility.fromLegacyPuzzleFormat(legacyPuzzle);
 
       expect(modernPuzzle).toEqual({
         puzzle: legacyPuzzle.puzzle,
@@ -155,16 +149,12 @@ describe('Backward Compatibility Layer', () => {
         'not an array',
       ];
 
-      expect(
-        BackwardCompatibility.validateLegacyPuzzleStructure(validPuzzle)
-      ).toBe(true);
+      expect(BackwardCompatibility.validateLegacyPuzzleStructure(validPuzzle)).toBe(true);
 
       for (const invalidPuzzle of invalidPuzzles) {
-        expect(
-          BackwardCompatibility.validateLegacyPuzzleStructure(
-            invalidPuzzle as any
-          )
-        ).toBe(false);
+        expect(BackwardCompatibility.validateLegacyPuzzleStructure(invalidPuzzle as any)).toBe(
+          false,
+        );
       }
     });
   });
@@ -204,8 +194,7 @@ describe('Backward Compatibility Layer', () => {
         hintsUsed: 2,
       };
 
-      const migratedState =
-        BackwardCompatibility.migrateLegacyGameState(legacyState);
+      const migratedState = BackwardCompatibility.migrateLegacyGameState(legacyState);
 
       expect(migratedState).toMatchObject({
         puzzle: legacyState.puzzle,
@@ -234,8 +223,7 @@ describe('Backward Compatibility Layer', () => {
         difficulty: 1,
       };
 
-      const migratedState =
-        BackwardCompatibility.migrateLegacyGameState(minimalLegacyState);
+      const migratedState = BackwardCompatibility.migrateLegacyGameState(minimalLegacyState);
 
       expect(migratedState).toMatchObject({
         puzzle: null,
@@ -262,8 +250,7 @@ describe('Backward Compatibility Layer', () => {
         soundEnabled: true,
       };
 
-      const migratedPrefs =
-        BackwardCompatibility.migrateLegacyPreferences(legacyPrefs);
+      const migratedPrefs = BackwardCompatibility.migrateLegacyPreferences(legacyPrefs);
 
       expect(migratedPrefs).toMatchObject({
         difficulty: 7,
@@ -281,8 +268,7 @@ describe('Backward Compatibility Layer', () => {
     it('should handle empty legacy preferences', () => {
       const emptyPrefs = {};
 
-      const migratedPrefs =
-        BackwardCompatibility.migrateLegacyPreferences(emptyPrefs);
+      const migratedPrefs = BackwardCompatibility.migrateLegacyPreferences(emptyPrefs);
 
       expect(migratedPrefs).toMatchObject({
         difficulty: 1,
@@ -350,9 +336,7 @@ describe('Backward Compatibility Layer', () => {
       };
 
       expect(BackwardCompatibility.isLegacyPreferences(legacyPrefs)).toBe(true);
-      expect(BackwardCompatibility.isLegacyPreferences(modernPrefs)).toBe(
-        false
-      );
+      expect(BackwardCompatibility.isLegacyPreferences(modernPrefs)).toBe(false);
     });
   });
 
@@ -365,8 +349,7 @@ describe('Backward Compatibility Layer', () => {
         gridSize: 9,
       };
 
-      const compatibleResponse =
-        BackwardCompatibility.ensureBackwardCompatibleResponse(response);
+      const compatibleResponse = BackwardCompatibility.ensureBackwardCompatibleResponse(response);
 
       expect(compatibleResponse).toMatchObject({
         ...response,
@@ -383,8 +366,7 @@ describe('Backward Compatibility Layer', () => {
         gridSize: 4,
       };
 
-      const compatibleResponse =
-        BackwardCompatibility.ensureBackwardCompatibleResponse(response);
+      const compatibleResponse = BackwardCompatibility.ensureBackwardCompatibleResponse(response);
 
       expect(compatibleResponse).toEqual(response);
     });
@@ -396,28 +378,17 @@ describe('Backward Compatibility Layer', () => {
     });
 
     it('should detect legacy data presence', () => {
-      expect(BackwardCompatibility.LegacyDataMigrator.hasLegacyData()).toBe(
-        false
-      );
+      expect(BackwardCompatibility.LegacyDataMigrator.hasLegacyData()).toBe(false);
 
-      mockLocalStorage.store.set(
-        'sudoku-game-state',
-        JSON.stringify({ difficulty: 5 })
-      );
-      expect(BackwardCompatibility.LegacyDataMigrator.hasLegacyData()).toBe(
-        true
-      );
+      mockLocalStorage.store.set('sudoku-game-state', JSON.stringify({ difficulty: 5 }));
+      expect(BackwardCompatibility.LegacyDataMigrator.hasLegacyData()).toBe(true);
     });
 
     it('should check migration completion status', () => {
-      expect(
-        BackwardCompatibility.LegacyDataMigrator.isMigrationComplete()
-      ).toBe(false);
+      expect(BackwardCompatibility.LegacyDataMigrator.isMigrationComplete()).toBe(false);
 
       mockLocalStorage.store.set('sudoku-migration-complete', 'true');
-      expect(
-        BackwardCompatibility.LegacyDataMigrator.isMigrationComplete()
-      ).toBe(true);
+      expect(BackwardCompatibility.LegacyDataMigrator.isMigrationComplete()).toBe(true);
     });
 
     it('should migrate legacy data successfully', async () => {
@@ -446,14 +417,8 @@ describe('Backward Compatibility Layer', () => {
         lastPlayed: '2023-01-01T00:00:00.000Z',
       };
 
-      mockLocalStorage.store.set(
-        'sudoku-game-state',
-        JSON.stringify(legacyState)
-      );
-      mockLocalStorage.store.set(
-        'sudoku-preferences',
-        JSON.stringify(legacyPrefs)
-      );
+      mockLocalStorage.store.set('sudoku-game-state', JSON.stringify(legacyState));
+      mockLocalStorage.store.set('sudoku-preferences', JSON.stringify(legacyPrefs));
       mockLocalStorage.store.set('sudoku-stats', JSON.stringify(legacyStats));
 
       // Perform migration
@@ -461,13 +426,13 @@ describe('Backward Compatibility Layer', () => {
 
       // Check migrated data
       const migratedState = JSON.parse(
-        mockLocalStorage.store.get('multi-sudoku-game-state') || '{}'
+        mockLocalStorage.store.get('multi-sudoku-game-state') || '{}',
       );
       const migratedPrefs = JSON.parse(
-        mockLocalStorage.store.get('multi-sudoku-preferences') || '{}'
+        mockLocalStorage.store.get('multi-sudoku-preferences') || '{}',
       );
       const migratedProgress = JSON.parse(
-        mockLocalStorage.store.get('multi-sudoku-progress') || '{}'
+        mockLocalStorage.store.get('multi-sudoku-progress') || '{}',
       );
 
       expect(migratedState.difficulty).toBe(5);
@@ -475,9 +440,7 @@ describe('Backward Compatibility Layer', () => {
       expect(migratedPrefs.difficulty).toBe(7);
       expect(migratedPrefs.gridSize).toBe(9);
       expect(migratedProgress['9x9'].puzzlesCompleted).toBe(10);
-      expect(mockLocalStorage.store.get('sudoku-migration-complete')).toBe(
-        'true'
-      );
+      expect(mockLocalStorage.store.get('sudoku-migration-complete')).toBe('true');
     });
 
     it('should cleanup legacy data after migration', () => {
@@ -511,9 +474,7 @@ describe('Backward Compatibility Layer', () => {
         BackwardCompatibility.migrateLegacyGameState(malformedData as any);
       }).not.toThrow();
 
-      const result = BackwardCompatibility.migrateLegacyGameState(
-        malformedData as any
-      );
+      const result = BackwardCompatibility.migrateLegacyGameState(malformedData as any);
       expect(result.gridConfig).toBeDefined();
       expect(result.accessibility).toBeDefined();
     });
@@ -526,7 +487,7 @@ describe('Backward Compatibility Layer', () => {
 
       // Should not throw
       await expect(
-        BackwardCompatibility.LegacyDataMigrator.migrateLegacyData()
+        BackwardCompatibility.LegacyDataMigrator.migrateLegacyData(),
       ).resolves.not.toThrow();
     });
   });
@@ -540,8 +501,7 @@ describe('Integration with Modern System', () => {
       difficulty: 5,
     };
 
-    const migratedState =
-      BackwardCompatibility.migrateLegacyGameState(legacyState);
+    const migratedState = BackwardCompatibility.migrateLegacyGameState(legacyState);
 
     expect(migratedState.gridConfig?.size).toBe(9);
     expect(migratedState.gridConfig?.boxRows).toBe(3);
@@ -556,8 +516,7 @@ describe('Integration with Modern System', () => {
       soundEnabled: false,
     };
 
-    const migratedPrefs =
-      BackwardCompatibility.migrateLegacyPreferences(legacyPrefs);
+    const migratedPrefs = BackwardCompatibility.migrateLegacyPreferences(legacyPrefs);
 
     // Existing functionality should be preserved
     expect(migratedPrefs.difficulty).toBe(8);

@@ -1,13 +1,29 @@
-// vitest.config.ts
+// vite.config.ts
 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'vite-plus';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
+  fmt: {
+    ignorePatterns: [
+      '.github/**',
+      '.kiro/**',
+      'docs/**',
+      'next-env.d.ts',
+      'public/**',
+      'src/**/*.css',
+      '*.md',
+      '*.json',
+      '*.yaml',
+      '*.yml',
+    ],
+    semi: true,
+    singleQuote: true,
+  },
   plugins: [react()],
   resolve: {
     alias: {

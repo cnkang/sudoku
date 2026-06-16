@@ -89,7 +89,7 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
         }
       }
     },
-    [hapticFeedback]
+    [hapticFeedback],
   );
 
   // Magic Wand hint handler with sparkle animation
@@ -116,14 +116,13 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
         setShowSparkles(false);
         setIsAnimating(false);
       },
-      reducedMotion ? 500 : 1500
+      reducedMotion ? 500 : 1500,
     );
   }, [disabled, hintsRemaining, onHint, triggerHaptic, reducedMotion]);
 
   // Encouragement handler
   const handleEncouragement = useCallback(() => {
-    const randomMessage =
-      pickSecureRandomElement(encouragementMessages) ?? "You're doing great!";
+    const randomMessage = pickSecureRandomElement(encouragementMessages) ?? "You're doing great!";
 
     setEncouragementMessage(randomMessage ?? "You're doing great!");
     triggerHaptic('success');
@@ -151,7 +150,7 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
       () => {
         setCelebrationActive(false);
       },
-      reducedMotion ? 1000 : 3000
+      reducedMotion ? 1000 : 3000,
     );
   }, [onCelebrate, triggerHaptic, reducedMotion]);
 
@@ -203,9 +202,7 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
           type="button"
           onClick={handleMagicWandHint}
           disabled={disabled || hintsRemaining <= 0}
-          className={`${styles.magicWandButton} ${
-            isAnimating ? styles.animating : ''
-          }`}
+          className={`${styles.magicWandButton} ${isAnimating ? styles.animating : ''}`}
           aria-label={`Magic wand hint (${hintsRemaining} remaining)`}
           aria-describedby="magic-wand-description"
         >
@@ -244,9 +241,7 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
         type="button"
         onClick={handleCelebration}
         disabled={disabled}
-        className={`${styles.celebrationButton} ${
-          celebrationActive ? styles.celebrating : ''
-        }`}
+        className={`${styles.celebrationButton} ${celebrationActive ? styles.celebrating : ''}`}
         aria-label="Celebrate success"
       >
         <span className={styles.celebrationIcon} aria-hidden="true">
@@ -272,9 +267,7 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
           {Array.from({ length: 20 }, (_, i) => (
             <div
               key={`confetti-${i}-${i % 5}`}
-              className={`${styles.confetti} ${
-                styles[`confetti${(i % 5) + 1}`]
-              }`}
+              className={`${styles.confetti} ${styles[`confetti${(i % 5) + 1}`]}`}
             >
               {['🎉', '⭐', '🌟', '🎊', '✨'][i % 5]}
             </div>

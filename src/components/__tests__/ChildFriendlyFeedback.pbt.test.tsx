@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react';
 import * as fc from 'fast-check';
-import { afterEach, describe, it, vi } from 'vitest';
+import { afterEach, describe, it, vi } from 'vite-plus/test';
 import { secureRandomId } from '@/utils/secureRandom';
 import { getChildFriendlyThemes } from '@/utils/themes';
 import VisualFeedbackSystem from '../VisualFeedbackSystem';
@@ -29,12 +29,7 @@ Object.defineProperty(navigator, 'vibrate', {
 
 // Generators for property-based testing
 const childFriendlyThemeArb = fc.constantFrom(...getChildFriendlyThemes());
-const feedbackTypeArb = fc.constantFrom(
-  'success',
-  'error',
-  'encouragement',
-  'hint'
-);
+const feedbackTypeArb = fc.constantFrom('success', 'error', 'encouragement', 'hint');
 
 const getFeedbackSystem = (container: HTMLElement) =>
   container.querySelector('[data-testid="visual-feedback-system"]');
@@ -56,13 +51,7 @@ const SuccessTrigger = ({ theme }: { theme: ChildFriendlyTheme }) => (
   </VisualFeedbackSystem>
 );
 
-const GentleErrorTrigger = ({
-  theme,
-  testId,
-}: {
-  theme: ChildFriendlyTheme;
-  testId: string;
-}) => (
+const GentleErrorTrigger = ({ theme, testId }: { theme: ChildFriendlyTheme; testId: string }) => (
   <VisualFeedbackSystem theme={theme} childMode={true}>
     {(triggers: FeedbackTriggers) => (
       <button
@@ -165,7 +154,7 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
    */
   it('should provide positive visual feedback in child mode', () => {
     fc.assert(
-      fc.property(childFriendlyThemeArb, theme => {
+      fc.property(childFriendlyThemeArb, (theme) => {
         const { container } = render(<SuccessTrigger theme={theme} />);
 
         // Should have child mode styling
@@ -176,7 +165,7 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
 
         return hasChildMode && isChildFriendlyTheme;
       }),
-      { numRuns: 15 }
+      { numRuns: 15 },
     );
   });
 
@@ -187,12 +176,10 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
    */
   it('should provide gentle error feedback with encouraging language', () => {
     fc.assert(
-      fc.property(childFriendlyThemeArb, theme => {
+      fc.property(childFriendlyThemeArb, (theme) => {
         const uniqueId = secureRandomId();
         const testId = `gentle-error-trigger-${uniqueId}`;
-        const { container } = render(
-          <GentleErrorTrigger theme={theme} testId={testId} />
-        );
+        const { container } = render(<GentleErrorTrigger theme={theme} testId={testId} />);
 
         // Trigger gentle error feedback
         const button = container.querySelector(`[data-testid="${testId}"]`);
@@ -204,12 +191,11 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
         const hasChildMode = hasChildModeClass(container);
 
         // Should have pattern-based visual cues
-        const hasPatternElements =
-          container.querySelectorAll('[data-pattern]').length > 0;
+        const hasPatternElements = container.querySelectorAll('[data-pattern]').length > 0;
 
         return hasChildMode && hasPatternElements;
       }),
-      { numRuns: 15 }
+      { numRuns: 15 },
     );
   });
 
@@ -225,10 +211,7 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
         fc.constantFrom('confetti', 'stars', 'rainbow'),
         (theme, celebrationType) => {
           const { container } = render(
-            <CelebrationTrigger
-              theme={theme}
-              celebrationType={celebrationType}
-            />
+            <CelebrationTrigger theme={theme} celebrationType={celebrationType} />,
           );
 
           // Should have child mode
@@ -239,9 +222,9 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
             container.querySelector('[data-testid="pattern-legend"]') !== null;
 
           return hasChildMode && hasPatternLegend;
-        }
+        },
       ),
-      { numRuns: 15 }
+      { numRuns: 15 },
     );
   });
 
@@ -252,19 +235,18 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
    */
   it('should provide encouraging feedback to maintain motivation', () => {
     fc.assert(
-      fc.property(childFriendlyThemeArb, theme => {
+      fc.property(childFriendlyThemeArb, (theme) => {
         const { container } = render(<EncouragementTrigger theme={theme} />);
 
         // Should have child mode and accessibility features
         const hasChildMode = hasChildModeClass(container);
 
         // Should have screen reader support
-        const hasAriaElements =
-          container.querySelectorAll('[aria-live], [role]').length > 0;
+        const hasAriaElements = container.querySelectorAll('[aria-live], [role]').length > 0;
 
         return hasChildMode && hasAriaElements;
       }),
-      { numRuns: 15 }
+      { numRuns: 15 },
     );
   });
 
@@ -275,19 +257,18 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
    */
   it('should provide helpful hint feedback with child-friendly explanations', () => {
     fc.assert(
-      fc.property(childFriendlyThemeArb, theme => {
+      fc.property(childFriendlyThemeArb, (theme) => {
         const { container } = render(<HintTrigger theme={theme} />);
 
         // Should have child mode
         const hasChildMode = hasChildModeClass(container);
 
         // Should have pattern legend (child-friendly feature)
-        const hasPatternLegend =
-          container.querySelector('[data-testid="pattern-legend"]') !== null;
+        const hasPatternLegend = container.querySelector('[data-testid="pattern-legend"]') !== null;
 
         return hasChildMode && hasPatternLegend;
       }),
-      { numRuns: 15 }
+      { numRuns: 15 },
     );
   });
 
@@ -298,13 +279,11 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
    */
   it('should provide pattern legend in child mode', () => {
     fc.assert(
-      fc.property(childFriendlyThemeArb, theme => {
+      fc.property(childFriendlyThemeArb, (theme) => {
         const { container } = render(<PatternLegendTrigger theme={theme} />);
 
         // Should have pattern legend
-        const patternLegend = container.querySelector(
-          '[data-testid="pattern-legend"]'
-        );
+        const patternLegend = container.querySelector('[data-testid="pattern-legend"]');
         const hasPatternLegend = patternLegend !== null;
 
         if (!hasPatternLegend) {
@@ -313,14 +292,12 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
 
         // Should have child-friendly content
         const hasTitle = patternLegend.querySelector('h4') !== null;
-        const hasPatternItems =
-          patternLegend.querySelectorAll("[class*='legendItem']").length > 0;
-        const hasDescription =
-          patternLegend.textContent?.includes('help') || false;
+        const hasPatternItems = patternLegend.querySelectorAll("[class*='legendItem']").length > 0;
+        const hasDescription = patternLegend.textContent?.includes('help') || false;
 
         return hasTitle && hasPatternItems && hasDescription;
       }),
-      { numRuns: 15 }
+      { numRuns: 15 },
     );
   });
 
@@ -331,33 +308,24 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
    */
   it('should maintain consistent child-friendly design across feedback types', () => {
     fc.assert(
-      fc.property(
-        childFriendlyThemeArb,
-        feedbackTypeArb,
-        (theme, feedbackType) => {
-          const { container } = render(
-            <FeedbackTypeTrigger
-              theme={theme}
-              feedbackType={feedbackType as FeedbackType}
-            />
-          );
+      fc.property(childFriendlyThemeArb, feedbackTypeArb, (theme, feedbackType) => {
+        const { container } = render(
+          <FeedbackTypeTrigger theme={theme} feedbackType={feedbackType as FeedbackType} />,
+        );
 
-          // Should have child mode styling
-          const hasChildMode = hasChildModeClass(container);
+        // Should have child mode styling
+        const hasChildMode = hasChildModeClass(container);
 
-          // Should have pattern legend (child-friendly feature)
-          const hasPatternLegend =
-            container.querySelector('[data-testid="pattern-legend"]') !== null;
+        // Should have pattern legend (child-friendly feature)
+        const hasPatternLegend = container.querySelector('[data-testid="pattern-legend"]') !== null;
 
-          // Should use child-friendly theme
-          const isChildFriendlyTheme =
-            theme.category === 'child-friendly' &&
-            theme.ageGroup === 'children';
+        // Should use child-friendly theme
+        const isChildFriendlyTheme =
+          theme.category === 'child-friendly' && theme.ageGroup === 'children';
 
-          return hasChildMode && hasPatternLegend && isChildFriendlyTheme;
-        }
-      ),
-      { numRuns: 15 }
+        return hasChildMode && hasPatternLegend && isChildFriendlyTheme;
+      }),
+      { numRuns: 15 },
     );
   });
 });

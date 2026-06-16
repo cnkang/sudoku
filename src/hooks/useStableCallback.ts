@@ -32,9 +32,7 @@ export function useLatest<T>(value: T) {
  * - Always accesses latest props/state
  * - No dependency array needed
  */
-export function useStableCallback<T extends (...args: unknown[]) => unknown>(
-  callback: T
-): T {
+export function useStableCallback<T extends (...args: unknown[]) => unknown>(callback: T): T {
   const callbackRef = useLatest(callback);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally stable callback
@@ -42,7 +40,7 @@ export function useStableCallback<T extends (...args: unknown[]) => unknown>(
     ((...args) => {
       return callbackRef.current(...args);
     }) as T,
-    []
+    [],
   );
 }
 
@@ -52,9 +50,7 @@ export function useStableCallback<T extends (...args: unknown[]) => unknown>(
  *
  * @see https://github.com/reactjs/rfcs/blob/useevent/text/0000-useevent.md
  */
-export function useEvent<T extends (...args: unknown[]) => unknown>(
-  handler: T
-): T {
+export function useEvent<T extends (...args: unknown[]) => unknown>(handler: T): T {
   const handlerRef = useRef<T>(handler);
 
   // Update ref during render (not in useEffect)
@@ -66,7 +62,7 @@ export function useEvent<T extends (...args: unknown[]) => unknown>(
       const fn = handlerRef.current;
       return fn(...args);
     }) as T,
-    []
+    [],
   );
 }
 
@@ -76,11 +72,9 @@ export function useEvent<T extends (...args: unknown[]) => unknown>(
  */
 export function useDebouncedCallback<T extends (...args: unknown[]) => unknown>(
   callback: T,
-  delay: number
+  delay: number,
 ): T {
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined
-  );
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const callbackRef = useLatest(callback);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: callbackRef is stable
@@ -94,7 +88,7 @@ export function useDebouncedCallback<T extends (...args: unknown[]) => unknown>(
         callbackRef.current(...args);
       }, delay);
     }) as T,
-    [delay]
+    [delay],
   );
 }
 
@@ -104,7 +98,7 @@ export function useDebouncedCallback<T extends (...args: unknown[]) => unknown>(
  */
 export function useThrottledCallback<T extends (...args: unknown[]) => unknown>(
   callback: T,
-  interval: number
+  interval: number,
 ): T {
   const lastCallRef = useRef<number>(0);
   const callbackRef = useLatest(callback);
@@ -119,7 +113,7 @@ export function useThrottledCallback<T extends (...args: unknown[]) => unknown>(
       }
       return undefined;
     }) as T,
-    [interval]
+    [interval],
   );
 }
 
@@ -131,7 +125,7 @@ export function useThrottledCallback<T extends (...args: unknown[]) => unknown>(
  */
 export function useMemoizedCallback<T extends (...args: unknown[]) => unknown>(
   callback: T,
-  deps: ReadonlyArray<string | number | boolean | null | undefined>
+  deps: ReadonlyArray<string | number | boolean | null | undefined>,
 ): T {
   // biome-ignore lint/correctness/useExhaustiveDependencies: deps array is intentionally dynamic
   return useCallback(callback, deps);

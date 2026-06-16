@@ -59,7 +59,7 @@ export const extractErrorMessage = (error: unknown): string => {
 export const createErrorResponse = (
   error: unknown,
   code?: string,
-  details?: unknown
+  details?: unknown,
 ): ErrorResponse => {
   const response: ErrorResponse = {
     error: extractErrorMessage(error),
@@ -81,7 +81,7 @@ export const createErrorResponse = (
  */
 export const safeAsync = async <T>(
   operation: () => Promise<T>,
-  fallback?: T
+  fallback?: T,
 ): Promise<T | null> => {
   try {
     return await operation();
@@ -109,7 +109,7 @@ export const safeSync = <T>(operation: () => T, fallback?: T): T | null => {
 export const retryOperation = async <T>(
   operation: () => Promise<T>,
   maxRetries = 3,
-  baseDelay = 1000
+  baseDelay = 1000,
 ): Promise<T> => {
   let lastError: unknown;
 
@@ -124,7 +124,7 @@ export const retryOperation = async <T>(
       }
 
       const delay = baseDelay * 2 ** attempt;
-      await new Promise(resolve => setTimeout(resolve, delay));
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 

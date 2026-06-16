@@ -63,10 +63,7 @@ const SAFE_ERROR_CODES = new Set([
  * @param code - Optional error code
  * @returns Sanitized error response safe for clients
  */
-export function sanitizeErrorForClient(
-  error: unknown,
-  code?: string
-): SanitizedErrorResponse {
+export function sanitizeErrorForClient(error: unknown, code?: string): SanitizedErrorResponse {
   const timestamp = Date.now();
 
   // In development, provide more details (but still no stack traces)
@@ -105,7 +102,7 @@ export function createDetailedErrorLog(
     method: string;
     userAgent: string | undefined;
     ip?: string | undefined;
-  }
+  },
 ): DetailedErrorLog {
   const timestamp = Date.now();
 
@@ -274,7 +271,7 @@ export function sanitizeZodError(zodError: {
     return {
       error: GENERIC_ERROR_MESSAGES.VALIDATION_ERROR,
       code: 'VALIDATION_ERROR',
-      fields: zodError.issues.map(issue => ({
+      fields: zodError.issues.map((issue) => ({
         field: issue.path.map(String).join('.'),
         message: issue.message,
       })),

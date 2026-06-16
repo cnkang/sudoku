@@ -6,13 +6,7 @@
  */
 
 import { render } from '@testing-library/react';
-import {
-  Circle,
-  CornerDecoration,
-  GeometricMesh,
-  Square,
-  Triangle,
-} from '../GeometricShapes';
+import { Circle, CornerDecoration, GeometricMesh, Square, Triangle } from '../GeometricShapes';
 
 describe('GeometricShapes', () => {
   describe('Circle', () => {
@@ -134,9 +128,7 @@ describe('GeometricShapes', () => {
     });
 
     it('should render for bottom-right position', () => {
-      const { container } = render(
-        <CornerDecoration position="bottom-right" />
-      );
+      const { container } = render(<CornerDecoration position="bottom-right" />);
       const decoration = container.firstChild as HTMLElement;
 
       expect(decoration.className).toContain('bottom-right');
@@ -152,7 +144,7 @@ describe('GeometricShapes', () => {
 
     it('should accept custom className', () => {
       const { container } = render(
-        <CornerDecoration position="top-left" className="custom-corner" />
+        <CornerDecoration position="top-left" className="custom-corner" />,
       );
       const decoration = container.firstChild as HTMLElement;
 
@@ -166,15 +158,10 @@ describe('GeometricShapes', () => {
       const { container: triangleContainer } = render(<Triangle />);
       const { container: squareContainer } = render(<Square />);
       const { container: meshContainer } = render(<GeometricMesh />);
-      const { container: cornerContainer } = render(
-        <CornerDecoration position="top-left" />
-      );
+      const { container: cornerContainer } = render(<CornerDecoration position="top-left" />);
 
       expect(circleContainer.firstChild).toHaveAttribute('aria-hidden', 'true');
-      expect(triangleContainer.firstChild).toHaveAttribute(
-        'aria-hidden',
-        'true'
-      );
+      expect(triangleContainer.firstChild).toHaveAttribute('aria-hidden', 'true');
       expect(squareContainer.firstChild).toHaveAttribute('aria-hidden', 'true');
       expect(meshContainer.firstChild).toHaveAttribute('aria-hidden', 'true');
       expect(cornerContainer.firstChild).toHaveAttribute('aria-hidden', 'true');
@@ -185,9 +172,7 @@ describe('GeometricShapes', () => {
       const { container: triangleContainer } = render(<Triangle />);
       const { container: squareContainer } = render(<Square />);
       const { container: meshContainer } = render(<GeometricMesh />);
-      const { container: cornerContainer } = render(
-        <CornerDecoration position="top-left" />
-      );
+      const { container: cornerContainer } = render(<CornerDecoration position="top-left" />);
 
       expect(circleContainer.firstChild).not.toHaveAttribute('role');
       expect(triangleContainer.firstChild).not.toHaveAttribute('role');
@@ -201,7 +186,7 @@ describe('GeometricShapes', () => {
     it('should support all size variants', () => {
       const sizes: Array<'sm' | 'md' | 'lg' | 'xl'> = ['sm', 'md', 'lg', 'xl'];
 
-      sizes.forEach(size => {
+      sizes.forEach((size) => {
         const { container } = render(<Circle size={size} />);
         const circle = container.firstChild as HTMLElement;
         expect(circle.className).toContain(size);
@@ -217,7 +202,7 @@ describe('GeometricShapes', () => {
         'mesh',
       ];
 
-      variants.forEach(variant => {
+      variants.forEach((variant) => {
         const { container } = render(<Circle variant={variant} />);
         const circle = container.firstChild as HTMLElement;
         expect(circle.className).toContain(variant);

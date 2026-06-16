@@ -2,7 +2,7 @@
  * Tests for Content Security Policy (CSP) utilities
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import {
   generateCSPHeader,
   generateNonce,
@@ -100,9 +100,7 @@ describe('CSP Utilities', () => {
 
       const header = generateCSPHeader(directives);
 
-      expect(header).toContain(
-        "script-src 'self' 'strict-dynamic' https://cdn.example.com"
-      );
+      expect(header).toContain("script-src 'self' 'strict-dynamic' https://cdn.example.com");
       expect(header).toContain("style-src 'self' 'unsafe-inline'");
       expect(header).toContain("img-src 'self' data: blob: https:");
     });

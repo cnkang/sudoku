@@ -3,7 +3,7 @@
  * Validates Requirements 5.1, 5.3, 5.4
  */
 
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vite-plus/test';
 
 describe('ModernSudokuApp - Parallel Async Operations', () => {
   it('should parallelize independent async operations using Promise.all', async () => {
@@ -15,18 +15,15 @@ describe('ModernSudokuApp - Parallel Async Operations', () => {
       .fn()
       .mockImplementation(
         () =>
-          new Promise(resolve =>
-            setTimeout(() => resolve({ puzzle: [], solution: [] }), fetchDelay)
-          )
+          new Promise((resolve) =>
+            setTimeout(() => resolve({ puzzle: [], solution: [] }), fetchDelay),
+          ),
       );
 
     const mockSave = vi
       .fn()
       .mockImplementation(
-        () =>
-          new Promise(resolve =>
-            setTimeout(() => resolve(undefined), saveDelay)
-          )
+        () => new Promise((resolve) => setTimeout(() => resolve(undefined), saveDelay)),
       );
 
     // Measure parallel execution time
@@ -41,9 +38,7 @@ describe('ModernSudokuApp - Parallel Async Operations', () => {
     // Sequential would take fetchDelay + saveDelay = 150ms
     expect(data).toBeDefined();
     expect(parallelTime).toBeLessThan(fetchDelay + saveDelay - 20);
-    expect(parallelTime).toBeGreaterThanOrEqual(
-      Math.max(fetchDelay, saveDelay) - 10
-    );
+    expect(parallelTime).toBeGreaterThanOrEqual(Math.max(fetchDelay, saveDelay) - 10);
 
     // Verify both operations were called
     expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -59,18 +54,15 @@ describe('ModernSudokuApp - Parallel Async Operations', () => {
       .fn()
       .mockImplementation(
         () =>
-          new Promise(resolve =>
-            setTimeout(() => resolve({ puzzle: [], solution: [] }), fetchDelay)
-          )
+          new Promise((resolve) =>
+            setTimeout(() => resolve({ puzzle: [], solution: [] }), fetchDelay),
+          ),
       );
 
     const mockSave = vi
       .fn()
       .mockImplementation(
-        () =>
-          new Promise(resolve =>
-            setTimeout(() => resolve(undefined), saveDelay)
-          )
+        () => new Promise((resolve) => setTimeout(() => resolve(undefined), saveDelay)),
       );
 
     // Measure parallel execution time
@@ -80,8 +72,7 @@ describe('ModernSudokuApp - Parallel Async Operations', () => {
     const parallelTime = performance.now() - startTime;
 
     // Calculate improvement percentage
-    const improvement =
-      ((sequentialTime - parallelTime) / sequentialTime) * 100;
+    const improvement = ((sequentialTime - parallelTime) / sequentialTime) * 100;
 
     // Should achieve 25-40% improvement (Requirement 5.4)
     // With fetchDelay=80, saveDelay=40:

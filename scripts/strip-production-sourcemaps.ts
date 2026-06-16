@@ -6,10 +6,7 @@ import path from 'node:path';
 const rootDir = process.cwd();
 const targets = ['.next', 'public'];
 
-async function collectSourceMaps(
-  dirPath: string,
-  acc: string[]
-): Promise<void> {
+async function collectSourceMaps(dirPath: string, acc: string[]): Promise<void> {
   let entries: Array<{
     isDirectory: () => boolean;
     isFile: () => boolean;
@@ -53,9 +50,7 @@ for (const file of sourceMapFiles) {
 const relative = (filePath: string) => path.relative(rootDir, filePath);
 if (sourceMapFiles.length > 0) {
   // biome-ignore lint/suspicious/noConsole: intentional script output
-  console.log(
-    `[strip-production-sourcemaps] Removed ${sourceMapFiles.length} source maps`
-  );
+  console.log(`[strip-production-sourcemaps] Removed ${sourceMapFiles.length} source maps`);
   for (const file of sourceMapFiles.slice(0, 20)) {
     // biome-ignore lint/suspicious/noConsole: intentional script output
     console.log(`- ${relative(file)}`);

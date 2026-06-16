@@ -4,7 +4,7 @@
  */
 
 import { act, renderHook } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import {
   useOptimizedTouchHandlers,
   useThrottledTouchMove,
@@ -22,9 +22,7 @@ describe('useThrottledTouchMove', () => {
 
   it('should throttle touch move events to maintain 60fps', () => {
     const handler = vi.fn();
-    const { result } = renderHook(() =>
-      useThrottledTouchMove(handler, { throttleMs: 16 })
-    );
+    const { result } = renderHook(() => useThrottledTouchMove(handler, { throttleMs: 16 }));
 
     const mockEvent = {
       touches: [{ clientX: 100, clientY: 100 }],
@@ -43,9 +41,7 @@ describe('useThrottledTouchMove', () => {
 
   it('should call handler after throttle interval expires', () => {
     const handler = vi.fn();
-    const { result } = renderHook(() =>
-      useThrottledTouchMove(handler, { throttleMs: 16 })
-    );
+    const { result } = renderHook(() => useThrottledTouchMove(handler, { throttleMs: 16 }));
 
     const mockEvent = {
       touches: [{ clientX: 100, clientY: 100 }],
@@ -73,7 +69,7 @@ describe('useThrottledTouchMove', () => {
   it('should support leading edge calls', () => {
     const handler = vi.fn();
     const { result } = renderHook(() =>
-      useThrottledTouchMove(handler, { throttleMs: 16, leading: true })
+      useThrottledTouchMove(handler, { throttleMs: 16, leading: true }),
     );
 
     const mockEvent = {
@@ -95,7 +91,7 @@ describe('useThrottledTouchMove', () => {
         throttleMs: 16,
         leading: false,
         trailing: true,
-      })
+      }),
     );
 
     const mockEvent = {
@@ -119,9 +115,7 @@ describe('useThrottledTouchMove', () => {
 
   it('should handle rapid successive calls correctly', () => {
     const handler = vi.fn();
-    const { result } = renderHook(() =>
-      useThrottledTouchMove(handler, { throttleMs: 16 })
-    );
+    const { result } = renderHook(() => useThrottledTouchMove(handler, { throttleMs: 16 }));
 
     const mockEvent = {
       touches: [{ clientX: 100, clientY: 100 }],
@@ -158,7 +152,7 @@ describe('useOptimizedTouchHandlers', () => {
         onTouchStart,
         onTouchMove,
         onTouchEnd,
-      })
+      }),
     );
 
     expect(result.current.onTouchStart).toBe(onTouchStart);
@@ -173,7 +167,7 @@ describe('useOptimizedTouchHandlers', () => {
       useOptimizedTouchHandlers({
         onTouchMove,
         throttleMs: 16,
-      })
+      }),
     );
 
     const mockEvent = {
@@ -194,7 +188,7 @@ describe('useOptimizedTouchHandlers', () => {
     const { result } = renderHook(() =>
       useOptimizedTouchHandlers({
         onTouchStart: vi.fn(),
-      })
+      }),
     );
 
     expect(result.current.onTouchMove).toBeUndefined();

@@ -1,10 +1,7 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import Timer from '../Timer';
-import {
-  createEdgeCaseTests,
-  createRenderingTests,
-} from './shared-test-suites';
+import { createEdgeCaseTests, createRenderingTests } from './shared-test-suites';
 import { cleanupTest, createTimerProps, setupTest } from './test-utils';
 
 describe('Timer', () => {
@@ -12,9 +9,7 @@ describe('Timer', () => {
   afterEach(cleanupTest);
 
   // Use shared rendering test suite
-  createRenderingTests('Timer', () =>
-    render(<Timer {...createTimerProps()} />)
-  );
+  createRenderingTests('Timer', () => render(<Timer {...createTimerProps()} />));
 
   describe('Time Formatting', () => {
     const timeFormatTests = [
@@ -86,17 +81,12 @@ describe('Timer', () => {
       {
         props: { time: 123 },
         description: 'apply monospace font to timer value',
-        checks: [
-          () => expect(screen.getByText('02:03')).toHaveClass('timer-value'),
-        ],
+        checks: [() => expect(screen.getByText('02:03')).toHaveClass('timer-value')],
       },
       {
         props: { isPaused: true },
         description: 'show paused status with correct styling',
-        checks: [
-          () =>
-            expect(screen.getByText('(Paused)')).toHaveClass('timer-status'),
-        ],
+        checks: [() => expect(screen.getByText('(Paused)')).toHaveClass('timer-status')],
       },
     ];
 
@@ -123,8 +113,7 @@ describe('Timer', () => {
       {
         props: { isActive: true, isPaused: true },
         description: 'handle paused timer state',
-        extraCheck: () =>
-          expect(screen.getByText('(Paused)')).toBeInTheDocument(),
+        extraCheck: () => expect(screen.getByText('(Paused)')).toBeInTheDocument(),
       },
     ];
 

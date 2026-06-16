@@ -166,10 +166,8 @@ export function validateInput<T>(schema: z.ZodSchema<T>, data: unknown): T {
  */
 export function safeValidateInput<T>(
   schema: z.ZodSchema<T>,
-  data: unknown
+  data: unknown,
 ): { success: true; data: T } | { success: false; error: z.ZodError } {
   const result = schema.safeParse(data);
-  return result as
-    | { success: true; data: T }
-    | { success: false; error: z.ZodError };
+  return result as { success: true; data: T } | { success: false; error: z.ZodError };
 }

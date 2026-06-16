@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import PWAGridSelector from '../PWAGridSelector';
 
 // Mock View Transitions API
-const mockStartViewTransition = vi.fn(callback => {
+const mockStartViewTransition = vi.fn((callback) => {
   // Execute the callback immediately to simulate the transition
   if (callback) {
     callback();
@@ -20,7 +20,7 @@ Object.defineProperty(document, 'startViewTransition', {
 // Mock window.matchMedia for PWA detection
 Object.defineProperty(globalThis, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -49,7 +49,7 @@ describe('PWAGridSelector', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Reset the mock implementation
-    mockStartViewTransition.mockImplementation(callback => {
+    mockStartViewTransition.mockImplementation((callback) => {
       if (callback) {
         callback();
       }
@@ -77,32 +77,20 @@ describe('PWAGridSelector', () => {
       render(<PWAGridSelector {...defaultProps} showDescriptions={true} />);
 
       expect(screen.getByText('Select Grid Size')).toBeInTheDocument();
-      expect(
-        screen.getByText('Choose your preferred Sudoku grid size')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Choose your preferred Sudoku grid size')).toBeInTheDocument();
       expect(screen.getByText('4×4 Grid')).toBeInTheDocument();
-      expect(
-        screen.getByText('Perfect for beginners and young learners')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Perfect for beginners and young learners')).toBeInTheDocument();
     });
 
     it('displays child-friendly content in child mode', () => {
-      render(
-        <PWAGridSelector
-          {...defaultProps}
-          childMode={true}
-          showDescriptions={true}
-        />
-      );
+      render(<PWAGridSelector {...defaultProps} childMode={true} showDescriptions={true} />);
 
       expect(screen.getByText('Choose Your Puzzle Size!')).toBeInTheDocument();
       expect(
-        screen.getByText('Pick the size that feels just right for you! 🎮')
+        screen.getByText('Pick the size that feels just right for you! 🎮'),
       ).toBeInTheDocument();
       expect(screen.getByText('Easy 4×4')).toBeInTheDocument();
-      expect(
-        screen.getByText('Great for starting your Sudoku journey! 🌟')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Great for starting your Sudoku journey! 🌟')).toBeInTheDocument();
     });
 
     it('shows current selection correctly', () => {
@@ -154,7 +142,7 @@ describe('PWAGridSelector', () => {
 
     it('shows installed indicator when app is installed', () => {
       // Mock standalone mode
-      globalThis.matchMedia = vi.fn().mockImplementation(query => ({
+      globalThis.matchMedia = vi.fn().mockImplementation((query) => ({
         matches: query === '(display-mode: standalone)',
         media: query,
         onchange: null,
@@ -278,24 +266,16 @@ describe('PWAGridSelector', () => {
       const option9 = screen.getByTestId('grid-option-9');
 
       // Each should have a grid preview element
-      expect(
-        option4.querySelector('[class*="gridPreview"]')
-      ).toBeInTheDocument();
-      expect(
-        option6.querySelector('[class*="gridPreview"]')
-      ).toBeInTheDocument();
-      expect(
-        option9.querySelector('[class*="gridPreview"]')
-      ).toBeInTheDocument();
+      expect(option4.querySelector('[class*="gridPreview"]')).toBeInTheDocument();
+      expect(option6.querySelector('[class*="gridPreview"]')).toBeInTheDocument();
+      expect(option9.querySelector('[class*="gridPreview"]')).toBeInTheDocument();
     });
 
     it('shows selected indicator for current selection', () => {
       render(<PWAGridSelector {...defaultProps} currentSize={4} />);
 
       const option4 = screen.getByTestId('grid-option-4');
-      const selectedIndicator = option4.querySelector(
-        '[class*="selectedIndicator"]'
-      );
+      const selectedIndicator = option4.querySelector('[class*="selectedIndicator"]');
 
       expect(selectedIndicator).toBeInTheDocument();
       expect(selectedIndicator?.textContent).toBe('✓');

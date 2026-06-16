@@ -16,7 +16,7 @@ try {
   // Directory already exists
 }
 
-const writeLine = message => {
+const writeLine = (message) => {
   process.stdout.write(`${message}\n`);
 };
 
@@ -82,7 +82,7 @@ function generateSVGIcon(size) {
 }
 
 // Generate icons for all sizes
-iconSizes.forEach(size => {
+iconSizes.forEach((size) => {
   const svgContent = generateSVGIcon(size);
   const filename = join(publicDir, `icon-${size}x${size}.svg`);
 
@@ -97,7 +97,7 @@ const shortcuts = [
   { name: '9x9', color: '#9B59B6', number: '9' },
 ];
 
-shortcuts.forEach(shortcut => {
+shortcuts.forEach((shortcut) => {
   const svgContent = `<svg width="96" height="96" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="bg-${shortcut.name}" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -131,7 +131,7 @@ const actions = [
   },
 ];
 
-actions.forEach(action => {
+actions.forEach((action) => {
   const svgContent = `<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
     <circle cx="32" cy="32" r="28" fill="${action.color}" opacity="0.1"/>
     <path d="${action.path}" fill="none" stroke="${action.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
@@ -154,5 +154,5 @@ writeLine('Generated badge-72x72.svg');
 writeLine('');
 writeLine('All PWA icons generated successfully!');
 writeLine(
-  'Note: For production, consider converting SVG icons to PNG format for better browser compatibility.'
+  'Note: For production, consider converting SVG icons to PNG format for better browser compatibility.',
 );

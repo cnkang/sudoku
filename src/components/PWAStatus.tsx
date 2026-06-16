@@ -23,8 +23,7 @@ export default function PWAStatus({
   showUpdateNotification = true,
   className = '',
 }: PWAStatusProps) {
-  const { status, canInstall, installApp, isInstalling, updateServiceWorker } =
-    usePWA();
+  const { status, canInstall, installApp, isInstalling, updateServiceWorker } = usePWA();
   const isOffline = useOfflineStatus();
   const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -95,8 +94,7 @@ export default function PWAStatus({
         >
           {isInstalling ? (
             <>
-              <span className={styles.spinner} aria-hidden="true" />{' '}
-              Installing...
+              <span className={styles.spinner} aria-hidden="true" /> Installing...
             </>
           ) : (
             <>
@@ -130,8 +128,7 @@ export default function PWAStatus({
             >
               {isUpdating ? (
                 <>
-                  <span className={styles.spinner} aria-hidden="true" />{' '}
-                  Updating...
+                  <span className={styles.spinner} aria-hidden="true" /> Updating...
                 </>
               ) : (
                 'Update Now'
@@ -160,9 +157,7 @@ export default function PWAStatus({
               <li>Service Worker: {status.serviceWorkerReady ? '✅' : '❌'}</li>
               <li>Can Install: {canInstall ? '✅' : '❌'}</li>
               <li>Offline: {isOffline ? '✅' : '❌'}</li>
-              {status.cacheStatus && (
-                <li>Cached Puzzles: {status.cacheStatus.puzzleCount}</li>
-              )}
+              {status.cacheStatus && <li>Cached Puzzles: {status.cacheStatus.puzzleCount}</li>}
             </ul>
           </details>
         </div>

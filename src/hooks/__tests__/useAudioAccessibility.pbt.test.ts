@@ -9,7 +9,7 @@
 
 import { act, renderHook } from '@testing-library/react';
 import fc from 'fast-check';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import type { GridConfig } from '@/types';
 import { useAudioAccessibility } from '../useAudioAccessibility';
 
@@ -31,7 +31,7 @@ vi.mock('@/utils/accessibilityManager', () => {
         isFixed: boolean,
         _gridConfig: GridConfig,
         hasConflict: boolean,
-        isHinted: boolean
+        isHinted: boolean,
       ) => {
         const parts: string[] = [
           `Cell row ${row + 1}, column ${col + 1}`,
@@ -51,7 +51,7 @@ vi.mock('@/utils/accessibilityManager', () => {
         }
 
         return `${parts.join(', ')}.`;
-      }
+      },
     ),
   };
 
@@ -141,7 +141,7 @@ const gridConfigArb = fc.constantFrom(
       showHelpText: false,
       useExtraLargeTargets: false,
     },
-  } as GridConfig
+  } as GridConfig,
 );
 
 // Cell position arbitraries - use specific values for each grid size
@@ -160,14 +160,14 @@ const cellPositionArb = fc.oneof(
     row: fc.integer({ min: 0, max: 8 }),
     col: fc.integer({ min: 0, max: 8 }),
     gridSize: fc.constant(9 as const),
-  })
+  }),
 );
 
 // Cell value arbitraries - use specific values for each grid size
 const cellValueArb = fc.oneof(
   fc.integer({ min: 1, max: 4 }),
   fc.integer({ min: 1, max: 6 }),
-  fc.integer({ min: 1, max: 9 })
+  fc.integer({ min: 1, max: 9 }),
 );
 
 // Complete accessibility settings arbitraries
@@ -231,7 +231,7 @@ describe('useAudioAccessibility - Property-based tests', () => {
               highContrast: false,
               largeText: false,
               keyboardNavigation: false,
-            })
+            }),
           );
 
           act(() => {
@@ -239,7 +239,7 @@ describe('useAudioAccessibility - Property-based tests', () => {
               position.row,
               position.col,
               gridConfig,
-              cellInfo
+              cellInfo,
             );
           });
 
@@ -248,8 +248,7 @@ describe('useAudioAccessibility - Property-based tests', () => {
           expect(mockSpeechSynthesisUtterance).toHaveBeenCalled();
 
           // The utterance should contain relevant cell information
-          const utteranceCall =
-            mockSpeechSynthesisUtterance.mock.calls.slice(-1)[0];
+          const utteranceCall = mockSpeechSynthesisUtterance.mock.calls.slice(-1)[0];
           expect(utteranceCall).toBeTruthy();
           if (!utteranceCall) return;
           const spokenText = utteranceCall[0].toLowerCase();
@@ -276,9 +275,9 @@ describe('useAudioAccessibility - Property-based tests', () => {
           if (cellInfo.isHinted) {
             expect(spokenText).toMatch(/highlighted as a hint/);
           }
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
@@ -294,7 +293,7 @@ describe('useAudioAccessibility - Property-based tests', () => {
           if (position.gridSize !== gridConfig.size) return;
 
           const { result } = renderHook(() =>
-            useAudioAccessibility({ ...settings, audioFeedback: false })
+            useAudioAccessibility({ ...settings, audioFeedback: false }),
           );
 
           act(() => {
@@ -302,15 +301,15 @@ describe('useAudioAccessibility - Property-based tests', () => {
               position.row,
               position.col,
               gridConfig,
-              cellInfo
+              cellInfo,
             );
           });
 
           // When audio feedback is disabled, speech synthesis should not be called
           expect(mockSpeechSynthesis.speak).not.toHaveBeenCalled();
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
@@ -327,7 +326,7 @@ describe('useAudioAccessibility - Property-based tests', () => {
           if (position.gridSize !== gridConfig.size) return;
 
           const { result } = renderHook(() =>
-            useAudioAccessibility({ ...settings, audioFeedback: true })
+            useAudioAccessibility({ ...settings, audioFeedback: true }),
           );
 
           // Wait for the hook to initialize properly
@@ -339,19 +338,13 @@ describe('useAudioAccessibility - Property-based tests', () => {
           });
 
           act(() => {
-            result.current[1].speakMove(
-              position.row,
-              position.col,
-              value,
-              isCorrect
-            );
+            result.current[1].speakMove(position.row, position.col, value, isCorrect);
           });
 
           expect(mockSpeechSynthesis.speak).toHaveBeenCalled();
           expect(mockSpeechSynthesisUtterance).toHaveBeenCalled();
 
-          const utteranceCall =
-            mockSpeechSynthesisUtterance.mock.calls.slice(-1)[0];
+          const utteranceCall = mockSpeechSynthesisUtterance.mock.calls.slice(-1)[0];
           expect(utteranceCall).toBeTruthy();
           if (!utteranceCall) return;
           const spokenText = utteranceCall[0].toLowerCase();
@@ -366,9 +359,9 @@ describe('useAudioAccessibility - Property-based tests', () => {
           } else {
             expect(spokenText).toMatch(/incorrect/);
           }
-        }
+        },
       ),
-      { numRuns: 40 }
+      { numRuns: 40 },
     );
   });
 
@@ -388,7 +381,7 @@ describe('useAudioAccessibility - Property-based tests', () => {
               highContrast: false,
               largeText: false,
               keyboardNavigation: false,
-            })
+            }),
           );
 
           act(() => {
@@ -398,8 +391,7 @@ describe('useAudioAccessibility - Property-based tests', () => {
           expect(mockSpeechSynthesis.speak).toHaveBeenCalled();
           expect(mockSpeechSynthesisUtterance).toHaveBeenCalled();
 
-          const utteranceCall =
-            mockSpeechSynthesisUtterance.mock.calls.slice(-1)[0];
+          const utteranceCall = mockSpeechSynthesisUtterance.mock.calls.slice(-1)[0];
           expect(utteranceCall).toBeTruthy();
           if (!utteranceCall) return;
           const spokenText = utteranceCall[0].toLowerCase();
@@ -411,9 +403,9 @@ describe('useAudioAccessibility - Property-based tests', () => {
             // In non-child mode, should include "error:" prefix
             expect(spokenText).toMatch(/error:/);
           }
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
@@ -425,7 +417,7 @@ describe('useAudioAccessibility - Property-based tests', () => {
         accessibilitySettingsArb,
         (gridConfig, _childMode, settings) => {
           const { result } = renderHook(() =>
-            useAudioAccessibility({ ...settings, audioFeedback: true })
+            useAudioAccessibility({ ...settings, audioFeedback: true }),
           );
 
           // Wait for the hook to initialize properly
@@ -447,8 +439,7 @@ describe('useAudioAccessibility - Property-based tests', () => {
           expect(mockSpeechSynthesis.speak).toHaveBeenCalled();
           expect(mockSpeechSynthesisUtterance).toHaveBeenCalled();
 
-          const utteranceCall =
-            mockSpeechSynthesisUtterance.mock.calls.slice(-1)[0];
+          const utteranceCall = mockSpeechSynthesisUtterance.mock.calls.slice(-1)[0];
           expect(utteranceCall).toBeTruthy();
           if (!utteranceCall) return;
           const spokenText = utteranceCall[0].toLowerCase();
@@ -457,9 +448,9 @@ describe('useAudioAccessibility - Property-based tests', () => {
           expect(spokenText).toContain(gridConfig.size.toString());
           expect(spokenText).toMatch(/sudoku|puzzle/);
           expect(spokenText).toMatch(/difficulty|clues/);
-        }
+        },
       ),
-      { numRuns: 40 }
+      { numRuns: 40 },
     );
   });
 
@@ -485,9 +476,7 @@ describe('useAudioAccessibility - Property-based tests', () => {
           }),
         }),
         (initialSettings, audioSettings) => {
-          const { result } = renderHook(() =>
-            useAudioAccessibility(initialSettings)
-          );
+          const { result } = renderHook(() => useAudioAccessibility(initialSettings));
 
           act(() => {
             result.current[1].updateSettings({
@@ -526,14 +515,12 @@ describe('useAudioAccessibility - Property-based tests', () => {
           if (initialSettings.audioFeedback) {
             // Verify the settings are stored correctly
             expect(state.currentSettings.rate).toBe(audioSettings.speechRate);
-            expect(state.currentSettings.volume).toBe(
-              audioSettings.speechVolume
-            );
+            expect(state.currentSettings.volume).toBe(audioSettings.speechVolume);
             expect(state.currentSettings.pitch).toBe(audioSettings.speechPitch);
           }
-        }
+        },
       ),
-      { numRuns: 25 }
+      { numRuns: 25 },
     );
   });
 
@@ -561,7 +548,7 @@ describe('useAudioAccessibility - Property-based tests', () => {
           highContrast: false,
           largeText: false,
           keyboardNavigation: false,
-        })
+        }),
       );
 
       act(() => {

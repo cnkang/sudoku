@@ -22,10 +22,7 @@ const MAX_RATE_LIMIT_ENTRIES = 10000;
 const NO_STORE_CACHE_CONTROL = 'no-store';
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
-function getHeaderValue(
-  request: Pick<NextRequest, 'headers'>,
-  headerName: string
-): string | null {
+function getHeaderValue(request: Pick<NextRequest, 'headers'>, headerName: string): string | null {
   const { headers } = request;
   if (headers instanceof Headers) {
     return headers.get(headerName);
@@ -72,10 +69,7 @@ function getClientAddress(request: NextRequest): string {
   return 'unknown';
 }
 
-export function enforceRateLimit(
-  request: NextRequest,
-  options: RateLimitOptions
-): RateLimitResult {
+export function enforceRateLimit(request: NextRequest, options: RateLimitOptions): RateLimitResult {
   const now = Date.now();
   if (rateLimitStore.size > MAX_RATE_LIMIT_ENTRIES) {
     cleanupExpiredRateLimitEntries(now);
@@ -98,10 +92,7 @@ export function enforceRateLimit(
 
   const limited = entry.count > options.maxRequests;
   const remaining = Math.max(0, options.maxRequests - entry.count);
-  const retryAfterSeconds = Math.max(
-    1,
-    Math.ceil((entry.resetAt - now) / 1000)
-  );
+  const retryAfterSeconds = Math.max(1, Math.ceil((entry.resetAt - now) / 1000));
 
   return {
     limited,
@@ -119,11 +110,10 @@ const ALLOWED_ORIGINS = new Set(
     process.env.NEXT_PUBLIC_APP_URL,
     process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
     // Allow localhost in development and test environments
-    ...(process.env.NODE_ENV === 'development' ||
-    process.env.NODE_ENV === 'test'
+    ...(process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
       ? ['http://localhost:3000', 'http://127.0.0.1:3000']
       : []),
-  ].filter((origin): origin is string => Boolean(origin))
+  ].filter((origin): origin is string => Boolean(origin)),
 );
 
 /**
@@ -134,12 +124,7 @@ const ALLOWED_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'] as const;
 /**
  * Allowed headers for CORS requests
  */
-const ALLOWED_HEADERS = [
-  'Content-Type',
-  'Authorization',
-  'X-Requested-With',
-  'Accept',
-] as const;
+const ALLOWED_HEADERS = ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'] as const;
 
 /**
  * Validates that the request origin is either same-origin or in the allowed origins list
@@ -158,8 +143,7 @@ export function isSameOriginRequest(request: NextRequest): boolean {
   }
 
   try {
-    const requestOrigin =
-      request.nextUrl?.origin ?? new URL(request.url).origin;
+    const requestOrigin = request.nextUrl?.origin ?? new URL(request.url).origin;
     const originUrl = new URL(origin).origin;
 
     // Check if it's same-origin
@@ -186,23 +170,18 @@ export function isSameOriginRequest(request: NextRequest): boolean {
  *
  * Requirements: 12.3 - Configure CORS headers to restrict allowed origins
  */
-export function buildCorsHeaders(
-  request: NextRequest,
-  additionalHeaders?: HeadersInit
-): Headers {
+export function buildCorsHeaders(request: NextRequest, additionalHeaders?: HeadersInit): Headers {
   const headers = new Headers(additionalHeaders);
   const origin = getHeaderValue(request, 'origin');
 
   // Only add CORS headers if there's an origin header (cross-origin request)
   if (origin) {
     try {
-      const requestOrigin =
-        request.nextUrl?.origin ?? new URL(request.url).origin;
+      const requestOrigin = request.nextUrl?.origin ?? new URL(request.url).origin;
       const originUrl = new URL(origin).origin;
 
       // Check if origin is allowed (same-origin or in allowed list)
-      const isAllowed =
-        originUrl === requestOrigin || ALLOWED_ORIGINS.has(originUrl);
+      const isAllowed = originUrl === requestOrigin || ALLOWED_ORIGINS.has(originUrl);
 
       if (isAllowed) {
         // Set the specific origin that made the request
@@ -224,10 +203,7 @@ export function buildCorsHeaders(
   return headers;
 }
 
-export function buildSecurityHeaders(
-  request: NextRequest,
-  headersInit?: HeadersInit
-): Headers {
+export function buildSecurityHeaders(request: NextRequest, headersInit?: HeadersInit): Headers {
   // Build CORS headers first
   const headers = buildCorsHeaders(request, headersInit);
 
@@ -246,7 +222,7 @@ export function buildSecurityHeaders(
 
 export function buildNoStoreSecurityHeaders(
   request: NextRequest,
-  headersInit?: HeadersInit
+  headersInit?: HeadersInit,
 ): Headers {
   const headers = buildSecurityHeaders(request, headersInit);
   if (!headers.has('Cache-Control')) {
@@ -259,7 +235,7 @@ export function createJsonResponse<T>(
   request: NextRequest,
   payload: T,
   status = 200,
-  headersInit?: HeadersInit
+  headersInit?: HeadersInit,
 ): NextResponse {
   return NextResponse.json(payload, {
     status,
@@ -271,7 +247,7 @@ export function createNoStoreJsonResponse<T>(
   request: NextRequest,
   payload: T,
   status = 200,
-  headersInit?: HeadersInit
+  headersInit?: HeadersInit,
 ): NextResponse {
   return NextResponse.json(payload, {
     status,
@@ -282,7 +258,7 @@ export function createNoStoreJsonResponse<T>(
 export function createRateLimitedResponse(
   request: NextRequest,
   retryAfterSeconds: number,
-  message = 'Too many requests. Please try again later.'
+  message = 'Too many requests. Please try again later.',
 ): NextResponse {
   return createJsonResponse(
     request,
@@ -293,13 +269,13 @@ export function createRateLimitedResponse(
     429,
     {
       'Retry-After': String(retryAfterSeconds),
-    }
+    },
   );
 }
 
 export function createForbiddenResponse(
   request: NextRequest,
-  message = 'Cross-origin request denied.'
+  message = 'Cross-origin request denied.',
 ): NextResponse {
   return createJsonResponse(
     request,
@@ -307,14 +283,14 @@ export function createForbiddenResponse(
       success: false,
       error: message,
     },
-    403
+    403,
   );
 }
 
 export function createPayloadTooLargeResponse(
   request: NextRequest,
   maxBytes: number,
-  message = 'Request payload too large.'
+  message = 'Request payload too large.',
 ): NextResponse {
   return createJsonResponse(
     request,
@@ -323,26 +299,24 @@ export function createPayloadTooLargeResponse(
       error: message,
       maxBytes,
     },
-    413
+    413,
   );
 }
 
-export function createUnsupportedMediaTypeResponse(
-  request: NextRequest
-): NextResponse {
+export function createUnsupportedMediaTypeResponse(request: NextRequest): NextResponse {
   return createJsonResponse(
     request,
     {
       success: false,
       error: 'Unsupported media type. Use application/json.',
     },
-    415
+    415,
   );
 }
 
 export function createBadRequestResponse(
   request: NextRequest,
-  message = 'Invalid JSON payload.'
+  message = 'Invalid JSON payload.',
 ): NextResponse {
   return createJsonResponse(
     request,
@@ -350,7 +324,7 @@ export function createBadRequestResponse(
       success: false,
       error: message,
     },
-    400
+    400,
   );
 }
 
@@ -372,7 +346,7 @@ export function createOptionsResponse(request: NextRequest): NextResponse {
 
 export async function readJsonBodyWithLimit<T>(
   request: NextRequest,
-  maxBytes: number
+  maxBytes: number,
 ): Promise<{ ok: true; data: T } | { ok: false; response: NextResponse }> {
   const contentType = getHeaderValue(request, 'content-type');
   if (contentType && !contentType.toLowerCase().includes('application/json')) {

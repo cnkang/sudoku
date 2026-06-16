@@ -144,10 +144,7 @@ describe('API security helpers', () => {
         body: '{"value":1}',
       });
 
-      const result = await readJsonBodyWithLimit<{ value: number }>(
-        request,
-        1024
-      );
+      const result = await readJsonBodyWithLimit<{ value: number }>(request, 1024);
       expect(result.ok).toBe(true);
       if (result.ok) {
         expect(result.data.value).toBe(1);
@@ -169,9 +166,7 @@ describe('API security helpers', () => {
 
       expect(headers.get('Cache-Control')).toBe('no-store');
       expect(headers.get('X-Content-Type-Options')).toBe('nosniff');
-      expect(headers.get('Referrer-Policy')).toBe(
-        'strict-origin-when-cross-origin'
-      );
+      expect(headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin');
       expect(headers.get('Cross-Origin-Resource-Policy')).toBe('same-origin');
     });
 
@@ -186,15 +181,11 @@ describe('API security helpers', () => {
 
       const headers = buildSecurityHeaders(request);
 
-      expect(headers.get('Access-Control-Allow-Origin')).toBe(
-        'http://localhost:3000'
-      );
+      expect(headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:3000');
       expect(headers.get('Access-Control-Allow-Credentials')).toBe('true');
       expect(headers.get('Access-Control-Allow-Methods')).toContain('GET');
       expect(headers.get('Access-Control-Allow-Methods')).toContain('POST');
-      expect(headers.get('Access-Control-Allow-Headers')).toContain(
-        'Content-Type'
-      );
+      expect(headers.get('Access-Control-Allow-Headers')).toContain('Content-Type');
     });
 
     it('does not include CORS headers for disallowed origins', () => {
@@ -238,15 +229,11 @@ describe('API security helpers', () => {
 
       const headers = buildCorsHeaders(request);
 
-      expect(headers.get('Access-Control-Allow-Origin')).toBe(
-        'http://localhost:3000'
-      );
+      expect(headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:3000');
       expect(headers.get('Access-Control-Allow-Credentials')).toBe('true');
-      expect(headers.get('Access-Control-Allow-Methods')).toBe(
-        'GET, POST, PUT, DELETE, OPTIONS'
-      );
+      expect(headers.get('Access-Control-Allow-Methods')).toBe('GET, POST, PUT, DELETE, OPTIONS');
       expect(headers.get('Access-Control-Allow-Headers')).toBe(
-        'Content-Type, Authorization, X-Requested-With, Accept'
+        'Content-Type, Authorization, X-Requested-With, Accept',
       );
       expect(headers.get('Access-Control-Max-Age')).toBe('3600');
     });
@@ -293,9 +280,7 @@ describe('API security helpers', () => {
       });
 
       expect(headers.get('X-Custom-Header')).toBe('custom-value');
-      expect(headers.get('Access-Control-Allow-Origin')).toBe(
-        'http://localhost:3000'
-      );
+      expect(headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:3000');
     });
 
     it('handles invalid origin URLs gracefully', () => {
@@ -327,12 +312,8 @@ describe('API security helpers', () => {
       const response = createOptionsResponse(request);
 
       expect(response.status).toBe(204);
-      expect(response.headers.get('Access-Control-Allow-Origin')).toBe(
-        'http://localhost:3000'
-      );
-      expect(response.headers.get('Access-Control-Allow-Methods')).toContain(
-        'OPTIONS'
-      );
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:3000');
+      expect(response.headers.get('Access-Control-Allow-Methods')).toContain('OPTIONS');
     });
 
     it('returns 204 without CORS headers for disallowed origins', () => {

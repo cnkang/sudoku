@@ -6,7 +6,7 @@
 
 import { act, renderHook } from '@testing-library/react';
 import * as fc from 'fast-check';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import { GRID_CONFIGS } from '@/utils/gridConfig';
 import { useKeyboardNavigation } from '../useKeyboardNavigation';
 
@@ -23,7 +23,7 @@ vi.mock('@/utils/accessibilityManager', () => ({
 // Test data generators
 const gridSizeArbitrary = fc.constantFrom(4, 6, 9);
 
-const gridConfigArbitrary = gridSizeArbitrary.map(size => GRID_CONFIGS[size]);
+const gridConfigArbitrary = gridSizeArbitrary.map((size) => GRID_CONFIGS[size]);
 
 const cellPositionArbitrary = (gridSize: number) =>
   fc.record({
@@ -51,7 +51,7 @@ const keyboardEventArbitrary = fc.record({
     '8',
     '9',
     'Backspace',
-    'Delete'
+    'Delete',
   ),
   ctrlKey: fc.boolean(),
   shiftKey: fc.boolean(),
@@ -60,7 +60,7 @@ const keyboardEventArbitrary = fc.record({
 const invokeFocusCell = (
   handlers: ReturnType<typeof useKeyboardNavigation>[1],
   row: number,
-  col: number
+  col: number,
 ) => {
   act(() => {
     handlers.focusCell(row, col);
@@ -119,7 +119,7 @@ describe('useKeyboardNavigation Property-Based Tests', () => {
               onCellFocus: mockOnCellFocus,
               onCellActivate: mockOnCellActivate,
               onValueInput: mockOnValueInput,
-            })
+            }),
           );
 
           const [, handlers] = result.current;
@@ -168,9 +168,9 @@ describe('useKeyboardNavigation Property-Based Tests', () => {
 
           // Verify preventDefault was called for arrow keys
           expect(mockPreventDefault).toHaveBeenCalled();
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -201,7 +201,7 @@ describe('useKeyboardNavigation Property-Based Tests', () => {
               gridConfig,
               onCellFocus: mockOnCellFocus,
               onValueInput: mockOnValueInput,
-            })
+            }),
           );
 
           const [, handlers] = result.current;
@@ -223,16 +223,11 @@ describe('useKeyboardNavigation Property-Based Tests', () => {
           });
 
           // Check if input is valid for this grid size
-          const isValidInput =
-            inputNumber >= 1 && inputNumber <= gridConfig.maxValue;
+          const isValidInput = inputNumber >= 1 && inputNumber <= gridConfig.maxValue;
 
           if (isValidInput) {
             // Valid input should trigger onValueInput
-            expect(mockOnValueInput).toHaveBeenCalledWith(
-              row,
-              col,
-              inputNumber
-            );
+            expect(mockOnValueInput).toHaveBeenCalledWith(row, col, inputNumber);
             expect(mockPreventDefault).toHaveBeenCalled();
           } else if (inputNumber === 0) {
             // Zero should clear the cell
@@ -244,9 +239,9 @@ describe('useKeyboardNavigation Property-Based Tests', () => {
             // For invalid numbers, preventDefault should not be called
             // (the hook should ignore the input entirely)
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -265,7 +260,7 @@ describe('useKeyboardNavigation Property-Based Tests', () => {
             useKeyboardNavigation({
               gridConfig,
               onCellFocus: mockOnCellFocus,
-            })
+            }),
           );
 
           const [, handlers] = result.current;
@@ -295,9 +290,9 @@ describe('useKeyboardNavigation Property-Based Tests', () => {
 
           // The navigation direction should be consistent with shift key
           // (Implementation details may vary, but behavior should be predictable)
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
@@ -325,7 +320,7 @@ describe('useKeyboardNavigation Property-Based Tests', () => {
               gridConfig,
               onCellActivate: mockOnCellActivate,
               onNavigateToGrid: mockOnNavigateToGrid,
-            })
+            }),
           );
 
           const [, handlers] = result.current;
@@ -358,9 +353,9 @@ describe('useKeyboardNavigation Property-Based Tests', () => {
               expect(mockPreventDefault).toHaveBeenCalled();
               break;
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -371,46 +366,42 @@ describe('useKeyboardNavigation Property-Based Tests', () => {
    */
   it('should manage focus consistently across all cell positions', () => {
     fc.assert(
-      fc.property(
-        gridConfigArbitrary,
-        cellPositionArbitrary(9),
-        (gridConfig, position) => {
-          const { row, col } = position;
+      fc.property(gridConfigArbitrary, cellPositionArbitrary(9), (gridConfig, position) => {
+        const { row, col } = position;
 
-          // Ensure position is within current grid bounds
-          if (row >= gridConfig.size || col >= gridConfig.size) {
-            return; // Skip invalid positions
-          }
-
-          // Reset mocks for each test
-          mockOnCellFocus.mockClear();
-
-          const { result } = renderHook(() =>
-            useKeyboardNavigation({
-              gridConfig,
-              onCellFocus: mockOnCellFocus,
-            })
-          );
-
-          const [_initialState, handlers] = result.current;
-
-          // Since we don't have actual DOM elements in the test environment,
-          // we can't test the full focusCell functionality, but we can test
-          // that the method exists and doesn't throw errors
-          expect(handlers.focusCell).toBeDefined();
-          expect(typeof handlers.focusCell).toBe('function');
-
-          // Test that calling focusCell with valid coordinates doesn't throw
-          expect(() => {
-            invokeFocusCell(handlers, row, col);
-          }).not.toThrow();
-
-          // The callback won't be called without DOM elements, but the method
-          // should handle the case gracefully
-          // In a real environment with DOM elements, onCellFocus would be called
+        // Ensure position is within current grid bounds
+        if (row >= gridConfig.size || col >= gridConfig.size) {
+          return; // Skip invalid positions
         }
-      ),
-      { numRuns: 100 }
+
+        // Reset mocks for each test
+        mockOnCellFocus.mockClear();
+
+        const { result } = renderHook(() =>
+          useKeyboardNavigation({
+            gridConfig,
+            onCellFocus: mockOnCellFocus,
+          }),
+        );
+
+        const [_initialState, handlers] = result.current;
+
+        // Since we don't have actual DOM elements in the test environment,
+        // we can't test the full focusCell functionality, but we can test
+        // that the method exists and doesn't throw errors
+        expect(handlers.focusCell).toBeDefined();
+        expect(typeof handlers.focusCell).toBe('function');
+
+        // Test that calling focusCell with valid coordinates doesn't throw
+        expect(() => {
+          invokeFocusCell(handlers, row, col);
+        }).not.toThrow();
+
+        // The callback won't be called without DOM elements, but the method
+        // should handle the case gracefully
+        // In a real environment with DOM elements, onCellFocus would be called
+      }),
+      { numRuns: 100 },
     );
   });
 
@@ -437,7 +428,7 @@ describe('useKeyboardNavigation Property-Based Tests', () => {
             useKeyboardNavigation({
               gridConfig,
               onValueInput: mockOnValueInput,
-            })
+            }),
           );
 
           const [, handlers] = result.current;
@@ -461,9 +452,9 @@ describe('useKeyboardNavigation Property-Based Tests', () => {
           // Verify deletion behavior
           expect(mockOnValueInput).toHaveBeenCalledWith(row, col, 0);
           expect(mockPreventDefault).toHaveBeenCalled();
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -493,7 +484,7 @@ describe('useKeyboardNavigation Property-Based Tests', () => {
               onCellFocus: mockOnCellFocus,
               onCellActivate: mockOnCellActivate,
               onValueInput: mockOnValueInput,
-            })
+            }),
           );
 
           const [, handlers] = result.current;
@@ -515,9 +506,9 @@ describe('useKeyboardNavigation Property-Based Tests', () => {
           // When disabled, no callbacks should be triggered
           // (except for some global shortcuts that might still work)
           // The exact behavior depends on implementation, but it should be consistent
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 });

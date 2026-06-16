@@ -28,10 +28,7 @@ export interface CSPDirectives {
 /**
  * Generate CSP header value from directives
  */
-export function generateCSPHeader(
-  directives: CSPDirectives,
-  nonce?: string
-): string {
+export function generateCSPHeader(directives: CSPDirectives, nonce?: string): string {
   // Add nonce to script-src and style-src if provided
   const scriptSrc = [...directives['script-src']];
   const styleSrc = [...directives['style-src']];
@@ -60,9 +57,7 @@ export function generateCSPHeader(
     `base-uri ${directives['base-uri'].join(' ')}`,
     `form-action ${directives['form-action'].join(' ')}`,
     `frame-ancestors ${directives['frame-ancestors'].join(' ')}`,
-    ...(directives['upgrade-insecure-requests']
-      ? ['upgrade-insecure-requests']
-      : []),
+    ...(directives['upgrade-insecure-requests'] ? ['upgrade-insecure-requests'] : []),
   ];
 
   return cspDirectives.join('; ');
@@ -124,9 +119,7 @@ export function generateNonce(): string {
   if (webCrypto?.getRandomValues) {
     const bytes = new Uint8Array(16);
     webCrypto.getRandomValues(bytes);
-    return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join(
-      ''
-    );
+    return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
   }
 
   throw new Error('Secure random generator unavailable for CSP nonce');
@@ -136,7 +129,5 @@ export function generateNonce(): string {
  * Get CSP header name based on report-only mode
  */
 export function getCSPHeaderName(reportOnly = false): string {
-  return reportOnly
-    ? 'Content-Security-Policy-Report-Only'
-    : 'Content-Security-Policy';
+  return reportOnly ? 'Content-Security-Policy-Report-Only' : 'Content-Security-Policy';
 }

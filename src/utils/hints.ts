@@ -19,16 +19,12 @@ const getCellValues = (
   userInput: number[][],
   solution: number[][],
   row: number,
-  col: number
+  col: number,
 ): CellValues | null => {
   const puzzleCell = puzzle[row]?.[col];
   const inputCell = userInput[row]?.[col];
   const solutionCell = solution[row]?.[col];
-  if (
-    puzzleCell === undefined ||
-    inputCell === undefined ||
-    solutionCell === undefined
-  ) {
+  if (puzzleCell === undefined || inputCell === undefined || solutionCell === undefined) {
     return null;
   }
   return { puzzleCell, inputCell, solutionCell };
@@ -40,7 +36,7 @@ const findMatchingCell = (
   solution: number[][],
   gridSize: number,
   predicate: (values: CellValues) => boolean,
-  buildReason: (solutionCell: number, row: number, col: number) => string
+  buildReason: (solutionCell: number, row: number, col: number) => string,
 ): HintResult | null => {
   for (let row = 0; row < gridSize; row++) {
     for (let col = 0; col < gridSize; col++) {
@@ -65,7 +61,7 @@ export const getHint = (
   puzzle: number[][],
   userInput: number[][],
   solution: number[][],
-  config?: GridConfig
+  config?: GridConfig,
 ): HintResult | null => {
   // Validate inputs using grid config if provided
   validateSudokuGrid(puzzle, config);
@@ -81,8 +77,7 @@ export const getHint = (
     solution,
     gridSize,
     ({ puzzleCell, inputCell }) => puzzleCell === 0 && inputCell === 0,
-    (solutionCell, row, col) =>
-      `Try placing ${solutionCell} in row ${row + 1}, column ${col + 1}`
+    (solutionCell, row, col) => `Try placing ${solutionCell} in row ${row + 1}, column ${col + 1}`,
   );
 
   if (emptyCellHint) {
@@ -97,6 +92,6 @@ export const getHint = (
     ({ puzzleCell, inputCell, solutionCell }) =>
       puzzleCell === 0 && inputCell !== 0 && inputCell !== solutionCell,
     (solutionCell, row, col) =>
-      `The value in row ${row + 1}, column ${col + 1} should be ${solutionCell}`
+      `The value in row ${row + 1}, column ${col + 1} should be ${solutionCell}`,
   );
 };

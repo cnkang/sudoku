@@ -60,8 +60,7 @@ export interface ReactOptimizationMetric {
 // Performance observer for Core Web Vitals
 class PerformanceMonitor {
   private readonly metrics: Map<string, PerformanceMetric> = new Map();
-  private readonly reactMetrics: Map<string, ReactOptimizationMetric> =
-    new Map();
+  private readonly reactMetrics: Map<string, ReactOptimizationMetric> = new Map();
   private observers: PerformanceObserver[] = [];
 
   constructor() {
@@ -74,7 +73,7 @@ class PerformanceMonitor {
 
     try {
       // LCP Observer
-      const lcpObserver = new PerformanceObserver(list => {
+      const lcpObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         const lastEntry = entries.at(-1) as PerformanceEntry & {
           renderTime?: number;
@@ -90,9 +89,9 @@ class PerformanceMonitor {
       this.observers.push(lcpObserver);
 
       // FID Observer
-      const fidObserver = new PerformanceObserver(list => {
+      const fidObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries();
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
           const fidEntry = entry as PerformanceEntry & {
             processingStart?: number;
           };
@@ -107,9 +106,9 @@ class PerformanceMonitor {
 
       // CLS Observer
       let clsValue = 0;
-      const clsObserver = new PerformanceObserver(list => {
+      const clsObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries();
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
           const clsEntry = entry as PerformanceEntry & {
             value?: number;
             hadRecentInput?: boolean;
@@ -124,9 +123,9 @@ class PerformanceMonitor {
       this.observers.push(clsObserver);
 
       // FCP Observer
-      const fcpObserver = new PerformanceObserver(list => {
+      const fcpObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries();
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
           if (entry.name === 'first-contentful-paint') {
             this.recordMetric('FCP', entry.startTime);
           }
@@ -149,7 +148,7 @@ class PerformanceMonitor {
     globalThis.addEventListener('load', () => {
       setTimeout(() => {
         const navigation = performance.getEntriesByType(
-          'navigation'
+          'navigation',
         )[0] as PerformanceNavigationTiming;
         if (navigation) {
           // TTI approximation: domContentLoadedEventEnd + some buffer for React hydration
@@ -175,12 +174,8 @@ class PerformanceMonitor {
     this.reportMetric(metric);
   }
 
-  private getRating(
-    name: string,
-    value: number
-  ): 'good' | 'needs-improvement' | 'poor' {
-    const thresholds =
-      PERFORMANCE_THRESHOLDS[name as keyof typeof PERFORMANCE_THRESHOLDS];
+  private getRating(name: string, value: number): 'good' | 'needs-improvement' | 'poor' {
+    const thresholds = PERFORMANCE_THRESHOLDS[name as keyof typeof PERFORMANCE_THRESHOLDS];
     if (!thresholds) return 'good';
 
     if (value <= thresholds.GOOD) return 'good';
@@ -208,7 +203,7 @@ class PerformanceMonitor {
   public trackReactOptimization(
     componentName: string,
     renderTime: number,
-    wasOptimized: boolean = false
+    wasOptimized: boolean = false,
   ): void {
     const existing = this.reactMetrics.get(componentName) || {
       componentName,
@@ -249,9 +244,7 @@ class PerformanceMonitor {
     const fid = this.metrics.get('FID');
     const cls = this.metrics.get('CLS');
 
-    return (
-      lcp?.rating !== 'poor' && fid?.rating !== 'poor' && cls?.rating !== 'poor'
-    );
+    return lcp?.rating !== 'poor' && fid?.rating !== 'poor' && cls?.rating !== 'poor';
   }
 
   // Cleanup observers
@@ -280,23 +273,19 @@ export const usePerformanceTracking = (componentName: string) => {
   return React.useMemo(
     () => ({
       trackRender: (renderTime: number, wasOptimized: boolean = false) => {
-        monitor.trackReactOptimization(
-          componentNameRef.current,
-          renderTime,
-          wasOptimized
-        );
+        monitor.trackReactOptimization(componentNameRef.current, renderTime, wasOptimized);
       },
       trackTransition: (_transitionTime: number) => {},
       getMetrics: () => monitor.getReactMetrics().get(componentNameRef.current),
     }),
-    [monitor]
+    [monitor],
   );
 };
 
 // Lazy loading utilities for code splitting
 export const createLazyComponent = <P extends object>(
   importFn: () => Promise<{ default: React.ComponentType<P> }>,
-  fallback?: React.ComponentType
+  fallback?: React.ComponentType,
 ) => {
   const LazyComponent = React.lazy(importFn);
 
@@ -308,7 +297,7 @@ export const createLazyComponent = <P extends object>(
     return React.createElement(
       React.Suspense,
       { fallback: fallbackElement },
-      React.createElement(LazyComponent, props)
+      React.createElement(LazyComponent, props),
     );
   };
 };
@@ -316,7 +305,7 @@ export const createLazyComponent = <P extends object>(
 // Performance-optimized component wrapper
 export const withPerformanceTracking = <P extends object>(
   Component: React.ComponentType<P>,
-  componentName: string
+  componentName: string,
 ) => {
   return React.memo((props: P) => {
     const startTime = performance.now();
@@ -340,9 +329,7 @@ export const getBundleSize = async (): Promise<number> => {
   if (globalThis.window === undefined) return 0;
 
   try {
-    const entries = performance.getEntriesByType(
-      'navigation'
-    ) as PerformanceNavigationTiming[];
+    const entries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
     const entry = entries[0];
     if (entry) {
       return entry.transferSize || 0;

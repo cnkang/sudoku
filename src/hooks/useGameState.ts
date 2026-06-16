@@ -1,10 +1,5 @@
 import { useCallback, useReducer } from 'react';
-import type {
-  AccessibilitySettings,
-  GameAction,
-  GameState,
-  ProgressStats,
-} from '../types';
+import type { AccessibilitySettings, GameAction, GameState, ProgressStats } from '../types';
 import { GRID_CONFIGS } from '../utils/gridConfig';
 import { normalizeDifficulty } from '../utils/validation';
 import { usePreferences } from './usePreferences';
@@ -79,21 +74,14 @@ const initialState: GameState = {
   },
 };
 
-const getProgressStats = (
-  progress: Record<string, ProgressStats>,
-  gridSize: string
-) => progress[gridSize] ?? createDefaultProgressStats();
+const getProgressStats = (progress: Record<string, ProgressStats>, gridSize: string) =>
+  progress[gridSize] ?? createDefaultProgressStats();
 
-const handlePuzzleLifecycle = (
-  state: GameState,
-  action: GameAction
-): GameState | undefined => {
+const handlePuzzleLifecycle = (state: GameState, action: GameAction): GameState | undefined => {
   switch (action.type) {
     case 'SET_PUZZLE': {
       const { puzzle, solution } = action.payload;
-      const initialUserInput = puzzle.map(row =>
-        row.map(val => (val === 0 ? 0 : val))
-      );
+      const initialUserInput = puzzle.map((row) => row.map((val) => (val === 0 ? 0 : val)));
       return {
         ...state,
         puzzle,
@@ -147,25 +135,19 @@ const handlePuzzleLifecycle = (
   }
 };
 
-const handleUserInteraction = (
-  state: GameState,
-  action: GameAction
-): GameState | undefined => {
+const handleUserInteraction = (state: GameState, action: GameAction): GameState | undefined => {
   switch (action.type) {
     case 'UPDATE_USER_INPUT': {
       const { row, col, value } = action.payload;
       const newUserInput = state.userInput.map((r, i) =>
-        i === row ? r.map((val, j) => (j === col ? value : val)) : r
+        i === row ? r.map((val, j) => (j === col ? value : val)) : r,
       );
       const newHistory = [...state.history, newUserInput].slice(-50); // Keep last 50 states
       return { ...state, userInput: newUserInput, history: newHistory };
     }
 
     case 'SET_DIFFICULTY': {
-      const normalizedDifficulty = normalizeDifficulty(
-        action.payload,
-        state.gridConfig
-      );
+      const normalizedDifficulty = normalizeDifficulty(action.payload, state.gridConfig);
       return {
         ...state,
         difficulty: normalizedDifficulty,
@@ -186,7 +168,7 @@ const handleUserInteraction = (
       const isSolvedCorrectly =
         state.solution !== null &&
         state.userInput.every((row, i) =>
-          row.every((cell, j) => cell === state.solution?.[i]?.[j])
+          row.every((cell, j) => cell === state.solution?.[i]?.[j]),
         );
       return {
         ...state,
@@ -197,9 +179,7 @@ const handleUserInteraction = (
     }
 
     case 'TICK':
-      return state.timerActive && !state.isPaused
-        ? { ...state, time: state.time + 1 }
-        : state;
+      return state.timerActive && !state.isPaused ? { ...state, time: state.time + 1 } : state;
 
     case 'PAUSE_RESUME':
       return {
@@ -234,19 +214,14 @@ const handleUserInteraction = (
   }
 };
 
-const handleGridSupport = (
-  state: GameState,
-  action: GameAction
-): GameState | undefined => {
+const handleGridSupport = (state: GameState, action: GameAction): GameState | undefined => {
   switch (action.type) {
     case 'CHANGE_GRID_SIZE': {
       const newGridConfig = action.payload;
       return {
         ...initialState,
         gridConfig: newGridConfig,
-        childMode: newGridConfig.childFriendly.enableAnimations
-          ? true
-          : state.childMode,
+        childMode: newGridConfig.childFriendly.enableAnimations ? true : state.childMode,
         accessibility: state.accessibility,
         progress: state.progress,
         difficulty: Math.min(state.difficulty, newGridConfig.difficultyLevels),
@@ -262,10 +237,7 @@ const handleGridSupport = (
   }
 };
 
-const handleChildFriendly = (
-  state: GameState,
-  action: GameAction
-): GameState | undefined => {
+const handleChildFriendly = (state: GameState, action: GameAction): GameState | undefined => {
   switch (action.type) {
     case 'TOGGLE_CHILD_MODE':
       return { ...state, childMode: !state.childMode };
@@ -278,10 +250,7 @@ const handleChildFriendly = (
   }
 };
 
-const handleAccessibility = (
-  state: GameState,
-  action: GameAction
-): GameState | undefined => {
+const handleAccessibility = (state: GameState, action: GameAction): GameState | undefined => {
   switch (action.type) {
     case 'UPDATE_ACCESSIBILITY':
       return {
@@ -339,10 +308,7 @@ const handleAccessibility = (
   }
 };
 
-const handleProgressUpdates = (
-  state: GameState,
-  action: GameAction
-): GameState | undefined => {
+const handleProgressUpdates = (state: GameState, action: GameAction): GameState | undefined => {
   switch (action.type) {
     case 'UPDATE_PROGRESS': {
       const { gridSize, stats } = action.payload;
@@ -363,9 +329,7 @@ const handleProgressUpdates = (
       const newTotalTime = currentStats.totalTime + time;
       const newAverageTime = newTotalTime / newPuzzlesCompleted;
       const newBestTime =
-        currentStats.bestTime === 0
-          ? time
-          : Math.min(currentStats.bestTime, time);
+        currentStats.bestTime === 0 ? time : Math.min(currentStats.bestTime, time);
       const newStreakCount = currentStats.streakCount + 1;
 
       return {

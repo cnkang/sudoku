@@ -1,19 +1,15 @@
 /**
  * Centralized component props factory to reduce duplication in tests
  */
-import { vi } from 'vitest';
-import type {
-  DifficultySelectProps,
-  GameControlsProps,
-  TimerProps,
-} from '../types';
+import { vi } from 'vite-plus/test';
+import type { DifficultySelectProps, GameControlsProps, TimerProps } from '../types';
 import { TEST_DATA } from './common-test-setup';
 
 /**
  * Factory for GameControls props with sensible defaults
  */
 export const createGameControlsProps = (
-  overrides: Partial<GameControlsProps> = {}
+  overrides: Partial<GameControlsProps> = {},
 ): GameControlsProps => ({
   onSubmit: vi.fn(),
   onReset: vi.fn(),
@@ -33,7 +29,7 @@ export const createGameControlsProps = (
  * Factory for DifficultySelector props with sensible defaults
  */
 export const createDifficultySelectorProps = (
-  overrides: Partial<DifficultySelectProps> = {}
+  overrides: Partial<DifficultySelectProps> = {},
 ): DifficultySelectProps => ({
   difficulty: 1,
   onChange: vi.fn(),
@@ -52,10 +48,10 @@ export const createSudokuGridProps = (
     onInputChange: (row: number, col: number, value: number) => void;
     disabled?: boolean;
     hintCell?: { row: number; col: number } | null;
-  }> = {}
+  }> = {},
 ) => ({
   puzzle: TEST_DATA.SAMPLE_PUZZLE,
-  userInput: TEST_DATA.SAMPLE_PUZZLE.map(row => [...row]),
+  userInput: TEST_DATA.SAMPLE_PUZZLE.map((row) => [...row]),
   onInputChange: vi.fn(),
   disabled: false,
   hintCell: null,
@@ -65,9 +61,7 @@ export const createSudokuGridProps = (
 /**
  * Factory for Timer props with sensible defaults
  */
-export const createTimerProps = (
-  overrides: Partial<TimerProps> = {}
-): TimerProps => ({
+export const createTimerProps = (overrides: Partial<TimerProps> = {}): TimerProps => ({
   time: 0,
   isActive: false,
   isPaused: false,

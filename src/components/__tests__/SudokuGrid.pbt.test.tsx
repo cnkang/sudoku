@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import * as fc from 'fast-check';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vite-plus/test';
 import { GRID_CONFIGS } from '@/utils/gridConfig';
 import SudokuGrid from '../SudokuGrid';
 
@@ -93,8 +93,7 @@ describe('SudokuGrid Property-Based Tests', () => {
     largeText: boolean;
   };
 
-  const getGridConfig = (gridSize: number) =>
-    GRID_CONFIGS[gridSize as GridSize];
+  const getGridConfig = (gridSize: number) => GRID_CONFIGS[gridSize as GridSize];
 
   const createEmptyGrid = (size: number) =>
     Array.from({ length: size }, () => Array.from({ length: size }, () => 0));
@@ -128,24 +127,21 @@ describe('SudokuGrid Property-Based Tests', () => {
 
   const property6Runs = parseRunCount(
     process.env.PBT_PROPERTY6_RUNS,
-    process.env.NODE_ENV === 'test' ? 12 : 20
+    process.env.NODE_ENV === 'test' ? 12 : 20,
   );
   const property7Runs = parseRunCount(
     process.env.PBT_PROPERTY7_RUNS,
-    process.env.NODE_ENV === 'test' ? 8 : 15
+    process.env.NODE_ENV === 'test' ? 8 : 15,
   );
   const property18Runs = parseRunCount(
     process.env.PBT_PROPERTY18_RUNS,
-    process.env.NODE_ENV === 'test' ? 8 : 15
+    process.env.NODE_ENV === 'test' ? 8 : 15,
   );
   const property4Runs = parseRunCount(
     process.env.PBT_PROPERTY4_RUNS,
-    process.env.NODE_ENV === 'test' ? 10 : 20
+    process.env.NODE_ENV === 'test' ? 10 : 20,
   );
-  const propertyTimeLimitMs = parseTimeLimitMs(
-    process.env.PBT_PROPERTY_TIME_LIMIT_MS,
-    2500
-  );
+  const propertyTimeLimitMs = parseTimeLimitMs(process.env.PBT_PROPERTY_TIME_LIMIT_MS, 2500);
 
   const addFixedNumbers = (puzzle: number[][], gridSize: number) => {
     puzzle[0][0] = 1;
@@ -181,13 +177,11 @@ describe('SudokuGrid Property-Based Tests', () => {
         accessibility={accessibility}
         hintCell={hintCell}
       />,
-      container ? { container } : undefined
+      container ? { container } : undefined,
     );
 
-  const sampleElements = <T extends Element>(
-    elements: NodeListOf<T>,
-    max = 12
-  ) => Array.from(elements).slice(0, Math.min(elements.length, max));
+  const sampleElements = <T extends Element>(elements: NodeListOf<T>, max = 12) =>
+    Array.from(elements).slice(0, Math.min(elements.length, max));
 
   const assertCellSizing = (cell: Element, expectedMinSize: number) => {
     const computedStyle = globalThis.getComputedStyle(cell);
@@ -219,11 +213,7 @@ describe('SudokuGrid Property-Based Tests', () => {
     }
   };
 
-  const assertGridWidth = (
-    container: HTMLElement,
-    gridSize: number,
-    expectedMinSize: number
-  ) => {
+  const assertGridWidth = (container: HTMLElement, gridSize: number, expectedMinSize: number) => {
     const grid = container.querySelector('[data-testid="sudoku-grid"]');
     expect(grid).toBeTruthy();
 
@@ -239,9 +229,7 @@ describe('SudokuGrid Property-Based Tests', () => {
   };
 
   const assertContainerType = (container: HTMLElement) => {
-    const containerElem = container.querySelector(
-      '[data-testid="sudoku-container"]'
-    );
+    const containerElem = container.querySelector('[data-testid="sudoku-container"]');
     expect(containerElem).toBeTruthy();
 
     if (!containerElem) return;
@@ -256,7 +244,7 @@ describe('SudokuGrid Property-Based Tests', () => {
     container: HTMLElement,
     gridSize: number,
     containerWidth: number,
-    childMode: boolean
+    childMode: boolean,
   ) => {
     const grid = container.querySelector('[data-testid="sudoku-grid"]');
     expect(grid).toBeTruthy();
@@ -289,13 +277,11 @@ describe('SudokuGrid Property-Based Tests', () => {
 
   const assertTypographyScale = (container: HTMLElement) => {
     const inputs = container.querySelectorAll('input[type="text"]');
-    const fixedNumbers = container.querySelectorAll(
-      '[data-testid="fixed-number"]'
-    );
+    const fixedNumbers = container.querySelectorAll('[data-testid="fixed-number"]');
 
     sampleElements(inputs)
       .concat(sampleElements(fixedNumbers))
-      .forEach(element => {
+      .forEach((element) => {
         const style = globalThis.getComputedStyle(element);
         const fontSize = Number.parseFloat(style.fontSize);
         if (Number.isNaN(fontSize)) {
@@ -313,11 +299,7 @@ describe('SudokuGrid Property-Based Tests', () => {
     const gridStyle = globalThis.getComputedStyle(grid);
     const gridWidth = Number.parseFloat(gridStyle.width);
     const gridHeight = Number.parseFloat(gridStyle.height);
-    if (
-      Number.isNaN(gridWidth) ||
-      Number.isNaN(gridHeight) ||
-      gridHeight === 0
-    ) {
+    if (Number.isNaN(gridWidth) || Number.isNaN(gridHeight) || gridHeight === 0) {
       return;
     }
     const aspectRatio = gridWidth / gridHeight;
@@ -327,11 +309,9 @@ describe('SudokuGrid Property-Based Tests', () => {
   const assertModernCssFeatures = (
     container: HTMLElement,
     gridSize: number,
-    accessibility: AccessibilitySettings
+    accessibility: AccessibilitySettings,
   ) => {
-    const sudokuContainer = container.querySelector(
-      '[data-testid="sudoku-container"]'
-    );
+    const sudokuContainer = container.querySelector('[data-testid="sudoku-container"]');
     expect(sudokuContainer).toBeTruthy();
 
     if (sudokuContainer) {
@@ -347,7 +327,7 @@ describe('SudokuGrid Property-Based Tests', () => {
     }
 
     const cells = container.querySelectorAll('[data-testid^="sudoku-cell-"]');
-    sampleElements(cells).forEach(cell => {
+    sampleElements(cells).forEach((cell) => {
       const cellStyle = globalThis.getComputedStyle(cell);
       if (cellStyle.boxSizing) {
         expect(cellStyle.boxSizing).toBe('border-box');
@@ -364,20 +344,15 @@ describe('SudokuGrid Property-Based Tests', () => {
     }
   };
 
-  const assertChildModeFeedback = (
-    container: HTMLElement,
-    childMode: boolean
-  ) => {
+  const assertChildModeFeedback = (container: HTMLElement, childMode: boolean) => {
     if (!childMode) return;
-    const sudokuContainer = container.querySelector(
-      '[data-testid="sudoku-container"]'
-    );
+    const sudokuContainer = container.querySelector('[data-testid="sudoku-container"]');
     expect(sudokuContainer?.dataset.childMode).toBe('true');
   };
 
   const assertErrorColors = (container: HTMLElement) => {
     const errorCells = container.querySelectorAll('[data-has-error="true"]');
-    sampleElements(errorCells).forEach(cell => {
+    sampleElements(errorCells).forEach((cell) => {
       const style = globalThis.getComputedStyle(cell);
       const bgColor = style.backgroundColor;
       if (!bgColor) {
@@ -390,7 +365,7 @@ describe('SudokuGrid Property-Based Tests', () => {
 
   const assertHintColors = (container: HTMLElement) => {
     const hintCells = container.querySelectorAll('[data-is-hinted="true"]');
-    sampleElements(hintCells).forEach(cell => {
+    sampleElements(hintCells).forEach((cell) => {
       const style = globalThis.getComputedStyle(cell);
       if (style.backgroundColor) {
         expect(style.backgroundColor).toMatch(/rgb\(236, 253, 245\)/);
@@ -400,7 +375,7 @@ describe('SudokuGrid Property-Based Tests', () => {
 
   const assertEditableFeedback = (container: HTMLElement) => {
     const cells = container.querySelectorAll('[data-testid^="sudoku-cell-"]');
-    sampleElements(cells).forEach(cell => {
+    sampleElements(cells).forEach((cell) => {
       if ((cell as HTMLElement).dataset.cellType === 'editable') {
         const style = globalThis.getComputedStyle(cell);
         if (style.cursor) {
@@ -435,9 +410,7 @@ describe('SudokuGrid Property-Based Tests', () => {
             });
 
             const expectedMinSize = childMode ? 50 : 44;
-            const cells = container.querySelectorAll(
-              '[data-testid^="sudoku-cell-"]'
-            );
+            const cells = container.querySelectorAll('[data-testid^="sudoku-cell-"]');
             for (const cell of sampleElements(cells)) {
               assertCellSizing(cell, expectedMinSize);
             }
@@ -445,7 +418,7 @@ describe('SudokuGrid Property-Based Tests', () => {
             assertGridWidth(container, gridSize, expectedMinSize);
             assertContainerType(container);
             unmount();
-          }
+          },
         ),
         {
           numRuns: property6Runs,
@@ -453,23 +426,11 @@ describe('SudokuGrid Property-Based Tests', () => {
           interruptAfterTimeLimit: propertyTimeLimitMs,
           examples: [
             // Test specific combinations that are important
-            [
-              4,
-              true,
-              { highContrast: false, reducedMotion: false, largeText: false },
-            ], // 4x4 child mode
-            [
-              6,
-              false,
-              { highContrast: true, reducedMotion: true, largeText: true },
-            ], // 6x6 accessibility
-            [
-              9,
-              true,
-              { highContrast: false, reducedMotion: false, largeText: true },
-            ], // 9x9 child + large text
+            [4, true, { highContrast: false, reducedMotion: false, largeText: false }], // 4x4 child mode
+            [6, false, { highContrast: true, reducedMotion: true, largeText: true }], // 6x6 accessibility
+            [9, true, { highContrast: false, reducedMotion: false, largeText: true }], // 9x9 child + large text
           ],
-        }
+        },
       );
     });
   });
@@ -506,13 +467,13 @@ describe('SudokuGrid Property-Based Tests', () => {
               unmount();
               mockContainer.remove();
             }
-          }
+          },
         ),
         {
           numRuns: property7Runs,
           verbose: true,
           interruptAfterTimeLimit: propertyTimeLimitMs,
-        }
+        },
       );
     });
   });
@@ -540,13 +501,13 @@ describe('SudokuGrid Property-Based Tests', () => {
             assertModernCssFeatures(container, gridSize, accessibility);
             assertChildModeFeedback(container, childMode);
             unmount();
-          }
+          },
         ),
         {
           numRuns: property18Runs,
           verbose: true,
           interruptAfterTimeLimit: propertyTimeLimitMs,
-        }
+        },
       );
     });
   });
@@ -585,13 +546,13 @@ describe('SudokuGrid Property-Based Tests', () => {
             assertChildModeFeedback(container, true);
             assertEditableFeedback(container);
             unmount();
-          }
+          },
         ),
         {
           numRuns: property4Runs,
           verbose: true,
           interruptAfterTimeLimit: propertyTimeLimitMs,
-        }
+        },
       );
     });
   });

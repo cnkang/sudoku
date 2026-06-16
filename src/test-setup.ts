@@ -15,16 +15,10 @@ const realSetTimeout = globalThis.setTimeout.bind(globalThis);
 const realClearTimeout = globalThis.clearTimeout.bind(globalThis);
 const realSetInterval = globalThis.setInterval.bind(globalThis);
 const realClearInterval = globalThis.clearInterval.bind(globalThis);
-const realRequestAnimationFrame =
-  globalThis.requestAnimationFrame?.bind(globalThis);
-const realCancelAnimationFrame =
-  globalThis.cancelAnimationFrame?.bind(globalThis);
+const realRequestAnimationFrame = globalThis.requestAnimationFrame?.bind(globalThis);
+const realCancelAnimationFrame = globalThis.cancelAnimationFrame?.bind(globalThis);
 
-globalThis.setTimeout = ((
-  handler: TimerHandler,
-  timeout?: number,
-  ...args: any[]
-) => {
+globalThis.setTimeout = ((handler: TimerHandler, timeout?: number, ...args: any[]) => {
   const id = realSetTimeout(handler, timeout, ...args);
   activeTimeouts.add(id);
   return id;
@@ -35,11 +29,7 @@ globalThis.clearTimeout = ((id: ReturnType<typeof setTimeout>) => {
   return realClearTimeout(id);
 }) as typeof clearTimeout;
 
-globalThis.setInterval = ((
-  handler: TimerHandler,
-  timeout?: number,
-  ...args: any[]
-) => {
+globalThis.setInterval = ((handler: TimerHandler, timeout?: number, ...args: any[]) => {
   const id = realSetInterval(handler, timeout, ...args);
   activeIntervals.add(id);
   return id;
@@ -112,7 +102,7 @@ vi.mock('next/navigation', () => ({
 if (globalThis.window !== undefined) {
   Object.defineProperty(globalThis, 'matchMedia', {
     writable: true,
-    value: vi.fn().mockImplementation(query => ({
+    value: vi.fn().mockImplementation((query) => ({
       matches: false,
       media: query,
       onchange: null,

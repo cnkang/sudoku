@@ -15,10 +15,7 @@ import {
  * Uses a single debounced useEffect for all preference saves
  * instead of 5 separate effects, reducing unnecessary writes.
  */
-export function usePreferences(
-  state: GameState,
-  dispatch: React.Dispatch<GameAction>
-) {
+export function usePreferences(state: GameState, dispatch: React.Dispatch<GameAction>) {
   // Track if initial load has happened to prevent save loops
   const hasLoadedRef = useRef(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -95,13 +92,7 @@ export function usePreferences(
         clearTimeout(saveTimerRef.current);
       }
     };
-  }, [
-    state.accessibility,
-    state.progress,
-    state.childMode,
-    state.gridConfig,
-    state.difficulty,
-  ]);
+  }, [state.accessibility, state.progress, state.childMode, state.gridConfig, state.difficulty]);
 
   /**
    * Restore preferences from localStorage
@@ -156,13 +147,7 @@ export function usePreferences(
     saveChildMode(state.childMode);
     saveGridConfig(state.gridConfig);
     saveDifficulty(state.difficulty);
-  }, [
-    state.accessibility,
-    state.progress,
-    state.childMode,
-    state.gridConfig,
-    state.difficulty,
-  ]);
+  }, [state.accessibility, state.progress, state.childMode, state.gridConfig, state.difficulty]);
 
   return {
     restorePreferences,
@@ -174,7 +159,7 @@ export function usePreferences(
  * Validate if a grid config is still valid
  */
 function isValidGridConfig(
-  config: unknown
+  config: unknown,
 ): config is (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS] {
   if (!config || typeof config !== 'object') {
     return false;

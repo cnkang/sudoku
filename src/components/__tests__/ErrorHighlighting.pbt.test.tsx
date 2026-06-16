@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import * as fc from 'fast-check';
 import React from 'react';
-import { afterEach, describe, it, vi } from 'vitest';
+import { afterEach, describe, it, vi } from 'vite-plus/test';
 import { secureRandomId } from '@/utils/secureRandom';
 import { getChildFriendlyThemes } from '@/utils/themes';
 import VisualFeedbackSystem from '../VisualFeedbackSystem';
@@ -32,7 +32,7 @@ type FeedbackTriggers = {
   showPatternFeedback: (
     feedbackType: 'error',
     message: string,
-    pattern: 'dots' | 'stripes'
+    pattern: 'dots' | 'stripes',
   ) => void;
   highlightGentleError: (element: HTMLElement, duration: number) => void;
 };
@@ -96,7 +96,7 @@ const PatternErrorTriggerButton = ({
           triggers.showPatternFeedback(
             'error',
             errorMessage,
-            errorType === 'gentle' ? 'dots' : 'stripes'
+            errorType === 'gentle' ? 'dots' : 'stripes',
           );
           onTriggered();
         }}
@@ -115,9 +115,7 @@ const HighlightErrorTrigger = ({
   theme: ChildFriendlyTheme;
   onTriggered: () => void;
 }) => {
-  const [targetElement, setTargetElement] = React.useState<HTMLElement | null>(
-    null
-  );
+  const [targetElement, setTargetElement] = React.useState<HTMLElement | null>(null);
 
   return (
     <VisualFeedbackSystem theme={theme} childMode={true}>
@@ -179,7 +177,7 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
               errorType={errorType as ErrorType}
               testId={randomTestId('error-trigger')}
               onTriggered={onTriggered}
-            />
+            />,
           );
 
           // Find and click the trigger button
@@ -190,9 +188,7 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
           }
 
           // Should show error feedback
-          const errorElement = container.querySelector(
-            '[data-testid="feedback-error"]'
-          );
+          const errorElement = container.querySelector('[data-testid="feedback-error"]');
           const hasErrorFeedback = errorElement !== null;
 
           if (!hasErrorFeedback) {
@@ -209,13 +205,11 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
 
           // Should use warm color patterns (dots for gentle errors, stripes for warnings)
           const patternType = errorElement.dataset.pattern;
-          const hasWarmColorPattern =
-            patternType === 'dots' || patternType === 'stripes';
+          const hasWarmColorPattern = patternType === 'dots' || patternType === 'stripes';
 
           // Should not use harsh red styling (check for absence of harsh error classes)
           const hasHarshRedClass =
-            errorElement.className.includes('harsh') ||
-            errorElement.className.includes('critical');
+            errorElement.className.includes('harsh') || errorElement.className.includes('critical');
 
           // Should contain encouraging message content
           const hasEncouragingContent =
@@ -231,9 +225,9 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
             !hasHarshRedClass &&
             hasEncouragingContent
           );
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
@@ -244,68 +238,61 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
    */
   it('should use gentle visual treatment for invalid move errors', () => {
     fc.assert(
-      fc.property(
-        childFriendlyThemeArb,
-        errorMessageArb,
-        (theme, errorMessage) => {
-          let gentleErrorTriggered = false;
-          const onTriggered = () => {
-            gentleErrorTriggered = true;
-          };
+      fc.property(childFriendlyThemeArb, errorMessageArb, (theme, errorMessage) => {
+        let gentleErrorTriggered = false;
+        const onTriggered = () => {
+          gentleErrorTriggered = true;
+        };
 
-          const { container } = render(
-            <ErrorTriggerButton
-              theme={theme}
-              errorMessage={errorMessage}
-              errorType="gentle"
-              testId={randomTestId('gentle-error')}
-              onTriggered={onTriggered}
-            />
-          );
+        const { container } = render(
+          <ErrorTriggerButton
+            theme={theme}
+            errorMessage={errorMessage}
+            errorType="gentle"
+            testId={randomTestId('gentle-error')}
+            onTriggered={onTriggered}
+          />,
+        );
 
-          // Find and click the trigger button
-          clickFirstMatch(container, 'button[data-testid^="gentle-error-"]');
+        // Find and click the trigger button
+        clickFirstMatch(container, 'button[data-testid^="gentle-error-"]');
 
-          if (!gentleErrorTriggered) {
-            return false;
-          }
-
-          // Should show error feedback with gentle styling
-          const errorElement = container.querySelector(
-            '[data-testid="feedback-error"]'
-          );
-          const hasErrorFeedback = errorElement !== null;
-
-          if (!hasErrorFeedback) {
-            return false;
-          }
-
-          // Should specifically have gentle class
-          const hasGentleClass = errorElement.className.includes('gentle');
-
-          // Should use dots pattern for gentle errors (warm orange visual cue)
-          const patternType = errorElement.dataset.pattern;
-          const hasDotsPattern = patternType === 'dots';
-
-          // Should have encouraging, non-harsh language
-          const messageContent = errorElement.textContent || '';
-          const hasEncouragingLanguage = messageContent.length > 0;
-
-          // Should have appropriate ARIA support for screen readers
-          const hasAriaSupport =
-            errorElement.hasAttribute('aria-live') ||
-            errorElement.hasAttribute('role');
-
-          return (
-            hasErrorFeedback &&
-            hasGentleClass &&
-            hasDotsPattern &&
-            hasEncouragingLanguage &&
-            hasAriaSupport
-          );
+        if (!gentleErrorTriggered) {
+          return false;
         }
-      ),
-      { numRuns: 30 }
+
+        // Should show error feedback with gentle styling
+        const errorElement = container.querySelector('[data-testid="feedback-error"]');
+        const hasErrorFeedback = errorElement !== null;
+
+        if (!hasErrorFeedback) {
+          return false;
+        }
+
+        // Should specifically have gentle class
+        const hasGentleClass = errorElement.className.includes('gentle');
+
+        // Should use dots pattern for gentle errors (warm orange visual cue)
+        const patternType = errorElement.dataset.pattern;
+        const hasDotsPattern = patternType === 'dots';
+
+        // Should have encouraging, non-harsh language
+        const messageContent = errorElement.textContent || '';
+        const hasEncouragingLanguage = messageContent.length > 0;
+
+        // Should have appropriate ARIA support for screen readers
+        const hasAriaSupport =
+          errorElement.hasAttribute('aria-live') || errorElement.hasAttribute('role');
+
+        return (
+          hasErrorFeedback &&
+          hasGentleClass &&
+          hasDotsPattern &&
+          hasEncouragingLanguage &&
+          hasAriaSupport
+        );
+      }),
+      { numRuns: 30 },
     );
   });
 
@@ -316,68 +303,57 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
    */
   it('should use amber warning treatment for conflict errors', () => {
     fc.assert(
-      fc.property(
-        childFriendlyThemeArb,
-        errorMessageArb,
-        (theme, errorMessage) => {
-          let warningErrorTriggered = false;
-          const onTriggered = () => {
-            warningErrorTriggered = true;
-          };
+      fc.property(childFriendlyThemeArb, errorMessageArb, (theme, errorMessage) => {
+        let warningErrorTriggered = false;
+        const onTriggered = () => {
+          warningErrorTriggered = true;
+        };
 
-          const { container } = render(
-            <ErrorTriggerButton
-              theme={theme}
-              errorMessage={errorMessage}
-              errorType="warning"
-              testId={randomTestId('warning-error')}
-              onTriggered={onTriggered}
-            />
-          );
+        const { container } = render(
+          <ErrorTriggerButton
+            theme={theme}
+            errorMessage={errorMessage}
+            errorType="warning"
+            testId={randomTestId('warning-error')}
+            onTriggered={onTriggered}
+          />,
+        );
 
-          // Find and click the trigger button
-          clickFirstMatch(container, 'button[data-testid^="warning-error-"]');
+        // Find and click the trigger button
+        clickFirstMatch(container, 'button[data-testid^="warning-error-"]');
 
-          if (!warningErrorTriggered) {
-            return false;
-          }
-
-          // Should show error feedback with warning styling
-          const errorElement = container.querySelector(
-            '[data-testid="feedback-error"]'
-          );
-          const hasErrorFeedback = errorElement !== null;
-
-          if (!hasErrorFeedback) {
-            return false;
-          }
-
-          // Should have warning class
-          const hasWarningClass = errorElement.className.includes('warning');
-
-          // Should use stripes pattern for warnings (amber/yellow visual cue)
-          const patternType = errorElement.dataset.pattern;
-          const hasStripesPattern = patternType === 'stripes';
-
-          // Should still maintain encouraging tone even for warnings
-          const messageContent = errorElement.textContent || '';
-          const hasContent = messageContent.length > 0;
-
-          // Should have appropriate ARIA support
-          const hasAriaSupport =
-            errorElement.hasAttribute('aria-live') ||
-            errorElement.hasAttribute('role');
-
-          return (
-            hasErrorFeedback &&
-            hasWarningClass &&
-            hasStripesPattern &&
-            hasContent &&
-            hasAriaSupport
-          );
+        if (!warningErrorTriggered) {
+          return false;
         }
-      ),
-      { numRuns: 30 }
+
+        // Should show error feedback with warning styling
+        const errorElement = container.querySelector('[data-testid="feedback-error"]');
+        const hasErrorFeedback = errorElement !== null;
+
+        if (!hasErrorFeedback) {
+          return false;
+        }
+
+        // Should have warning class
+        const hasWarningClass = errorElement.className.includes('warning');
+
+        // Should use stripes pattern for warnings (amber/yellow visual cue)
+        const patternType = errorElement.dataset.pattern;
+        const hasStripesPattern = patternType === 'stripes';
+
+        // Should still maintain encouraging tone even for warnings
+        const messageContent = errorElement.textContent || '';
+        const hasContent = messageContent.length > 0;
+
+        // Should have appropriate ARIA support
+        const hasAriaSupport =
+          errorElement.hasAttribute('aria-live') || errorElement.hasAttribute('role');
+
+        return (
+          hasErrorFeedback && hasWarningClass && hasStripesPattern && hasContent && hasAriaSupport
+        );
+      }),
+      { numRuns: 30 },
     );
   });
 
@@ -405,7 +381,7 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
               errorType={errorType as ErrorType}
               testId={randomTestId('pattern-error')}
               onTriggered={onTriggered}
-            />
+            />,
           );
 
           // Find and click the trigger button
@@ -416,9 +392,7 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
           }
 
           // Should show error feedback with pattern
-          const errorElement = container.querySelector(
-            '[data-testid="feedback-error"]'
-          );
+          const errorElement = container.querySelector('[data-testid="feedback-error"]');
           const hasErrorFeedback = errorElement !== null;
 
           if (!hasErrorFeedback) {
@@ -435,15 +409,12 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
             (errorType === 'warning' && patternType === 'stripes');
 
           // Should have pattern overlay element for visual rendering
-          const patternOverlay = errorElement.querySelector(
-            '[class*="patternOverlay"]'
-          );
+          const patternOverlay = errorElement.querySelector('[class*="patternOverlay"]');
           const hasPatternOverlay = patternOverlay !== null;
 
           // Should have screen reader description of pattern
           const srDescription = errorElement.querySelector('[class*="srOnly"]');
-          const hasScreenReaderPattern =
-            srDescription?.textContent?.includes('pattern');
+          const hasScreenReaderPattern = srDescription?.textContent?.includes('pattern');
 
           return (
             hasErrorFeedback &&
@@ -452,9 +423,9 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
             hasPatternOverlay &&
             hasScreenReaderPattern
           );
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
@@ -465,73 +436,64 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
    */
   it('should maintain consistent warm color approach across all child-friendly themes', () => {
     fc.assert(
-      fc.property(
-        childFriendlyThemeArb,
-        errorMessageArb,
-        (theme, errorMessage) => {
-          let errorTriggered = false;
-          const onTriggered = () => {
-            errorTriggered = true;
-          };
+      fc.property(childFriendlyThemeArb, errorMessageArb, (theme, errorMessage) => {
+        let errorTriggered = false;
+        const onTriggered = () => {
+          errorTriggered = true;
+        };
 
-          const { container } = render(
-            <ErrorTriggerButton
-              theme={theme}
-              errorMessage={errorMessage}
-              errorType="gentle"
-              testId={randomTestId('theme-error')}
-              onTriggered={onTriggered}
-            />
-          );
+        const { container } = render(
+          <ErrorTriggerButton
+            theme={theme}
+            errorMessage={errorMessage}
+            errorType="gentle"
+            testId={randomTestId('theme-error')}
+            onTriggered={onTriggered}
+          />,
+        );
 
-          // Find and click the trigger button
-          clickFirstMatch(container, 'button[data-testid^="theme-error-"]');
+        // Find and click the trigger button
+        clickFirstMatch(container, 'button[data-testid^="theme-error-"]');
 
-          if (!errorTriggered) {
-            return false;
-          }
-
-          // Should show error feedback
-          const errorElement = container.querySelector(
-            '[data-testid="feedback-error"]'
-          );
-          const hasErrorFeedback = errorElement !== null;
-
-          if (!hasErrorFeedback) {
-            return false;
-          }
-
-          // Should be using a child-friendly theme
-          const isChildFriendlyTheme = theme.category === 'child-friendly';
-
-          // Should have gentle error styling
-          const hasGentleClass = errorElement.className.includes('gentle');
-
-          // Should have pattern-based visual cues
-          const hasPattern = 'pattern' in errorElement.dataset;
-
-          // Should have warm color pattern (dots for gentle errors)
-          const patternType = errorElement.dataset.pattern;
-          const hasWarmPattern = patternType === 'dots';
-
-          // Should maintain theme consistency (theme colors should be used)
-          const feedbackSystem = container.querySelector(
-            '[data-testid="visual-feedback-system"]'
-          );
-          const hasChildModeClass =
-            feedbackSystem?.className.includes('childMode');
-
-          return (
-            hasErrorFeedback &&
-            isChildFriendlyTheme &&
-            hasGentleClass &&
-            hasPattern &&
-            hasWarmPattern &&
-            hasChildModeClass
-          );
+        if (!errorTriggered) {
+          return false;
         }
-      ),
-      { numRuns: 30 }
+
+        // Should show error feedback
+        const errorElement = container.querySelector('[data-testid="feedback-error"]');
+        const hasErrorFeedback = errorElement !== null;
+
+        if (!hasErrorFeedback) {
+          return false;
+        }
+
+        // Should be using a child-friendly theme
+        const isChildFriendlyTheme = theme.category === 'child-friendly';
+
+        // Should have gentle error styling
+        const hasGentleClass = errorElement.className.includes('gentle');
+
+        // Should have pattern-based visual cues
+        const hasPattern = 'pattern' in errorElement.dataset;
+
+        // Should have warm color pattern (dots for gentle errors)
+        const patternType = errorElement.dataset.pattern;
+        const hasWarmPattern = patternType === 'dots';
+
+        // Should maintain theme consistency (theme colors should be used)
+        const feedbackSystem = container.querySelector('[data-testid="visual-feedback-system"]');
+        const hasChildModeClass = feedbackSystem?.className.includes('childMode');
+
+        return (
+          hasErrorFeedback &&
+          isChildFriendlyTheme &&
+          hasGentleClass &&
+          hasPattern &&
+          hasWarmPattern &&
+          hasChildModeClass
+        );
+      }),
+      { numRuns: 30 },
     );
   });
 
@@ -542,14 +504,14 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
    */
   it('should apply gentle highlighting to DOM elements with warm visual effects', () => {
     fc.assert(
-      fc.property(childFriendlyThemeArb, theme => {
+      fc.property(childFriendlyThemeArb, (theme) => {
         let highlightApplied = false;
         const onTriggered = () => {
           highlightApplied = true;
         };
 
         const { container } = render(
-          <HighlightErrorTrigger theme={theme} onTriggered={onTriggered} />
+          <HighlightErrorTrigger theme={theme} onTriggered={onTriggered} />,
         );
 
         // Find and click the trigger button
@@ -561,7 +523,7 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
 
         // Find the target element
         const targetElement = container.querySelector(
-          'div[data-testid^="highlight-target-"]'
+          'div[data-testid^="highlight-target-"]',
         ) as HTMLElement;
 
         if (!targetElement) {
@@ -585,22 +547,15 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
 
         // Should have gentle transform (slight scale)
         const transform = targetElement.style.transform;
-        const hasGentleTransform =
-          transform.includes('scale') && transform.includes('1.02'); // gentle scale
+        const hasGentleTransform = transform.includes('scale') && transform.includes('1.02'); // gentle scale
 
         // Should have transition for smooth effect
         const transition = targetElement.style.transition;
-        const hasTransition =
-          transition.includes('all') && transition.includes('ease');
+        const hasTransition = transition.includes('all') && transition.includes('ease');
 
-        return (
-          hasWarmBackground &&
-          hasGentleShadow &&
-          hasGentleTransform &&
-          hasTransition
-        );
+        return hasWarmBackground && hasGentleShadow && hasGentleTransform && hasTransition;
       }),
-      { numRuns: 20 } // Reduced runs due to DOM manipulation complexity
+      { numRuns: 20 }, // Reduced runs due to DOM manipulation complexity
     );
   });
 });

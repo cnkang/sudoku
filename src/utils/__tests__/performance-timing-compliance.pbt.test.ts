@@ -6,7 +6,7 @@
  */
 
 import fc from 'fast-check';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import type { GridConfig } from '@/types';
 import { GRID_CONFIGS } from '@/utils/gridConfig';
 import { secureRandomFraction } from '@/utils/secureRandom';
@@ -68,7 +68,7 @@ async function simulateGridTransition(
   _fromSize: GridSize,
   toSize: GridSize,
   useViewTransitions: boolean = true,
-  simulatedDelay: number = 0
+  simulatedDelay: number = 0,
 ): Promise<number> {
   const timer = new PerformanceTimer();
   timer.start();
@@ -95,17 +95,14 @@ async function simulateGridTransition(
 
   // Add simulated processing delay
   if (simulatedDelay > 0) {
-    await new Promise(resolve => setTimeout(resolve, simulatedDelay));
+    await new Promise((resolve) => setTimeout(resolve, simulatedDelay));
   }
 
   return timer.end();
 }
 
 // Simulate component rendering time
-function simulateComponentRender(
-  gridConfig: GridConfig,
-  complexity: number = 1
-): number {
+function simulateComponentRender(gridConfig: GridConfig, complexity: number = 1): number {
   const timer = new PerformanceTimer();
   timer.start();
 
@@ -123,16 +120,13 @@ function simulateComponentRender(
 }
 
 // Simulate API call timing
-async function simulateApiCall(
-  gridSize: GridSize,
-  networkDelay: number = 0
-): Promise<number> {
+async function simulateApiCall(gridSize: GridSize, networkDelay: number = 0): Promise<number> {
   const timer = new PerformanceTimer();
   timer.start();
 
   // Simulate network delay
   if (networkDelay > 0) {
-    await new Promise(resolve => setTimeout(resolve, networkDelay));
+    await new Promise((resolve) => setTimeout(resolve, networkDelay));
   }
 
   // Simulate puzzle generation work
@@ -197,19 +191,19 @@ describe('Performance Timing Compliance Property Tests', () => {
             fromSize,
             toSize,
             useViewTransitions,
-            simulatedDelay
+            simulatedDelay,
           );
 
           // Property: Transition time must be within 200ms requirement
           expect(transitionTime).toBeLessThanOrEqual(200);
 
           return transitionTime <= 200;
-        }
+        },
       ),
       {
         numRuns: 100,
         timeout: 5000,
-      }
+      },
     );
   });
 
@@ -239,14 +233,8 @@ describe('Performance Timing Compliance Property Tests', () => {
           const transitionStart = performance.now();
 
           // Simulate component unmount/mount cycle
-          const _unmountTime = simulateComponentRender(
-            fromConfig,
-            complexityFactor
-          );
-          const _mountTime = simulateComponentRender(
-            toConfig,
-            complexityFactor
-          );
+          const _unmountTime = simulateComponentRender(fromConfig, complexityFactor);
+          const _mountTime = simulateComponentRender(toConfig, complexityFactor);
 
           const transitionEnd = performance.now();
           const totalTime = transitionEnd - transitionStart;
@@ -257,12 +245,12 @@ describe('Performance Timing Compliance Property Tests', () => {
           expect(totalTime).toBeLessThanOrEqual(maxAllowedTime);
 
           return totalTime <= maxAllowedTime;
-        }
+        },
       ),
       {
         numRuns: 100,
         timeout: 5000,
-      }
+      },
     );
   });
 
@@ -297,11 +285,7 @@ describe('Performance Timing Compliance Property Tests', () => {
           });
 
           try {
-            const transitionTime = await simulateGridTransition(
-              fromSize,
-              toSize,
-              apiAvailable
-            );
+            const transitionTime = await simulateGridTransition(fromSize, toSize, apiAvailable);
 
             // Property: Transition should work regardless of API availability
             // and still meet performance requirements
@@ -309,21 +293,17 @@ describe('Performance Timing Compliance Property Tests', () => {
             return transitionTime <= 200;
           } catch {
             // If View Transitions fail, fallback should still work
-            const fallbackTime = await simulateGridTransition(
-              fromSize,
-              toSize,
-              false
-            );
+            const fallbackTime = await simulateGridTransition(fromSize, toSize, false);
 
             expect(fallbackTime).toBeLessThanOrEqual(200);
             return fallbackTime <= 200;
           }
-        }
+        },
       ),
       {
         numRuns: 100,
         timeout: 5000,
-      }
+      },
     );
   });
 
@@ -343,21 +323,18 @@ describe('Performance Timing Compliance Property Tests', () => {
           });
 
           // Simulate concurrent operations (API calls, transitions, renders)
-          const operations = Array.from(
-            { length: concurrentOps },
-            async (_, i) => {
-              switch (i % 3) {
-                case 0:
-                  return simulateApiCall(gridSize, networkDelay);
-                case 1:
-                  return simulateGridTransition(4, gridSize, true);
-                case 2:
-                  return simulateComponentRender(GRID_CONFIGS[gridSize], 2);
-                default:
-                  return 0;
-              }
+          const operations = Array.from({ length: concurrentOps }, async (_, i) => {
+            switch (i % 3) {
+              case 0:
+                return simulateApiCall(gridSize, networkDelay);
+              case 1:
+                return simulateGridTransition(4, gridSize, true);
+              case 2:
+                return simulateComponentRender(GRID_CONFIGS[gridSize], 2);
+              default:
+                return 0;
             }
-          );
+          });
 
           const results = await Promise.all(operations);
           const maxTime = Math.max(...results);
@@ -367,12 +344,12 @@ describe('Performance Timing Compliance Property Tests', () => {
           expect(maxTime).toBeLessThanOrEqual(300); // Slightly higher limit for concurrent ops
 
           return maxTime <= 300;
-        }
+        },
       ),
       {
         numRuns: 50, // Fewer runs for concurrent tests
         timeout: 10000,
-      }
+      },
     );
   });
 
@@ -404,12 +381,12 @@ describe('Performance Timing Compliance Property Tests', () => {
           expect(transitionTime).toBeLessThanOrEqual(expectedMaxTime);
 
           return transitionTime <= expectedMaxTime;
-        }
+        },
       ),
       {
         numRuns: 100,
         timeout: 5000,
-      }
+      },
     );
   });
 
@@ -433,7 +410,7 @@ describe('Performance Timing Compliance Property Tests', () => {
           const transitionTime = await simulateGridTransition(
             fromSize,
             toSize,
-            !reducedMotion // No View Transitions with reduced motion
+            !reducedMotion, // No View Transitions with reduced motion
           );
 
           // Property: Reduced motion should not negatively impact performance
@@ -445,12 +422,12 @@ describe('Performance Timing Compliance Property Tests', () => {
           }
 
           return reducedMotion ? transitionTime <= 150 : transitionTime <= 200;
-        }
+        },
       ),
       {
         numRuns: 100,
         timeout: 5000,
-      }
+      },
     );
   });
 });
@@ -483,20 +460,17 @@ describe('Performance Timing Integration Tests', () => {
       const transitionTime = await simulateGridTransition(
         scenario.from as 4 | 6 | 9,
         scenario.to as 4 | 6 | 9,
-        true
+        true,
       );
 
-      expect(
-        transitionTime,
-        `${scenario.description} transition`
-      ).toBeLessThanOrEqual(200);
+      expect(transitionTime, `${scenario.description} transition`).toBeLessThanOrEqual(200);
     }
   });
 
   it('should maintain performance under memory pressure simulation', async () => {
     // Simulate memory pressure by creating large objects
     const memoryPressure = Array.from({ length: 1000 }, () =>
-      Array.from({ length: 100 }, () => secureRandomFraction())
+      Array.from({ length: 100 }, () => secureRandomFraction()),
     );
 
     let time = 0;

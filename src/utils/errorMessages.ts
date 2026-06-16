@@ -8,8 +8,7 @@
  */
 export const VALIDATION_ERRORS = {
   INVALID_GRID_SIZE: 'Invalid grid size. Must be 4, 6, or 9.',
-  INVALID_DIFFICULTY_RANGE:
-    'Invalid difficulty level. Must be between 1 and 10.',
+  INVALID_DIFFICULTY_RANGE: 'Invalid difficulty level. Must be between 1 and 10.',
   DIFFICULTY_REQUIRED: 'Difficulty must be a valid number.',
   DIFFICULTY_POSITIVE_INTEGER: 'Difficulty must be a positive integer.',
   INVALID_SEED_FORMAT:
@@ -26,8 +25,7 @@ export const createValidationError = {
     `Invalid column: ${col}. Must be between 0 and ${maxCol}.`,
   invalidCellValue: (value: number, maxValue: number) =>
     `Invalid cell value: ${value}. Must be 0 or between 1 and ${maxValue}.`,
-  invalidGrid: (size: number) =>
-    `Invalid grid: must be a ${size}x${size} array.`,
+  invalidGrid: (size: number) => `Invalid grid: must be a ${size}x${size} array.`,
   invalidRow_: (rowIndex: number, size: number) =>
     `Invalid row ${rowIndex}: must contain exactly ${size} elements.`,
   invalidCellAt: (row: number, col: number, message: string) =>
@@ -71,8 +69,7 @@ export const HOOK_ERRORS = {
 export const UTILITY_ERRORS = {
   UNSUPPORTED_GRID_SIZE: (size: number) => `Unsupported grid size: ${size}`,
   DEFAULT_THEME_NOT_FOUND: 'Default theme not found',
-  SECURE_RANDOM_UNAVAILABLE:
-    'Secure random values are not available in this environment',
+  SECURE_RANDOM_UNAVAILABLE: 'Secure random values are not available in this environment',
   SECURE_RANDOM_GENERATION_FAILED: 'Unable to generate secure random value',
   HTTP_ERROR: (status: number) => `HTTP error! status: ${status}`,
 } as const;

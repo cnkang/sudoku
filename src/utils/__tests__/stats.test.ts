@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import { getStats, updateStats } from '../stats';
 
 // Mock localStorage
@@ -25,7 +25,7 @@ describe('Stats Utils', () => {
 
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
         'sudoku-stats',
-        expect.stringContaining('"gamesCompleted":1')
+        expect.stringContaining('"gamesCompleted":1'),
       );
     });
 
@@ -36,7 +36,7 @@ describe('Stats Utils', () => {
 
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
         'sudoku-stats',
-        expect.stringContaining('"gamesPlayed":1')
+        expect.stringContaining('"gamesPlayed":1'),
       );
     });
 

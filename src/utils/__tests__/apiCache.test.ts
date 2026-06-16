@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import { clientCache, fetchWithCache } from '../apiCache';
 import { clearPendingRequests } from '../requestDeduplication';
 
@@ -119,7 +119,7 @@ describe('apiCache', () => {
           headers: expect.objectContaining({
             'If-None-Match': 'etag-123',
           }),
-        })
+        }),
       );
     });
 
@@ -140,9 +140,7 @@ describe('apiCache', () => {
       const mockResponse = { ok: false, status: 500 };
       vi.mocked(fetch).mockResolvedValue(mockResponse as Response);
 
-      await expect(fetchWithCache('test-url')).rejects.toThrow(
-        'HTTP error! status: 500'
-      );
+      await expect(fetchWithCache('test-url')).rejects.toThrow('HTTP error! status: 500');
     });
 
     it('should deduplicate concurrent identical requests', async () => {
@@ -178,7 +176,7 @@ describe('apiCache', () => {
       });
 
       vi.mocked(fetch).mockImplementation(async () => {
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
         return mockResponse() as Response;
       });
 
@@ -186,7 +184,7 @@ describe('apiCache', () => {
       const promise1 = fetchWithCache('window-test', {}, true);
 
       // Second request immediately after (within deduplication window, while first is pending)
-      await new Promise(resolve => setTimeout(resolve, 5));
+      await new Promise((resolve) => setTimeout(resolve, 5));
       const promise2 = fetchWithCache('window-test', {}, true);
 
       const [result1, result2] = await Promise.all([promise1, promise2]);

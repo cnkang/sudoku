@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import { applyThemeToDocument, THEMES } from '@/utils/themes';
 import { useTheme } from '../useTheme';
 
@@ -17,10 +17,8 @@ const mockMatchMedia = vi.fn();
 const renderThemeHook = () => renderHook(() => useTheme());
 
 const setThemeSafe = (
-  result: ReturnType<
-    typeof renderHook<ReturnType<typeof useTheme>, unknown>
-  >['result'],
-  themeId: string
+  result: ReturnType<typeof renderHook<ReturnType<typeof useTheme>, unknown>>['result'],
+  themeId: string,
 ) => {
   act(() => {
     result.current.setTheme(themeId);
@@ -59,7 +57,7 @@ describe('useTheme', () => {
     });
 
     it('should initialize with stored theme preference', () => {
-      mockLocalStorage.getItem.mockImplementation(key => {
+      mockLocalStorage.getItem.mockImplementation((key) => {
         if (key === 'sudoku-theme-preference') return 'forest';
         if (key === 'sudoku-high-contrast-mode') return 'false';
         return null;
@@ -71,7 +69,7 @@ describe('useTheme', () => {
     });
 
     it('should initialize with high contrast mode from storage', () => {
-      mockLocalStorage.getItem.mockImplementation(key => {
+      mockLocalStorage.getItem.mockImplementation((key) => {
         if (key === 'sudoku-theme-preference') return 'ocean';
         if (key === 'sudoku-high-contrast-mode') return 'true';
         return null;
@@ -96,7 +94,7 @@ describe('useTheme', () => {
     });
 
     it('should fallback to default theme for invalid stored theme', () => {
-      mockLocalStorage.getItem.mockImplementation(key => {
+      mockLocalStorage.getItem.mockImplementation((key) => {
         if (key === 'sudoku-theme-preference') return 'nonexistent-theme';
         return null;
       });
@@ -118,10 +116,7 @@ describe('useTheme', () => {
       });
 
       expect(result.current.currentTheme.id).toBe('forest');
-      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        'sudoku-theme-preference',
-        'forest'
-      );
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith('sudoku-theme-preference', 'forest');
     });
 
     it('should warn and ignore invalid theme ID', () => {
@@ -148,10 +143,7 @@ describe('useTheme', () => {
       });
 
       expect(result.current.currentTheme.id).toBe('ocean');
-      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        'sudoku-theme-preference',
-        'ocean'
-      );
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith('sudoku-theme-preference', 'ocean');
     });
   });
 
@@ -168,20 +160,14 @@ describe('useTheme', () => {
       });
 
       expect(result.current.isHighContrastMode).toBe(true);
-      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        'sudoku-high-contrast-mode',
-        'true'
-      );
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith('sudoku-high-contrast-mode', 'true');
 
       act(() => {
         result.current.toggleHighContrast();
       });
 
       expect(result.current.isHighContrastMode).toBe(false);
-      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        'sudoku-high-contrast-mode',
-        'false'
-      );
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith('sudoku-high-contrast-mode', 'false');
     });
 
     it('should generate high contrast variant when enabled', () => {
@@ -253,19 +239,15 @@ describe('useTheme', () => {
       const { unmount } = renderHook(() => useTheme());
 
       expect(mockMatchMedia).toHaveBeenCalledWith('(prefers-contrast: high)');
-      expect(mockAddEventListener).toHaveBeenCalledWith(
-        'change',
-        expect.any(Function),
-        { passive: true }
-      );
+      expect(mockAddEventListener).toHaveBeenCalledWith('change', expect.any(Function), {
+        passive: true,
+      });
 
       unmount();
 
-      expect(mockRemoveEventListener).toHaveBeenCalledWith(
-        'change',
-        expect.any(Function),
-        { passive: true } as EventListenerOptions
-      );
+      expect(mockRemoveEventListener).toHaveBeenCalledWith('change', expect.any(Function), {
+        passive: true,
+      } as EventListenerOptions);
     });
 
     it('should handle media query errors gracefully', () => {
@@ -302,10 +284,7 @@ describe('useTheme', () => {
     it('should apply theme to document when theme changes', () => {
       mockLocalStorage.getItem.mockReturnValue(null);
 
-      const setPropertySpy = vi.spyOn(
-        document.documentElement.style,
-        'setProperty'
-      );
+      const setPropertySpy = vi.spyOn(document.documentElement.style, 'setProperty');
 
       const { result } = renderHook(() => useTheme());
 
@@ -314,10 +293,7 @@ describe('useTheme', () => {
       });
 
       // Should have applied theme CSS variables
-      expect(setPropertySpy).toHaveBeenCalledWith(
-        '--color-primary',
-        THEMES.forest.colors.primary
-      );
+      expect(setPropertySpy).toHaveBeenCalledWith('--color-primary', THEMES.forest.colors.primary);
 
       setPropertySpy.mockRestore();
     });

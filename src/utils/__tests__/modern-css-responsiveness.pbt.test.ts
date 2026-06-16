@@ -5,7 +5,7 @@
  */
 
 import fc from 'fast-check';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 
 // Mock DOM environment for CSS testing
 const _mockElement = (width: number, height: number) => ({
@@ -55,7 +55,7 @@ const gridConfigs = {
 const calculateModernViewportUnits = (
   viewportHeight: number,
   safeAreaTop: number = 0,
-  safeAreaBottom: number = 0
+  safeAreaBottom: number = 0,
 ) => ({
   vh: viewportHeight,
   dvh: viewportHeight - safeAreaTop - safeAreaBottom, // Dynamic viewport height
@@ -67,7 +67,7 @@ const calculateModernViewportUnits = (
 const calculateGridLayout = (
   containerWidth: number,
   gridSize: 4 | 6 | 9,
-  deviceType: 'mobile' | 'tablet' | 'desktop'
+  deviceType: 'mobile' | 'tablet' | 'desktop',
 ) => {
   const config = gridConfigs[gridSize];
   let cellSize: number = config.cellSize[deviceType];
@@ -96,7 +96,7 @@ const calculateGridLayout = (
 const calculateFlexboxLayout = (
   containerWidth: number,
   buttonCount: number,
-  minButtonWidth: number = 120
+  minButtonWidth: number = 120,
 ) => {
   const gap = 12; // 0.75rem
   const containerPadding = 16; // 8px each side
@@ -135,10 +135,7 @@ const calculateFlexboxLayout = (
 };
 
 // Touch target validation
-const validateTouchTargets = (
-  elementSize: number,
-  isChildMode: boolean = false
-) => {
+const validateTouchTargets = (elementSize: number, isChildMode: boolean = false) => {
   const minSize = isChildMode ? 50 : 44; // WCAG AAA requirements
   return {
     isValid: elementSize >= minSize,
@@ -155,7 +152,7 @@ const validateFeatureSupport = (
   hasFlexbox: boolean,
   hasModernViewport: boolean,
   flexboxFallback: boolean,
-  gridFallback: boolean
+  gridFallback: boolean,
 ) => {
   const actualFlexbox = hasFlexbox || flexboxFallback;
   const actualCSSGrid = hasCSSGrid || gridFallback;
@@ -186,26 +183,20 @@ describe('Modern CSS Responsiveness Property Tests', () => {
           else if (containerWidth < 769) deviceType = 'tablet';
           else deviceType = 'desktop';
 
-          const layout = calculateGridLayout(
-            containerWidth,
-            gridSize,
-            deviceType
-          );
+          const layout = calculateGridLayout(containerWidth, gridSize, deviceType);
 
           // Property: Grid should always fit within container with proper padding
           expect(layout.fitsInContainer).toBe(true);
 
           // Property: Cell sizes should be appropriate for device type and container size
           const minPadding = 32; // Total padding (16px each side)
-          const maxPossibleCellSize = Math.floor(
-            (containerWidth - minPadding) / gridSize
-          );
+          const maxPossibleCellSize = Math.floor((containerWidth - minPadding) / gridSize);
           const absoluteMinCellSize = 15; // Absolute minimum for usability
 
           // Expect cell size to be within realistic bounds
           expect(layout.cellSize).toBeGreaterThanOrEqual(absoluteMinCellSize);
           expect(layout.cellSize).toBeLessThanOrEqual(
-            Math.max(maxPossibleCellSize, absoluteMinCellSize)
+            Math.max(maxPossibleCellSize, absoluteMinCellSize),
           );
 
           // Device-specific expectations only when container is large enough
@@ -214,19 +205,19 @@ describe('Modern CSS Responsiveness Property Tests', () => {
             if (deviceType === 'mobile') {
               const expectedMin = Math.min(30, maxPossibleCellSize);
               expect(layout.cellSize).toBeGreaterThanOrEqual(
-                Math.max(absoluteMinCellSize, expectedMin)
+                Math.max(absoluteMinCellSize, expectedMin),
               );
               expect(layout.cellSize).toBeLessThanOrEqual(60);
             } else if (deviceType === 'tablet') {
               const expectedMin = Math.min(35, maxPossibleCellSize);
               expect(layout.cellSize).toBeGreaterThanOrEqual(
-                Math.max(absoluteMinCellSize, expectedMin)
+                Math.max(absoluteMinCellSize, expectedMin),
               );
               expect(layout.cellSize).toBeLessThanOrEqual(65);
             } else {
               const expectedMin = Math.min(45, maxPossibleCellSize);
               expect(layout.cellSize).toBeGreaterThanOrEqual(
-                Math.max(absoluteMinCellSize, expectedMin)
+                Math.max(absoluteMinCellSize, expectedMin),
               );
               expect(layout.cellSize).toBeLessThanOrEqual(70);
             }
@@ -244,25 +235,25 @@ describe('Modern CSS Responsiveness Property Tests', () => {
             if (gridSize === 4) {
               const grid6CellSize = Math.min(
                 gridConfigs[6].cellSize[deviceType],
-                maxPossibleCellSize
+                maxPossibleCellSize,
               );
               expect(layout.cellSize).toBeGreaterThanOrEqual(
-                Math.max(absoluteMinCellSize, grid6CellSize)
+                Math.max(absoluteMinCellSize, grid6CellSize),
               );
             }
             if (gridSize === 6) {
               const grid9CellSize = Math.min(
                 gridConfigs[9].cellSize[deviceType],
-                maxPossibleCellSize
+                maxPossibleCellSize,
               );
               expect(layout.cellSize).toBeGreaterThanOrEqual(
-                Math.max(absoluteMinCellSize, grid9CellSize)
+                Math.max(absoluteMinCellSize, grid9CellSize),
               );
             }
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -273,11 +264,7 @@ describe('Modern CSS Responsiveness Property Tests', () => {
         fc.integer({ min: 0, max: 44 }), // Safe area top
         fc.integer({ min: 0, max: 34 }), // Safe area bottom
         (viewportHeight, safeAreaTop, safeAreaBottom) => {
-          const units = calculateModernViewportUnits(
-            viewportHeight,
-            safeAreaTop,
-            safeAreaBottom
-          );
+          const units = calculateModernViewportUnits(viewportHeight, safeAreaTop, safeAreaBottom);
 
           // Property: Dynamic viewport height should account for safe areas
           expect(units.dvh).toBe(viewportHeight - safeAreaTop - safeAreaBottom);
@@ -296,9 +283,9 @@ describe('Modern CSS Responsiveness Property Tests', () => {
           expect(units.dvh).toBeGreaterThan(0);
           expect(units.svh).toBeGreaterThan(0);
           expect(units.lvh).toBeGreaterThan(0);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -311,14 +298,11 @@ describe('Modern CSS Responsiveness Property Tests', () => {
           // Simulate CSS Grid auto-fit behavior
           const minItemWidth = 280; // minmax(280px, 1fr)
           const gap = 24; // 1.5rem
-          const maxColumns = Math.floor(
-            (containerWidth + gap) / (minItemWidth + gap)
-          );
+          const maxColumns = Math.floor((containerWidth + gap) / (minItemWidth + gap));
           const actualColumns = Math.min(maxColumns, itemCount);
 
           // Property: Grid should never exceed container width
-          const totalWidth =
-            actualColumns * minItemWidth + (actualColumns - 1) * gap;
+          const totalWidth = actualColumns * minItemWidth + (actualColumns - 1) * gap;
           expect(totalWidth).toBeLessThanOrEqual(containerWidth);
 
           // Property: Grid should use maximum possible columns without overflow
@@ -335,14 +319,12 @@ describe('Modern CSS Responsiveness Property Tests', () => {
 
           // Property: Grid should be responsive to container size changes
           const largerContainer = containerWidth + 300;
-          const largerMaxColumns = Math.floor(
-            (largerContainer + gap) / (minItemWidth + gap)
-          );
+          const largerMaxColumns = Math.floor((largerContainer + gap) / (minItemWidth + gap));
           const largerActualColumns = Math.min(largerMaxColumns, itemCount);
           expect(largerActualColumns).toBeGreaterThanOrEqual(actualColumns);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -354,11 +336,7 @@ describe('Modern CSS Responsiveness Property Tests', () => {
         fc.boolean(), // Child mode
         (containerWidth, buttonCount, childMode) => {
           const minButtonWidth = childMode ? 140 : 120;
-          const layout = calculateFlexboxLayout(
-            containerWidth,
-            buttonCount,
-            minButtonWidth
-          );
+          const layout = calculateFlexboxLayout(containerWidth, buttonCount, minButtonWidth);
 
           // Property: Buttons should meet minimum width requirements when container allows
           const containerPadding = 16;
@@ -388,9 +366,9 @@ describe('Modern CSS Responsiveness Property Tests', () => {
 
           // Property: Layout should be feasible for the given constraints
           expect(layout.fitsInContainer).toBe(true);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -421,14 +399,12 @@ describe('Modern CSS Responsiveness Property Tests', () => {
             { name: 'link', size: baseTouchTarget },
           ];
 
-          elements.forEach(element => {
+          elements.forEach((element) => {
             const validation = validateTouchTargets(element.size, childMode);
 
             // Property: All touch targets should meet minimum requirements
             expect(validation.isValid).toBe(true);
-            expect(validation.actualSize).toBeGreaterThanOrEqual(
-              validation.requiredSize
-            );
+            expect(validation.actualSize).toBeGreaterThanOrEqual(validation.requiredSize);
 
             // Property: Child mode should have larger touch targets
             if (childMode) {
@@ -440,9 +416,9 @@ describe('Modern CSS Responsiveness Property Tests', () => {
               expect(validation.actualSize).toBeGreaterThanOrEqual(44);
             }
           });
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -451,7 +427,7 @@ describe('Modern CSS Responsiveness Property Tests', () => {
       fc.property(
         fc.integer({ min: 280, max: 1400 }), // Container width
         // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: property test covers multiple branches
-        containerWidth => {
+        (containerWidth) => {
           const query = mockContainerQuery(containerWidth);
 
           // Property: Container queries should classify widths correctly
@@ -479,9 +455,9 @@ describe('Modern CSS Responsiveness Property Tests', () => {
           const currentIndex = breakpointOrder.indexOf(query);
           const largerIndex = breakpointOrder.indexOf(largerQuery);
           expect(largerIndex).toBeGreaterThanOrEqual(currentIndex);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -500,7 +476,7 @@ describe('Modern CSS Responsiveness Property Tests', () => {
           hasFlexbox,
           hasModernViewport,
           flexboxFallback,
-          gridFallback
+          gridFallback,
         ) => {
           const features = validateFeatureSupport(
             hasContainerQueries,
@@ -508,7 +484,7 @@ describe('Modern CSS Responsiveness Property Tests', () => {
             hasFlexbox,
             hasModernViewport,
             flexboxFallback,
-            gridFallback
+            gridFallback,
           );
 
           // Property: At least one layout method should be available in realistic scenarios
@@ -525,9 +501,9 @@ describe('Modern CSS Responsiveness Property Tests', () => {
 
           // Property: Core functionality should remain intact
           expect(features.cssGrid || features.flexbox).toBe(true);
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 });

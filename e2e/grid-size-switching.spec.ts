@@ -9,24 +9,24 @@ async function switchGridSize(page: Page, size: 4 | 6 | 9) {
   await page.waitForFunction(
     (s: number) => {
       const radio = document.querySelector<HTMLInputElement>(
-        `input[name="grid-size"][value="${s}"]`
+        `input[name="grid-size"][value="${s}"]`,
       );
       return radio !== null && !radio.disabled;
     },
     size,
-    { timeout: 15000 }
+    { timeout: 15000 },
   );
 
   for (let attemptIndex = 0; attemptIndex < 3; attemptIndex++) {
     await page.waitForFunction(
       (s: number) => {
         const radio = document.querySelector<HTMLInputElement>(
-          `input[name="grid-size"][value="${s}"]`
+          `input[name="grid-size"][value="${s}"]`,
         );
         return radio !== null && !radio.disabled;
       },
       size,
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
 
     const interactionAttempts: Array<() => Promise<void>> = [
@@ -36,9 +36,7 @@ async function switchGridSize(page: Page, size: 4 | 6 | 9) {
       async () => {
         await radioLocator.evaluate((input: HTMLInputElement) => {
           input.checked = true;
-          input.dispatchEvent(
-            new MouseEvent('click', { bubbles: true, cancelable: true })
-          );
+          input.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
           input.dispatchEvent(new Event('input', { bubbles: true }));
           input.dispatchEvent(new Event('change', { bubbles: true }));
         });
@@ -53,9 +51,9 @@ async function switchGridSize(page: Page, size: 4 | 6 | 9) {
       }
       await page.waitForTimeout(50);
       if (
-        await page.evaluate(s => {
+        await page.evaluate((s) => {
           const radio = document.querySelector<HTMLInputElement>(
-            `input[name="grid-size"][value="${s}"]`
+            `input[name="grid-size"][value="${s}"]`,
           );
           return radio?.checked === true;
         }, size)
@@ -65,9 +63,9 @@ async function switchGridSize(page: Page, size: 4 | 6 | 9) {
     }
 
     if (
-      await page.evaluate(s => {
+      await page.evaluate((s) => {
         const radio = document.querySelector<HTMLInputElement>(
-          `input[name="grid-size"][value="${s}"]`
+          `input[name="grid-size"][value="${s}"]`,
         );
         return radio?.checked === true;
       }, size)
@@ -87,12 +85,12 @@ test.describe('Grid Size Switching Tests', () => {
       state: 'hidden',
       timeout: 45000,
     });
-    await expect(
-      page.getByRole('region', { name: 'PWA and grid size settings' })
-    ).toBeVisible({ timeout: 30000 });
-    await expect(
-      page.getByRole('radiogroup', { name: 'Grid size selection' })
-    ).toBeVisible({ timeout: 30000 });
+    await expect(page.getByRole('region', { name: 'PWA and grid size settings' })).toBeVisible({
+      timeout: 30000,
+    });
+    await expect(page.getByRole('radiogroup', { name: 'Grid size selection' })).toBeVisible({
+      timeout: 30000,
+    });
   };
 
   test.describe.configure({ mode: 'serial' });
@@ -109,33 +107,22 @@ test.describe('Grid Size Switching Tests', () => {
     await waitForAppReady(page);
 
     await page.waitForFunction(
-      () =>
-        document.querySelector<HTMLInputElement>(
-          'input[name="grid-size"][value="9"]'
-        ) !== null,
-      { timeout: 30000 }
+      () => document.querySelector<HTMLInputElement>('input[name="grid-size"][value="9"]') !== null,
+      { timeout: 30000 },
     );
 
-    await expect(
-      page.locator('input[name="grid-size"][value="9"]')
-    ).toBeChecked();
+    await expect(page.locator('input[name="grid-size"][value="9"]')).toBeChecked();
 
-    await expect(
-      page.locator('#difficulty-select:visible').first()
-    ).toBeEnabled({
+    await expect(page.locator('#difficulty-select:visible').first()).toBeEnabled({
       timeout: 15000,
     });
   });
 
-  test('should switch from 9x9 to 4x4 and generate correct puzzle', async ({
-    page,
-  }) => {
+  test('should switch from 9x9 to 4x4 and generate correct puzzle', async ({ page }) => {
     await switchGridSize(page, 4);
   });
 
-  test('should switch from 9x9 to 6x6 and generate correct puzzle', async ({
-    page,
-  }) => {
+  test('should switch from 9x9 to 6x6 and generate correct puzzle', async ({ page }) => {
     await switchGridSize(page, 6);
   });
 
@@ -147,9 +134,7 @@ test.describe('Grid Size Switching Tests', () => {
     }
   });
 
-  test('should preserve difficulty when switching grid sizes', async ({
-    page,
-  }) => {
+  test('should preserve difficulty when switching grid sizes', async ({ page }) => {
     const difficultySelect = page.locator('#difficulty-select:visible').first();
     const currentDifficulty = await difficultySelect.inputValue();
     const targetDifficulty = currentDifficulty === '2' ? '3' : '2';

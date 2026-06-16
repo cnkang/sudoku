@@ -45,10 +45,7 @@ const ProgressDataSchema = z.object({
   timestamp: z.number().positive(),
 });
 
-const ProgressArraySchema = z
-  .array(ProgressDataSchema)
-  .min(1)
-  .max(MAX_PROGRESS_BATCH_SIZE);
+const ProgressArraySchema = z.array(ProgressDataSchema).min(1).max(MAX_PROGRESS_BATCH_SIZE);
 
 export async function POST(request: NextRequest) {
   const rateLimit = enforceRateLimit(request, POST_RATE_LIMIT);
@@ -60,24 +57,20 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const bodyResult = await readJsonBodyWithLimit<unknown>(
-      request,
-      MAX_JSON_BODY_BYTES
-    );
+    const bodyResult = await readJsonBodyWithLimit<unknown>(request, MAX_JSON_BODY_BYTES);
     if (!bodyResult.ok) {
       return bodyResult.response;
     }
 
     // Validate the request body
     const progressData = ProgressArraySchema.parse(
-      Array.isArray(bodyResult.data) ? bodyResult.data : [bodyResult.data]
+      Array.isArray(bodyResult.data) ? bodyResult.data : [bodyResult.data],
     );
 
     // Process each progress entry
-    const processedEntries = progressData.map(entry => {
+    const processedEntries = progressData.map((entry) => {
       // Calculate performance metrics
-      const averageTimePerCell =
-        entry.timeSpent / (entry.gridSize * entry.gridSize);
+      const averageTimePerCell = entry.timeSpent / (entry.gridSize * entry.gridSize);
       const efficiency = entry.completed
         ? (entry.gridSize * entry.gridSize) / (entry.hintsUsed + 1)
         : 0;
@@ -102,7 +95,7 @@ export async function POST(request: NextRequest) {
         processed: processedEntries.length,
         timestamp: Date.now(),
       },
-      200
+      200,
     );
   } catch (error) {
     // Handle Zod validation errors
@@ -113,7 +106,7 @@ export async function POST(request: NextRequest) {
       const detailedLog = createDetailedErrorLog(
         error,
         'VALIDATION_ERROR',
-        extractRequestContext(request)
+        extractRequestContext(request),
       );
       logErrorServerSide(detailedLog);
 
@@ -124,7 +117,7 @@ export async function POST(request: NextRequest) {
     const detailedLog = createDetailedErrorLog(
       error,
       'INTERNAL_ERROR',
-      extractRequestContext(request)
+      extractRequestContext(request),
     );
     logErrorServerSide(detailedLog);
 
@@ -138,7 +131,7 @@ export async function POST(request: NextRequest) {
         error: sanitizedError.error,
         timestamp: sanitizedError.timestamp,
       },
-      500
+      500,
     );
   }
 }
@@ -153,16 +146,10 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const gridSizeParam = searchParams.get('gridSize');
   const parsedLimit = Number.parseInt(searchParams.get('limit') ?? '10', 10);
-  const limit = Number.isNaN(parsedLimit)
-    ? 10
-    : Math.max(1, Math.min(parsedLimit, 50));
-  const parsedGridSize = gridSizeParam
-    ? Number.parseInt(gridSizeParam, 10)
-    : null;
+  const limit = Number.isNaN(parsedLimit) ? 10 : Math.max(1, Math.min(parsedLimit, 50));
+  const parsedGridSize = gridSizeParam ? Number.parseInt(gridSizeParam, 10) : null;
   const gridSize =
-    parsedGridSize === 4 || parsedGridSize === 6 || parsedGridSize === 9
-      ? parsedGridSize
-      : null;
+    parsedGridSize === 4 || parsedGridSize === 6 || parsedGridSize === 9 ? parsedGridSize : null;
 
   // In a real application, you would fetch from a database
   // For now, return mock statistics
@@ -199,6 +186,6 @@ export async function GET(request: NextRequest) {
       stats: mockStats,
       timestamp: Date.now(),
     },
-    200
+    200,
   );
 }

@@ -35,7 +35,7 @@ const HTML_ESCAPE_MAP: Record<string, string> = {
  * ```
  */
 export function sanitizeString(input: string): string {
-  return input.replaceAll(/[&<>"'/]/g, char => HTML_ESCAPE_MAP[char] || char);
+  return input.replaceAll(/[&<>"'/]/g, (char) => HTML_ESCAPE_MAP[char] || char);
 }
 
 /**
@@ -54,7 +54,7 @@ export function sanitizeObject<T extends Record<string, unknown>>(obj: T): T {
     if (typeof value === 'string') {
       sanitized[key] = sanitizeString(value);
     } else if (Array.isArray(value)) {
-      sanitized[key] = value.map(item => {
+      sanitized[key] = value.map((item) => {
         if (typeof item === 'string') {
           return sanitizeString(item);
         }
@@ -112,11 +112,7 @@ export function sanitizeStringLength(input: string, maxLength: number): string {
  */
 export function sanitizeFilename(filename: string): string {
   // Remove path separators and null bytes
-  return filename
-    .replaceAll(/[/\\]/g, '')
-    .replaceAll('\0', '')
-    .replaceAll('..', '')
-    .trim();
+  return filename.replaceAll(/[/\\]/g, '').replaceAll('\0', '').replaceAll('..', '').trim();
 }
 
 /**
@@ -181,7 +177,7 @@ export function sanitizeNumber(
   input: unknown,
   min: number,
   max: number,
-  defaultValue: number
+  defaultValue: number,
 ): number {
   const num = Number(input);
 
@@ -209,10 +205,7 @@ export function sanitizeNumber(
  * @param defaultValue - Default value if invalid
  * @returns Sanitized boolean
  */
-export function sanitizeBoolean(
-  input: unknown,
-  defaultValue: boolean
-): boolean {
+export function sanitizeBoolean(input: unknown, defaultValue: boolean): boolean {
   if (typeof input === 'boolean') {
     return input;
   }

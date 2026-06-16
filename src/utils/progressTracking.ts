@@ -37,15 +37,7 @@ export interface Achievement {
 
 export interface ProgressReward {
   type: 'star' | 'badge' | 'sticker' | 'trophy' | 'crown' | 'gem';
-  color:
-    | 'gold'
-    | 'silver'
-    | 'bronze'
-    | 'rainbow'
-    | 'blue'
-    | 'green'
-    | 'purple'
-    | 'pink';
+  color: 'gold' | 'silver' | 'bronze' | 'rainbow' | 'blue' | 'green' | 'purple' | 'pink';
   size: 'small' | 'medium' | 'large';
   animation: 'bounce' | 'sparkle' | 'glow' | 'pulse' | 'rotate';
   message: string;
@@ -53,13 +45,7 @@ export interface ProgressReward {
 }
 
 export interface CelebrationEffect {
-  type:
-    | 'confetti'
-    | 'fireworks'
-    | 'sparkles'
-    | 'balloons'
-    | 'rainbow'
-    | 'stars';
+  type: 'confetti' | 'fireworks' | 'sparkles' | 'balloons' | 'rainbow' | 'stars';
   intensity: 'gentle' | 'moderate' | 'festive';
   duration: number;
   colors: string[];
@@ -324,15 +310,15 @@ export const checkForNewAchievements = (
     completionTime?: number;
     hintsUsed?: number;
     isPerfectGame?: boolean;
-  }
+  },
 ): Achievement[] => {
   const newAchievements: Achievement[] = [];
 
   // Filter achievements for this grid size or cross-grid achievements
   const relevantAchievements = ACHIEVEMENTS.filter(
-    achievement =>
+    (achievement) =>
       !currentStats.achievements.includes(achievement.id) &&
-      (achievement.gridSize === gridSize || achievement.gridSize === undefined)
+      (achievement.gridSize === gridSize || achievement.gridSize === undefined),
   );
 
   for (const achievement of relevantAchievements) {
@@ -340,8 +326,7 @@ export const checkForNewAchievements = (
 
     switch (achievement.requirement.type) {
       case 'puzzles_completed':
-        isUnlocked =
-          currentStats.puzzlesCompleted >= achievement.requirement.value;
+        isUnlocked = currentStats.puzzlesCompleted >= achievement.requirement.value;
         break;
       case 'time_under':
         isUnlocked =
@@ -383,7 +368,7 @@ export const generateCompletionReward = (
     completionTime: number;
     hintsUsed: number;
     difficulty: number;
-  }
+  },
 ): ProgressReward => {
   // Determine reward based on performance and milestones
   let rewardType: ProgressReward['type'] = 'star';
@@ -441,7 +426,7 @@ export const generateCompletionReward = (
  */
 export const generateCelebrationEffect = (
   achievement: Achievement,
-  childMode: boolean = true
+  childMode: boolean = true,
 ): CelebrationEffect => {
   const baseEffect: CelebrationEffect = {
     type: 'confetti',
@@ -488,15 +473,7 @@ export const generateCelebrationEffect = (
         type: 'rainbow',
         intensity: 'festive',
         duration: 5000,
-        colors: [
-          '#FF0000',
-          '#FF7F00',
-          '#FFFF00',
-          '#00FF00',
-          '#0000FF',
-          '#4B0082',
-          '#9400D3',
-        ],
+        colors: ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3'],
         soundEffect: 'applause',
       };
       break;
@@ -519,7 +496,7 @@ export const generateCelebrationEffect = (
  */
 export const getCelebrationMessage = (
   achievement: Achievement,
-  isFirstOfType: boolean = false
+  isFirstOfType: boolean = false,
 ): string => {
   let messages: string[] = [];
 
@@ -543,10 +520,7 @@ export const getCelebrationMessage = (
   }
 
   const randomMessage = pickSecureRandomElement(messages);
-  return (
-    randomMessage ||
-    `Congratulations on earning "${achievement.name}"! ${achievement.icon}`
-  );
+  return randomMessage || `Congratulations on earning "${achievement.name}"! ${achievement.icon}`;
 };
 
 /**
@@ -559,7 +533,7 @@ export const updateProgressStats = (
     hintsUsed: number;
     difficulty: number;
     gridSize: 4 | 6 | 9;
-  }
+  },
 ): ProgressStats => {
   const newPuzzlesCompleted = currentStats.puzzlesCompleted + 1;
   const newTotalTime = currentStats.totalTime + gameData.completionTime;
@@ -576,12 +550,7 @@ export const updateProgressStats = (
   // Calculate improvement rate (percentage improvement over last 10 games)
   const improvementRate =
     currentStats.averageTime > 0
-      ? Math.max(
-          0,
-          ((currentStats.averageTime - newAverageTime) /
-            currentStats.averageTime) *
-            100
-        )
+      ? Math.max(0, ((currentStats.averageTime - newAverageTime) / currentStats.averageTime) * 100)
       : 0;
 
   // Update daily streak
@@ -589,8 +558,7 @@ export const updateProgressStats = (
   const lastPlayedDate = currentStats.lastPlayed
     ? new Date(currentStats.lastPlayed).toDateString()
     : null;
-  const isConsecutiveDay =
-    lastPlayedDate === new Date(Date.now() - 86400000).toDateString(); // Yesterday
+  const isConsecutiveDay = lastPlayedDate === new Date(Date.now() - 86400000).toDateString(); // Yesterday
   let newDailyStreak = 1;
   if (lastPlayedDate === today) {
     newDailyStreak = currentStats.dailyStreak;
@@ -607,16 +575,11 @@ export const updateProgressStats = (
     hintsUsed: currentStats.hintsUsed + gameData.hintsUsed,
     streakCount: newStreakCount,
     longestStreak: Math.max(currentStats.longestStreak, newStreakCount),
-    perfectGames: isPerfectGame
-      ? currentStats.perfectGames + 1
-      : currentStats.perfectGames,
+    perfectGames: isPerfectGame ? currentStats.perfectGames + 1 : currentStats.perfectGames,
     lastPlayed: new Date(),
     dailyStreak: newDailyStreak,
     improvementRate,
-    difficultyProgression: Math.max(
-      currentStats.difficultyProgression,
-      gameData.difficulty
-    ),
+    difficultyProgression: Math.max(currentStats.difficultyProgression, gameData.difficulty),
 
     // Update reward counts (will be incremented by reward generation)
     starsEarned: currentStats.starsEarned + 1, // Always get at least one star
@@ -633,12 +596,9 @@ export const getAllAchievements = (): Achievement[] => {
 /**
  * Get achievements filtered by grid size
  */
-export const getAchievementsByGridSize = (
-  gridSize: 4 | 6 | 9
-): Achievement[] => {
+export const getAchievementsByGridSize = (gridSize: 4 | 6 | 9): Achievement[] => {
   return ACHIEVEMENTS.filter(
-    achievement =>
-      achievement.gridSize === gridSize || achievement.gridSize === undefined
+    (achievement) => achievement.gridSize === gridSize || achievement.gridSize === undefined,
   );
 };
 
@@ -646,20 +606,17 @@ export const getAchievementsByGridSize = (
  * Calculate overall progress percentage
  */
 export const calculateOverallProgress = (
-  stats: Record<string, ProgressStats>
+  stats: Record<string, ProgressStats>,
 ): {
   totalPuzzles: number;
   totalAchievements: number;
   overallProgress: number;
   nextMilestone: { type: string; target: number; current: number } | null;
 } => {
-  const totalPuzzles = Object.values(stats).reduce(
-    (sum, stat) => sum + stat.puzzlesCompleted,
-    0
-  );
+  const totalPuzzles = Object.values(stats).reduce((sum, stat) => sum + stat.puzzlesCompleted, 0);
   const totalAchievements = Object.values(stats).reduce(
     (sum, stat) => sum + stat.achievements.length,
-    0
+    0,
   );
 
   // Calculate progress as percentage of total possible achievements
@@ -668,7 +625,7 @@ export const calculateOverallProgress = (
 
   // Find next milestone
   const milestones = [10, 25, 50, 100, 250, 500];
-  const nextMilestone = milestones.find(milestone => totalPuzzles < milestone);
+  const nextMilestone = milestones.find((milestone) => totalPuzzles < milestone);
 
   return {
     totalPuzzles,

@@ -62,9 +62,7 @@ const createDefaultProgressStats = (): ProgressStats => ({
   achievements: [...defaultProgressStats.achievements],
 });
 
-const isAccessibilitySettings = (
-  value: unknown
-): value is AccessibilitySettings => {
+const isAccessibilitySettings = (value: unknown): value is AccessibilitySettings => {
   if (!value || typeof value !== 'object') {
     return false;
   }
@@ -107,9 +105,7 @@ const normalizeNumber = (value: unknown, fallback: number) =>
   typeof value === 'number' && Number.isFinite(value) ? value : fallback;
 
 const normalizeAchievements = (value: unknown) =>
-  Array.isArray(value) && value.every(item => typeof item === 'string')
-    ? value
-    : [];
+  Array.isArray(value) && value.every((item) => typeof item === 'string') ? value : [];
 
 const normalizeProgressStats = (value: unknown): ProgressStats => {
   if (!value || typeof value !== 'object') {
@@ -120,10 +116,7 @@ const normalizeProgressStats = (value: unknown): ProgressStats => {
   const defaults = createDefaultProgressStats();
 
   return {
-    puzzlesCompleted: normalizeNumber(
-      candidate.puzzlesCompleted,
-      defaults.puzzlesCompleted
-    ),
+    puzzlesCompleted: normalizeNumber(candidate.puzzlesCompleted, defaults.puzzlesCompleted),
     totalTime: normalizeNumber(candidate.totalTime, defaults.totalTime),
     averageTime: normalizeNumber(candidate.averageTime, defaults.averageTime),
     bestTime: normalizeNumber(candidate.bestTime, defaults.bestTime),
@@ -131,39 +124,18 @@ const normalizeProgressStats = (value: unknown): ProgressStats => {
     achievements: normalizeAchievements(candidate.achievements),
     streakCount: normalizeNumber(candidate.streakCount, defaults.streakCount),
     lastPlayed: normalizeDate(candidate.lastPlayed),
-    longestStreak: normalizeNumber(
-      candidate.longestStreak,
-      defaults.longestStreak
-    ),
-    perfectGames: normalizeNumber(
-      candidate.perfectGames,
-      defaults.perfectGames
-    ),
+    longestStreak: normalizeNumber(candidate.longestStreak, defaults.longestStreak),
+    perfectGames: normalizeNumber(candidate.perfectGames, defaults.perfectGames),
     dailyStreak: normalizeNumber(candidate.dailyStreak, defaults.dailyStreak),
-    weeklyGoalProgress: normalizeNumber(
-      candidate.weeklyGoalProgress,
-      defaults.weeklyGoalProgress
-    ),
+    weeklyGoalProgress: normalizeNumber(candidate.weeklyGoalProgress, defaults.weeklyGoalProgress),
     starsEarned: normalizeNumber(candidate.starsEarned, defaults.starsEarned),
-    badgesEarned: normalizeNumber(
-      candidate.badgesEarned,
-      defaults.badgesEarned
-    ),
-    stickersEarned: normalizeNumber(
-      candidate.stickersEarned,
-      defaults.stickersEarned
-    ),
-    improvementRate: normalizeNumber(
-      candidate.improvementRate,
-      defaults.improvementRate
-    ),
-    consistencyScore: normalizeNumber(
-      candidate.consistencyScore,
-      defaults.consistencyScore
-    ),
+    badgesEarned: normalizeNumber(candidate.badgesEarned, defaults.badgesEarned),
+    stickersEarned: normalizeNumber(candidate.stickersEarned, defaults.stickersEarned),
+    improvementRate: normalizeNumber(candidate.improvementRate, defaults.improvementRate),
+    consistencyScore: normalizeNumber(candidate.consistencyScore, defaults.consistencyScore),
     difficultyProgression: normalizeNumber(
       candidate.difficultyProgression,
-      defaults.difficultyProgression
+      defaults.difficultyProgression,
     ),
   };
 };
@@ -227,21 +199,14 @@ function setStorageItem<T>(key: string, value: T): void {
  * Load accessibility settings from localStorage
  */
 export function loadAccessibilitySettings(): AccessibilitySettings {
-  const stored = getStorageItem(
-    STORAGE_KEYS.ACCESSIBILITY,
-    defaultAccessibilitySettings
-  );
-  return isAccessibilitySettings(stored)
-    ? stored
-    : { ...defaultAccessibilitySettings };
+  const stored = getStorageItem(STORAGE_KEYS.ACCESSIBILITY, defaultAccessibilitySettings);
+  return isAccessibilitySettings(stored) ? stored : { ...defaultAccessibilitySettings };
 }
 
 /**
  * Save accessibility settings to localStorage
  */
-export function saveAccessibilitySettings(
-  settings: AccessibilitySettings
-): void {
+export function saveAccessibilitySettings(settings: AccessibilitySettings): void {
   setStorageItem(STORAGE_KEYS.ACCESSIBILITY, settings);
 }
 
@@ -257,9 +222,7 @@ export function loadProgressStats(): Record<string, ProgressStats> {
 
   const stored = getStorageItem(STORAGE_KEYS.PROGRESS, defaultProgress);
   const storedProgress =
-    stored && typeof stored === 'object'
-      ? (stored as Record<string, unknown>)
-      : {};
+    stored && typeof stored === 'object' ? (stored as Record<string, unknown>) : {};
 
   // Ensure all grid sizes have progress data
   return {
@@ -272,22 +235,16 @@ export function loadProgressStats(): Record<string, ProgressStats> {
 /**
  * Save progress statistics to localStorage
  */
-export function saveProgressStats(
-  progress: Record<string, ProgressStats>
-): void {
+export function saveProgressStats(progress: Record<string, ProgressStats>): void {
   setStorageItem(STORAGE_KEYS.PROGRESS, progress);
 }
 
 /**
  * Update progress for a specific grid size
  */
-export function updateGridProgress(
-  gridSize: string,
-  stats: Partial<ProgressStats>
-): void {
+export function updateGridProgress(gridSize: string, stats: Partial<ProgressStats>): void {
   const currentProgress = loadProgressStats();
-  const currentStats =
-    currentProgress[gridSize] ?? createDefaultProgressStats();
+  const currentStats = currentProgress[gridSize] ?? createDefaultProgressStats();
   const nextStats: ProgressStats = { ...currentStats, ...stats };
   const updatedProgress: Record<string, ProgressStats> = {
     ...currentProgress,
@@ -355,9 +312,7 @@ export function loadUserPreferences(): Partial<UserPreferences> {
 /**
  * Save all user preferences to localStorage
  */
-export function saveUserPreferences(
-  preferences: Partial<UserPreferences>
-): void {
+export function saveUserPreferences(preferences: Partial<UserPreferences>): void {
   if (preferences.accessibility) {
     saveAccessibilitySettings(preferences.accessibility);
   }
@@ -384,7 +339,7 @@ export function clearAllPreferences(): void {
     return;
   }
 
-  Object.values(STORAGE_KEYS).forEach(key => {
+  Object.values(STORAGE_KEYS).forEach((key) => {
     try {
       storage.removeItem(key);
     } catch {
@@ -404,7 +359,7 @@ export function getStorageInfo(): { available: boolean; usage?: number } {
 
   try {
     let totalSize = 0;
-    Object.values(STORAGE_KEYS).forEach(key => {
+    Object.values(STORAGE_KEYS).forEach((key) => {
       const item = storage.getItem(key);
       if (item) {
         totalSize += item.length;

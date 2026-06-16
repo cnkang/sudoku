@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vite-plus/test';
 import GameControls from '../GameControls';
 
 // Mock window.matchMedia for responsive tests
@@ -55,28 +55,18 @@ describe('GameControls Responsive Tests', () => {
       expect(buttons).toHaveLength(5);
 
       // All buttons should be present
-      expect(
-        screen.getByRole('button', { name: /check your solution/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /pause game/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /undo last move/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /get a hint/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /reset the game/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /check your solution/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /pause game/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /undo last move/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /get a hint/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /reset the game/i })).toBeInTheDocument();
     });
 
     it('should have appropriate button sizes for touch', () => {
       render(<GameControls {...mockProps} />);
 
       const buttons = screen.getAllByRole('button');
-      buttons.forEach(button => {
+      buttons.forEach((button) => {
         // Buttons should be large enough for touch interaction
         expect(button).toBeInTheDocument();
       });
@@ -160,7 +150,7 @@ describe('GameControls Responsive Tests', () => {
       expect(buttons).toHaveLength(5);
 
       // All buttons should still be accessible
-      buttons.forEach(button => {
+      buttons.forEach((button) => {
         expect(button).toBeInTheDocument();
       });
     });
@@ -180,7 +170,7 @@ describe('GameControls Responsive Tests', () => {
       render(<GameControls {...mockProps} />);
 
       const buttons = screen.getAllByRole('button');
-      buttons.forEach(button => {
+      buttons.forEach((button) => {
         // Minimum touch target size should be applied
         expect(button).toBeInTheDocument();
       });
@@ -194,7 +184,7 @@ describe('GameControls Responsive Tests', () => {
       expect(buttons).toHaveLength(5);
 
       // Touch devices should have all buttons accessible
-      buttons.forEach(button => {
+      buttons.forEach((button) => {
         expect(button).toBeInTheDocument();
       });
     });
@@ -216,9 +206,7 @@ describe('GameControls Responsive Tests', () => {
     it('should display success message responsively', () => {
       render(<GameControls {...mockProps} isCorrect={true} />);
 
-      const successMessage = screen.getByText(
-        /congratulations! you solved it correctly!/i
-      );
+      const successMessage = screen.getByText(/congratulations! you solved it correctly!/i);
       expect(successMessage).toBeInTheDocument();
 
       const messageContainer = screen.getByTestId('result-message');
@@ -247,9 +235,7 @@ describe('GameControls Responsive Tests', () => {
 
       render(<GameControls {...mockProps} isCorrect={true} />);
 
-      const successMessage = screen.getByText(
-        /congratulations! you solved it correctly!/i
-      );
+      const successMessage = screen.getByText(/congratulations! you solved it correctly!/i);
       expect(successMessage).toBeInTheDocument();
 
       // Message should be readable on mobile
@@ -290,9 +276,7 @@ describe('GameControls Responsive Tests', () => {
     });
 
     it('should handle pause/resume state on mobile', () => {
-      const { rerender } = render(
-        <GameControls {...mockProps} isPaused={false} />
-      );
+      const { rerender } = render(<GameControls {...mockProps} isPaused={false} />);
 
       expect(screen.getByText('Pause')).toBeInTheDocument();
 
@@ -339,21 +323,11 @@ describe('GameControls Responsive Tests', () => {
     it('should maintain proper ARIA labels on mobile', () => {
       render(<GameControls {...mockProps} />);
 
-      expect(
-        screen.getByRole('button', { name: 'Check your solution' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: 'Pause game' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: 'Undo last move' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: 'Get a hint' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: 'Reset the game' })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Check your solution' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Pause game' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Undo last move' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Get a hint' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Reset the game' })).toBeInTheDocument();
     });
 
     it('should maintain button functionality with screen readers', () => {

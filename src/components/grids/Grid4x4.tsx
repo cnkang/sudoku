@@ -58,7 +58,7 @@ export const Grid4x4 = memo<Grid4x4Props>(
         ]}
       />
     );
-  }
+  },
 );
 
 Grid4x4.displayName = 'Grid4x4';

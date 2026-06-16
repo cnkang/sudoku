@@ -3,7 +3,7 @@
  * Validates Requirements 12.4, 18.2
  */
 
-import { describe, expect, it, beforeEach, afterEach } from 'vitest';
+import { describe, expect, it, beforeEach, afterEach } from 'vite-plus/test';
 import {
   sanitizeErrorForClient,
   createDetailedErrorLog,
@@ -26,9 +26,7 @@ describe('errorSanitization', () => {
 
       const result = sanitizeErrorForClient(error);
 
-      expect(result.error).toBe(
-        'An error occurred while processing your request'
-      );
+      expect(result.error).toBe('An error occurred while processing your request');
       expect(result.error).not.toContain('Database');
       expect(result.error).not.toContain('/var/lib/db');
       expect(result.timestamp).toBeTypeOf('number');
@@ -62,9 +60,7 @@ describe('errorSanitization', () => {
       const result = sanitizeErrorForClient(error, 'INTERNAL_DATABASE_ERROR');
 
       expect(result.code).toBeUndefined();
-      expect(result.error).toBe(
-        'An error occurred while processing your request'
-      );
+      expect(result.error).toBe('An error occurred while processing your request');
     });
 
     it('should handle string errors', () => {
@@ -73,9 +69,7 @@ describe('errorSanitization', () => {
 
       const result = sanitizeErrorForClient(error);
 
-      expect(result.error).toBe(
-        'An error occurred while processing your request'
-      );
+      expect(result.error).toBe('An error occurred while processing your request');
       expect(result.error).not.toContain('/home/user/app');
     });
 
@@ -85,9 +79,7 @@ describe('errorSanitization', () => {
 
       const result = sanitizeErrorForClient(error);
 
-      expect(result.error).toBe(
-        'An error occurred while processing your request'
-      );
+      expect(result.error).toBe('An error occurred while processing your request');
     });
 
     it('should handle unknown error types', () => {
@@ -96,9 +88,7 @@ describe('errorSanitization', () => {
 
       const result = sanitizeErrorForClient(error);
 
-      expect(result.error).toBe(
-        'An error occurred while processing your request'
-      );
+      expect(result.error).toBe('An error occurred while processing your request');
     });
 
     it('should map rate limit error code correctly', () => {
@@ -218,9 +208,7 @@ describe('errorSanitization', () => {
     it('should handle nested field paths', () => {
       process.env.NODE_ENV = 'development';
       const zodError = {
-        issues: [
-          { path: ['user', 'profile', 'email'], message: 'Invalid email' },
-        ],
+        issues: [{ path: ['user', 'profile', 'email'], message: 'Invalid email' }],
       };
 
       const result = sanitizeZodError(zodError);
@@ -244,9 +232,7 @@ describe('errorSanitization', () => {
     let stderrWriteSpy: ReturnType<typeof vi.spyOn>;
 
     beforeEach(() => {
-      stderrWriteSpy = vi
-        .spyOn(process.stderr, 'write')
-        .mockImplementation(() => true);
+      stderrWriteSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     });
 
     afterEach(() => {
@@ -265,9 +251,7 @@ describe('errorSanitization', () => {
       logErrorServerSide(errorLog);
 
       expect(stderrWriteSpy).toHaveBeenCalledOnce();
-      const loggedData = JSON.parse(
-        (stderrWriteSpy.mock.calls[0][0] as string).trim()
-      );
+      const loggedData = JSON.parse((stderrWriteSpy.mock.calls[0][0] as string).trim());
       expect(loggedData.level).toBe('error');
       expect(loggedData.error).toBe('Test error');
       expect(loggedData.code).toBe('TEST_ERROR');
@@ -315,9 +299,7 @@ describe('errorSanitization', () => {
 
       logErrorServerSide(errorLog);
 
-      const loggedData = JSON.parse(
-        (stderrWriteSpy.mock.calls[0][0] as string).trim()
-      );
+      const loggedData = JSON.parse((stderrWriteSpy.mock.calls[0][0] as string).trim());
       expect(loggedData).toMatchObject({
         level: 'error',
         error: 'Complete error',
@@ -349,29 +331,21 @@ describe('errorSanitization', () => {
 
     it('should display user-friendly messages without technical details (Requirement 18.2)', () => {
       process.env.NODE_ENV = 'production';
-      const technicalError = new Error(
-        'ECONNREFUSED: Connection refused at 127.0.0.1:5432'
-      );
+      const technicalError = new Error('ECONNREFUSED: Connection refused at 127.0.0.1:5432');
 
       const clientResponse = sanitizeErrorForClient(technicalError);
 
-      expect(clientResponse.error).toBe(
-        'An error occurred while processing your request'
-      );
+      expect(clientResponse.error).toBe('An error occurred while processing your request');
       expect(clientResponse.error).not.toContain('ECONNREFUSED');
       expect(clientResponse.error).not.toContain('127.0.0.1');
       expect(clientResponse.error).not.toContain('5432');
     });
 
     it('should log detailed errors server-side only', () => {
-      const stderrWriteSpy = vi
-        .spyOn(process.stderr, 'write')
-        .mockImplementation(() => true);
+      const stderrWriteSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
       process.env.NODE_ENV = 'production';
 
-      const error = new Error(
-        'Database connection failed at /var/lib/postgresql'
-      );
+      const error = new Error('Database connection failed at /var/lib/postgresql');
       error.stack = 'Error: Database connection failed\n    at db.ts:42:10';
 
       const detailedLog = createDetailedErrorLog(error, 'DATABASE_ERROR', {
@@ -383,9 +357,7 @@ describe('errorSanitization', () => {
       logErrorServerSide(detailedLog);
 
       // Server-side log should have full details
-      const loggedData = JSON.parse(
-        (stderrWriteSpy.mock.calls[0][0] as string).trim()
-      );
+      const loggedData = JSON.parse((stderrWriteSpy.mock.calls[0][0] as string).trim());
       expect(loggedData.error).toContain('Database connection failed');
       expect(loggedData.stack).toContain('db.ts:42:10');
       expect(loggedData.context?.ip).toBe('db-client.internal.test');

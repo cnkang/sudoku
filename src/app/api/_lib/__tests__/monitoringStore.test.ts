@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vite-plus/test';
 import {
   clearMonitoringStore,
   getMonitoringDashboardSnapshot,
@@ -44,7 +44,7 @@ describe('Monitoring Store', () => {
     });
 
     const snapshot = getMonitoringDashboardSnapshot(60_000);
-    const lcpSummary = snapshot.metrics.find(metric => metric.name === 'LCP');
+    const lcpSummary = snapshot.metrics.find((metric) => metric.name === 'LCP');
 
     expect(lcpSummary).toBeDefined();
     expect(lcpSummary?.count).toBe(3);
@@ -90,8 +90,6 @@ describe('Monitoring Store', () => {
 
     expect(snapshot.errorCount).toBe(20);
     expect(latestAlertType).toBe('client-error-rate');
-    expect(
-      snapshot.recentAlerts.some(alert => alert.type === 'client-error-rate')
-    ).toBe(true);
+    expect(snapshot.recentAlerts.some((alert) => alert.type === 'client-error-rate')).toBe(true);
   });
 });

@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import { GRID_CONFIGS } from '../../utils/gridConfig';
 import * as preferencesModule from '../../utils/preferences';
 import { useGameState } from '../useGameState';
@@ -16,12 +16,8 @@ vi.mock('../../utils/preferences', () => ({
 }));
 
 describe('usePreferences', () => {
-  const mockLoadUserPreferences = vi.mocked(
-    preferencesModule.loadUserPreferences
-  );
-  const mockSaveAccessibilitySettings = vi.mocked(
-    preferencesModule.saveAccessibilitySettings
-  );
+  const mockLoadUserPreferences = vi.mocked(preferencesModule.loadUserPreferences);
+  const mockSaveAccessibilitySettings = vi.mocked(preferencesModule.saveAccessibilitySettings);
   const mockSaveProgressStats = vi.mocked(preferencesModule.saveProgressStats);
   const mockSaveChildMode = vi.mocked(preferencesModule.saveChildMode);
   const mockSaveGridConfig = vi.mocked(preferencesModule.saveGridConfig);
@@ -90,9 +86,7 @@ describe('usePreferences', () => {
     const { result: gameStateResult } = renderHook(() => useGameState());
     const mockDispatch = vi.fn();
 
-    renderHook(() =>
-      usePreferences(gameStateResult.current.state, mockDispatch)
-    );
+    renderHook(() => usePreferences(gameStateResult.current.state, mockDispatch));
 
     expect(mockLoadUserPreferences).toHaveBeenCalledTimes(2);
     expect(mockDispatch).toHaveBeenCalledWith({
@@ -117,9 +111,7 @@ describe('usePreferences', () => {
     const { result: gameStateResult } = renderHook(() => useGameState());
     const mockDispatch = vi.fn();
 
-    renderHook(() =>
-      usePreferences(gameStateResult.current.state, mockDispatch)
-    );
+    renderHook(() => usePreferences(gameStateResult.current.state, mockDispatch));
 
     // Simulate accessibility settings change
     act(() => {
@@ -141,9 +133,7 @@ describe('usePreferences', () => {
     const { result: gameStateResult } = renderHook(() => useGameState());
     const mockDispatch = vi.fn();
 
-    renderHook(() =>
-      usePreferences(gameStateResult.current.state, mockDispatch)
-    );
+    renderHook(() => usePreferences(gameStateResult.current.state, mockDispatch));
 
     // Simulate progress update
     act(() => {
@@ -168,9 +158,7 @@ describe('usePreferences', () => {
     const { result: gameStateResult } = renderHook(() => useGameState());
     const mockDispatch = vi.fn();
 
-    renderHook(() =>
-      usePreferences(gameStateResult.current.state, mockDispatch)
-    );
+    renderHook(() => usePreferences(gameStateResult.current.state, mockDispatch));
 
     // Simulate child mode change
     act(() => {
@@ -192,9 +180,7 @@ describe('usePreferences', () => {
     const { result: gameStateResult } = renderHook(() => useGameState());
     const mockDispatch = vi.fn();
 
-    renderHook(() =>
-      usePreferences(gameStateResult.current.state, mockDispatch)
-    );
+    renderHook(() => usePreferences(gameStateResult.current.state, mockDispatch));
 
     // Simulate grid config change
     act(() => {
@@ -216,9 +202,7 @@ describe('usePreferences', () => {
     const { result: gameStateResult } = renderHook(() => useGameState());
     const mockDispatch = vi.fn();
 
-    renderHook(() =>
-      usePreferences(gameStateResult.current.state, mockDispatch)
-    );
+    renderHook(() => usePreferences(gameStateResult.current.state, mockDispatch));
 
     // Simulate difficulty change
     act(() => {
@@ -241,7 +225,7 @@ describe('usePreferences', () => {
     const mockDispatch = vi.fn();
 
     const { result } = renderHook(() =>
-      usePreferences(gameStateResult.current.state, mockDispatch)
+      usePreferences(gameStateResult.current.state, mockDispatch),
     );
 
     expect(result.current.restorePreferences).toBeDefined();
@@ -268,7 +252,7 @@ describe('usePreferences', () => {
     const mockDispatch = vi.fn();
 
     const { result } = renderHook(() =>
-      usePreferences(gameStateResult.current.state, mockDispatch)
+      usePreferences(gameStateResult.current.state, mockDispatch),
     );
 
     act(() => {
@@ -305,15 +289,13 @@ describe('usePreferences', () => {
     const { result: gameStateResult } = renderHook(() => useGameState());
     const mockDispatch = vi.fn();
 
-    renderHook(() =>
-      usePreferences(gameStateResult.current.state, mockDispatch)
-    );
+    renderHook(() => usePreferences(gameStateResult.current.state, mockDispatch));
 
     // Should not dispatch SET_GRID_CONFIG for invalid config
     expect(mockDispatch).not.toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'SET_GRID_CONFIG',
-      })
+      }),
     );
   });
 
@@ -324,9 +306,7 @@ describe('usePreferences', () => {
     const mockDispatch = vi.fn();
 
     expect(() => {
-      renderHook(() =>
-        usePreferences(gameStateResult.current.state, mockDispatch)
-      );
+      renderHook(() => usePreferences(gameStateResult.current.state, mockDispatch));
     }).not.toThrow();
 
     expect(mockLoadUserPreferences).toHaveBeenCalledTimes(2);

@@ -8,19 +8,13 @@
 
 import { useEffect } from 'react';
 
-const SW_MESSAGE_TYPES = new Set([
-  'CACHE_UPDATED',
-  'OFFLINE_READY',
-  'SYNC_COMPLETE',
-]);
+const SW_MESSAGE_TYPES = new Set(['CACHE_UPDATED', 'OFFLINE_READY', 'SYNC_COMPLETE']);
 
 const isTrustedServiceWorkerMessage = (event: MessageEvent): boolean => {
-  const currentOrigin =
-    globalThis.location === undefined ? undefined : globalThis.location.origin;
+  const currentOrigin = globalThis.location === undefined ? undefined : globalThis.location.origin;
   if (!currentOrigin) return false;
 
-  const eventOrigin =
-    typeof event.origin === 'string' ? event.origin : undefined;
+  const eventOrigin = typeof event.origin === 'string' ? event.origin : undefined;
   if (eventOrigin && eventOrigin.length > 0 && eventOrigin !== currentOrigin) {
     return false;
   }
@@ -42,9 +36,7 @@ const isTrustedServiceWorkerMessage = (event: MessageEvent): boolean => {
   return true;
 };
 
-const isValidServiceWorkerMessageData = (
-  data: unknown
-): data is { type: string } => {
+const isValidServiceWorkerMessageData = (data: unknown): data is { type: string } => {
   return (
     !!data &&
     typeof data === 'object' &&
@@ -58,13 +50,13 @@ const dispatchUpdateAvailable = (registration: ServiceWorkerRegistration) => {
   globalThis.dispatchEvent(
     new CustomEvent('sw-update-available', {
       detail: { registration },
-    })
+    }),
   );
 };
 
 const handleWorkerStateChange = (
   registration: ServiceWorkerRegistration,
-  worker: ServiceWorker
+  worker: ServiceWorker,
 ) => {
   if (worker.state === 'installed' && navigator.serviceWorker?.controller) {
     dispatchUpdateAvailable(registration);
@@ -76,8 +68,7 @@ const attachUpdateFoundHandler = (registration: ServiceWorkerRegistration) => {
     const newWorker = registration.installing;
     if (!newWorker) return;
 
-    const handleStateChange = () =>
-      handleWorkerStateChange(registration, newWorker);
+    const handleStateChange = () => handleWorkerStateChange(registration, newWorker);
 
     newWorker.addEventListener('statechange', handleStateChange);
   };
@@ -140,13 +131,10 @@ export default function PWAInit() {
           updateViaCache: 'none',
         })
         .then(handleRegistration)
-        .catch(_error => {});
+        .catch((_error) => {});
 
       // Listen for messages from service worker
-      navigator.serviceWorker.addEventListener(
-        'message',
-        handleServiceWorkerMessage
-      );
+      navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage);
     }
 
     // Handle app installation prompt
@@ -157,16 +145,14 @@ export default function PWAInit() {
       globalThis.dispatchEvent(
         new CustomEvent('pwa-install-prompt', {
           detail: { event },
-        })
+        }),
       );
     };
 
     // Using passive: true for better performance (Requirement 8.1)
-    globalThis.addEventListener(
-      'beforeinstallprompt',
-      handleBeforeInstallPrompt,
-      { passive: true }
-    );
+    globalThis.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt, {
+      passive: true,
+    });
 
     // Handle app installation
     const handleAppInstalled = () => {
@@ -203,11 +189,9 @@ export default function PWAInit() {
 
     // Cleanup event listeners
     return () => {
-      globalThis.removeEventListener(
-        'beforeinstallprompt',
-        handleBeforeInstallPrompt,
-        { passive: true } as EventListenerOptions
-      );
+      globalThis.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt, {
+        passive: true,
+      } as EventListenerOptions);
       globalThis.removeEventListener('appinstalled', handleAppInstalled, {
         passive: true,
       } as EventListenerOptions);
@@ -221,10 +205,7 @@ export default function PWAInit() {
         passive: true,
       } as EventListenerOptions);
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.removeEventListener(
-          'message',
-          handleServiceWorkerMessage
-        );
+        navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
       }
     };
   }, []);

@@ -1,5 +1,5 @@
 import fc from 'fast-check';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 
 /**
  * Property-Based Test for Modern Development Tool Efficiency
@@ -18,15 +18,13 @@ describe('Modern Toolchain Performance Properties', () => {
         // Generate various code samples to test linting configuration
         fc.array(
           fc.record({
-            filename: fc.stringMatching(
-              /^[a-zA-Z][a-zA-Z0-9]*\.(ts|tsx|js|jsx)$/
-            ),
+            filename: fc.stringMatching(/^[a-zA-Z][a-zA-Z0-9]*\.(ts|tsx|js|jsx)$/),
             content: fc.string({ minLength: 10, maxLength: 1000 }),
             hasErrors: fc.boolean(),
           }),
-          { minLength: 1, maxLength: 10 }
+          { minLength: 1, maxLength: 10 },
         ),
-        _codeFiles => {
+        (_codeFiles) => {
           // For any collection of code files, modern toolchain should be properly configured
 
           // Validate modern toolchain configuration characteristics
@@ -47,16 +45,10 @@ describe('Modern Toolchain Performance Properties', () => {
 
           // Test that modern toolchain features are properly configured
           expect(modernToolchainFeatures.biomeEnabled).toBe(true);
-          expect(modernToolchainFeatures.biomeSpeedAdvantage).toBe(
-            'significant'
-          );
-          expect(
-            modernToolchainFeatures.biomeIntegratesLintingAndFormatting
-          ).toBe(true);
+          expect(modernToolchainFeatures.biomeSpeedAdvantage).toBe('significant');
+          expect(modernToolchainFeatures.biomeIntegratesLintingAndFormatting).toBe(true);
           expect(modernToolchainFeatures.turbopackEnabled).toBe(true);
-          expect(modernToolchainFeatures.turbopackSpeedImprovement).toBe(
-            'substantial'
-          );
+          expect(modernToolchainFeatures.turbopackSpeedImprovement).toBe('substantial');
           expect(modernToolchainFeatures.vitestParallelization).toBe(true);
           expect(modernToolchainFeatures.vitestThreadOptimization).toBe(true);
 
@@ -75,8 +67,7 @@ describe('Modern Toolchain Performance Properties', () => {
             fasterLinting: modernToolchainFeatures.biomeEnabled,
             fasterBundling: modernToolchainFeatures.turbopackEnabled,
             fasterTesting: modernToolchainFeatures.vitestParallelization,
-            integratedTooling:
-              modernToolchainFeatures.biomeIntegratesLintingAndFormatting,
+            integratedTooling: modernToolchainFeatures.biomeIntegratesLintingAndFormatting,
           };
 
           expect(toolchainBenefits.fasterLinting).toBe(true);
@@ -85,9 +76,9 @@ describe('Modern Toolchain Performance Properties', () => {
           expect(toolchainBenefits.integratedTooling).toBe(true);
 
           return true;
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -99,7 +90,7 @@ describe('Modern Toolchain Performance Properties', () => {
           verbatimModuleSyntax: fc.boolean(),
           useDefineForClassFields: fc.boolean(),
         }),
-        _tsConfig => {
+        (_tsConfig) => {
           // For any TypeScript configuration, modern optimizations should be properly enabled
 
           // Validate checking TypeScript 5.9+ features are configured
@@ -119,9 +110,9 @@ describe('Modern Toolchain Performance Properties', () => {
           expect(modernTsFeatures.noUncheckedIndexedAccess).toBe(true);
 
           return true;
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -135,9 +126,9 @@ describe('Modern Toolchain Performance Properties', () => {
             hasEffects: fc.boolean(),
             renderComplexity: fc.integer({ min: 1, max: 10 }),
           }),
-          { minLength: 1, maxLength: 20 }
+          { minLength: 1, maxLength: 20 },
         ),
-        components => {
+        (components) => {
           // For any collection of React components, React Compiler should provide optimizations
 
           const reactCompilerFeatures = {
@@ -160,9 +151,9 @@ describe('Modern Toolchain Performance Properties', () => {
           expect(['high', 'medium', 'low']).toContain(optimizationBenefit);
 
           return true;
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -174,7 +165,7 @@ describe('Modern Toolchain Performance Properties', () => {
           hasParallelTests: fc.boolean(),
           usesCoverage: fc.boolean(),
         }),
-        testConfig => {
+        (testConfig) => {
           // For any test configuration, Vitest 4.0+ should provide performance benefits
 
           const vitestFeatures = {
@@ -193,16 +184,13 @@ describe('Modern Toolchain Performance Properties', () => {
           expect(vitestFeatures.uiInterface).toBe(true);
 
           // Performance should scale with test file count
-          const expectedPerformanceGain = Math.min(
-            testConfig.testFileCount / 10,
-            10
-          );
+          const expectedPerformanceGain = Math.min(testConfig.testFileCount / 10, 10);
           expect(expectedPerformanceGain).toBeGreaterThanOrEqual(0.1);
 
           return true;
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -214,7 +202,7 @@ describe('Modern Toolchain Performance Properties', () => {
           hasWorkspaces: fc.boolean(),
           usesCaching: fc.boolean(),
         }),
-        packageConfig => {
+        (packageConfig) => {
           // For any package configuration, pnpm should provide efficiency benefits
 
           const pnpmFeatures = {
@@ -233,14 +221,13 @@ describe('Modern Toolchain Performance Properties', () => {
           expect(pnpmFeatures.workspaceSupport).toBe(true);
 
           // Efficiency should improve with package count due to deduplication
-          const efficiencyGain =
-            packageConfig.packageCount > 100 ? 'high' : 'medium';
+          const efficiencyGain = packageConfig.packageCount > 100 ? 'high' : 'medium';
           expect(['high', 'medium']).toContain(efficiencyGain);
 
           return true;
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });

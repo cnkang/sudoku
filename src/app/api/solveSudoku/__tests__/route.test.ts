@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import { POST } from '../route';
 
 // Mock the sudoku generator
@@ -27,33 +27,30 @@ let _mockCallCount = 0;
 
 vi.mock('@/app/api/_lib/serverCache', () => {
   return {
-    getOptimizedPuzzle: vi.fn(
-      async (difficulty, gridSize, seed, forceRefresh) => {
-        const normalizedSeed = seed ?? 'default';
-        const cacheKey = `puzzle-${gridSize}-${difficulty}-${normalizedSeed}`;
+    getOptimizedPuzzle: vi.fn(async (difficulty, gridSize, seed, forceRefresh) => {
+      const normalizedSeed = seed ?? 'default';
+      const cacheKey = `puzzle-${gridSize}-${difficulty}-${normalizedSeed}`;
 
-        // Check cache first (unless force refresh)
-        if (!forceRefresh && cacheState.has(cacheKey)) {
-          return {
-            ...cacheState.get(cacheKey),
-            cached: true,
-          };
-        }
-
-        // Generate new puzzle
-        _mockCallCount++;
-        const puzzle = mockGenerateSudokuPuzzle(difficulty, gridSize);
-        cacheState.set(cacheKey, puzzle);
-
+      // Check cache first (unless force refresh)
+      if (!forceRefresh && cacheState.has(cacheKey)) {
         return {
-          ...puzzle,
-          cached: false,
+          ...cacheState.get(cacheKey),
+          cached: true,
         };
       }
-    ),
+
+      // Generate new puzzle
+      _mockCallCount++;
+      const puzzle = mockGenerateSudokuPuzzle(difficulty, gridSize);
+      cacheState.set(cacheKey, puzzle);
+
+      return {
+        ...puzzle,
+        cached: false,
+      };
+    }),
     getPuzzleCacheKey: vi.fn(
-      (difficulty, gridSize, seed = 'default') =>
-        `puzzle-${gridSize}-${difficulty}-${seed}`
+      (difficulty, gridSize, seed = 'default') => `puzzle-${gridSize}-${difficulty}-${seed}`,
     ),
     getCacheMetrics: vi.fn(() => ({
       hits: 0,
@@ -76,7 +73,7 @@ vi.mock('../cache', () => {
   const mockCache = new Map();
   return {
     puzzleCache: {
-      get: vi.fn(key => mockCache.get(key)),
+      get: vi.fn((key) => mockCache.get(key)),
       set: vi.fn((key, value) => mockCache.set(key, value)),
       clear: vi.fn(() => mockCache.clear()),
     },
@@ -84,8 +81,7 @@ vi.mock('../cache', () => {
 });
 
 describe('/api/solveSudoku', () => {
-  const GENERIC_CLIENT_ERROR =
-    'An error occurred while processing your request';
+  const GENERIC_CLIENT_ERROR = 'An error occurred while processing your request';
   let mockRequest: NextRequest;
 
   beforeEach(async () => {
@@ -119,7 +115,7 @@ describe('/api/solveSudoku', () => {
   const assertErrorResponse = async (
     request: NextRequest,
     expectedStatus: number,
-    expectedError: string
+    expectedError: string,
   ) => {
     const response = await POST(request);
     const data = await response.json();
@@ -128,21 +124,20 @@ describe('/api/solveSudoku', () => {
   };
 
   describe('Valid Requests', () => {
-    it.each([
-      '1',
-      '5',
-      '10',
-    ])('should generate puzzle for valid difficulty %s', async difficulty => {
-      mockRequest = createMockRequest(difficulty);
+    it.each(['1', '5', '10'])(
+      'should generate puzzle for valid difficulty %s',
+      async (difficulty) => {
+        mockRequest = createMockRequest(difficulty);
 
-      const response = await POST(mockRequest);
-      const data = await response.json();
+        const response = await POST(mockRequest);
+        const data = await response.json();
 
-      expect(response.status).toBe(200);
-      expect(data).toHaveProperty('puzzle');
-      expect(data).toHaveProperty('solution');
-      expect(data).toHaveProperty('difficulty');
-    });
+        expect(response.status).toBe(200);
+        expect(data).toHaveProperty('puzzle');
+        expect(data).toHaveProperty('solution');
+        expect(data).toHaveProperty('difficulty');
+      },
+    );
 
     it('should return solved=true for a successful puzzle response', async () => {
       mockRequest = createMockRequest('5');
@@ -154,8 +149,7 @@ describe('/api/solveSudoku', () => {
 
   describe('Grid Size Validation', () => {
     it('should accept supported grid size values', async () => {
-      const url =
-        'http://localhost:3000/api/solveSudoku?difficulty=1&gridSize=4';
+      const url = 'http://localhost:3000/api/solveSudoku?difficulty=1&gridSize=4';
       mockRequest = new NextRequest(url, { method: 'POST' });
 
       const response = await POST(mockRequest);
@@ -166,8 +160,7 @@ describe('/api/solveSudoku', () => {
     });
 
     it('should reject unsupported grid size values', async () => {
-      const url =
-        'http://localhost:3000/api/solveSudoku?difficulty=1&gridSize=5';
+      const url = 'http://localhost:3000/api/solveSudoku?difficulty=1&gridSize=5';
       mockRequest = new NextRequest(url, { method: 'POST' });
 
       const response = await POST(mockRequest);
@@ -187,21 +180,12 @@ describe('/api/solveSudoku', () => {
       await assertErrorResponse(request, 500, GENERIC_CLIENT_ERROR);
     });
 
-    it.each([
-      '',
-      'abc',
-      '-1',
-      '5.5',
-      '5!',
-      '0',
-      '11',
-    ])('should reject invalid difficulty "%s"', async difficulty => {
-      await assertErrorResponse(
-        createMockRequest(difficulty),
-        500,
-        GENERIC_CLIENT_ERROR
-      );
-    });
+    it.each(['', 'abc', '-1', '5.5', '5!', '0', '11'])(
+      'should reject invalid difficulty "%s"',
+      async (difficulty) => {
+        await assertErrorResponse(createMockRequest(difficulty), 500, GENERIC_CLIENT_ERROR);
+      },
+    );
   });
 
   describe('Caching Mechanism', () => {
@@ -235,8 +219,7 @@ describe('/api/solveSudoku', () => {
       await POST(mockRequest);
 
       // Force refresh should bypass cache
-      const url2 =
-        'http://localhost:3000/api/solveSudoku?difficulty=3&force=true';
+      const url2 = 'http://localhost:3000/api/solveSudoku?difficulty=3&force=true';
       mockRequest = new NextRequest(url2, { method: 'POST' });
       const response = await POST(mockRequest);
       const data = await response.json();
@@ -247,14 +230,12 @@ describe('/api/solveSudoku', () => {
 
     it('should rate limit force refresh requests', async () => {
       // First force refresh
-      const url1 =
-        'http://localhost:3000/api/solveSudoku?difficulty=3&force=true';
+      const url1 = 'http://localhost:3000/api/solveSudoku?difficulty=3&force=true';
       mockRequest = new NextRequest(url1, { method: 'POST' });
       await POST(mockRequest);
 
       // Second force refresh immediately (should be rate limited)
-      const url2 =
-        'http://localhost:3000/api/solveSudoku?difficulty=3&force=true';
+      const url2 = 'http://localhost:3000/api/solveSudoku?difficulty=3&force=true';
       mockRequest = new NextRequest(url2, { method: 'POST' });
       const response = await POST(mockRequest);
       const data = await response.json();
@@ -267,8 +248,7 @@ describe('/api/solveSudoku', () => {
       vi.clearAllMocks();
 
       // Test force refresh functionality
-      const url =
-        'http://localhost:3000/api/solveSudoku?difficulty=3&force=true';
+      const url = 'http://localhost:3000/api/solveSudoku?difficulty=3&force=true';
       mockRequest = new NextRequest(url, { method: 'POST' });
       const response = await POST(mockRequest);
 
@@ -338,9 +318,7 @@ describe('/api/solveSudoku', () => {
   describe('Error Handling', () => {
     it('should reject cross-origin requests', async () => {
       const security = await import('../../_lib/security');
-      const sameOriginSpy = vi
-        .spyOn(security, 'isSameOriginRequest')
-        .mockReturnValue(false);
+      const sameOriginSpy = vi.spyOn(security, 'isSameOriginRequest').mockReturnValue(false);
 
       mockRequest = createMockRequest('5');
 
@@ -355,13 +333,11 @@ describe('/api/solveSudoku', () => {
 
     it('should return 429 when endpoint-level rate limit is exceeded', async () => {
       const security = await import('../../_lib/security');
-      const rateLimitSpy = vi
-        .spyOn(security, 'enforceRateLimit')
-        .mockReturnValue({
-          limited: true,
-          retryAfterSeconds: 30,
-          remaining: 0,
-        });
+      const rateLimitSpy = vi.spyOn(security, 'enforceRateLimit').mockReturnValue({
+        limited: true,
+        retryAfterSeconds: 30,
+        remaining: 0,
+      });
 
       mockRequest = createMockRequest('5');
       const response = await POST(mockRequest);
@@ -399,11 +375,7 @@ describe('/api/solveSudoku', () => {
       });
 
       try {
-        await assertErrorResponse(
-          createMockRequest('5'),
-          500,
-          GENERIC_CLIENT_ERROR
-        );
+        await assertErrorResponse(createMockRequest('5'), 500, GENERIC_CLIENT_ERROR);
       } finally {
         process.env.NODE_ENV = previousNodeEnv;
       }
@@ -448,9 +420,7 @@ describe('/api/solveSudoku', () => {
 
       const response = await POST(mockRequest);
 
-      expect(response.headers.get('content-type')).toContain(
-        'application/json'
-      );
+      expect(response.headers.get('content-type')).toContain('application/json');
     });
   });
 
@@ -460,34 +430,25 @@ describe('/api/solveSudoku', () => {
       expect(response.status).toBe(200);
     });
 
-    it.each([
-      ' 5 ',
-      '999999',
-      '1e1',
-    ])('should reject edge-case difficulty "%s"', async difficulty => {
-      await assertErrorResponse(
-        createMockRequest(difficulty),
-        500,
-        GENERIC_CLIENT_ERROR
-      );
-    });
+    it.each([' 5 ', '999999', '1e1'])(
+      'should reject edge-case difficulty "%s"',
+      async (difficulty) => {
+        await assertErrorResponse(createMockRequest(difficulty), 500, GENERIC_CLIENT_ERROR);
+      },
+    );
 
-    it.each([
-      'difficulty=5&seed=bad*seed',
-      `difficulty=5&seed=${'a'.repeat(65)}`,
-    ])('should reject invalid seed query "%s"', async query => {
-      await assertErrorResponse(
-        createRequestFromQuery(query),
-        500,
-        GENERIC_CLIENT_ERROR
-      );
-    });
+    it.each(['difficulty=5&seed=bad*seed', `difficulty=5&seed=${'a'.repeat(65)}`])(
+      'should reject invalid seed query "%s"',
+      async (query) => {
+        await assertErrorResponse(createRequestFromQuery(query), 500, GENERIC_CLIENT_ERROR);
+      },
+    );
 
     it.each([
       'difficulty=5&seed=seed_123-abc',
       'difficulty=5&seed=',
       'difficulty=5&seed=%20%20%20',
-    ])('should accept valid or fallback seed query "%s"', async query => {
+    ])('should accept valid or fallback seed query "%s"', async (query) => {
       const response = await POST(createRequestFromQuery(query));
       expect(response.status).toBe(200);
     });
@@ -517,15 +478,9 @@ describe('/api/solveSudoku', () => {
       const request1 = createMockRequest('5');
       const request2 = createMockRequest('5');
 
-      const [response1, response2] = await Promise.all([
-        POST(request1),
-        POST(request2),
-      ]);
+      const [response1, response2] = await Promise.all([POST(request1), POST(request2)]);
 
-      const [data1, data2] = await Promise.all([
-        response1.json(),
-        response2.json(),
-      ]);
+      const [data1, data2] = await Promise.all([response1.json(), response2.json()]);
 
       expect(response1.status).toBe(200);
       expect(response2.status).toBe(200);

@@ -9,8 +9,7 @@ import { useInstallPrompt } from '@/hooks/usePWA';
 import styles from './PWAInstallPrompt.module.css';
 
 export default function PWAInstallPrompt() {
-  const { showPrompt, isInstalling, handleInstall, handleDismiss } =
-    useInstallPrompt();
+  const { showPrompt, isInstalling, handleInstall, handleDismiss } = useInstallPrompt();
 
   if (!showPrompt) {
     return null;
@@ -49,8 +48,7 @@ export default function PWAInstallPrompt() {
         </h2>
 
         <p id="install-description" className={styles.description}>
-          Add our fun Sudoku game to your home screen for quick access and
-          offline play!
+          Add our fun Sudoku game to your home screen for quick access and offline play!
         </p>
 
         <div className={styles.features}>
@@ -78,8 +76,7 @@ export default function PWAInstallPrompt() {
           >
             {isInstalling ? (
               <>
-                <span className={styles.spinner} aria-hidden="true" />{' '}
-                Installing...
+                <span className={styles.spinner} aria-hidden="true" /> Installing...
               </>
             ) : (
               <>

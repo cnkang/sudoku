@@ -1,14 +1,12 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import { ThemeContext } from '@/hooks/useTheme';
 import type { ThemeContextValue } from '@/types';
 import { THEMES } from '@/utils/themes';
 import ThemeSelector from '../ThemeSelector';
 
 // Mock theme context value
-const createMockThemeContext = (
-  overrides: Partial<ThemeContextValue> = {}
-): ThemeContextValue => ({
+const createMockThemeContext = (overrides: Partial<ThemeContextValue> = {}): ThemeContextValue => ({
   currentTheme: THEMES.ocean,
   availableThemes: Object.values(THEMES),
   setTheme: vi.fn(),
@@ -18,15 +16,8 @@ const createMockThemeContext = (
   ...overrides,
 });
 
-const renderWithThemeContext = (
-  component: React.ReactElement,
-  contextValue: ThemeContextValue
-) => {
-  return render(
-    <ThemeContext.Provider value={contextValue}>
-      {component}
-    </ThemeContext.Provider>
-  );
+const renderWithThemeContext = (component: React.ReactElement, contextValue: ThemeContextValue) => {
+  return render(<ThemeContext.Provider value={contextValue}>{component}</ThemeContext.Provider>);
 };
 
 describe('ThemeSelector', () => {
@@ -42,7 +33,7 @@ describe('ThemeSelector', () => {
 
       expect(screen.getByText('Choose Your Adventure')).toBeInTheDocument();
       expect(
-        screen.getByText('Pick a colorful theme that makes learning fun!')
+        screen.getByText('Pick a colorful theme that makes learning fun!'),
       ).toBeInTheDocument();
     });
 
@@ -59,21 +50,16 @@ describe('ThemeSelector', () => {
     });
 
     it('should render only child-friendly themes when showChildFriendlyOnly is true', () => {
-      renderWithThemeContext(
-        <ThemeSelector showChildFriendlyOnly={true} />,
-        mockThemeContext
-      );
+      renderWithThemeContext(<ThemeSelector showChildFriendlyOnly={true} />, mockThemeContext);
 
       const themeButtons = screen.getAllByRole('button', {
         name: /Select .* theme/,
       });
 
       // Should only show child-friendly themes
-      themeButtons.forEach(button => {
+      themeButtons.forEach((button) => {
         const themeName = button.getAttribute('aria-label');
-        expect(themeName).toMatch(
-          /Ocean Adventure|Forest Adventure|Space Adventure/
-        );
+        expect(themeName).toMatch(/Ocean Adventure|Forest Adventure|Space Adventure/);
       });
     });
 
@@ -99,16 +85,11 @@ describe('ThemeSelector', () => {
 
       expect(screen.getByText('High Contrast Mode')).toBeInTheDocument();
       expect(screen.getByText('OFF')).toBeInTheDocument();
-      expect(
-        screen.getByText(/High contrast mode improves visibility/)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/High contrast mode improves visibility/)).toBeInTheDocument();
     });
 
     it('should hide high contrast toggle when showHighContrastToggle is false', () => {
-      renderWithThemeContext(
-        <ThemeSelector showHighContrastToggle={false} />,
-        mockThemeContext
-      );
+      renderWithThemeContext(<ThemeSelector showHighContrastToggle={false} />, mockThemeContext);
 
       expect(screen.queryByText('High Contrast Mode')).not.toBeInTheDocument();
     });
@@ -153,17 +134,13 @@ describe('ThemeSelector', () => {
       renderWithThemeContext(<ThemeSelector />, mockThemeContext);
 
       expect(
-        screen.getByText(
-          'Dive into learning with calming ocean blues and coral accents'
-        )
+        screen.getByText('Dive into learning with calming ocean blues and coral accents'),
       ).toBeInTheDocument();
       expect(
-        screen.getByText('Explore nature with fresh greens and earthy tones')
+        screen.getByText('Explore nature with fresh greens and earthy tones'),
       ).toBeInTheDocument();
       expect(
-        screen.getByText(
-          'Journey through the cosmos with deep blues and golden stars'
-        )
+        screen.getByText('Journey through the cosmos with deep blues and golden stars'),
       ).toBeInTheDocument();
     });
   });
@@ -221,13 +198,13 @@ describe('ThemeSelector', () => {
       renderWithThemeContext(<ThemeSelector />, mockThemeContext);
 
       expect(
-        screen.getByRole('button', { name: 'Select Ocean Adventure theme' })
+        screen.getByRole('button', { name: 'Select Ocean Adventure theme' }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('button', { name: 'Select Forest Adventure theme' })
+        screen.getByRole('button', { name: 'Select Forest Adventure theme' }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('button', { name: 'Select Space Adventure theme' })
+        screen.getByRole('button', { name: 'Select Space Adventure theme' }),
       ).toBeInTheDocument();
     });
 
@@ -251,7 +228,7 @@ describe('ThemeSelector', () => {
       });
 
       // All buttons should be focusable
-      themeButtons.forEach(button => {
+      themeButtons.forEach((button) => {
         expect(button).not.toHaveAttribute('tabindex', '-1');
       });
       expect(toggleButton).not.toHaveAttribute('tabindex', '-1');
@@ -286,7 +263,7 @@ describe('ThemeSelector', () => {
         name: /Select .* theme/,
       });
 
-      themeCards.forEach(card => {
+      themeCards.forEach((card) => {
         const colorSwatch = card.querySelector('[class*="colorSwatch"]');
         expect(colorSwatch).toBeInTheDocument();
 
@@ -309,7 +286,7 @@ describe('ThemeSelector', () => {
     it('should apply custom className', () => {
       const { container } = renderWithThemeContext(
         <ThemeSelector className="custom-class" />,
-        mockThemeContext
+        mockThemeContext,
       );
 
       const themeSelector = container.querySelector('[class*="themeSelector"]');

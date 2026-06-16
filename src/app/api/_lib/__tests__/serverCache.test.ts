@@ -5,7 +5,7 @@
  * Validates: Requirements 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import type { SudokuPuzzle } from '@/types';
 import {
   getCacheMetrics,
@@ -17,17 +17,11 @@ import {
 
 // Mock the sudoku generator
 vi.mock('../../solveSudoku/sudokuGenerator', () => ({
-  generateSudokuPuzzle: vi.fn(
-    async (difficulty: number, gridSize: 4 | 6 | 9) => ({
-      puzzle: Array.from({ length: gridSize }, () =>
-        Array.from({ length: gridSize }, () => 0)
-      ),
-      solution: Array.from({ length: gridSize }, () =>
-        Array.from({ length: gridSize }, () => 1)
-      ),
-      difficulty,
-    })
-  ),
+  generateSudokuPuzzle: vi.fn(async (difficulty: number, gridSize: 4 | 6 | 9) => ({
+    puzzle: Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => 0)),
+    solution: Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => 1)),
+    difficulty,
+  })),
 }));
 
 describe('Server Cache System', () => {
@@ -115,7 +109,7 @@ describe('Server Cache System', () => {
       expect(shortTTLCache.get('test-key')).toEqual(puzzle);
 
       // Wait for TTL to expire
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await new Promise((resolve) => setTimeout(resolve, 150));
 
       expect(shortTTLCache.get('test-key')).toBeNull();
     });
@@ -218,9 +212,7 @@ describe('Server Cache System', () => {
 
   describe('Two-Tier Caching (Requirements 7.3, 7.5)', () => {
     it('should return cached puzzle on cache hit', async () => {
-      const { generateSudokuPuzzle } = await import(
-        '../../solveSudoku/sudokuGenerator'
-      );
+      const { generateSudokuPuzzle } = await import('../../solveSudoku/sudokuGenerator');
 
       // First call - cache miss
       const puzzle1 = await getOptimizedPuzzle(5, 9, 'default', false);
@@ -239,9 +231,7 @@ describe('Server Cache System', () => {
     });
 
     it('should generate new puzzle on cache miss', async () => {
-      const { generateSudokuPuzzle } = await import(
-        '../../solveSudoku/sudokuGenerator'
-      );
+      const { generateSudokuPuzzle } = await import('../../solveSudoku/sudokuGenerator');
 
       const puzzle = await getOptimizedPuzzle(5, 9, 'default', false);
 
@@ -251,9 +241,7 @@ describe('Server Cache System', () => {
     });
 
     it('should bypass cache with force refresh', async () => {
-      const { generateSudokuPuzzle } = await import(
-        '../../solveSudoku/sudokuGenerator'
-      );
+      const { generateSudokuPuzzle } = await import('../../solveSudoku/sudokuGenerator');
 
       // First call
       await getOptimizedPuzzle(5, 9, 'default', false);
@@ -265,9 +253,7 @@ describe('Server Cache System', () => {
     });
 
     it('should cache puzzles for different grid sizes separately', async () => {
-      const { generateSudokuPuzzle } = await import(
-        '../../solveSudoku/sudokuGenerator'
-      );
+      const { generateSudokuPuzzle } = await import('../../solveSudoku/sudokuGenerator');
 
       await getOptimizedPuzzle(5, 4, 'default', false);
       await getOptimizedPuzzle(5, 6, 'default', false);
@@ -280,9 +266,7 @@ describe('Server Cache System', () => {
     });
 
     it('should cache puzzles for different difficulties separately', async () => {
-      const { generateSudokuPuzzle } = await import(
-        '../../solveSudoku/sudokuGenerator'
-      );
+      const { generateSudokuPuzzle } = await import('../../solveSudoku/sudokuGenerator');
 
       await getOptimizedPuzzle(3, 9, 'default', false);
       await getOptimizedPuzzle(5, 9, 'default', false);
@@ -292,9 +276,7 @@ describe('Server Cache System', () => {
     });
 
     it('should cache puzzles for different seeds separately', async () => {
-      const { generateSudokuPuzzle } = await import(
-        '../../solveSudoku/sudokuGenerator'
-      );
+      const { generateSudokuPuzzle } = await import('../../solveSudoku/sudokuGenerator');
 
       await getOptimizedPuzzle(5, 9, 'seed1', false);
       await getOptimizedPuzzle(5, 9, 'seed2', false);

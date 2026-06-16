@@ -32,9 +32,7 @@ export interface AdaptiveTouchState {
 }
 
 export interface AdaptiveTouchHandlers {
-  recordInteraction: (
-    interaction: Omit<TouchInteractionData, 'timestamp'>
-  ) => void;
+  recordInteraction: (interaction: Omit<TouchInteractionData, 'timestamp'>) => void;
   getAdaptedSize: (baseSize: number) => number;
   updateSettings: (settings: Partial<AdaptiveTouchSettings>) => void;
   resetAdaptation: () => void;
@@ -51,10 +49,7 @@ const defaultSettings: AdaptiveTouchSettings = {
   difficultyThreshold: 0.6, // 60% difficulty rate triggers adaptation
 };
 
-export const useAdaptiveTouchTargets = (): [
-  AdaptiveTouchState,
-  AdaptiveTouchHandlers,
-] => {
+export const useAdaptiveTouchTargets = (): [AdaptiveTouchState, AdaptiveTouchHandlers] => {
   const [state, setState] = useState<AdaptiveTouchState>({
     currentTargetSize: defaultSettings.minTargetSize,
     adaptationLevel: 'none',
@@ -66,49 +61,37 @@ export const useAdaptiveTouchTargets = (): [
   const cleanupTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Analyze interaction patterns to detect motor difficulties
-  const analyzeInteractionPatterns = useCallback(
-    (history: TouchInteractionData[]) => {
-      if (history.length < 5) return 'none'; // Need minimum data
+  const analyzeInteractionPatterns = useCallback((history: TouchInteractionData[]) => {
+    if (history.length < 5) return 'none'; // Need minimum data
 
-      const recentInteractions = history.slice(-10); // Last 10 interactions
+    const recentInteractions = history.slice(-10); // Last 10 interactions
 
-      // Calculate metrics
-      const avgDuration =
-        recentInteractions.reduce((sum, i) => sum + i.duration, 0) /
-        recentInteractions.length;
-      const avgAccuracy =
-        recentInteractions.reduce((sum, i) => sum + i.accuracy, 0) /
-        recentInteractions.length;
-      const avgAttempts =
-        recentInteractions.reduce((sum, i) => sum + i.attempts, 0) /
-        recentInteractions.length;
+    // Calculate metrics
+    const avgDuration =
+      recentInteractions.reduce((sum, i) => sum + i.duration, 0) / recentInteractions.length;
+    const avgAccuracy =
+      recentInteractions.reduce((sum, i) => sum + i.accuracy, 0) / recentInteractions.length;
+    const avgAttempts =
+      recentInteractions.reduce((sum, i) => sum + i.attempts, 0) / recentInteractions.length;
 
-      // Detect patterns indicating motor difficulties
-      const longDuration = avgDuration > 2000; // More than 2 seconds per interaction
-      const lowAccuracy = avgAccuracy < 0.7; // Less than 70% accuracy
-      const multipleAttempts = avgAttempts > 1.5; // More than 1.5 attempts on average
+    // Detect patterns indicating motor difficulties
+    const longDuration = avgDuration > 2000; // More than 2 seconds per interaction
+    const lowAccuracy = avgAccuracy < 0.7; // Less than 70% accuracy
+    const multipleAttempts = avgAttempts > 1.5; // More than 1.5 attempts on average
 
-      // Determine adaptation level
-      const difficultyScore =
-        (longDuration ? 0.4 : 0) +
-        (lowAccuracy ? 0.4 : 0) +
-        (multipleAttempts ? 0.2 : 0);
+    // Determine adaptation level
+    const difficultyScore =
+      (longDuration ? 0.4 : 0) + (lowAccuracy ? 0.4 : 0) + (multipleAttempts ? 0.2 : 0);
 
-      if (difficultyScore >= 0.8) return 'high';
-      if (difficultyScore >= 0.6) return 'moderate';
-      if (difficultyScore >= 0.3) return 'mild';
-      return 'none';
-    },
-    []
-  );
+    if (difficultyScore >= 0.8) return 'high';
+    if (difficultyScore >= 0.6) return 'moderate';
+    if (difficultyScore >= 0.3) return 'mild';
+    return 'none';
+  }, []);
 
   // Calculate adapted target size based on difficulty level
   const calculateAdaptedSize = useCallback(
-    (
-      baseSize: number,
-      adaptationLevel: string,
-      settings: AdaptiveTouchSettings
-    ) => {
+    (baseSize: number, adaptationLevel: string, settings: AdaptiveTouchSettings) => {
       if (!settings.enabled || adaptationLevel === 'none') {
         return Math.max(baseSize, settings.minTargetSize);
       }
@@ -120,17 +103,12 @@ export const useAdaptiveTouchTargets = (): [
       };
 
       const multiplier =
-        adaptationMultipliers[
-          adaptationLevel as keyof typeof adaptationMultipliers
-        ] || 1;
+        adaptationMultipliers[adaptationLevel as keyof typeof adaptationMultipliers] || 1;
       const adaptedSize = baseSize * multiplier;
 
-      return Math.min(
-        Math.max(adaptedSize, settings.minTargetSize),
-        settings.maxTargetSize
-      );
+      return Math.min(Math.max(adaptedSize, settings.minTargetSize), settings.maxTargetSize);
     },
-    []
+    [],
   );
 
   // Record a touch interaction
@@ -141,14 +119,12 @@ export const useAdaptiveTouchTargets = (): [
         timestamp: Date.now(),
       };
 
-      setState(prev => {
+      setState((prev) => {
         const updatedHistory = [...prev.interactionHistory, newInteraction];
 
         // Remove old interactions outside tracking duration
         const cutoffTime = Date.now() - prev.settings.trackingDuration;
-        const filteredHistory = updatedHistory.filter(
-          i => i.timestamp > cutoffTime
-        );
+        const filteredHistory = updatedHistory.filter((i) => i.timestamp > cutoffTime);
 
         // Analyze patterns
         const newAdaptationLevel = analyzeInteractionPatterns(filteredHistory);
@@ -158,7 +134,7 @@ export const useAdaptiveTouchTargets = (): [
         const newTargetSize = calculateAdaptedSize(
           prev.settings.minTargetSize,
           newAdaptationLevel,
-          prev.settings
+          prev.settings,
         );
 
         return {
@@ -170,32 +146,28 @@ export const useAdaptiveTouchTargets = (): [
         };
       });
     },
-    [analyzeInteractionPatterns, calculateAdaptedSize]
+    [analyzeInteractionPatterns, calculateAdaptedSize],
   );
 
   // Get adapted size for a specific base size
   const getAdaptedSize = useCallback(
     (baseSize: number) => {
-      return calculateAdaptedSize(
-        baseSize,
-        state.adaptationLevel,
-        state.settings
-      );
+      return calculateAdaptedSize(baseSize, state.adaptationLevel, state.settings);
     },
-    [state.adaptationLevel, state.settings, calculateAdaptedSize]
+    [state.adaptationLevel, state.settings, calculateAdaptedSize],
   );
 
   // Update settings
   const updateSettings = useCallback(
     (newSettings: Partial<AdaptiveTouchSettings>) => {
-      setState(prev => {
+      setState((prev) => {
         const updatedSettings = { ...prev.settings, ...newSettings };
 
         // Recalculate target size with new settings
         const newTargetSize = calculateAdaptedSize(
           updatedSettings.minTargetSize,
           prev.adaptationLevel,
-          updatedSettings
+          updatedSettings,
         );
 
         return {
@@ -205,12 +177,12 @@ export const useAdaptiveTouchTargets = (): [
         };
       });
     },
-    [calculateAdaptedSize]
+    [calculateAdaptedSize],
   );
 
   // Reset adaptation to baseline
   const resetAdaptation = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       currentTargetSize: prev.settings.minTargetSize,
       adaptationLevel: 'none',
@@ -231,11 +203,9 @@ export const useAdaptiveTouchTargets = (): [
   }, [updateSettings, resetAdaptation]);
 
   const cleanupOldInteractions = useCallback(() => {
-    setState(prev => {
+    setState((prev) => {
       const cutoffTime = Date.now() - prev.settings.trackingDuration;
-      const filteredHistory = prev.interactionHistory.filter(
-        i => i.timestamp > cutoffTime
-      );
+      const filteredHistory = prev.interactionHistory.filter((i) => i.timestamp > cutoffTime);
 
       if (filteredHistory.length !== prev.interactionHistory.length) {
         const newAdaptationLevel = analyzeInteractionPatterns(filteredHistory);
@@ -294,7 +264,7 @@ export const withAdaptiveTouchTargets = <
   },
 >(
   Component: React.ComponentType<P>,
-  baseSize: number = 44
+  baseSize: number = 44,
 ) => {
   return (props: P) => {
     const [, touchHandlers] = useAdaptiveTouchTargets();
@@ -350,7 +320,7 @@ export const withAdaptiveTouchTargets = <
           document.addEventListener('mouseup', handleEnd, { once: true });
         }
       },
-      [touchHandlers, adaptedSize]
+      [touchHandlers, adaptedSize],
     );
 
     const { style, onTouchStart, onMouseDown } = props;

@@ -55,14 +55,8 @@ const GameControls: React.FC<GameControlsProps> = memo(
     }
 
     return (
-      <div
-        className={`${styles.gameControls} modern-flex-controls`}
-        data-testid="game-controls"
-      >
-        <div
-          className={`${styles.controlButtons} modern-flex-row`}
-          data-testid="control-buttons"
-        >
+      <div className={`${styles.gameControls} modern-flex-controls`} data-testid="game-controls">
+        <div className={`${styles.controlButtons} modern-flex-row`} data-testid="control-buttons">
           <button
             type="button"
             onClick={onSubmit}
@@ -128,7 +122,7 @@ const GameControls: React.FC<GameControlsProps> = memo(
         )}
       </div>
     );
-  }
+  },
 );
 
 GameControls.displayName = 'GameControls';

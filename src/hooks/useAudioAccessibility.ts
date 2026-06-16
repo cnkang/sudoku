@@ -33,25 +33,15 @@ export interface AudioAccessibilityHandlers {
   disableAudio: () => void;
   updateSettings: (settings: Partial<AudioSettings>) => void;
   speakGameState: (gridConfig: GridConfig, puzzleInfo?: PuzzleInfo) => void;
-  speakMove: (
-    row: number,
-    col: number,
-    value: number,
-    isCorrect: boolean
-  ) => void;
+  speakMove: (row: number, col: number, value: number, isCorrect: boolean) => void;
   speakError: (message: string, isChildFriendly?: boolean) => void;
-  speakHint: (
-    row: number,
-    col: number,
-    value: number,
-    explanation?: string
-  ) => void;
+  speakHint: (row: number, col: number, value: number, explanation?: string) => void;
   speakNavigation: (message: string) => void;
   speakCellDescription: (
     row: number,
     col: number,
     gridConfig: GridConfig,
-    cellInfo: CellInfo
+    cellInfo: CellInfo,
   ) => void;
   speakPuzzleCompletion: (timeFormatted: string, hintsUsed: number) => void;
   stopSpeaking: () => void;
@@ -83,21 +73,16 @@ const defaultAudioSettings: AudioSettings = {
 };
 
 export const useAudioAccessibility = (
-  accessibilitySettings: AccessibilitySettings
+  accessibilitySettings: AccessibilitySettings,
 ): [AudioAccessibilityState, AudioAccessibilityHandlers] => {
   const resolveSpeechSynthesis = useCallback((): SpeechSynthesis | null => {
     if (globalThis.window !== undefined && 'speechSynthesis' in globalThis) {
-      return (
-        (globalThis as { speechSynthesis?: SpeechSynthesis }).speechSynthesis ??
-        null
-      );
+      return (globalThis as { speechSynthesis?: SpeechSynthesis }).speechSynthesis ?? null;
     }
     return null;
   }, []);
 
-  const speechSynthesis = useRef<SpeechSynthesis | null>(
-    resolveSpeechSynthesis()
-  );
+  const speechSynthesis = useRef<SpeechSynthesis | null>(resolveSpeechSynthesis());
   const [state, setState] = useState<AudioAccessibilityState>(() => ({
     isSupported: Boolean(speechSynthesis.current),
     isEnabled: accessibilitySettings.audioFeedback,
@@ -120,7 +105,7 @@ export const useAudioAccessibility = (
 
     speechSynthesis.current = globalThis.speechSynthesis;
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isSupported: true,
       isEnabled: accessibilitySettings.audioFeedback,
@@ -134,10 +119,10 @@ export const useAudioAccessibility = (
     const loadVoices = () => {
       const voices = speechSynthesis.current?.getVoices() || [];
       const englishVoice =
-        voices.find(voice => voice.lang.startsWith('en') && voice.default) ||
-        voices.find(voice => voice.lang.startsWith('en'));
+        voices.find((voice) => voice.lang.startsWith('en') && voice.default) ||
+        voices.find((voice) => voice.lang.startsWith('en'));
 
-      setState(prev => {
+      setState((prev) => {
         const nextVoice = prev.currentSettings.voice ?? englishVoice;
         return {
           ...prev,
@@ -171,22 +156,22 @@ export const useAudioAccessibility = (
 
       // Set up event listeners
       utterance.onstart = () => {
-        setState(prev => ({ ...prev, isSpeaking: true }));
+        setState((prev) => ({ ...prev, isSpeaking: true }));
       };
 
       utterance.onend = () => {
-        setState(prev => ({ ...prev, isSpeaking: false }));
+        setState((prev) => ({ ...prev, isSpeaking: false }));
         currentUtterance.current = null;
       };
 
       utterance.onerror = () => {
-        setState(prev => ({ ...prev, isSpeaking: false }));
+        setState((prev) => ({ ...prev, isSpeaking: false }));
         currentUtterance.current = null;
       };
 
       return utterance;
     },
-    [state.currentSettings]
+    [state.currentSettings],
   );
 
   // Speak text with current settings
@@ -208,17 +193,12 @@ export const useAudioAccessibility = (
       currentUtterance.current = utterance;
       synth.speak(utterance);
     },
-    [
-      state.isEnabled,
-      accessibilitySettings.audioFeedback,
-      createUtterance,
-      resolveSpeechSynthesis,
-    ]
+    [state.isEnabled, accessibilitySettings.audioFeedback, createUtterance, resolveSpeechSynthesis],
   );
 
   // Enable audio feedback
   const enableAudio = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isEnabled: true,
       currentSettings: {
@@ -227,9 +207,7 @@ export const useAudioAccessibility = (
       },
     }));
 
-    speak(
-      'Audio descriptions enabled. You will now hear spoken feedback for game actions.'
-    );
+    speak('Audio descriptions enabled. You will now hear spoken feedback for game actions.');
   }, [speak]);
 
   // Disable audio feedback
@@ -238,7 +216,7 @@ export const useAudioAccessibility = (
       speechSynthesis.current.cancel();
     }
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isEnabled: false,
       isSpeaking: false,
@@ -251,7 +229,7 @@ export const useAudioAccessibility = (
 
   // Update audio settings
   const updateSettings = useCallback((newSettings: Partial<AudioSettings>) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       currentSettings: {
         ...prev.currentSettings,
@@ -273,7 +251,7 @@ export const useAudioAccessibility = (
 
       speak(message);
     },
-    [state.currentSettings.announceGameState, speak]
+    [state.currentSettings.announceGameState, speak],
   );
 
   // Speak move information
@@ -285,13 +263,11 @@ export const useAudioAccessibility = (
       const message =
         value === 0
           ? `Cell cleared at row ${row + 1}, column ${col + 1}`
-          : `${result} move: Number ${value} entered at row ${
-              row + 1
-            }, column ${col + 1}`;
+          : `${result} move: Number ${value} entered at row ${row + 1}, column ${col + 1}`;
 
       speak(message);
     },
-    [state.currentSettings.announceMoves, speak]
+    [state.currentSettings.announceMoves, speak],
   );
 
   // Speak error messages with child-friendly language
@@ -305,7 +281,7 @@ export const useAudioAccessibility = (
 
       speak(friendlyMessage, true); // Interrupt other speech for errors
     },
-    [state.currentSettings.announceErrors, speak]
+    [state.currentSettings.announceErrors, speak],
   );
 
   // Speak hint information
@@ -313,9 +289,7 @@ export const useAudioAccessibility = (
     (row: number, col: number, value: number, explanation?: string) => {
       if (!state.currentSettings.announceHints) return;
 
-      let message = `Hint: Number ${value} goes in row ${row + 1}, column ${
-        col + 1
-      }`;
+      let message = `Hint: Number ${value} goes in row ${row + 1}, column ${col + 1}`;
 
       if (explanation) {
         message += `. ${explanation}`;
@@ -323,7 +297,7 @@ export const useAudioAccessibility = (
 
       speak(message);
     },
-    [state.currentSettings.announceHints, speak]
+    [state.currentSettings.announceHints, speak],
   );
 
   // Speak navigation information
@@ -333,7 +307,7 @@ export const useAudioAccessibility = (
 
       speak(message);
     },
-    [state.currentSettings.announceNavigation, speak]
+    [state.currentSettings.announceNavigation, speak],
   );
 
   // Speak detailed cell description
@@ -347,7 +321,7 @@ export const useAudioAccessibility = (
         isFixed: boolean;
         hasConflict: boolean;
         isHinted: boolean;
-      }
+      },
     ) => {
       const description = accessibilityManager.current.describeSudokuCell(
         row,
@@ -356,12 +330,12 @@ export const useAudioAccessibility = (
         cellInfo.isFixed,
         gridConfig,
         cellInfo.hasConflict,
-        cellInfo.isHinted
+        cellInfo.isHinted,
       );
 
       speak(description);
     },
-    [speak]
+    [speak],
   );
 
   // Speak puzzle completion
@@ -371,7 +345,7 @@ export const useAudioAccessibility = (
 
       speak(message, true); // Interrupt other speech for celebration
     },
-    [speak]
+    [speak],
   );
 
   // Stop current speech
@@ -379,7 +353,7 @@ export const useAudioAccessibility = (
     if (speechSynthesis.current) {
       speechSynthesis.current.cancel();
     }
-    setState(prev => ({ ...prev, isSpeaking: false }));
+    setState((prev) => ({ ...prev, isSpeaking: false }));
     currentUtterance.current = null;
   }, []);
 
@@ -391,7 +365,7 @@ export const useAudioAccessibility = (
       speechSynthesis.current.cancel();
 
       const utterance = new SpeechSynthesisUtterance(
-        'This is a test of the selected voice. You are listening to audio descriptions for the Sudoku game.'
+        'This is a test of the selected voice. You are listening to audio descriptions for the Sudoku game.',
       );
 
       utterance.voice = voice;
@@ -401,7 +375,7 @@ export const useAudioAccessibility = (
 
       speechSynthesis.current.speak(utterance);
     },
-    [state.currentSettings]
+    [state.currentSettings],
   );
 
   // Cleanup on unmount

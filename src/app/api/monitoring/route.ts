@@ -67,18 +67,14 @@ const MonitoringEventSchema = z.discriminatedUnion('kind', [
 ]);
 
 type MonitoringMetricEventPayload = z.infer<typeof MonitoringMetricEventSchema>;
-type MonitoringClientErrorEventPayload = z.infer<
-  typeof MonitoringClientErrorEventSchema
->;
+type MonitoringClientErrorEventPayload = z.infer<typeof MonitoringClientErrorEventSchema>;
 
 type MonitoringRequestFallback = {
   url: string;
   userAgent: string;
 };
 
-function getMonitoringRequestFallback(
-  request: NextRequest
-): MonitoringRequestFallback {
+function getMonitoringRequestFallback(request: NextRequest): MonitoringRequestFallback {
   return {
     url: request.nextUrl.href,
     userAgent: request.headers.get('user-agent') ?? 'unknown',
@@ -87,7 +83,7 @@ function getMonitoringRequestFallback(
 
 function recordWebVitalPayload(
   payload: MonitoringMetricEventPayload,
-  fallback: MonitoringRequestFallback
+  fallback: MonitoringRequestFallback,
 ): boolean {
   const event: {
     name: MonitoringMetricEventPayload['name'];
@@ -127,7 +123,7 @@ function recordWebVitalPayload(
 
 function recordClientErrorPayload(
   payload: MonitoringClientErrorEventPayload,
-  fallback: MonitoringRequestFallback
+  fallback: MonitoringRequestFallback,
 ): boolean {
   const event: {
     message: string;
@@ -159,7 +155,7 @@ function recordClientErrorPayload(
 function createAcceptedMonitoringResponse(
   request: NextRequest,
   recorded: 'web-vital' | 'client-error',
-  alertTriggered: boolean
+  alertTriggered: boolean,
 ) {
   return createNoStoreJsonResponse(
     request,
@@ -168,7 +164,7 @@ function createAcceptedMonitoringResponse(
       recorded,
       alertTriggered,
     },
-    202
+    202,
   );
 }
 
@@ -204,13 +200,11 @@ export async function GET(request: NextRequest) {
           success: false,
           error: `windowMinutes must be between 1 and ${MAX_WINDOW_MINUTES}`,
         },
-        400
+        400,
       );
     }
 
-    const monitoring = getMonitoringDashboardSnapshot(
-      parsedWindowMinutes * 60_000
-    );
+    const monitoring = getMonitoringDashboardSnapshot(parsedWindowMinutes * 60_000);
 
     return createNoStoreJsonResponse(
       request,
@@ -218,13 +212,13 @@ export async function GET(request: NextRequest) {
         success: true,
         monitoring,
       },
-      200
+      200,
     );
   } catch (error) {
     const detailedLog = createDetailedErrorLog(
       error,
       'MONITORING_DASHBOARD_ERROR',
-      extractRequestContext(request)
+      extractRequestContext(request),
     );
     logErrorServerSide(detailedLog);
 
@@ -238,7 +232,7 @@ export async function GET(request: NextRequest) {
         code: sanitizedError.code,
         timestamp: sanitizedError.timestamp,
       },
-      500
+      500,
     );
   }
 }
@@ -254,10 +248,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const bodyResult = await readJsonBodyWithLimit<unknown>(
-      request,
-      MAX_JSON_BODY_BYTES
-    );
+    const bodyResult = await readJsonBodyWithLimit<unknown>(request, MAX_JSON_BODY_BYTES);
     if (!bodyResult.ok) {
       return bodyResult.response;
     }
@@ -269,21 +260,21 @@ export async function POST(request: NextRequest) {
       return createAcceptedMonitoringResponse(
         request,
         'web-vital',
-        recordWebVitalPayload(payload, fallback)
+        recordWebVitalPayload(payload, fallback),
       );
     }
 
     return createAcceptedMonitoringResponse(
       request,
       'client-error',
-      recordClientErrorPayload(payload, fallback)
+      recordClientErrorPayload(payload, fallback),
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
       const detailedLog = createDetailedErrorLog(
         error,
         'VALIDATION_ERROR',
-        extractRequestContext(request)
+        extractRequestContext(request),
       );
       logErrorServerSide(detailedLog);
 
@@ -293,7 +284,7 @@ export async function POST(request: NextRequest) {
     const detailedLog = createDetailedErrorLog(
       error,
       'MONITORING_EVENT_ERROR',
-      extractRequestContext(request)
+      extractRequestContext(request),
     );
     logErrorServerSide(detailedLog);
 
@@ -307,7 +298,7 @@ export async function POST(request: NextRequest) {
         code: sanitizedError.code,
         timestamp: sanitizedError.timestamp,
       },
-      500
+      500,
     );
   }
 }

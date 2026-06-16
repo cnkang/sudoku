@@ -5,10 +5,7 @@ interface PuzzleData {
   solution: number[][];
 }
 
-const fetchPuzzle = async (
-  difficulty: number,
-  force = false
-): Promise<PuzzleData> => {
+const fetchPuzzle = async (difficulty: number, force = false): Promise<PuzzleData> => {
   const url = `/api/solveSudoku?difficulty=${difficulty}${force ? '&force=true' : ''}`;
   const response = await fetch(url, { method: 'POST' });
 
@@ -19,11 +16,7 @@ const fetchPuzzle = async (
   return response.json();
 };
 
-export const usePuzzleLoader = (
-  difficulty: number,
-  shouldFetch: boolean,
-  force = false
-) => {
+export const usePuzzleLoader = (difficulty: number, shouldFetch: boolean, force = false) => {
   const puzzlePromise = useMemo(() => {
     if (!shouldFetch) return null;
     return fetchPuzzle(difficulty, force);

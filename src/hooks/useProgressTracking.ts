@@ -18,10 +18,10 @@ import {
 
 const scheduleCelebrationRemoval = (
   setTrackingState: React.Dispatch<React.SetStateAction<ProgressTrackingState>>,
-  duration: number
+  duration: number,
 ) => {
   setTimeout(() => {
-    setTrackingState(prev => ({
+    setTrackingState((prev) => ({
       ...prev,
       currentCelebration: null,
     }));
@@ -44,15 +44,13 @@ const scheduleCelebration = ({
   };
   index: number;
   setTrackingState: React.Dispatch<React.SetStateAction<ProgressTrackingState>>;
-  onShowCelebration:
-    | ((effect: CelebrationEffect, message: string) => void)
-    | undefined;
+  onShowCelebration: ((effect: CelebrationEffect, message: string) => void) | undefined;
   onPlaySound: ((soundType: string) => void) | undefined;
   soundEnabled: boolean;
   childMode: boolean;
 }) => {
   setTimeout(() => {
-    setTrackingState(prev => ({
+    setTrackingState((prev) => ({
       ...prev,
       currentCelebration: celebration,
     }));
@@ -138,7 +136,7 @@ export const useProgressTracking = ({
         achievement: Achievement;
         effect: CelebrationEffect;
         message: string;
-      }>
+      }>,
     ) => {
       for (const [index, celebration] of celebrations.entries()) {
         scheduleCelebration({
@@ -152,16 +150,12 @@ export const useProgressTracking = ({
         });
       }
     },
-    [onShowCelebration, onPlaySound, soundEnabled, gameState.childMode]
+    [onShowCelebration, onPlaySound, soundEnabled, gameState.childMode],
   );
 
   // Handle puzzle completion with progress tracking
   const handlePuzzleCompletion = useCallback(
-    (completionData: {
-      completionTime: number;
-      hintsUsed: number;
-      difficulty: number;
-    }) => {
+    (completionData: { completionTime: number; hintsUsed: number; difficulty: number }) => {
       const currentStats = getCurrentStats();
 
       // Update progress statistics
@@ -171,21 +165,17 @@ export const useProgressTracking = ({
       });
 
       // Check for new achievements
-      const newAchievements = checkForNewAchievements(
-        updatedStats,
-        gameState.gridConfig.size,
-        {
-          completionTime: completionData.completionTime,
-          hintsUsed: completionData.hintsUsed,
-          isPerfectGame: completionData.hintsUsed === 0,
-        }
-      );
+      const newAchievements = checkForNewAchievements(updatedStats, gameState.gridConfig.size, {
+        completionTime: completionData.completionTime,
+        hintsUsed: completionData.hintsUsed,
+        isPerfectGame: completionData.hintsUsed === 0,
+      });
 
       // Generate completion reward
       const completionReward = generateCompletionReward(
         updatedStats,
         gameState.gridConfig.size,
-        completionData
+        completionData,
       );
 
       // Update reward counts based on reward type
@@ -205,7 +195,7 @@ export const useProgressTracking = ({
       const finalStats = { ...updatedStats, ...rewardUpdates };
 
       // Show completion reward
-      setTrackingState(prev => ({
+      setTrackingState((prev) => ({
         ...prev,
         currentReward: completionReward,
       }));
@@ -219,7 +209,7 @@ export const useProgressTracking = ({
 
       // Auto-hide reward after duration
       setTimeout(() => {
-        setTrackingState(prev => ({
+        setTrackingState((prev) => ({
           ...prev,
           currentReward: null,
         }));
@@ -227,16 +217,11 @@ export const useProgressTracking = ({
 
       // Handle new achievements
       if (newAchievements.length > 0) {
-        const celebrationQueue = newAchievements.map(achievement => {
-          const celebrationEffect = generateCelebrationEffect(
-            achievement,
-            gameState.childMode
-          );
+        const celebrationQueue = newAchievements.map((achievement) => {
+          const celebrationEffect = generateCelebrationEffect(achievement, gameState.childMode);
           const celebrationMessage = getCelebrationMessage(
             achievement,
-            !currentStats.achievements.some(id =>
-              id.startsWith(achievement.category)
-            )
+            !currentStats.achievements.some((id) => id.startsWith(achievement.category)),
           );
 
           return {
@@ -246,23 +231,17 @@ export const useProgressTracking = ({
           };
         });
 
-        setTrackingState(prev => ({
+        setTrackingState((prev) => ({
           ...prev,
           celebrationQueue: [...prev.celebrationQueue, ...celebrationQueue],
-          recentAchievements: [
-            ...newAchievements,
-            ...prev.recentAchievements,
-          ].slice(0, 5),
+          recentAchievements: [...newAchievements, ...prev.recentAchievements].slice(0, 5),
         }));
 
         // Process celebration queue
         processCelebrationQueue(celebrationQueue);
 
         // Update achievement list in stats
-        finalStats.achievements = [
-          ...finalStats.achievements,
-          ...newAchievements.map(a => a.id),
-        ];
+        finalStats.achievements = [...finalStats.achievements, ...newAchievements.map((a) => a.id)];
       }
 
       return finalStats;
@@ -275,7 +254,7 @@ export const useProgressTracking = ({
       onShowReward,
       onPlaySound,
       soundEnabled,
-    ]
+    ],
   );
 
   // Handle hint usage (affects achievement eligibility)
@@ -311,12 +290,12 @@ export const useProgressTracking = ({
       const gridKey = `${gridSize}x${gridSize}`;
       return gameState.progress[gridKey] || getCurrentStats();
     },
-    [gameState.progress, getCurrentStats]
+    [gameState.progress, getCurrentStats],
   );
 
   // Clear current displays
   const clearCurrentDisplays = useCallback(() => {
-    setTrackingState(prev => ({
+    setTrackingState((prev) => ({
       ...prev,
       currentReward: null,
       currentCelebration: null,
@@ -325,7 +304,7 @@ export const useProgressTracking = ({
 
   // Toggle sound effects
   const toggleSound = useCallback(() => {
-    setSoundEnabled(prev => !prev);
+    setSoundEnabled((prev) => !prev);
   }, []);
 
   // Get achievement progress for UI display
@@ -348,9 +327,7 @@ export const useProgressTracking = ({
     const milestones = [10, 25, 50, 100, 250, 500];
 
     // Check if we just hit a milestone
-    const currentMilestone = milestones.find(
-      m => overallProgress.totalPuzzles === m
-    );
+    const currentMilestone = milestones.find((m) => overallProgress.totalPuzzles === m);
 
     if (currentMilestone) {
       // Create special milestone celebration
@@ -363,7 +340,7 @@ export const useProgressTracking = ({
         duration: 5000,
       };
 
-      setTrackingState(prev => ({
+      setTrackingState((prev) => ({
         ...prev,
         currentReward: milestoneReward,
       }));

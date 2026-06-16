@@ -24,7 +24,7 @@ export interface MotionSettings {
  * Get user's motion preferences from system and custom settings
  */
 export const getMotionPreferences = (
-  customSettings?: Partial<MotionSettings>
+  customSettings?: Partial<MotionSettings>,
 ): MotionPreferences => {
   const defaultSettings: MotionSettings = {
     respectSystemPreference: true,
@@ -37,9 +37,7 @@ export const getMotionPreferences = (
   const settings = { ...defaultSettings, ...customSettings };
 
   // Check system preference
-  const systemPrefersReduced = globalThis.matchMedia(
-    '(prefers-reduced-motion: reduce)'
-  ).matches;
+  const systemPrefersReduced = globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Determine if reduced motion should be applied
   const shouldReduceMotion =
@@ -49,9 +47,7 @@ export const getMotionPreferences = (
 
   // Calculate animation durations based on preferences
   const baseDuration = 300; // Base animation duration in ms
-  const scaledDuration = shouldReduceMotion
-    ? 0
-    : baseDuration * settings.animationScale;
+  const scaledDuration = shouldReduceMotion ? 0 : baseDuration * settings.animationScale;
 
   return {
     prefersReducedMotion: shouldReduceMotion,
@@ -65,7 +61,7 @@ export const getMotionPreferences = (
  * Create CSS custom properties for motion preferences
  */
 export const createMotionCSSProperties = (
-  preferences: MotionPreferences
+  preferences: MotionPreferences,
 ): Record<string, string> => {
   return {
     '--animation-duration': `${preferences.animationDuration}ms`,
@@ -78,11 +74,9 @@ export const createMotionCSSProperties = (
 /**
  * Hook for managing motion preferences
  */
-export const useMotionPreferences = (
-  customSettings?: Partial<MotionSettings>
-) => {
+export const useMotionPreferences = (customSettings?: Partial<MotionSettings>) => {
   const [preferences, setPreferences] = React.useState<MotionPreferences>(() =>
-    getMotionPreferences(customSettings)
+    getMotionPreferences(customSettings),
   );
 
   const [settings, setSettings] = React.useState<MotionSettings>(() => ({
@@ -104,9 +98,7 @@ export const useMotionPreferences = (
   React.useEffect(() => {
     if (!settings.respectSystemPreference) return;
 
-    const mediaQuery = globalThis.matchMedia(
-      '(prefers-reduced-motion: reduce)'
-    );
+    const mediaQuery = globalThis.matchMedia('(prefers-reduced-motion: reduce)');
     const handleChange = () => {
       const newPreferences = getMotionPreferences(settings);
       setPreferences(newPreferences);
@@ -120,17 +112,11 @@ export const useMotionPreferences = (
       } as EventListenerOptions);
   }, [settings]);
 
-  const updateSettings = React.useCallback(
-    (newSettings: Partial<MotionSettings>) => {
-      setSettings(prev => ({ ...prev, ...newSettings }));
-    },
-    []
-  );
+  const updateSettings = React.useCallback((newSettings: Partial<MotionSettings>) => {
+    setSettings((prev) => ({ ...prev, ...newSettings }));
+  }, []);
 
-  const cssProperties = React.useMemo(
-    () => createMotionCSSProperties(preferences),
-    [preferences]
-  );
+  const cssProperties = React.useMemo(() => createMotionCSSProperties(preferences), [preferences]);
 
   return {
     preferences,
@@ -157,11 +143,9 @@ export const ConditionalAnimation: React.FC<{
 
   if (!preferences.allowAnimations) {
     // Return children without animation classes/props
-    return React.Children.map(children, child => {
+    return React.Children.map(children, (child) => {
       if (React.isValidElement(child)) {
-        const element = child as React.ReactElement<
-          React.HTMLAttributes<HTMLElement>
-        >;
+        const element = child as React.ReactElement<React.HTMLAttributes<HTMLElement>>;
         const { className, style, ...otherProps } = element.props;
 
         // Remove animation-related classes
@@ -196,10 +180,7 @@ export const safeAnimate = {
   /**
    * Apply animation class only if motion is allowed
    */
-  className: (
-    animationClass: string,
-    preferences?: MotionPreferences
-  ): string => {
+  className: (animationClass: string, preferences?: MotionPreferences): string => {
     const prefs = preferences || getMotionPreferences();
     return prefs.allowAnimations ? animationClass : '';
   },
@@ -209,7 +190,7 @@ export const safeAnimate = {
    */
   style: (
     animationStyles: React.CSSProperties,
-    preferences?: MotionPreferences
+    preferences?: MotionPreferences,
   ): React.CSSProperties => {
     const prefs = preferences || getMotionPreferences();
     return prefs.allowAnimations ? animationStyles : {};
@@ -220,9 +201,7 @@ export const safeAnimate = {
    */
   duration: (baseDuration: number, preferences?: MotionPreferences): number => {
     const prefs = preferences || getMotionPreferences();
-    return prefs.allowAnimations
-      ? Math.min(baseDuration, prefs.animationDuration)
-      : 0;
+    return prefs.allowAnimations ? Math.min(baseDuration, prefs.animationDuration) : 0;
   },
 };
 

@@ -36,9 +36,7 @@ const describeHintUsed = (details: GameStateChangeDetails) => {
   const col = typeof details.col === 'number' ? details.col + 1 : 'unknown';
   const value = typeof details.value === 'number' ? details.value : 'unknown';
   const hintsRemaining =
-    typeof details.hintsRemaining === 'number'
-      ? `${details.hintsRemaining} hints remaining.`
-      : '';
+    typeof details.hintsRemaining === 'number' ? `${details.hintsRemaining} hints remaining.` : '';
   return `Hint revealed: Number ${value} goes in row ${row}, column ${col}. ${hintsRemaining}`.trim();
 };
 
@@ -151,7 +149,7 @@ class AccessibilityManager {
 
     // Wait for delay if specified
     if (announcement.delay) {
-      await new Promise(resolve => setTimeout(resolve, announcement.delay));
+      await new Promise((resolve) => setTimeout(resolve, announcement.delay));
     }
 
     // Make the announcement
@@ -228,7 +226,7 @@ class AccessibilityManager {
     isFixed: boolean,
     gridConfig: GridConfig,
     hasConflict: boolean = false,
-    isHinted: boolean = false
+    isHinted: boolean = false,
   ): string {
     const { boxRows, boxCols } = gridConfig;
 
@@ -261,13 +259,8 @@ class AccessibilityManager {
    * Describe game state changes for screen readers
    */
   public describeGameStateChange(
-    type:
-      | 'puzzle-loaded'
-      | 'move-made'
-      | 'puzzle-completed'
-      | 'hint-used'
-      | 'error-occurred',
-    details: GameStateChangeDetails = {}
+    type: 'puzzle-loaded' | 'move-made' | 'puzzle-completed' | 'hint-used' | 'error-occurred',
+    details: GameStateChangeDetails = {},
   ): string {
     switch (type) {
       case 'puzzle-loaded':
@@ -288,9 +281,7 @@ class AccessibilityManager {
   /**
    * Update keyboard navigation state
    */
-  public updateKeyboardNavigation(
-    state: Partial<KeyboardNavigationState>
-  ): void {
+  public updateKeyboardNavigation(state: Partial<KeyboardNavigationState>): void {
     this.keyboardState = { ...this.keyboardState, ...state };
   }
 
@@ -335,17 +326,13 @@ class AccessibilityManager {
     row: number,
     col: number,
     gridConfig: GridConfig,
-    isFixed: boolean
+    isFixed: boolean,
   ): string {
     if (isFixed) {
-      return `Fixed cell in row ${row + 1}, column ${
-        col + 1
-      }. Cannot be edited.`;
+      return `Fixed cell in row ${row + 1}, column ${col + 1}. Cannot be edited.`;
     }
 
-    return `Editable cell in row ${row + 1}, column ${
-      col + 1
-    }. Enter numbers 1 to ${
+    return `Editable cell in row ${row + 1}, column ${col + 1}. Enter numbers 1 to ${
       gridConfig.maxValue
     }. Use arrow keys to navigate to other cells.`;
   }
@@ -369,10 +356,7 @@ class AccessibilityManager {
   /**
    * Announce accessibility setting changes
    */
-  public announceAccessibilityChange(
-    setting: keyof AccessibilitySettings,
-    enabled: boolean
-  ): void {
+  public announceAccessibilityChange(setting: keyof AccessibilitySettings, enabled: boolean): void {
     const settingNames: Record<keyof AccessibilitySettings, string> = {
       highContrast: 'High contrast mode',
       reducedMotion: 'Reduced motion',
@@ -384,9 +368,7 @@ class AccessibilityManager {
       adaptiveTouchTargets: 'Adaptive touch targets',
     };
 
-    const message = `${settingNames[setting]} ${
-      enabled ? 'enabled' : 'disabled'
-    }.`;
+    const message = `${settingNames[setting]} ${enabled ? 'enabled' : 'disabled'}.`;
 
     this.announce({
       message,

@@ -40,7 +40,7 @@ export interface ThrottledTouchOptions {
  */
 export function useThrottledTouchMove<T extends HTMLElement>(
   handler: (event: React.TouchEvent<T>) => void,
-  options: ThrottledTouchOptions = {}
+  options: ThrottledTouchOptions = {},
 ): (event: React.TouchEvent<T>) => void {
   const {
     throttleMs = 16, // 60fps
@@ -84,7 +84,7 @@ export function useThrottledTouchMove<T extends HTMLElement>(
         }, throttleMs - timeSinceLastCall);
       }
     },
-    [handler, throttleMs, leading, trailing]
+    [handler, throttleMs, leading, trailing],
   );
 }
 
@@ -141,8 +141,7 @@ export function useTouchPerformanceMonitor() {
     if (frameTimesRef.current.length === 0) return 60;
 
     const avgFrameTime =
-      frameTimesRef.current.reduce((sum, time) => sum + time, 0) /
-      frameTimesRef.current.length;
+      frameTimesRef.current.reduce((sum, time) => sum + time, 0) / frameTimesRef.current.length;
 
     return Math.round(1000 / avgFrameTime);
   }, []);

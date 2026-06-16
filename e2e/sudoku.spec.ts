@@ -7,9 +7,9 @@ test.describe('Sudoku Game E2E Tests', () => {
       state: 'hidden',
       timeout: 45000,
     });
-    await expect(
-      page.locator('#difficulty-select:visible').first()
-    ).toBeVisible({ timeout: 20000 });
+    await expect(page.locator('#difficulty-select:visible').first()).toBeVisible({
+      timeout: 20000,
+    });
   };
 
   // Increase timeout for CI environments
@@ -34,9 +34,7 @@ test.describe('Sudoku Game E2E Tests', () => {
     await expect(appMain).toBeVisible();
 
     // Check for the main heading
-    await expect(
-      page.getByRole('heading', { level: 1, name: 'Sudoku Challenge' })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Sudoku Challenge' })).toBeVisible();
 
     // Verify difficulty selector is present and functional
     const difficultySelect = page.locator('#difficulty-select:visible').first();
@@ -56,9 +54,7 @@ test.describe('Sudoku Game E2E Tests', () => {
     await expect(mobileMain).toBeVisible();
 
     // Check that the heading is still visible
-    await expect(
-      page.getByRole('heading', { level: 1, name: 'Sudoku Challenge' })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Sudoku Challenge' })).toBeVisible();
 
     // Verify viewport settings took effect
     const viewport = page.viewportSize();
@@ -76,9 +72,7 @@ test.describe('Sudoku Game E2E Tests', () => {
     expect(['interactive', 'complete']).toContain(readyState);
 
     // Test difficulty selector interaction
-    const difficultySelector = page
-      .locator('#difficulty-select:visible')
-      .first();
+    const difficultySelector = page.locator('#difficulty-select:visible').first();
     await expect(difficultySelector).toBeVisible();
     await expect(difficultySelector).toBeEnabled();
 

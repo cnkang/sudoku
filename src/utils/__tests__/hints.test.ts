@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import { getHint } from '../hints';
 
 describe('Hints Utility', () => {
@@ -27,7 +27,7 @@ describe('Hints Utility', () => {
   ];
 
   it('should return hint for first empty cell', () => {
-    const userInput = mockPuzzle.map(row => [...row]);
+    const userInput = mockPuzzle.map((row) => [...row]);
 
     const hint = getHint(mockPuzzle, userInput, mockSolution);
 
@@ -40,7 +40,7 @@ describe('Hints Utility', () => {
   });
 
   it('should return hint for incorrect cell when no empty cells', () => {
-    const userInput = mockSolution.map(row => [...row]);
+    const userInput = mockSolution.map((row) => [...row]);
     userInput[0][2] = 9; // Wrong value at position (0,2)
 
     const hint = getHint(mockPuzzle, userInput, mockSolution);
@@ -55,8 +55,8 @@ describe('Hints Utility', () => {
 
   it('should return null when no hints available', () => {
     // Create a completed puzzle where all cells match the solution
-    const userInput = mockSolution.map(row => [...row]);
-    const completedPuzzle = mockSolution.map(row => [...row]);
+    const userInput = mockSolution.map((row) => [...row]);
+    const completedPuzzle = mockSolution.map((row) => [...row]);
 
     const hint = getHint(completedPuzzle, userInput, mockSolution);
 
@@ -64,7 +64,7 @@ describe('Hints Utility', () => {
   });
 
   it('should handle cells with matching values correctly', () => {
-    const userInput = mockPuzzle.map(row => [...row]);
+    const userInput = mockPuzzle.map((row) => [...row]);
     // Fill in some correct values
     userInput[0][2] = 4; // Correct value
     userInput[1][1] = 7; // Correct value
@@ -81,7 +81,7 @@ describe('Hints Utility', () => {
   });
 
   it('should prioritize empty cells over incorrect cells', () => {
-    const userInput = mockPuzzle.map(row => [...row]);
+    const userInput = mockPuzzle.map((row) => [...row]);
     // Add an incorrect value to a filled cell
     userInput[1][1] = 9; // Wrong value at position (1,1)
 
@@ -94,7 +94,7 @@ describe('Hints Utility', () => {
   });
 
   it('should handle case where all empty cells are filled but some are wrong', () => {
-    const userInput = mockSolution.map(row => [...row]);
+    const userInput = mockSolution.map((row) => [...row]);
     // Make multiple cells wrong
     userInput[0][2] = 9;
     userInput[1][1] = 8;

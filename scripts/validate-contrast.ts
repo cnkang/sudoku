@@ -71,11 +71,7 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
  * Calculate relative luminance according to WCAG formula
  * https://www.w3.org/TR/WCAG20/#relativeluminancedef
  */
-function getRelativeLuminance(rgb: {
-  r: number;
-  g: number;
-  b: number;
-}): number {
+function getRelativeLuminance(rgb: { r: number; g: number; b: number }): number {
   const rsRGB = rgb.r / 255;
   const gsRGB = rgb.g / 255;
   const bsRGB = rgb.b / 255;
@@ -154,7 +150,7 @@ function addPairIfPresent(
   pairs: ColorPair[],
   colors: Map<string, string>,
   foregroundName: string,
-  backgroundName: string
+  backgroundName: string,
 ): void {
   const foreground = colors.get(foregroundName);
   const background = colors.get(backgroundName);
@@ -175,7 +171,7 @@ function addCrossProductPairs(
   pairs: ColorPair[],
   colors: Map<string, string>,
   foregrounds: string[],
-  backgrounds: string[]
+  backgrounds: string[],
 ): void {
   for (const backgroundName of backgrounds) {
     for (const foregroundName of foregrounds) {
@@ -187,7 +183,7 @@ function addCrossProductPairs(
 function addDefinedPairs(
   pairs: ColorPair[],
   colors: Map<string, string>,
-  definitions: ColorPairDefinition[]
+  definitions: ColorPairDefinition[],
 ): void {
   for (const { foregroundName, backgroundName } of definitions) {
     addPairIfPresent(pairs, colors, foregroundName, backgroundName);
@@ -201,14 +197,7 @@ function addDefinedPairs(
 function getColorCombinationsToTest(colors: Map<string, string>): ColorPair[] {
   const pairs: ColorPair[] = [];
   const backgrounds = ['cream', 'cream-dark'];
-  const primaryForegrounds = [
-    'coral',
-    'amber',
-    'teal',
-    'indigo',
-    'charcoal',
-    'slate',
-  ];
+  const primaryForegrounds = ['coral', 'amber', 'teal', 'indigo', 'charcoal', 'slate'];
   const accentForegrounds = ['hot-pink', 'electric', 'lime'];
   const semanticPairs: ColorPairDefinition[] = [
     { foregroundName: 'teal', backgroundName: 'cream' }, // success
@@ -230,7 +219,7 @@ function getColorCombinationsToTest(colors: Map<string, string>): ColorPair[] {
  * Validate all color combinations
  */
 function validateContrast(pairs: ColorPair[]): ValidationResult[] {
-  return pairs.map(pair => {
+  return pairs.map((pair) => {
     const ratio = getContrastRatio(pair.foreground, pair.background);
     const wcagLevel = getWCAGLevel(ratio);
 
@@ -247,8 +236,8 @@ function validateContrast(pairs: ColorPair[]): ValidationResult[] {
  * Format validation results for console output
  */
 function formatResults(results: ValidationResult[]): string {
-  const passed = results.filter(r => r.passes);
-  const failed = results.filter(r => !r.passes);
+  const passed = results.filter((r) => r.passes);
+  const failed = results.filter((r) => !r.passes);
 
   let output = '\n';
   output += '═══════════════════════════════════════════════════════════\n';
@@ -312,14 +301,13 @@ function main(): void {
     process.stdout.write(report);
 
     // Exit with error if any combinations failed
-    const failedCount = results.filter(r => !r.passes).length;
+    const failedCount = results.filter((r) => !r.passes).length;
     if (failedCount > 0) {
       process.exit(1);
     }
     process.exit(0);
   } catch (error) {
-    const errorOutput =
-      error instanceof Error ? (error.stack ?? error.message) : String(error);
+    const errorOutput = error instanceof Error ? (error.stack ?? error.message) : String(error);
     process.stderr.write(`Contrast validation failed: ${errorOutput}\n`);
     process.exit(1);
   }

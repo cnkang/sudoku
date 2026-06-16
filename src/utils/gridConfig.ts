@@ -66,11 +66,7 @@ export function getConfig(size: GridSize): GridConfig {
 /**
  * Check if coordinates are within bounds
  */
-function isValidPosition(
-  config: GridConfig,
-  row: number,
-  col: number
-): boolean {
+function isValidPosition(config: GridConfig, row: number, col: number): boolean {
   return row >= 0 && row < config.size && col >= 0 && col < config.size;
 }
 
@@ -89,7 +85,7 @@ function isValidInRow(
   row: number,
   col: number,
   value: number,
-  size: number
+  size: number,
 ): boolean {
   for (let c = 0; c < size; c++) {
     if (c !== col && grid[row]?.[c] === value) {
@@ -107,7 +103,7 @@ function isValidInColumn(
   row: number,
   col: number,
   value: number,
-  size: number
+  size: number,
 ): boolean {
   for (let r = 0; r < size; r++) {
     if (r !== row && grid[r]?.[col] === value) {
@@ -125,7 +121,7 @@ function isValidInBox(
   row: number,
   col: number,
   value: number,
-  config: GridConfig
+  config: GridConfig,
 ): boolean {
   const boxStartRow = Math.floor(row / config.boxRows) * config.boxRows;
   const boxStartCol = Math.floor(col / config.boxCols) * config.boxCols;
@@ -148,7 +144,7 @@ export function validateMove(
   grid: number[][],
   row: number,
   col: number,
-  value: number
+  value: number,
 ): boolean {
   if (!isValidPosition(config, row, col) || !isValidValue(config, value)) {
     return false;
@@ -168,10 +164,7 @@ export function validateMove(
 /**
  * Calculate grid dimensions based on configuration and screen size
  */
-export function calculateDimensions(
-  config: GridConfig,
-  screenSize: ScreenSize
-): GridDimensions {
+export function calculateDimensions(config: GridConfig, screenSize: ScreenSize): GridDimensions {
   const cellSize = config.cellSize[screenSize];
   const gridSize = cellSize * config.size;
   const padding = Math.max(8, Math.floor(cellSize * 0.1));
@@ -230,11 +223,7 @@ export function validateConfig(config: GridConfig): boolean {
     return false;
   }
 
-  if (
-    config.cellSize.desktop <= 0 ||
-    config.cellSize.tablet <= 0 ||
-    config.cellSize.mobile <= 0
-  ) {
+  if (config.cellSize.desktop <= 0 || config.cellSize.tablet <= 0 || config.cellSize.mobile <= 0) {
     return false;
   }
 

@@ -1,7 +1,4 @@
-import {
-  LazyCornerDecoration,
-  LazyGeometricMesh,
-} from '../components/LazyGridComponents';
+import { LazyCornerDecoration, LazyGeometricMesh } from '../components/LazyGridComponents';
 import ModernSudokuApp from '../components/ModernSudokuApp';
 import styles from './page.module.css';
 import '../styles/modern-responsive.css';
@@ -23,10 +20,7 @@ export default function Home() {
       {/* Diagonal grid overlay for asymmetric composition */}
       <div className="diagonal-grid-overlay" />
 
-      <main
-        id="main-content"
-        className={`${styles.main} modern-grid-main with-corner-decorations`}
-      >
+      <main id="main-content" className={`${styles.main} modern-grid-main with-corner-decorations`}>
         <div className={styles.lcpHero} aria-hidden="true">
           <h1 className={styles.lcpHeroTitle}>Sudoku Challenge</h1>
         </div>

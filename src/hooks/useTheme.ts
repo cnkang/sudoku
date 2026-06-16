@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import type { ThemeConfig, ThemeContextValue } from '@/types';
 import {
   AccessibilityManager,
@@ -72,10 +66,7 @@ function storeHighContrast(enabled: boolean): void {
   if (globalThis.window === undefined) return;
 
   try {
-    globalThis.localStorage.setItem(
-      HIGH_CONTRAST_STORAGE_KEY,
-      enabled.toString()
-    );
+    globalThis.localStorage.setItem(HIGH_CONTRAST_STORAGE_KEY, enabled.toString());
   } catch {
     // Silently fail if storage is unavailable
   }

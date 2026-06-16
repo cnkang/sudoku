@@ -4,12 +4,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import {
-  type AchievementData,
-  type ProgressData,
-  type PWAStatus,
-  pwaManager,
-} from '@/utils/pwa';
+import { type AchievementData, type ProgressData, type PWAStatus, pwaManager } from '@/utils/pwa';
 
 export interface UsePWAReturn {
   status: PWAStatus;
@@ -22,7 +17,7 @@ export interface UsePWAReturn {
   showAchievementNotification: (
     title: string,
     body: string,
-    data?: Record<string, unknown>
+    data?: Record<string, unknown>,
   ) => Promise<void>;
   updateServiceWorker: () => Promise<void>;
   clearCaches: () => Promise<void>;
@@ -66,37 +61,26 @@ export function usePWA(): UsePWAReturn {
   }, []);
 
   // Cache progress data
-  const cacheProgress = useCallback(
-    async (data: ProgressData): Promise<void> => {
-      await pwaManager.cacheProgress(data);
-    },
-    []
-  );
+  const cacheProgress = useCallback(async (data: ProgressData): Promise<void> => {
+    await pwaManager.cacheProgress(data);
+  }, []);
 
   // Cache achievement data
-  const cacheAchievement = useCallback(
-    async (data: AchievementData): Promise<void> => {
-      await pwaManager.cacheAchievement(data);
-    },
-    []
-  );
+  const cacheAchievement = useCallback(async (data: AchievementData): Promise<void> => {
+    await pwaManager.cacheAchievement(data);
+  }, []);
 
   // Request notification permission
-  const requestNotificationPermission =
-    useCallback(async (): Promise<NotificationPermission> => {
-      return await pwaManager.requestNotificationPermission();
-    }, []);
+  const requestNotificationPermission = useCallback(async (): Promise<NotificationPermission> => {
+    return await pwaManager.requestNotificationPermission();
+  }, []);
 
   // Show achievement notification
   const showAchievementNotification = useCallback(
-    async (
-      title: string,
-      body: string,
-      data?: Record<string, unknown>
-    ): Promise<void> => {
+    async (title: string, body: string, data?: Record<string, unknown>): Promise<void> => {
       await pwaManager.showAchievementNotification(title, body, data);
     },
-    []
+    [],
   );
 
   // Update service worker
@@ -243,7 +227,7 @@ export function useBackgroundSync() {
         await cacheProgress(progressData);
       }
     },
-    [cacheProgress]
+    [cacheProgress],
   );
 
   const syncAchievement = useCallback(
@@ -269,7 +253,7 @@ export function useBackgroundSync() {
         await cacheAchievement(achievementData);
       }
     },
-    [cacheAchievement]
+    [cacheAchievement],
   );
 
   return {

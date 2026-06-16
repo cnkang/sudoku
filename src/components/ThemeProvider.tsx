@@ -14,7 +14,5 @@ type ThemeProviderProps = Readonly<{
 export default function ThemeProvider({ children }: ThemeProviderProps) {
   const themeValue = useTheme();
 
-  return (
-    <ThemeContext.Provider value={themeValue}>{children}</ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={themeValue}>{children}</ThemeContext.Provider>;
 }

@@ -1,5 +1,5 @@
 import { fireEvent, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vite-plus/test';
 import '@testing-library/jest-dom';
 
 /**
@@ -7,10 +7,7 @@ import '@testing-library/jest-dom';
  */
 
 // Generic rendering test suite
-export const createRenderingTests = (
-  componentName: string,
-  renderComponent: () => void
-) => {
+export const createRenderingTests = (componentName: string, renderComponent: () => void) => {
   describe('Rendering', () => {
     it(`should render ${componentName} without crashing`, () => {
       expect(() => renderComponent()).not.toThrow();
@@ -21,14 +18,14 @@ export const createRenderingTests = (
 // Generic disabled state test suite
 export const createDisabledStateTests = (
   renderComponent: (props: any) => void,
-  getInteractiveElements: () => HTMLElement[]
+  getInteractiveElements: () => HTMLElement[],
 ) => {
   describe('Disabled States', () => {
     it('should disable interactive elements when disabled prop is true', () => {
       renderComponent({ disabled: true });
 
       const elements = getInteractiveElements();
-      elements.forEach(element => {
+      elements.forEach((element) => {
         expect(element).toBeDisabled();
       });
     });
@@ -37,7 +34,7 @@ export const createDisabledStateTests = (
       renderComponent({ disabled: false });
 
       const elements = getInteractiveElements();
-      elements.forEach(element => {
+      elements.forEach((element) => {
         expect(element).not.toBeDisabled();
       });
     });
@@ -47,7 +44,7 @@ export const createDisabledStateTests = (
 // Generic loading state test suite
 export const createLoadingStateTests = (
   renderComponent: (props: any) => void,
-  expectedLoadingText: string = 'Loading...'
+  expectedLoadingText: string = 'Loading...',
 ) => {
   describe('Loading States', () => {
     it('should show loading state when isLoading is true', () => {
@@ -68,7 +65,7 @@ export const createUserInteractionTests = (
     name: string;
     trigger: () => void;
     expectation: () => void;
-  }>
+  }>,
 ) => {
   describe('User Interactions', () => {
     interactions.forEach(({ name, trigger, expectation }) => {
@@ -86,7 +83,7 @@ export const createAccessibilityTests = (
   accessibilityChecks: Array<{
     description: string;
     check: () => void;
-  }>
+  }>,
 ) => {
   describe('Accessibility', () => {
     beforeEach(() => {
@@ -105,7 +102,7 @@ export const createEdgeCaseTests = (
     description: string;
     setup: () => void;
     expectation: () => void;
-  }>
+  }>,
 ) => {
   describe('Edge Cases', () => {
     testCases.forEach(({ description, setup, expectation }) => {
@@ -125,7 +122,7 @@ export const createResponsiveTests = (
     width: number;
     height?: number;
     checks: () => void;
-  }>
+  }>,
 ) => {
   describe('Responsive Design', () => {
     viewports.forEach(({ name, width, height = 600, checks }) => {
@@ -160,18 +157,16 @@ export const createStateChangeTests = (
     updatedProps: any;
     expectation: () => void;
   }>,
-  renderComponent: (props: any) => { rerender: (props: any) => void }
+  renderComponent: (props: any) => { rerender: (props: any) => void },
 ) => {
   describe('State Changes', () => {
-    stateChanges.forEach(
-      ({ description, initialProps, updatedProps, expectation }) => {
-        it(description, () => {
-          const { rerender } = renderComponent(initialProps);
-          rerender(updatedProps);
-          expectation();
-        });
-      }
-    );
+    stateChanges.forEach(({ description, initialProps, updatedProps, expectation }) => {
+      it(description, () => {
+        const { rerender } = renderComponent(initialProps);
+        rerender(updatedProps);
+        expectation();
+      });
+    });
   });
 };
 
@@ -182,16 +177,14 @@ export const createKeyboardNavigationTests = (
     key: string;
     expectation: () => void;
     setup?: () => HTMLElement;
-  }>
+  }>,
 ) => {
   describe('Keyboard Navigation', () => {
     keyboardTests.forEach(({ key, expectation, setup }) => {
       it(`should handle ${key} key`, () => {
         renderComponent();
 
-        const element = setup
-          ? setup()
-          : (document.activeElement as HTMLElement);
+        const element = setup ? setup() : (document.activeElement as HTMLElement);
         fireEvent.keyDown(element, { key });
 
         expectation();

@@ -106,9 +106,7 @@ export function toLegacyPuzzleFormat(puzzle: SudokuPuzzle): LegacySudokuPuzzle {
 /**
  * Converts legacy puzzle format to modern format
  */
-export function fromLegacyPuzzleFormat(
-  legacyPuzzle: LegacySudokuPuzzle
-): SudokuPuzzle {
+export function fromLegacyPuzzleFormat(legacyPuzzle: LegacySudokuPuzzle): SudokuPuzzle {
   return {
     puzzle: legacyPuzzle.puzzle,
     solution: legacyPuzzle.solution,
@@ -119,9 +117,7 @@ export function fromLegacyPuzzleFormat(
 /**
  * Migrates legacy game state to modern multi-size format
  */
-export function migrateLegacyGameState(
-  legacyState: LegacyGameState
-): Partial<GameState> {
+export function migrateLegacyGameState(legacyState: LegacyGameState): Partial<GameState> {
   // Default to 9x9 grid for backward compatibility
   const gridConfig = legacyState.gridConfig || GRID_CONFIGS[9];
 
@@ -170,9 +166,7 @@ export function migrateLegacyGameState(
 /**
  * Migrates legacy preferences to modern format
  */
-export function migrateLegacyPreferences(
-  legacyPrefs: LegacyPreferences
-): MigratedPreferences {
+export function migrateLegacyPreferences(legacyPrefs: LegacyPreferences): MigratedPreferences {
   return {
     // Preserve existing preferences
     difficulty: legacyPrefs.difficulty || 1,
@@ -241,9 +235,7 @@ export function isLegacyGameState(state: unknown): state is LegacyGameState {
 /**
  * Checks if preferences are in legacy format
  */
-export function isLegacyPreferences(
-  prefs: unknown
-): prefs is LegacyPreferences {
+export function isLegacyPreferences(prefs: unknown): prefs is LegacyPreferences {
   return (
     typeof prefs === 'object' &&
     prefs !== null &&
@@ -280,13 +272,12 @@ export function validateLegacyPuzzleStructure(puzzle: number[][]): boolean {
  * Ensures API responses maintain backward compatibility
  */
 export function ensureBackwardCompatibleResponse(
-  response: Record<string, unknown> | null | undefined
+  response: Record<string, unknown> | null | undefined,
 ): Record<string, unknown> | null | undefined {
   if (!response) return response;
 
   // If it's a modern multi-size response, add legacy fields for compatibility
-  const gridSize =
-    typeof response.gridSize === 'number' ? response.gridSize : undefined;
+  const gridSize = typeof response.gridSize === 'number' ? response.gridSize : undefined;
   if (gridSize && gridSize !== 9) {
     // For non-9x9 grids, don't add legacy fields to avoid confusion
     return response;
@@ -304,12 +295,7 @@ export function ensureBackwardCompatibleResponse(
  * Migration utility for localStorage data
  */
 export const LegacyDataMigrator = {
-  LEGACY_KEYS: [
-    'sudoku-game-state',
-    'sudoku-preferences',
-    'sudoku-stats',
-    'sudoku-theme',
-  ],
+  LEGACY_KEYS: ['sudoku-game-state', 'sudoku-preferences', 'sudoku-stats', 'sudoku-theme'],
 
   /**
    * Checks if legacy data exists in localStorage
@@ -317,7 +303,7 @@ export const LegacyDataMigrator = {
   hasLegacyData(): boolean {
     if (globalThis.window === undefined) return false;
 
-    return LegacyDataMigrator.LEGACY_KEYS.some(key => {
+    return LegacyDataMigrator.LEGACY_KEYS.some((key) => {
       try {
         return localStorage.getItem(key) !== null;
       } catch {
@@ -340,10 +326,7 @@ export const LegacyDataMigrator = {
         const parsed = JSON.parse(legacyState);
         if (isLegacyGameState(parsed)) {
           const migratedState = migrateLegacyGameState(parsed);
-          localStorage.setItem(
-            'multi-sudoku-game-state',
-            JSON.stringify(migratedState)
-          );
+          localStorage.setItem('multi-sudoku-game-state', JSON.stringify(migratedState));
         }
       }
 
@@ -353,10 +336,7 @@ export const LegacyDataMigrator = {
         const parsed = JSON.parse(legacyPrefs);
         if (isLegacyPreferences(parsed)) {
           const migratedPrefs = migrateLegacyPreferences(parsed);
-          localStorage.setItem(
-            'multi-sudoku-preferences',
-            JSON.stringify(migratedPrefs)
-          );
+          localStorage.setItem('multi-sudoku-preferences', JSON.stringify(migratedPrefs));
         }
       }
 
@@ -381,10 +361,7 @@ export const LegacyDataMigrator = {
           '4x4': createEmptyProgressStats(),
           '6x6': createEmptyProgressStats(),
         };
-        localStorage.setItem(
-          'multi-sudoku-progress',
-          JSON.stringify(migratedProgress)
-        );
+        localStorage.setItem('multi-sudoku-progress', JSON.stringify(migratedProgress));
       }
 
       // Mark migration as complete
@@ -414,7 +391,7 @@ export const LegacyDataMigrator = {
     if (globalThis.window === undefined) return;
 
     try {
-      LegacyDataMigrator.LEGACY_KEYS.forEach(key => {
+      LegacyDataMigrator.LEGACY_KEYS.forEach((key) => {
         localStorage.removeItem(key);
       });
     } catch (error) {

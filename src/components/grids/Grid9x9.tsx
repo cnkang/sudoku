@@ -22,36 +22,21 @@ interface Grid9x9Props {
   };
 }
 
-const hasRowConflict = (
-  userInput: number[][],
-  row: number,
-  col: number,
-  value: number
-) => {
+const hasRowConflict = (userInput: number[][], row: number, col: number, value: number) => {
   for (let c = 0; c < 9; c++) {
     if (c !== col && userInput[row]?.[c] === value) return true;
   }
   return false;
 };
 
-const hasColumnConflict = (
-  userInput: number[][],
-  row: number,
-  col: number,
-  value: number
-) => {
+const hasColumnConflict = (userInput: number[][], row: number, col: number, value: number) => {
   for (let r = 0; r < 9; r++) {
     if (r !== row && userInput[r]?.[col] === value) return true;
   }
   return false;
 };
 
-const hasBoxConflict = (
-  userInput: number[][],
-  row: number,
-  col: number,
-  value: number
-) => {
+const hasBoxConflict = (userInput: number[][], row: number, col: number, value: number) => {
   const boxRow = Math.floor(row / 3) * 3;
   const boxCol = Math.floor(col / 3) * 3;
   for (let r = boxRow; r < boxRow + 3; r++) {
@@ -82,21 +67,17 @@ export const Grid9x9 = memo<Grid9x9Props>(
           hasBoxConflict(userInput, row, col, value)
         );
       },
-      [userInput]
+      [userInput],
     );
 
     const getSubGridBorders = useCallback(
       (row: number, col: number) => ({
         borderRight:
-          col === 2 || col === 5 || col === 8
-            ? '3px solid #1f2937'
-            : '1px solid #d1d5db',
+          col === 2 || col === 5 || col === 8 ? '3px solid #1f2937' : '1px solid #d1d5db',
         borderBottom:
-          row === 2 || row === 5 || row === 8
-            ? '3px solid #1f2937'
-            : '1px solid #d1d5db',
+          row === 2 || row === 5 || row === 8 ? '3px solid #1f2937' : '1px solid #d1d5db',
       }),
-      []
+      [],
     );
 
     return (
@@ -129,7 +110,7 @@ export const Grid9x9 = memo<Grid9x9Props>(
         useAriaInvalid={true}
       />
     );
-  }
+  },
 );
 
 Grid9x9.displayName = 'Grid9x9';

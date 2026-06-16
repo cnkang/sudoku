@@ -25,7 +25,7 @@ interface UseChildFriendlyErrorHandlingProps {
         icon: string;
         primary: boolean;
       }>;
-    }
+    },
   ) => void;
 }
 
@@ -84,7 +84,7 @@ export const useChildFriendlyErrorHandling = ({
         col?: number;
         value?: number;
         customMessage?: string;
-      }
+      },
     ) => {
       const customMessage = context?.customMessage;
       const error = createChildFriendlyError(errorType, {
@@ -101,7 +101,7 @@ export const useChildFriendlyErrorHandling = ({
         ...(context?.col === undefined ? {} : { col: context.col }),
       };
 
-      setErrorState(prev => {
+      setErrorState((prev) => {
         const updatedHistory = [...prev.errorHistory, newErrorEntry].slice(-10); // Keep last 10 errors
 
         // Detect struggle
@@ -121,14 +121,11 @@ export const useChildFriendlyErrorHandling = ({
 
         // Show encouragement if needed
         if (struggleResult.shouldShowEncouragement && gameState.childMode) {
-          const encouragement = getEncouragementMessage(
-            struggleResult.encouragementType,
-            {
-              gridSize: gameState.gridConfig.size,
-              childMode: gameState.childMode,
-              strugglingLevel: struggleResult.strugglingLevel,
-            }
-          );
+          const encouragement = getEncouragementMessage(struggleResult.encouragementType, {
+            gridSize: gameState.gridConfig.size,
+            childMode: gameState.childMode,
+            strugglingLevel: struggleResult.strugglingLevel,
+          });
 
           // Delay encouragement slightly to not overwhelm the user
           if (encouragementTimeoutRef.current) {
@@ -160,7 +157,7 @@ export const useChildFriendlyErrorHandling = ({
       const formattedMessage = formatErrorMessage(
         error,
         gameState.childMode ? 'child' : 'adult',
-        gameState.childMode
+        gameState.childMode,
       );
 
       onShowFeedback?.('error', formattedMessage, {
@@ -170,7 +167,7 @@ export const useChildFriendlyErrorHandling = ({
 
       return error;
     },
-    [gameState, onShowFeedback]
+    [gameState, onShowFeedback],
   );
 
   /**
@@ -178,13 +175,9 @@ export const useChildFriendlyErrorHandling = ({
    */
   const handleSuccess = useCallback(
     (context?: { row?: number; col?: number; isFirstSuccess?: boolean }) => {
-      setErrorState(prev => {
-        const resetType =
-          prev.struggleDetection.consecutiveErrors > 3 ? 'complete' : 'partial';
-        const updatedStruggleDetection = resetStruggleDetection(
-          prev.struggleDetection,
-          resetType
-        );
+      setErrorState((prev) => {
+        const resetType = prev.struggleDetection.consecutiveErrors > 3 ? 'complete' : 'partial';
+        const updatedStruggleDetection = resetStruggleDetection(prev.struggleDetection, resetType);
 
         return {
           ...prev,
@@ -205,7 +198,7 @@ export const useChildFriendlyErrorHandling = ({
         });
       }
     },
-    [gameState.childMode, gameState.gridConfig.size, onShowFeedback]
+    [gameState.childMode, gameState.gridConfig.size, onShowFeedback],
   );
 
   /**
@@ -224,7 +217,7 @@ export const useChildFriendlyErrorHandling = ({
         duration: encouragement.duration,
       });
     },
-    [gameState.childMode, gameState.gridConfig.size, onShowFeedback]
+    [gameState.childMode, gameState.gridConfig.size, onShowFeedback],
   );
 
   /**
@@ -251,7 +244,7 @@ export const useChildFriendlyErrorHandling = ({
 
         // If user spent more than 30 seconds on a cell, they might be struggling
         if (timeSpent > 30000 && gameState.childMode) {
-          setErrorState(prev => ({
+          setErrorState((prev) => ({
             ...prev,
             struggleDetection: {
               ...prev.struggleDetection,
@@ -263,14 +256,14 @@ export const useChildFriendlyErrorHandling = ({
         delete cellTimeTrackingRef.current[cellKey];
       }
     },
-    [gameState.childMode]
+    [gameState.childMode],
   );
 
   /**
    * Clear current error
    */
   const clearError = useCallback(() => {
-    setErrorState(prev => ({
+    setErrorState((prev) => ({
       ...prev,
       currentError: null,
     }));
@@ -313,7 +306,7 @@ export const useChildFriendlyErrorHandling = ({
 
       clearError();
     },
-    [dispatch, clearError]
+    [dispatch, clearError],
   );
 
   /**
@@ -347,7 +340,7 @@ export const useChildFriendlyErrorHandling = ({
         duration: encouragement.duration,
       });
 
-      setErrorState(prev => ({
+      setErrorState((prev) => ({
         ...prev,
         lastEncouragementTime: now,
       }));
@@ -367,11 +360,7 @@ export const useChildFriendlyErrorHandling = ({
     const interval = setInterval(checkForTimeBasedEncouragement, 30000); // Check every 30 seconds
 
     return () => clearInterval(interval);
-  }, [
-    gameState.childMode,
-    gameState.timerActive,
-    checkForTimeBasedEncouragement,
-  ]);
+  }, [gameState.childMode, gameState.timerActive, checkForTimeBasedEncouragement]);
 
   return {
     // State
@@ -389,9 +378,7 @@ export const useChildFriendlyErrorHandling = ({
     executeRecoveryAction,
 
     // Utils
-    formatErrorMessage: (
-      error: ChildFriendlyError,
-      audience?: 'child' | 'adult' | 'educator'
-    ) => formatErrorMessage(error, audience, gameState.childMode),
+    formatErrorMessage: (error: ChildFriendlyError, audience?: 'child' | 'adult' | 'educator') =>
+      formatErrorMessage(error, audience, gameState.childMode),
   };
 };

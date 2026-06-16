@@ -1,5 +1,5 @@
 import * as fc from 'fast-check';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import { getConfig } from '@/utils/gridConfig';
 import { generateSudokuPuzzle } from '../sudokuGenerator';
 
@@ -11,24 +11,14 @@ type TestConfig = {
   maxValue: number;
 };
 
-const hasRowValue = (
-  board: number[][],
-  row: number,
-  value: number,
-  size: number
-) => {
+const hasRowValue = (board: number[][], row: number, value: number, size: number) => {
   for (let c = 0; c < size; c++) {
     if (board[row]?.[c] === value) return true;
   }
   return false;
 };
 
-const hasColumnValue = (
-  board: number[][],
-  col: number,
-  value: number,
-  size: number
-) => {
+const hasColumnValue = (board: number[][], col: number, value: number, size: number) => {
   for (let r = 0; r < size; r++) {
     if (board[r]?.[col] === value) return true;
   }
@@ -40,7 +30,7 @@ const hasBoxValue = (
   row: number,
   col: number,
   value: number,
-  config: TestConfig
+  config: TestConfig,
 ) => {
   const boxStartRow = Math.floor(row / config.boxRows) * config.boxRows;
   const boxStartCol = Math.floor(col / config.boxCols) * config.boxCols;
@@ -58,16 +48,13 @@ const isValidPlacement = (
   row: number,
   col: number,
   value: number,
-  config: TestConfig
+  config: TestConfig,
 ) =>
   !hasRowValue(board, row, value, config.size) &&
   !hasColumnValue(board, col, value, config.size) &&
   !hasBoxValue(board, row, col, value, config);
 
-const findEmptyCell = (
-  board: number[][],
-  size: number
-): [number, number] | null => {
+const findEmptyCell = (board: number[][], size: number): [number, number] | null => {
   for (let row = 0; row < size; row++) {
     for (let col = 0; col < size; col++) {
       if (board[row]?.[col] === 0) {
@@ -83,17 +70,12 @@ function countSolutions(board: number[][], config: TestConfig): number {
 
   const shouldStopAfterSolution = (board: number[][]) => {
     if (solutions.length === 0) {
-      solutions.push(board.map(row => row.slice()));
+      solutions.push(board.map((row) => row.slice()));
     }
     return solutions.length >= 2;
   };
 
-  const tryPlacement = (
-    board: number[][],
-    row: number,
-    col: number,
-    num: number
-  ): boolean => {
+  const tryPlacement = (board: number[][], row: number, col: number, num: number): boolean => {
     if (!isValidPlacement(board, row, col, num, config)) {
       return false;
     }
@@ -131,7 +113,7 @@ function countSolutions(board: number[][], config: TestConfig): number {
     return tryNumbers(board, row, col);
   }
 
-  const boardCopy = board.map(row => row.slice());
+  const boardCopy = board.map((row) => row.slice());
   solve(boardCopy);
   return solutions.length;
 }
@@ -140,12 +122,9 @@ const assertUniqueSolutionFor4x4 = async (): Promise<void> =>
   fc.assert(
     fc.asyncProperty(
       fc.integer({ min: 1, max: 3 }), // Use lower difficulty for faster testing
-      async difficulty => {
+      async (difficulty) => {
         const config = getConfig(4);
-        const adjustedDifficulty = Math.min(
-          difficulty,
-          config.difficultyLevels
-        );
+        const adjustedDifficulty = Math.min(difficulty, config.difficultyLevels);
 
         const { puzzle } = await generateSudokuPuzzle(adjustedDifficulty, 4);
 
@@ -154,9 +133,9 @@ const assertUniqueSolutionFor4x4 = async (): Promise<void> =>
 
         // The puzzle should have exactly one solution
         expect(solutionCount).toBe(1);
-      }
+      },
     ),
-    { numRuns: 5 } // Very few runs for this expensive test
+    { numRuns: 5 }, // Very few runs for this expensive test
   );
 
 const assertValidPuzzleStructure = async (): Promise<void> =>
@@ -166,15 +145,9 @@ const assertValidPuzzleStructure = async (): Promise<void> =>
       fc.integer({ min: 1, max: 3 }),
       async (gridSize, difficulty) => {
         const config = getConfig(gridSize);
-        const adjustedDifficulty = Math.min(
-          difficulty,
-          config.difficultyLevels
-        );
+        const adjustedDifficulty = Math.min(difficulty, config.difficultyLevels);
 
-        const { puzzle, solution } = await generateSudokuPuzzle(
-          adjustedDifficulty,
-          gridSize
-        );
+        const { puzzle, solution } = await generateSudokuPuzzle(adjustedDifficulty, gridSize);
 
         // Check puzzle dimensions
         expect(puzzle).toHaveLength(config.size);
@@ -194,17 +167,13 @@ const assertValidPuzzleStructure = async (): Promise<void> =>
         }
 
         // Check that puzzle has fewer filled cells than solution
-        const puzzleFilledCells = puzzle
-          .flat()
-          .filter(cell => cell !== 0).length;
-        const solutionFilledCells = solution
-          .flat()
-          .filter(cell => cell !== 0).length;
+        const puzzleFilledCells = puzzle.flat().filter((cell) => cell !== 0).length;
+        const solutionFilledCells = solution.flat().filter((cell) => cell !== 0).length;
         expect(puzzleFilledCells).toBeLessThan(solutionFilledCells);
         expect(solutionFilledCells).toBe(config.size * config.size);
-      }
+      },
     ),
-    { numRuns: 20 }
+    { numRuns: 20 },
   );
 
 const assertClueCountsWithinDifficultyRange = async (): Promise<void> =>
@@ -214,25 +183,19 @@ const assertClueCountsWithinDifficultyRange = async (): Promise<void> =>
       fc.integer({ min: 1, max: 5 }),
       async (gridSize, difficulty) => {
         const config = getConfig(gridSize);
-        const adjustedDifficulty = Math.min(
-          difficulty,
-          config.difficultyLevels
-        );
+        const adjustedDifficulty = Math.min(difficulty, config.difficultyLevels);
 
-        const { puzzle } = await generateSudokuPuzzle(
-          adjustedDifficulty,
-          gridSize
-        );
+        const { puzzle } = await generateSudokuPuzzle(adjustedDifficulty, gridSize);
 
         // Count filled cells (clues)
-        const clueCount = puzzle.flat().filter(cell => cell !== 0).length;
+        const clueCount = puzzle.flat().filter((cell) => cell !== 0).length;
 
         // The clue count should be within the valid range for this grid size
         expect(clueCount).toBeGreaterThanOrEqual(config.minClues);
         expect(clueCount).toBeLessThanOrEqual(config.maxClues);
-      }
+      },
     ),
-    { numRuns: 15 }
+    { numRuns: 15 },
   );
 
 describe('Sudoku Generator Property-Based Tests', () => {

@@ -8,8 +8,7 @@ const getCrypto = (): Crypto | null => {
   }
 
   const crypto =
-    globalThis.crypto ??
-    (globalThis as typeof globalThis & { msCrypto?: Crypto }).msCrypto;
+    globalThis.crypto ?? (globalThis as typeof globalThis & { msCrypto?: Crypto }).msCrypto;
 
   if (crypto && typeof crypto.getRandomValues === 'function') {
     return crypto;
@@ -72,10 +71,7 @@ export const secureRandomChance = (threshold: number): boolean => {
 };
 
 export const secureRandomId = (): string => {
-  if (
-    typeof globalThis !== 'undefined' &&
-    typeof globalThis.crypto?.randomUUID === 'function'
-  ) {
+  if (typeof globalThis !== 'undefined' && typeof globalThis.crypto?.randomUUID === 'function') {
     return globalThis.crypto.randomUUID();
   }
 

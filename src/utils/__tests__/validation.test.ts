@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import { GridConfigManager } from '../gridConfig';
 import {
   detectConflicts,
@@ -12,9 +12,7 @@ import {
 } from '../validation';
 
 const createGrid = (size: number, fillValue = 0): number[][] =>
-  Array.from({ length: size }, () =>
-    Array.from({ length: size }, () => fillValue)
-  );
+  Array.from({ length: size }, () => Array.from({ length: size }, () => fillValue));
 
 describe('validation utilities', () => {
   describe('VALIDATION_CONSTANTS', () => {
@@ -23,9 +21,7 @@ describe('validation utilities', () => {
       expect(VALIDATION_CONSTANTS.MAX_DIFFICULTY).toBe(10);
       expect(VALIDATION_CONSTANTS.SUDOKU_SIZE).toBe(9);
       expect(VALIDATION_CONSTANTS.BOX_SIZE).toBe(3);
-      expect(VALIDATION_CONSTANTS.VALID_SUDOKU_VALUES).toEqual([
-        1, 2, 3, 4, 5, 6, 7, 8, 9,
-      ]);
+      expect(VALIDATION_CONSTANTS.VALID_SUDOKU_VALUES).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
     });
   });
 
@@ -44,56 +40,38 @@ describe('validation utilities', () => {
 
     it('should throw error for difficulty below minimum', () => {
       expect(() => validateDifficulty(0)).toThrow(
-        'Invalid difficulty level. Must be between 1 and 10.'
+        'Invalid difficulty level. Must be between 1 and 10.',
       );
       expect(() => validateDifficulty(-1)).toThrow(
-        'Invalid difficulty level. Must be between 1 and 10.'
+        'Invalid difficulty level. Must be between 1 and 10.',
       );
     });
 
     it('should throw error for difficulty above maximum', () => {
       expect(() => validateDifficulty(11)).toThrow(
-        'Invalid difficulty level. Must be between 1 and 10.'
+        'Invalid difficulty level. Must be between 1 and 10.',
       );
       expect(() => validateDifficulty(100)).toThrow(
-        'Invalid difficulty level. Must be between 1 and 10.'
+        'Invalid difficulty level. Must be between 1 and 10.',
       );
     });
 
     it('should throw error for non-numeric strings', () => {
-      expect(() => validateDifficulty('abc')).toThrow(
-        'Difficulty must be a positive integer.'
-      );
-      expect(() => validateDifficulty('1.5')).toThrow(
-        'Difficulty must be a positive integer.'
-      );
-      expect(() => validateDifficulty('-1')).toThrow(
-        'Difficulty must be a positive integer.'
-      );
-      expect(() => validateDifficulty('')).toThrow(
-        'Difficulty must be a positive integer.'
-      );
+      expect(() => validateDifficulty('abc')).toThrow('Difficulty must be a positive integer.');
+      expect(() => validateDifficulty('1.5')).toThrow('Difficulty must be a positive integer.');
+      expect(() => validateDifficulty('-1')).toThrow('Difficulty must be a positive integer.');
+      expect(() => validateDifficulty('')).toThrow('Difficulty must be a positive integer.');
     });
 
     it('should throw error for invalid types', () => {
-      expect(() => validateDifficulty(null)).toThrow(
-        'Difficulty must be a valid number.'
-      );
-      expect(() => validateDifficulty(undefined)).toThrow(
-        'Difficulty must be a valid number.'
-      );
-      expect(() => validateDifficulty({})).toThrow(
-        'Difficulty must be a valid number.'
-      );
-      expect(() => validateDifficulty([])).toThrow(
-        'Difficulty must be a valid number.'
-      );
+      expect(() => validateDifficulty(null)).toThrow('Difficulty must be a valid number.');
+      expect(() => validateDifficulty(undefined)).toThrow('Difficulty must be a valid number.');
+      expect(() => validateDifficulty({})).toThrow('Difficulty must be a valid number.');
+      expect(() => validateDifficulty([])).toThrow('Difficulty must be a valid number.');
     });
 
     it('should throw error for NaN', () => {
-      expect(() => validateDifficulty(Number.NaN)).toThrow(
-        'Difficulty must be a valid number.'
-      );
+      expect(() => validateDifficulty(Number.NaN)).toThrow('Difficulty must be a valid number.');
     });
 
     it('should accept decimal numbers within valid range', () => {
@@ -115,43 +93,43 @@ describe('validation utilities', () => {
 
     it('should throw error for invalid row coordinates', () => {
       expect(() => validateCellCoordinates(-1, 0)).toThrow(
-        'Invalid row: -1. Must be between 0 and 8.'
+        'Invalid row: -1. Must be between 0 and 8.',
       );
       expect(() => validateCellCoordinates(9, 0)).toThrow(
-        'Invalid row: 9. Must be between 0 and 8.'
+        'Invalid row: 9. Must be between 0 and 8.',
       );
       expect(() => validateCellCoordinates(100, 0)).toThrow(
-        'Invalid row: 100. Must be between 0 and 8.'
+        'Invalid row: 100. Must be between 0 and 8.',
       );
     });
 
     it('should throw error for invalid column coordinates', () => {
       expect(() => validateCellCoordinates(0, -1)).toThrow(
-        'Invalid column: -1. Must be between 0 and 8.'
+        'Invalid column: -1. Must be between 0 and 8.',
       );
       expect(() => validateCellCoordinates(0, 9)).toThrow(
-        'Invalid column: 9. Must be between 0 and 8.'
+        'Invalid column: 9. Must be between 0 and 8.',
       );
       expect(() => validateCellCoordinates(0, 100)).toThrow(
-        'Invalid column: 100. Must be between 0 and 8.'
+        'Invalid column: 100. Must be between 0 and 8.',
       );
     });
 
     it('should throw error for non-integer coordinates', () => {
       expect(() => validateCellCoordinates(1.5, 0)).toThrow(
-        'Invalid row: 1.5. Must be between 0 and 8.'
+        'Invalid row: 1.5. Must be between 0 and 8.',
       );
       expect(() => validateCellCoordinates(0, 2.7)).toThrow(
-        'Invalid column: 2.7. Must be between 0 and 8.'
+        'Invalid column: 2.7. Must be between 0 and 8.',
       );
     });
 
     it('should throw error for both invalid coordinates', () => {
       expect(() => validateCellCoordinates(-1, -1)).toThrow(
-        'Invalid row: -1. Must be between 0 and 8.'
+        'Invalid row: -1. Must be between 0 and 8.',
       );
       expect(() => validateCellCoordinates(10, 10)).toThrow(
-        'Invalid row: 10. Must be between 0 and 8.'
+        'Invalid row: 10. Must be between 0 and 8.',
       );
     });
   });
@@ -166,22 +144,22 @@ describe('validation utilities', () => {
 
     it('should throw error for invalid cell values', () => {
       expect(() => validateCellValue(-1)).toThrow(
-        'Invalid cell value: -1. Must be 0 or between 1 and 9.'
+        'Invalid cell value: -1. Must be 0 or between 1 and 9.',
       );
       expect(() => validateCellValue(10)).toThrow(
-        'Invalid cell value: 10. Must be 0 or between 1 and 9.'
+        'Invalid cell value: 10. Must be 0 or between 1 and 9.',
       );
       expect(() => validateCellValue(100)).toThrow(
-        'Invalid cell value: 100. Must be 0 or between 1 and 9.'
+        'Invalid cell value: 100. Must be 0 or between 1 and 9.',
       );
     });
 
     it('should throw error for non-integer values', () => {
       expect(() => validateCellValue(1.5)).toThrow(
-        'Invalid cell value: 1.5. Must be 0 or between 1 and 9.'
+        'Invalid cell value: 1.5. Must be 0 or between 1 and 9.',
       );
       expect(() => validateCellValue(0.5)).toThrow(
-        'Invalid cell value: 0.5. Must be 0 or between 1 and 9.'
+        'Invalid cell value: 0.5. Must be 0 or between 1 and 9.',
       );
     });
   });
@@ -214,34 +192,28 @@ describe('validation utilities', () => {
     });
 
     it('should throw error for non-array input', () => {
-      expect(() => validateSudokuGrid(null as any)).toThrow(
-        'Invalid grid: must be a 9x9 array.'
-      );
+      expect(() => validateSudokuGrid(null as any)).toThrow('Invalid grid: must be a 9x9 array.');
       expect(() => validateSudokuGrid(undefined as any)).toThrow(
-        'Invalid grid: must be a 9x9 array.'
+        'Invalid grid: must be a 9x9 array.',
       );
       expect(() => validateSudokuGrid('not an array' as any)).toThrow(
-        'Invalid grid: must be a 9x9 array.'
+        'Invalid grid: must be a 9x9 array.',
       );
     });
 
     it('should throw error for wrong grid size', () => {
       const smallGrid = createGrid(8);
-      expect(() => validateSudokuGrid(smallGrid)).toThrow(
-        'Invalid grid: must be a 9x9 array.'
-      );
+      expect(() => validateSudokuGrid(smallGrid)).toThrow('Invalid grid: must be a 9x9 array.');
 
       const largeGrid = createGrid(10);
-      expect(() => validateSudokuGrid(largeGrid)).toThrow(
-        'Invalid grid: must be a 9x9 array.'
-      );
+      expect(() => validateSudokuGrid(largeGrid)).toThrow('Invalid grid: must be a 9x9 array.');
     });
 
     it('should throw error for invalid row structure', () => {
       const grid = createValidGrid();
       grid[0] = null as any;
       expect(() => validateSudokuGrid(grid)).toThrow(
-        'Invalid row 0: must contain exactly 9 elements.'
+        'Invalid row 0: must contain exactly 9 elements.',
       );
     });
 
@@ -249,13 +221,13 @@ describe('validation utilities', () => {
       const grid1 = createValidGrid();
       grid1[0] = Array.from({ length: 8 }, () => 0); // Too short
       expect(() => validateSudokuGrid(grid1)).toThrow(
-        'Invalid row 0: must contain exactly 9 elements.'
+        'Invalid row 0: must contain exactly 9 elements.',
       );
 
       const grid2 = createValidGrid();
       grid2[1] = Array.from({ length: 10 }, () => 0); // Too long
       expect(() => validateSudokuGrid(grid2)).toThrow(
-        'Invalid row 1: must contain exactly 9 elements.'
+        'Invalid row 1: must contain exactly 9 elements.',
       );
     });
 
@@ -263,12 +235,12 @@ describe('validation utilities', () => {
       const grid = createValidGrid();
       grid[0][0] = -1;
       expect(() => validateSudokuGrid(grid)).toThrow(
-        'Invalid cell at [0, 0]: Invalid cell value: -1. Must be 0 or between 1 and 9.'
+        'Invalid cell at [0, 0]: Invalid cell value: -1. Must be 0 or between 1 and 9.',
       );
 
       grid[0][0] = 10;
       expect(() => validateSudokuGrid(grid)).toThrow(
-        'Invalid cell at [0, 0]: Invalid cell value: 10. Must be 0 or between 1 and 9.'
+        'Invalid cell at [0, 0]: Invalid cell value: 10. Must be 0 or between 1 and 9.',
       );
     });
 
@@ -276,7 +248,7 @@ describe('validation utilities', () => {
       const grid = createValidGrid();
       grid[2][3] = 1.5;
       expect(() => validateSudokuGrid(grid)).toThrow(
-        'Invalid cell at [2, 3]: Invalid cell value: 1.5. Must be 0 or between 1 and 9.'
+        'Invalid cell at [2, 3]: Invalid cell value: 1.5. Must be 0 or between 1 and 9.',
       );
     });
   });
@@ -290,37 +262,37 @@ describe('validation utilities', () => {
 
     it('should throw error for invalid coordinates', () => {
       expect(() => validateInputChange(-1, 0, 5)).toThrow(
-        'Invalid row: -1. Must be between 0 and 8.'
+        'Invalid row: -1. Must be between 0 and 8.',
       );
       expect(() => validateInputChange(0, -1, 5)).toThrow(
-        'Invalid column: -1. Must be between 0 and 8.'
+        'Invalid column: -1. Must be between 0 and 8.',
       );
       expect(() => validateInputChange(9, 0, 5)).toThrow(
-        'Invalid row: 9. Must be between 0 and 8.'
+        'Invalid row: 9. Must be between 0 and 8.',
       );
       expect(() => validateInputChange(0, 9, 5)).toThrow(
-        'Invalid column: 9. Must be between 0 and 8.'
+        'Invalid column: 9. Must be between 0 and 8.',
       );
     });
 
     it('should throw error for invalid cell values', () => {
       expect(() => validateInputChange(0, 0, -1)).toThrow(
-        'Invalid cell value: -1. Must be 0 or between 1 and 9.'
+        'Invalid cell value: -1. Must be 0 or between 1 and 9.',
       );
       expect(() => validateInputChange(0, 0, 10)).toThrow(
-        'Invalid cell value: 10. Must be 0 or between 1 and 9.'
+        'Invalid cell value: 10. Must be 0 or between 1 and 9.',
       );
     });
 
     it('should throw error for non-integer inputs', () => {
       expect(() => validateInputChange(1.5, 0, 5)).toThrow(
-        'Invalid row: 1.5. Must be between 0 and 8.'
+        'Invalid row: 1.5. Must be between 0 and 8.',
       );
       expect(() => validateInputChange(0, 2.7, 5)).toThrow(
-        'Invalid column: 2.7. Must be between 0 and 8.'
+        'Invalid column: 2.7. Must be between 0 and 8.',
       );
       expect(() => validateInputChange(0, 0, 3.14)).toThrow(
-        'Invalid cell value: 3.14. Must be 0 or between 1 and 9.'
+        'Invalid cell value: 3.14. Must be 0 or between 1 and 9.',
       );
     });
   });
@@ -354,10 +326,10 @@ describe('multi-size validation functions', () => {
       expect(() => validateCellCoordinates(0, 0, config)).not.toThrow();
       expect(() => validateCellCoordinates(3, 3, config)).not.toThrow();
       expect(() => validateCellCoordinates(4, 0, config)).toThrow(
-        'Invalid row: 4. Must be between 0 and 3.'
+        'Invalid row: 4. Must be between 0 and 3.',
       );
       expect(() => validateCellCoordinates(0, 4, config)).toThrow(
-        'Invalid column: 4. Must be between 0 and 3.'
+        'Invalid column: 4. Must be between 0 and 3.',
       );
     });
 
@@ -366,7 +338,7 @@ describe('multi-size validation functions', () => {
       expect(() => validateCellCoordinates(0, 0, config)).not.toThrow();
       expect(() => validateCellCoordinates(5, 5, config)).not.toThrow();
       expect(() => validateCellCoordinates(6, 0, config)).toThrow(
-        'Invalid row: 6. Must be between 0 and 5.'
+        'Invalid row: 6. Must be between 0 and 5.',
       );
     });
   });
@@ -377,7 +349,7 @@ describe('multi-size validation functions', () => {
       expect(() => validateCellValue(0, config)).not.toThrow();
       expect(() => validateCellValue(4, config)).not.toThrow();
       expect(() => validateCellValue(5, config)).toThrow(
-        'Invalid cell value: 5. Must be 0 or between 1 and 4.'
+        'Invalid cell value: 5. Must be 0 or between 1 and 4.',
       );
     });
 
@@ -385,7 +357,7 @@ describe('multi-size validation functions', () => {
       const config = GridConfigManager.getConfig(6);
       expect(() => validateCellValue(6, config)).not.toThrow();
       expect(() => validateCellValue(7, config)).toThrow(
-        'Invalid cell value: 7. Must be 0 or between 1 and 6.'
+        'Invalid cell value: 7. Must be 0 or between 1 and 6.',
       );
     });
   });
@@ -398,7 +370,7 @@ describe('multi-size validation functions', () => {
 
       const invalidGrid = createGrid(3);
       expect(() => validateSudokuGrid(invalidGrid, config)).toThrow(
-        'Invalid grid: must be a 4x4 array.'
+        'Invalid grid: must be a 4x4 array.',
       );
     });
   });
@@ -408,7 +380,7 @@ describe('multi-size validation functions', () => {
       const config4 = GridConfigManager.getConfig(4);
       expect(() => validateInputChange(0, 0, 4, config4)).not.toThrow();
       expect(() => validateInputChange(0, 0, 5, config4)).toThrow(
-        'Invalid cell value: 5. Must be 0 or between 1 and 4.'
+        'Invalid cell value: 5. Must be 0 or between 1 and 4.',
       );
     });
   });

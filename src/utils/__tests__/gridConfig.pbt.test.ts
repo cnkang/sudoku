@@ -1,5 +1,5 @@
 import fc from 'fast-check';
-import { describe, it } from 'vitest';
+import { describe, it } from 'vite-plus/test';
 import { GridConfigManager } from '@/utils/gridConfig';
 
 const createEmptyGrid = (size: number) =>
@@ -7,7 +7,7 @@ const createEmptyGrid = (size: number) =>
 
 const isDimensionsMatch = (
   config: { size: number; maxValue: number; boxRows: number; boxCols: number },
-  gridSize: number
+  gridSize: number,
 ) =>
   config.size === gridSize &&
   config.maxValue === gridSize &&
@@ -16,25 +16,18 @@ const isDimensionsMatch = (
 const isValidCoords = (row: number, col: number, size: number) =>
   row >= 0 && row < size && col >= 0 && col < size;
 
-const isValidValue = (value: number, maxValue: number) =>
-  value >= 0 && value <= maxValue;
+const isValidValue = (value: number, maxValue: number) => value >= 0 && value <= maxValue;
 
 const validateMoveOutcome = (
   config: { size: number; maxValue: number },
   emptyGrid: number[][],
   row: number,
   col: number,
-  value: number
+  value: number,
 ) => {
   const validCoords = isValidCoords(row, col, config.size);
   const validValue = isValidValue(value, config.maxValue);
-  const moveResult = GridConfigManager.validateMove(
-    config,
-    emptyGrid,
-    row,
-    col,
-    value
-  );
+  const moveResult = GridConfigManager.validateMove(config, emptyGrid, row, col, value);
 
   if (!validCoords || !validValue) {
     return moveResult === false;
@@ -47,7 +40,7 @@ const validateGridConfigConsistency = (
   gridSize: number,
   row: number,
   col: number,
-  value: number
+  value: number,
 ) => {
   const config = GridConfigManager.getConfig(gridSize);
   if (!GridConfigManager.validateConfig(config)) {
@@ -78,9 +71,9 @@ describe('GridConfig Property-Based Tests', () => {
         fc.integer({ min: 0, max: 20 }), // value
         (gridSize, row, col, value) => {
           return validateGridConfigConsistency(gridSize, row, col, value);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });

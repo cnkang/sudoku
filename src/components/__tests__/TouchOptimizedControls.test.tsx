@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import '@testing-library/jest-dom/vitest';
 import { GRID_CONFIGS } from '../../utils/gridConfig';
 import type { TouchOptimizedControlsProps } from '../TouchOptimizedControls';
@@ -52,15 +52,9 @@ describe('TouchOptimizedControls', () => {
     it('renders all control buttons', () => {
       render(<TouchOptimizedControls {...defaultProps} />);
 
-      expect(
-        screen.getByRole('button', { name: /magic wand hint/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /get encouragement/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /celebrate success/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /magic wand hint/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /get encouragement/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /celebrate success/i })).toBeInTheDocument();
     });
 
     it('displays hints remaining counter', () => {
@@ -95,12 +89,7 @@ describe('TouchOptimizedControls', () => {
         },
       };
 
-      render(
-        <TouchOptimizedControls
-          {...defaultProps}
-          gridConfig={gridConfigWithLargeTargets}
-        />
-      );
+      render(<TouchOptimizedControls {...defaultProps} gridConfig={gridConfigWithLargeTargets} />);
 
       const container = screen.getByTestId('touch-optimized-controls');
       expect(container.className).toContain('extraLargeTargets');
@@ -208,7 +197,7 @@ describe('TouchOptimizedControls', () => {
       const message = screen.getByTestId('encouragement-message');
       expect(message).toBeInTheDocument();
       expect(message).toHaveTextContent(
-        /you're doing great|almost there|fantastic work|you're a sudoku star|keep up the amazing work|you're getting better|what a smart cookie|you're on fire/i
+        /you're doing great|almost there|fantastic work|you're a sudoku star|keep up the amazing work|you're getting better|what a smart cookie|you're on fire/i,
       );
     });
 
@@ -246,9 +235,7 @@ describe('TouchOptimizedControls', () => {
         vi.advanceTimersByTime(3000);
       });
 
-      expect(
-        screen.queryByTestId('encouragement-message')
-      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId('encouragement-message')).not.toBeInTheDocument();
     });
   });
 
@@ -309,22 +296,16 @@ describe('TouchOptimizedControls', () => {
       render(<TouchOptimizedControls {...defaultProps} />);
 
       expect(
-        screen.getByRole('button', { name: /magic wand hint \(5 remaining\)/i })
+        screen.getByRole('button', { name: /magic wand hint \(5 remaining\)/i }),
       ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /get encouragement/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /celebrate success/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /get encouragement/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /celebrate success/i })).toBeInTheDocument();
     });
 
     it('includes screen reader descriptions', () => {
       render(<TouchOptimizedControls {...defaultProps} />);
 
-      expect(
-        screen.getByText(/click the magic wand to get a helpful hint/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/click the magic wand to get a helpful hint/i)).toBeInTheDocument();
     });
 
     it('announces actions to screen readers', async () => {
@@ -339,9 +320,7 @@ describe('TouchOptimizedControls', () => {
       });
 
       // Check for screen reader announcement
-      const announcement = screen.getByText(
-        /magic wand activated with sparkles/i
-      );
+      const announcement = screen.getByText(/magic wand activated with sparkles/i);
       expect(announcement).toBeInTheDocument();
     });
 
@@ -367,7 +346,7 @@ describe('TouchOptimizedControls', () => {
       render(<TouchOptimizedControls {...defaultProps} />);
 
       const buttons = screen.getAllByRole('button');
-      buttons.forEach(button => {
+      buttons.forEach((button) => {
         // Check that buttons have appropriate CSS classes for touch targets
         expect(button.className).toMatch(/Button/);
       });
@@ -404,9 +383,7 @@ describe('TouchOptimizedControls', () => {
       render(<TouchOptimizedControls {...propsWithoutGestures} />);
 
       // Should render without errors
-      expect(
-        screen.getByTestId('touch-optimized-controls')
-      ).toBeInTheDocument();
+      expect(screen.getByTestId('touch-optimized-controls')).toBeInTheDocument();
     });
 
     it('handles error haptic feedback type', async () => {

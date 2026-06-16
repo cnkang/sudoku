@@ -68,7 +68,7 @@ export function logSecurityEvent(event: SecurityEvent): void {
         level: logLevel,
         category: 'security',
         ...event,
-      })
+      }),
     );
   } else {
     // Readable logging for development
@@ -85,9 +85,7 @@ export function logSecurityEvent(event: SecurityEvent): void {
 /**
  * Gets console log level based on severity
  */
-function getLogLevel(
-  severity: SecurityEventSeverity
-): 'log' | 'warn' | 'error' {
+function getLogLevel(severity: SecurityEventSeverity): 'log' | 'warn' | 'error' {
   switch (severity) {
     case 'low':
       return 'log';
@@ -127,14 +125,11 @@ function sendToMonitoringService(_event: SecurityEvent): void {
  * @param type - Optional filter by event type
  * @returns Array of security events
  */
-export function getSecurityEvents(
-  limit = 100,
-  type?: SecurityEventType
-): SecurityEvent[] {
+export function getSecurityEvents(limit = 100, type?: SecurityEventType): SecurityEvent[] {
   let events = securityEventLog;
 
   if (type) {
-    events = events.filter(event => event.type === type);
+    events = events.filter((event) => event.type === type);
   }
 
   return events.slice(-limit);
@@ -160,8 +155,7 @@ export function getSecurityEventStats(): {
 
   for (const event of securityEventLog) {
     stats.byType[event.type] = (stats.byType[event.type] || 0) + 1;
-    stats.bySeverity[event.severity] =
-      (stats.bySeverity[event.severity] || 0) + 1;
+    stats.bySeverity[event.severity] = (stats.bySeverity[event.severity] || 0) + 1;
     stats.byAction[event.action] = (stats.byAction[event.action] || 0) + 1;
   }
 

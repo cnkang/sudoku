@@ -2,10 +2,7 @@ import React, { memo } from 'react';
 import { getConfig } from '@/utils/gridConfig';
 import type { DifficultySelectProps } from '../types';
 
-const DIFFICULTY_LABEL_RANGES: Record<
-  4 | 6 | 9,
-  Array<{ max: number; label: string }>
-> = {
+const DIFFICULTY_LABEL_RANGES: Record<4 | 6 | 9, Array<{ max: number; label: string }>> = {
   4: [
     { max: 2, label: 'Easy' },
     { max: 3, label: 'Medium' },
@@ -57,10 +54,7 @@ const DifficultySelector: React.FC<DifficultySelectProps> = memo(
       const value = Number.parseInt(e.target.value, 10);
       if (!Number.isNaN(value)) {
         // Apply clamping before calling onChange
-        const clampedValue = Math.max(
-          minDifficulty,
-          Math.min(maxDifficulty, value)
-        );
+        const clampedValue = Math.max(minDifficulty, Math.min(maxDifficulty, value));
         onChange(clampedValue);
       }
     };
@@ -68,7 +62,7 @@ const DifficultySelector: React.FC<DifficultySelectProps> = memo(
     const getDifficultyLabel = (level: number): string => {
       const pool = DIFFICULTY_LABEL_RANGES[gridSizeKey];
       const fallback = pool.at(-1) ?? { max: Infinity, label: 'Expert' };
-      const foundRange = pool.find(range => level <= range.max);
+      const foundRange = pool.find((range) => level <= range.max);
       const range = foundRange ?? fallback;
       return `${level} (${range.label})`;
     };
@@ -196,7 +190,7 @@ const DifficultySelector: React.FC<DifficultySelectProps> = memo(
         `}</style>
       </div>
     );
-  }
+  },
 );
 
 DifficultySelector.displayName = 'DifficultySelector';

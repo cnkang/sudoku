@@ -1,7 +1,7 @@
 /**
  * Utility functions for responsive testing
  */
-import { vi } from 'vitest';
+import { vi } from 'vite-plus/test';
 
 export interface ViewportSize {
   width: number;
@@ -95,11 +95,8 @@ export const hasMediaQuery = (cssText: string, query: string): boolean => {
 /**
  * Test helper to check if element has responsive classes
  */
-export const hasResponsiveClasses = (
-  element: Element,
-  classes: string[]
-): boolean => {
-  return classes.some(className => element.classList.contains(className));
+export const hasResponsiveClasses = (element: Element, classes: string[]): boolean => {
+  return classes.some((className) => element.classList.contains(className));
 };
 
 /**
@@ -110,7 +107,7 @@ export const setupResponsiveTest = (
     viewport?: ViewportSize;
     touchDevice?: boolean;
     mediaQueries?: Record<string, boolean>;
-  } = {}
+  } = {},
 ) => {
   if (options.viewport) {
     mockViewport(options.viewport);

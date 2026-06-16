@@ -68,7 +68,7 @@ const NotificationPayloadSchema = z.object({
         action: z.string().min(1).max(64),
         title: z.string().min(1).max(64),
         icon: z.string().max(256).optional(),
-      })
+      }),
     )
     .max(4)
     .optional(),
@@ -93,10 +93,7 @@ export async function POST(request: NextRequest) {
     const action = searchParams.get('action');
 
     if (action === 'subscribe') {
-      const bodyResult = await readJsonBodyWithLimit<unknown>(
-        request,
-        MAX_JSON_BODY_BYTES
-      );
+      const bodyResult = await readJsonBodyWithLimit<unknown>(request, MAX_JSON_BODY_BYTES);
       if (!bodyResult.ok) {
         return bodyResult.response;
       }
@@ -104,16 +101,10 @@ export async function POST(request: NextRequest) {
     } else if (action === 'send') {
       const sendRateLimit = enforceRateLimit(request, SEND_RATE_LIMIT);
       if (sendRateLimit.limited) {
-        return createRateLimitedResponse(
-          request,
-          sendRateLimit.retryAfterSeconds
-        );
+        return createRateLimitedResponse(request, sendRateLimit.retryAfterSeconds);
       }
 
-      const bodyResult = await readJsonBodyWithLimit<unknown>(
-        request,
-        MAX_JSON_BODY_BYTES
-      );
+      const bodyResult = await readJsonBodyWithLimit<unknown>(request, MAX_JSON_BODY_BYTES);
       if (!bodyResult.ok) {
         return bodyResult.response;
       }
@@ -125,7 +116,7 @@ export async function POST(request: NextRequest) {
           success: false,
           error: 'Invalid action. Use ?action=subscribe or ?action=send',
         },
-        400
+        400,
       );
     }
   } catch (error) {
@@ -133,7 +124,7 @@ export async function POST(request: NextRequest) {
     const detailedLog = createDetailedErrorLog(
       error,
       'INTERNAL_ERROR',
-      extractRequestContext(request)
+      extractRequestContext(request),
     );
     logErrorServerSide(detailedLog);
 
@@ -147,7 +138,7 @@ export async function POST(request: NextRequest) {
         error: sanitizedError.error,
         timestamp: sanitizedError.timestamp,
       },
-      500
+      500,
     );
   }
 }
@@ -158,17 +149,14 @@ async function handleSubscribe(request: NextRequest, body: unknown) {
 
     // Store the subscription (in production, save to database with user ID)
     const subscriptionKey = `${subscription.endpoint}:${subscription.keys.p256dh}`;
-    if (
-      subscriptions.size >= MAX_SUBSCRIPTIONS &&
-      !subscriptions.has(subscriptionKey)
-    ) {
+    if (subscriptions.size >= MAX_SUBSCRIPTIONS && !subscriptions.has(subscriptionKey)) {
       return createJsonResponse(
         request,
         {
           success: false,
           error: 'Subscription capacity reached. Please retry later.',
         },
-        429
+        429,
       );
     }
     subscriptions.add(subscriptionKey);
@@ -181,7 +169,7 @@ async function handleSubscribe(request: NextRequest, body: unknown) {
         subscriptionId: `${subscriptionKey.substring(0, 16)}...`,
         timestamp: Date.now(),
       },
-      200
+      200,
     );
   } catch (error) {
     // Handle Zod validation errors
@@ -217,7 +205,7 @@ async function handleSubscribe(request: NextRequest, body: unknown) {
         error: sanitizedError.error,
         timestamp: sanitizedError.timestamp,
       },
-      500
+      500,
     );
   }
 }
@@ -233,18 +221,13 @@ async function handleSendNotification(request: NextRequest, body: unknown) {
     // 4. Track notification analytics
 
     // For demonstration, we'll simulate sending notifications
-    const notificationResults = Array.from(subscriptions).map(
-      (subscription, _index) => ({
-        subscriptionId: `${subscription.substring(0, 16)}...`,
-        status:
-          randomInt(100) < DELIVERY_SUCCESS_THRESHOLD ? 'delivered' : 'failed',
-        timestamp: Date.now(),
-      })
-    );
+    const notificationResults = Array.from(subscriptions).map((subscription, _index) => ({
+      subscriptionId: `${subscription.substring(0, 16)}...`,
+      status: randomInt(100) < DELIVERY_SUCCESS_THRESHOLD ? 'delivered' : 'failed',
+      timestamp: Date.now(),
+    }));
 
-    const successCount = notificationResults.filter(
-      r => r.status === 'delivered'
-    ).length;
+    const successCount = notificationResults.filter((r) => r.status === 'delivered').length;
     const failureCount = notificationResults.length - successCount;
 
     return createNoStoreJsonResponse(
@@ -256,8 +239,7 @@ async function handleSendNotification(request: NextRequest, body: unknown) {
           total: subscriptions.size,
           delivered: successCount,
           failed: failureCount,
-          deliveryRate:
-            subscriptions.size > 0 ? successCount / subscriptions.size : 0,
+          deliveryRate: subscriptions.size > 0 ? successCount / subscriptions.size : 0,
         },
         payload: {
           title: payload.title,
@@ -266,7 +248,7 @@ async function handleSendNotification(request: NextRequest, body: unknown) {
         },
         timestamp: Date.now(),
       },
-      200
+      200,
     );
   } catch (error) {
     // Handle Zod validation errors
@@ -302,7 +284,7 @@ async function handleSendNotification(request: NextRequest, body: unknown) {
         error: sanitizedError.error,
         timestamp: sanitizedError.timestamp,
       },
-      500
+      500,
     );
   }
 }
@@ -347,7 +329,7 @@ export async function GET(request: NextRequest) {
       stats,
       timestamp: Date.now(),
     },
-    200
+    200,
   );
 }
 
@@ -362,10 +344,7 @@ export async function DELETE(request: NextRequest) {
 
   // Unsubscribe from notifications
   try {
-    const bodyResult = await readJsonBodyWithLimit<unknown>(
-      request,
-      MAX_JSON_BODY_BYTES
-    );
+    const bodyResult = await readJsonBodyWithLimit<unknown>(request, MAX_JSON_BODY_BYTES);
     if (!bodyResult.ok) {
       return bodyResult.response;
     }
@@ -379,14 +358,12 @@ export async function DELETE(request: NextRequest) {
       request,
       {
         success: true,
-        message: wasRemoved
-          ? 'Subscription removed successfully'
-          : 'Subscription not found',
+        message: wasRemoved ? 'Subscription removed successfully' : 'Subscription not found',
         removed: wasRemoved,
         remainingSubscriptions: subscriptions.size,
         timestamp: Date.now(),
       },
-      200
+      200,
     );
   } catch (error) {
     // Handle Zod validation errors
@@ -422,7 +399,7 @@ export async function DELETE(request: NextRequest) {
         error: sanitizedError.error,
         timestamp: sanitizedError.timestamp,
       },
-      500
+      500,
     );
   }
 }

@@ -1,5 +1,5 @@
 import * as fc from 'fast-check';
-import { describe, it } from 'vitest';
+import { describe, it } from 'vite-plus/test';
 import {
   AccessibilityManager,
   calculateContrastRatio,
@@ -10,7 +10,7 @@ import {
 // Generators for property-based testing
 const hexColorArb = fc
   .integer({ min: 0, max: 0xffffff })
-  .map(num => `#${num.toString(16).padStart(6, '0')}`);
+  .map((num) => `#${num.toString(16).padStart(6, '0')}`);
 
 describe('Theme Property-Based Tests', () => {
   /**
@@ -21,7 +21,7 @@ describe('Theme Property-Based Tests', () => {
    */
   it('should ensure all predefined themes meet WCAG AAA compliance standards', () => {
     fc.assert(
-      fc.property(fc.constantFrom(...getAllThemes()), theme => {
+      fc.property(fc.constantFrom(...getAllThemes()), (theme) => {
         // All predefined themes should pass WCAG AAA validation
         const isCompliant = AccessibilityManager.validateThemeCompliance(theme);
 
@@ -32,7 +32,7 @@ describe('Theme Property-Based Tests', () => {
 
         return isCompliant;
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -43,7 +43,7 @@ describe('Theme Property-Based Tests', () => {
    */
   it('should validate critical color combinations meet WCAG AAA standards', () => {
     fc.assert(
-      fc.property(fc.constantFrom(...getChildFriendlyThemes()), theme => {
+      fc.property(fc.constantFrom(...getChildFriendlyThemes()), (theme) => {
         const { colors } = theme;
 
         // Critical combinations that must meet WCAG AAA (7:1 ratio)
@@ -66,7 +66,7 @@ describe('Theme Property-Based Tests', () => {
           return ratio >= 7; // WCAG AAA standard for normal text
         });
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -77,7 +77,7 @@ describe('Theme Property-Based Tests', () => {
    */
   it('should ensure accessibility settings meet minimum requirements', () => {
     fc.assert(
-      fc.property(fc.constantFrom(...getAllThemes()), theme => {
+      fc.property(fc.constantFrom(...getAllThemes()), (theme) => {
         const { accessibility } = theme;
 
         // Touch targets must be at least 44px (WCAG 2.1 AA minimum)
@@ -93,13 +93,10 @@ describe('Theme Property-Based Tests', () => {
         const fontSizeCompliant = accessibility.minimumFontSize >= 14;
 
         return (
-          touchTargetCompliant &&
-          focusIndicatorCompliant &&
-          contrastCompliant &&
-          fontSizeCompliant
+          touchTargetCompliant && focusIndicatorCompliant && contrastCompliant && fontSizeCompliant
         );
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -126,7 +123,7 @@ describe('Theme Property-Based Tests', () => {
 
         return isSymmetric && isInValidRange && sameColorCorrect;
       }),
-      { numRuns: 10 }
+      { numRuns: 10 },
     );
   }, 30000);
 
@@ -137,45 +134,37 @@ describe('Theme Property-Based Tests', () => {
    */
   it('should generate high contrast variants with improved accessibility', () => {
     fc.assert(
-      fc.property(
-        fc.constantFrom(...getChildFriendlyThemes()),
-        originalTheme => {
-          const highContrastTheme =
-            AccessibilityManager.generateHighContrastVariant(originalTheme);
+      fc.property(fc.constantFrom(...getChildFriendlyThemes()), (originalTheme) => {
+        const highContrastTheme = AccessibilityManager.generateHighContrastVariant(originalTheme);
 
-          // High contrast theme should have maximum contrast ratio
-          const hasMaxContrast =
-            highContrastTheme.accessibility.contrastRatio === 21;
+        // High contrast theme should have maximum contrast ratio
+        const hasMaxContrast = highContrastTheme.accessibility.contrastRatio === 21;
 
-          // Should be categorized as high-contrast
-          const isHighContrastCategory =
-            highContrastTheme.category === 'high-contrast';
+        // Should be categorized as high-contrast
+        const isHighContrastCategory = highContrastTheme.category === 'high-contrast';
 
-          // Should have proper ID naming
-          const hasCorrectId =
-            highContrastTheme.id === `${originalTheme.id}-high-contrast`;
+        // Should have proper ID naming
+        const hasCorrectId = highContrastTheme.id === `${originalTheme.id}-high-contrast`;
 
-          // Should disable animations for better accessibility
-          const animationsDisabled =
-            !highContrastTheme.childFriendly.enableAnimations;
+        // Should disable animations for better accessibility
+        const animationsDisabled = !highContrastTheme.childFriendly.enableAnimations;
 
-          // Critical text combinations should have maximum contrast
-          const textBackgroundRatio = calculateContrastRatio(
-            highContrastTheme.colors.text,
-            highContrastTheme.colors.background
-          );
-          const hasMaxTextContrast = textBackgroundRatio >= 15; // Very high contrast
+        // Critical text combinations should have maximum contrast
+        const textBackgroundRatio = calculateContrastRatio(
+          highContrastTheme.colors.text,
+          highContrastTheme.colors.background,
+        );
+        const hasMaxTextContrast = textBackgroundRatio >= 15; // Very high contrast
 
-          return (
-            hasMaxContrast &&
-            isHighContrastCategory &&
-            hasCorrectId &&
-            animationsDisabled &&
-            hasMaxTextContrast
-          );
-        }
-      ),
-      { numRuns: 100 }
+        return (
+          hasMaxContrast &&
+          isHighContrastCategory &&
+          hasCorrectId &&
+          animationsDisabled &&
+          hasMaxTextContrast
+        );
+      }),
+      { numRuns: 100 },
     );
   });
 
@@ -194,30 +183,26 @@ describe('Theme Property-Based Tests', () => {
           const recommendations = AccessibilityManager.getThemeRecommendations(
             ageGroup,
             needsHighContrast,
-            prefersReducedMotion
+            prefersReducedMotion,
           );
 
           // All recommendations should match the criteria
-          return recommendations.every(theme => {
+          return recommendations.every((theme) => {
             // Age group filter
             const ageGroupMatch =
-              ageGroup === 'all' ||
-              theme.ageGroup === 'all' ||
-              theme.ageGroup === ageGroup;
+              ageGroup === 'all' || theme.ageGroup === 'all' || theme.ageGroup === ageGroup;
 
             // High contrast filter
-            const contrastMatch =
-              !needsHighContrast || theme.category === 'high-contrast';
+            const contrastMatch = !needsHighContrast || theme.category === 'high-contrast';
 
             // Reduced motion filter
-            const motionMatch =
-              !prefersReducedMotion || !theme.childFriendly.enableAnimations;
+            const motionMatch = !prefersReducedMotion || !theme.childFriendly.enableAnimations;
 
             return ageGroupMatch && contrastMatch && motionMatch;
           });
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -236,7 +221,7 @@ describe('Theme Property-Based Tests', () => {
           const fontSize = AccessibilityManager.calculateOptimalFontSize(
             gridSize,
             screenWidth,
-            theme.accessibility
+            theme.accessibility,
           );
 
           // Font size should always meet the theme's minimum requirements
@@ -253,9 +238,9 @@ describe('Theme Property-Based Tests', () => {
             fontSize >= Math.max(14, theme.accessibility.minimumFontSize); // Reasonable minimum for child grids
 
           return meetsMinimum && reasonableSize && childFriendlyAppropriate;
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });

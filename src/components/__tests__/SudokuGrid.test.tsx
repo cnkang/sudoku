@@ -1,13 +1,11 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { vi } from 'vitest';
+import { vi } from 'vite-plus/test';
 import { GRID_CONFIGS } from '@/utils/gridConfig';
 import SudokuGrid from '../SudokuGrid';
 
 const createGrid = (size: number, fillValue = 0): number[][] =>
-  Array.from({ length: size }, () =>
-    Array.from({ length: size }, () => fillValue)
-  );
+  Array.from({ length: size }, () => Array.from({ length: size }, () => fillValue));
 
 vi.mock('@/hooks/useAudioAccessibility', () => ({
   useAudioAccessibility: () => [
@@ -121,7 +119,7 @@ describe('SudokuGrid', () => {
           userInput={sampleUserInput4x4}
           onInputChange={mockOnInputChange}
           gridConfig={GRID_CONFIGS[4]}
-        />
+        />,
       );
 
       const grid = screen.getByTestId('sudoku-grid');
@@ -142,7 +140,7 @@ describe('SudokuGrid', () => {
           userInput={userInput6x6}
           onInputChange={mockOnInputChange}
           gridConfig={GRID_CONFIGS[6]}
-        />
+        />,
       );
 
       const grid = screen.getByTestId('sudoku-grid');
@@ -160,7 +158,7 @@ describe('SudokuGrid', () => {
           userInput={sampleUserInput9x9}
           onInputChange={mockOnInputChange}
           gridConfig={GRID_CONFIGS[9]}
-        />
+        />,
       );
 
       const grid = screen.getByTestId('sudoku-grid');
@@ -181,14 +179,14 @@ describe('SudokuGrid', () => {
           onInputChange={mockOnInputChange}
           gridConfig={GRID_CONFIGS[4]}
           childMode={true}
-        />
+        />,
       );
 
       const container = screen.getByTestId('sudoku-container');
       expect(container).toHaveAttribute('data-child-mode', 'true');
 
       const cells = screen.getAllByTestId(/sudoku-cell-\d+-\d+/);
-      cells.forEach(cell => {
+      cells.forEach((cell) => {
         expect(cell).toHaveAttribute('data-child-mode', 'true');
       });
     });
@@ -203,7 +201,7 @@ describe('SudokuGrid', () => {
           onInputChange={mockOnInputChange}
           gridConfig={GRID_CONFIGS[4]}
           childMode={true}
-        />
+        />,
       );
 
       const editableCell = screen.getByTestId('sudoku-cell-0-1');
@@ -237,7 +235,7 @@ describe('SudokuGrid', () => {
           onInputChange={mockOnInputChange}
           gridConfig={GRID_CONFIGS[4]}
           accessibility={{ highContrast: true }}
-        />
+        />,
       );
 
       const container = screen.getByTestId('sudoku-container');
@@ -252,7 +250,7 @@ describe('SudokuGrid', () => {
           onInputChange={mockOnInputChange}
           gridConfig={GRID_CONFIGS[4]}
           accessibility={{ largeText: true }}
-        />
+        />,
       );
 
       const fixedNumbers = screen.getAllByTestId('fixed-number');
@@ -266,21 +264,15 @@ describe('SudokuGrid', () => {
           userInput={sampleUserInput4x4}
           onInputChange={mockOnInputChange}
           gridConfig={GRID_CONFIGS[4]}
-        />
+        />,
       );
 
       const grid = screen.getByRole('table');
-      expect(grid).toHaveAttribute(
-        'aria-label',
-        expect.stringContaining('4×4 Sudoku puzzle grid')
-      );
+      expect(grid).toHaveAttribute('aria-label', expect.stringContaining('4×4 Sudoku puzzle grid'));
 
       const input = getFirstEditableInput();
       expect(input).toBeTruthy();
-      expect(input).toHaveAttribute(
-        'aria-label',
-        expect.stringContaining('Enter numbers 1 to 4')
-      );
+      expect(input).toHaveAttribute('aria-label', expect.stringContaining('Enter numbers 1 to 4'));
     });
   });
 
@@ -292,7 +284,7 @@ describe('SudokuGrid', () => {
           userInput={sampleUserInput4x4}
           onInputChange={mockOnInputChange}
           gridConfig={GRID_CONFIGS[4]}
-        />
+        />,
       );
 
       const editableCell = screen.getByTestId('sudoku-cell-0-1');
@@ -318,7 +310,7 @@ describe('SudokuGrid', () => {
           onInputChange={mockOnInputChange}
           gridConfig={GRID_CONFIGS[4]}
           childMode={true}
-        />
+        />,
       );
 
       const editableCell = screen.getByTestId('sudoku-cell-0-1');
@@ -348,7 +340,7 @@ describe('SudokuGrid', () => {
           userInput={sampleUserInput4x4}
           onInputChange={mockOnInputChange}
           gridConfig={GRID_CONFIGS[4]}
-        />
+        />,
       );
 
       const input = getFirstEditableInput();
@@ -375,7 +367,7 @@ describe('SudokuGrid', () => {
           userInput={sampleUserInput4x4}
           onInputChange={mockOnInputChange}
           gridConfig={GRID_CONFIGS[4]}
-        />
+        />,
       );
 
       const input = getFirstEditableInput();
@@ -414,7 +406,7 @@ describe('SudokuGrid', () => {
           userInput={conflictInput}
           onInputChange={mockOnInputChange}
           gridConfig={GRID_CONFIGS[4]}
-        />
+        />,
       );
 
       const conflictCell1 = screen.getByTestId('sudoku-cell-0-0');
@@ -433,7 +425,7 @@ describe('SudokuGrid', () => {
           userInput={sampleUserInput4x4}
           onInputChange={mockOnInputChange}
           gridConfig={GRID_CONFIGS[4]}
-        />
+        />,
       );
 
       // Re-render with same props should not cause re-render
@@ -443,7 +435,7 @@ describe('SudokuGrid', () => {
           userInput={sampleUserInput4x4}
           onInputChange={mockOnInputChange}
           gridConfig={GRID_CONFIGS[4]}
-        />
+        />,
       );
 
       // Component should be memoized
@@ -460,7 +452,7 @@ describe('SudokuGrid', () => {
           onInputChange={mockOnInputChange}
           gridConfig={GRID_CONFIGS[4]}
           hintCell={{ row: 0, col: 1 }}
-        />
+        />,
       );
 
       const hintCell = screen.getByTestId('sudoku-cell-0-1');
@@ -479,7 +471,7 @@ describe('SudokuGrid', () => {
           onInputChange={mockOnInputChange}
           gridConfig={GRID_CONFIGS[4]}
           disabled={true}
-        />
+        />,
       );
 
       const input = getFirstEditableInput(true);

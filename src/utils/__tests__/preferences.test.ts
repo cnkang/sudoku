@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import type { AccessibilitySettings } from '../../types';
 import { GRID_CONFIGS } from '../gridConfig';
 import {
@@ -70,7 +70,7 @@ describe('preferences', () => {
       expect(loaded).toEqual(settings);
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'sudoku-accessibility-settings',
-        JSON.stringify(settings)
+        JSON.stringify(settings),
       );
     });
 
@@ -411,7 +411,7 @@ describe('preferences', () => {
           keyboardNavigation: false,
           voiceInput: false,
           adaptiveTouchTargets: false,
-        })
+        }),
       ).not.toThrow();
 
       // Should return defaults
@@ -453,9 +453,7 @@ describe('preferences', () => {
 
       clearAllPreferences();
 
-      const removedKeys = localStorageMock.removeItem.mock.calls.map(
-        ([key]) => key
-      );
+      const removedKeys = localStorageMock.removeItem.mock.calls.map(([key]) => key);
       expect(removedKeys).toEqual(
         expect.arrayContaining([
           'sudoku-accessibility-settings',
@@ -463,7 +461,7 @@ describe('preferences', () => {
           'sudoku-child-mode',
           'sudoku-grid-config',
           'sudoku-difficulty',
-        ])
+        ]),
       );
     });
 

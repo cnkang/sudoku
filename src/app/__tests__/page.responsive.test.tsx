@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import Home from '../page';
 
 vi.mock('../../components/ModernSudokuApp', () => ({
@@ -105,7 +105,7 @@ describe('Home Page Responsive Tests', () => {
     });
 
     it('should handle dark mode preferences', () => {
-      globalThis.matchMedia = vi.fn().mockImplementation(query => ({
+      globalThis.matchMedia = vi.fn().mockImplementation((query) => ({
         ...mockMatchMedia(query),
         matches: query === '(prefers-color-scheme: dark)',
       }));
@@ -116,7 +116,7 @@ describe('Home Page Responsive Tests', () => {
     });
 
     it('should respect reduced motion preferences', () => {
-      globalThis.matchMedia = vi.fn().mockImplementation(query => ({
+      globalThis.matchMedia = vi.fn().mockImplementation((query) => ({
         ...mockMatchMedia(query),
         matches: query === '(prefers-reduced-motion: reduce)',
       }));

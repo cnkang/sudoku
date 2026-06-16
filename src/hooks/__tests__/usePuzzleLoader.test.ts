@@ -12,10 +12,9 @@ const assertPuzzleFetch = (difficulty: number) => {
 
   renderHook(() => usePuzzleLoader(difficulty, true, false));
 
-  expect(mockFetch).toHaveBeenCalledWith(
-    `/api/solveSudoku?difficulty=${difficulty}`,
-    { method: 'POST' }
-  );
+  expect(mockFetch).toHaveBeenCalledWith(`/api/solveSudoku?difficulty=${difficulty}`, {
+    method: 'POST',
+  });
 };
 globalThis.fetch = mockFetch;
 
@@ -24,7 +23,7 @@ vi.mock('react', async () => {
   const actual = await vi.importActual('react');
   return {
     ...actual,
-    use: vi.fn(promise => {
+    use: vi.fn((promise) => {
       if (!promise) return null;
       // For testing, we'll simulate the resolved value
       return promise;
@@ -83,16 +82,15 @@ describe('usePuzzleLoader', () => {
       renderHook(() => usePuzzleLoader(2, true, true));
 
       // Check that fetch was called with correct URL
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/solveSudoku?difficulty=2&force=true',
-        { method: 'POST' }
-      );
+      expect(mockFetch).toHaveBeenCalledWith('/api/solveSudoku?difficulty=2&force=true', {
+        method: 'POST',
+      });
     });
 
     it('should call fetch with correct parameters for different difficulties', () => {
       const difficulties = [1, 2, 3, 4];
 
-      difficulties.forEach(difficulty => {
+      difficulties.forEach((difficulty) => {
         assertPuzzleFetch(difficulty);
       });
     });
@@ -101,11 +99,10 @@ describe('usePuzzleLoader', () => {
   describe('Memoization', () => {
     it('should memoize puzzle promise based on dependencies', () => {
       const { rerender } = renderHook(
-        ({ difficulty, shouldFetch, force }) =>
-          usePuzzleLoader(difficulty, shouldFetch, force),
+        ({ difficulty, shouldFetch, force }) => usePuzzleLoader(difficulty, shouldFetch, force),
         {
           initialProps: { difficulty: 1, shouldFetch: true, force: false },
-        }
+        },
       );
 
       const firstCallCount = mockFetch.mock.calls.length;
@@ -122,7 +119,7 @@ describe('usePuzzleLoader', () => {
     it('should return null when shouldFetch changes to false', () => {
       const { result, rerender } = renderHook(
         ({ shouldFetch }) => usePuzzleLoader(1, shouldFetch, false),
-        { initialProps: { shouldFetch: true } }
+        { initialProps: { shouldFetch: true } },
       );
 
       // Initially should create promise
@@ -156,10 +153,9 @@ describe('usePuzzleLoader', () => {
 
       renderHook(() => usePuzzleLoader(3, true, true));
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/solveSudoku?difficulty=3&force=true',
-        { method: 'POST' }
-      );
+      expect(mockFetch).toHaveBeenCalledWith('/api/solveSudoku?difficulty=3&force=true', {
+        method: 'POST',
+      });
     });
   });
 

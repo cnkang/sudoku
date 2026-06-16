@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import type { GridConfig } from '@/types';
 import { GRID_CONFIGS, GridConfigManager } from '@/utils/gridConfig';
 
@@ -29,9 +29,7 @@ describe('GridConfigManager', () => {
     });
 
     it('should throw error for unsupported grid size', () => {
-      expect(() => GridConfigManager.getConfig(5 as any)).toThrow(
-        'Unsupported grid size: 5'
-      );
+      expect(() => GridConfigManager.getConfig(5 as any)).toThrow('Unsupported grid size: 5');
     });
   });
 
@@ -84,17 +82,11 @@ describe('GridConfigManager', () => {
     it('should calculate correct dimensions for different screen sizes', () => {
       const config = GridConfigManager.getConfig(4);
 
-      const mobileDims = GridConfigManager.calculateDimensions(
-        config,
-        'mobile'
-      );
+      const mobileDims = GridConfigManager.calculateDimensions(config, 'mobile');
       expect(mobileDims.cellSize).toBe(60);
       expect(mobileDims.gridSize).toBe(240);
 
-      const desktopDims = GridConfigManager.calculateDimensions(
-        config,
-        'desktop'
-      );
+      const desktopDims = GridConfigManager.calculateDimensions(config, 'desktop');
       expect(desktopDims.cellSize).toBe(80);
       expect(desktopDims.gridSize).toBe(320);
     });
@@ -123,14 +115,10 @@ describe('GridConfigManager', () => {
       expect(GridConfigManager.getValidValues(config4)).toEqual([1, 2, 3, 4]);
 
       const config6 = GridConfigManager.getConfig(6);
-      expect(GridConfigManager.getValidValues(config6)).toEqual([
-        1, 2, 3, 4, 5, 6,
-      ]);
+      expect(GridConfigManager.getValidValues(config6)).toEqual([1, 2, 3, 4, 5, 6]);
 
       const config9 = GridConfigManager.getConfig(9);
-      expect(GridConfigManager.getValidValues(config9)).toEqual([
-        1, 2, 3, 4, 5, 6, 7, 8, 9,
-      ]);
+      expect(GridConfigManager.getValidValues(config9)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
     });
   });
 

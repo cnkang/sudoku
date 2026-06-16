@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vite-plus/test';
 import {
   createErrorResponse,
   ERROR_MESSAGES,
@@ -22,19 +22,11 @@ describe('error-handling utilities', () => {
 
   describe('ERROR_MESSAGES', () => {
     it('should export all expected error messages', () => {
-      expect(ERROR_MESSAGES.INTERNAL_SERVER_ERROR).toBe(
-        'Internal Server Error'
-      );
+      expect(ERROR_MESSAGES.INTERNAL_SERVER_ERROR).toBe('Internal Server Error');
       expect(ERROR_MESSAGES.INVALID_REQUEST).toBe('Invalid request parameters');
-      expect(ERROR_MESSAGES.RATE_LIMITED).toBe(
-        'Please wait before making another request'
-      );
-      expect(ERROR_MESSAGES.CACHE_MISS).toBe(
-        'Requested data not found in cache'
-      );
-      expect(ERROR_MESSAGES.GENERATION_FAILED).toBe(
-        'Failed to generate puzzle'
-      );
+      expect(ERROR_MESSAGES.RATE_LIMITED).toBe('Please wait before making another request');
+      expect(ERROR_MESSAGES.CACHE_MISS).toBe('Requested data not found in cache');
+      expect(ERROR_MESSAGES.GENERATION_FAILED).toBe('Failed to generate puzzle');
       expect(ERROR_MESSAGES.NETWORK_UNAVAILABLE).toBe('Network request failed');
     });
   });
@@ -56,18 +48,10 @@ describe('error-handling utilities', () => {
     });
 
     it('should return default message for unknown error types', () => {
-      expect(extractErrorMessage(null)).toBe(
-        ERROR_MESSAGES.INTERNAL_SERVER_ERROR
-      );
-      expect(extractErrorMessage(undefined)).toBe(
-        ERROR_MESSAGES.INTERNAL_SERVER_ERROR
-      );
-      expect(extractErrorMessage(123)).toBe(
-        ERROR_MESSAGES.INTERNAL_SERVER_ERROR
-      );
-      expect(extractErrorMessage({})).toBe(
-        ERROR_MESSAGES.INTERNAL_SERVER_ERROR
-      );
+      expect(extractErrorMessage(null)).toBe(ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+      expect(extractErrorMessage(undefined)).toBe(ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+      expect(extractErrorMessage(123)).toBe(ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+      expect(extractErrorMessage({})).toBe(ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
     });
 
     it('should handle object with non-string message property', () => {
@@ -217,9 +201,7 @@ describe('error-handling utilities', () => {
         .mockRejectedValueOnce(new Error('Fail 2'))
         .mockRejectedValue(new Error('Final failure'));
 
-      await expect(retryOperation(operation, 2, 10)).rejects.toThrow(
-        'Final failure'
-      );
+      await expect(retryOperation(operation, 2, 10)).rejects.toThrow('Final failure');
       expect(operation).toHaveBeenCalledTimes(3); // Initial + 2 retries
     });
 

@@ -1,5 +1,3 @@
 {
-  "**/*.{js,jsx,tsx}": ["biome lint --write", "biome format --write"],
-  "**/!(*.d).ts": ["biome lint --write", "biome format --write"],
-  "*.json": ["biome format --write"]
+  "**/*.{js,jsx,ts,tsx}": ["vp fmt --write", "vp lint --fix"]
 }

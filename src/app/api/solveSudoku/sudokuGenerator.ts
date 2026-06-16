@@ -20,18 +20,14 @@ const logger = {
 // Generates a Sudoku puzzle based on the provided difficulty and grid configuration.
 export async function generateSudokuPuzzle(
   difficulty: number,
-  gridSize: 4 | 6 | 9 = 9
+  gridSize: 4 | 6 | 9 = 9,
 ): Promise<SudokuPuzzle> {
   const config = getConfig(gridSize);
   const board = generateCompleteBoard(config);
-  logger.debug(
-    `Complete ${config.size}×${config.size} board generated: ${JSON.stringify(
-      board
-    )}`
-  );
+  logger.debug(`Complete ${config.size}×${config.size} board generated: ${JSON.stringify(board)}`);
   const puzzle = await removeNumbers(board, difficulty, config);
   logger.debug(
-    `Puzzle generated with difficulty: ${difficulty} for ${config.size}×${config.size} grid`
+    `Puzzle generated with difficulty: ${difficulty} for ${config.size}×${config.size} grid`,
   );
   return { puzzle, solution: board, difficulty };
 }
@@ -39,7 +35,7 @@ export async function generateSudokuPuzzle(
 // Generates a complete solved Sudoku board for any grid size.
 function generateCompleteBoard(config: GridConfig): number[][] {
   const board: number[][] = Array.from({ length: config.size }, () =>
-    Array.from({ length: config.size }, () => 0)
+    Array.from({ length: config.size }, () => 0),
   );
   fillBoard(board, config);
   return board;
@@ -53,9 +49,7 @@ function fillBoard(board: number[][], config: GridConfig): boolean {
   }
 
   const [row, col] = emptyCell;
-  const numbers = shuffleArray(
-    Array.from({ length: config.maxValue }, (_, i) => i + 1)
-  );
+  const numbers = shuffleArray(Array.from({ length: config.maxValue }, (_, i) => i + 1));
   const rowValues = board[row];
   if (!rowValues) {
     return false;
@@ -75,10 +69,7 @@ function fillBoard(board: number[][], config: GridConfig): boolean {
 }
 
 // Finds the first empty cell in the board for any grid size.
-function findEmptyCell(
-  board: number[][],
-  config: GridConfig
-): [number, number] | null {
+function findEmptyCell(board: number[][], config: GridConfig): [number, number] | null {
   for (let row = 0; row < config.size; row++) {
     const rowValues = board[row];
     if (!rowValues) {
@@ -99,7 +90,7 @@ function isSafe(
   row: number,
   col: number,
   num: number,
-  config: GridConfig
+  config: GridConfig,
 ): boolean {
   // Use the existing validateMove function which handles all grid sizes
   return validateMove(config, board, row, col, num);
@@ -124,9 +115,9 @@ function shuffleArray(array: number[]): number[] {
 async function removeNumbers(
   board: number[][],
   difficulty: number,
-  config: GridConfig
+  config: GridConfig,
 ): Promise<number[][]> {
-  const puzzle = board.map(row => row.slice());
+  const puzzle = board.map((row) => row.slice());
   const totalCells = config.size * config.size;
   const cluesCount = getCluesCount(difficulty, config);
   let cellsToRemove = totalCells - cluesCount;
@@ -158,19 +149,19 @@ async function removeNumbers(
     const backup = cellValue;
     puzzleRow[col] = 0;
 
-    const puzzleCopy = puzzle.map(r => r.slice());
+    const puzzleCopy = puzzle.map((r) => r.slice());
     const solutions: number[][][] = [];
     await solveSudoku(puzzleCopy, solutions, 2, config);
 
     if (solutions.length === 1) {
       logger.debug(
-        `Removed number at (${row}, ${col}) - Unique solution preserved for ${config.size}×${config.size} grid`
+        `Removed number at (${row}, ${col}) - Unique solution preserved for ${config.size}×${config.size} grid`,
       );
       cellsToRemove--;
       consecutiveFailures = 0; // Reset failure counter on success
     } else {
       logger.debug(
-        `Restoring number at (${row}, ${col}) - Multiple solutions for ${config.size}×${config.size} grid`
+        `Restoring number at (${row}, ${col}) - Multiple solutions for ${config.size}×${config.size} grid`,
       );
       puzzleRow[col] = backup;
       consecutiveFailures++;
@@ -181,22 +172,17 @@ async function removeNumbers(
   if (cellsToRemove > 0) {
     logger.warn(
       `Could not remove all desired cells for ${config.size}×${config.size} grid difficulty ${difficulty}. ` +
-        `Remaining cells to remove: ${cellsToRemove}, Attempts: ${attempts}, Consecutive failures: ${consecutiveFailures}`
+        `Remaining cells to remove: ${cellsToRemove}, Attempts: ${attempts}, Consecutive failures: ${consecutiveFailures}`,
     );
   }
 
-  logger.debug(
-    `Final ${config.size}×${config.size} puzzle: ${JSON.stringify(puzzle)}`
-  );
+  logger.debug(`Final ${config.size}×${config.size} puzzle: ${JSON.stringify(puzzle)}`);
   return puzzle;
 }
 
 // Calculates the number of clues based on difficulty and grid configuration.
 function getCluesCount(difficulty: number, config: GridConfig): number {
-  const validDifficulty = Math.min(
-    Math.max(difficulty, 1),
-    config.difficultyLevels
-  );
+  const validDifficulty = Math.min(Math.max(difficulty, 1), config.difficultyLevels);
 
   // Calculate clues based on grid size and difficulty
   const difficultyRatio = (validDifficulty - 1) / (config.difficultyLevels - 1);

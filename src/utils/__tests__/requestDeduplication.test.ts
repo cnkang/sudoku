@@ -3,7 +3,7 @@
  * Validates Requirement 5.6
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import {
   cleanupExpiredRequests,
   clearPendingRequests,
@@ -42,7 +42,7 @@ describe('requestDeduplication', () => {
       let callCount = 0;
       const mockFn = vi.fn().mockImplementation(async () => {
         callCount++;
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 50));
         return { count: callCount };
       });
 
@@ -52,7 +52,7 @@ describe('requestDeduplication', () => {
       const promise1 = deduplicateRequest(key, mockFn);
 
       // Start second request while first is still pending
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
       const promise2 = deduplicateRequest(key, mockFn);
 
       const [result1, result2] = await Promise.all([promise1, promise2]);
@@ -97,9 +97,7 @@ describe('requestDeduplication', () => {
       const key = 'error-test';
 
       // First request fails
-      await expect(deduplicateRequest(key, mockFn)).rejects.toThrow(
-        'Network error'
-      );
+      await expect(deduplicateRequest(key, mockFn)).rejects.toThrow('Network error');
 
       // Second request should execute (not deduplicated after error)
       const result = await deduplicateRequest(key, mockFn);
@@ -129,10 +127,7 @@ describe('requestDeduplication', () => {
       const mockFn = vi
         .fn()
         .mockImplementation(
-          () =>
-            new Promise(resolve =>
-              setTimeout(() => resolve({ data: 'test' }), 100)
-            )
+          () => new Promise((resolve) => setTimeout(() => resolve({ data: 'test' }), 100)),
         );
 
       expect(getPendingRequestCount()).toBe(0);
@@ -150,10 +145,7 @@ describe('requestDeduplication', () => {
       const mockFn = vi
         .fn()
         .mockImplementation(
-          () =>
-            new Promise(resolve =>
-              setTimeout(() => resolve({ data: 'test' }), 50)
-            )
+          () => new Promise((resolve) => setTimeout(() => resolve({ data: 'test' }), 50)),
         );
 
       const key = 'same-key';
@@ -240,10 +232,7 @@ describe('requestDeduplication', () => {
       const mockFn = vi
         .fn()
         .mockImplementation(
-          () =>
-            new Promise(resolve =>
-              setTimeout(() => resolve({ data: 'test' }), 100)
-            )
+          () => new Promise((resolve) => setTimeout(() => resolve({ data: 'test' }), 100)),
         );
 
       // Start some requests

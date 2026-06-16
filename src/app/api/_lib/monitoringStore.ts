@@ -7,13 +7,7 @@
  * - 18.5 Log errors to monitoring service for debugging
  */
 
-export type MonitoringMetricName =
-  | 'CLS'
-  | 'FCP'
-  | 'LCP'
-  | 'TTFB'
-  | 'INP'
-  | 'FID';
+export type MonitoringMetricName = 'CLS' | 'FCP' | 'LCP' | 'TTFB' | 'INP' | 'FID';
 export type MonitoringMetricRating = 'good' | 'needs-improvement' | 'poor';
 export type MonitoringAlertLevel = 'warning' | 'critical';
 
@@ -136,7 +130,7 @@ function average(values: number[]): number {
 
 function shouldEscalateMetricAlert(
   metricName: MonitoringMetricName,
-  value: number
+  value: number,
 ): MonitoringAlertLevel {
   const budget = MONITORING_BUDGETS[metricName];
   if (value >= budget * 1.2) {
@@ -151,7 +145,7 @@ function maybeRecordErrorRateAlert(now: number): MonitoringAlert | null {
   }
 
   const recentErrorCount = clientErrorEvents.filter(
-    event => event.timestamp >= now - ERROR_ALERT_WINDOW_MS
+    (event) => event.timestamp >= now - ERROR_ALERT_WINDOW_MS,
   ).length;
 
   if (recentErrorCount < ERROR_ALERT_THRESHOLD) {
@@ -162,8 +156,7 @@ function maybeRecordErrorRateAlert(now: number): MonitoringAlert | null {
 
   const alert: MonitoringAlert = {
     type: 'client-error-rate',
-    level:
-      recentErrorCount >= ERROR_ALERT_THRESHOLD * 2 ? 'critical' : 'warning',
+    level: recentErrorCount >= ERROR_ALERT_THRESHOLD * 2 ? 'critical' : 'warning',
     value: recentErrorCount,
     threshold: ERROR_ALERT_THRESHOLD,
     timestamp: now,
@@ -174,14 +167,12 @@ function maybeRecordErrorRateAlert(now: number): MonitoringAlert | null {
   return alert;
 }
 
-export function getMonitoringBudgets(): Readonly<
-  Record<MonitoringMetricName, number>
-> {
+export function getMonitoringBudgets(): Readonly<Record<MonitoringMetricName, number>> {
   return MONITORING_BUDGETS;
 }
 
 export function recordMonitoringMetric(
-  event: Omit<MonitoringMetricEvent, 'timestamp'> & { timestamp?: number }
+  event: Omit<MonitoringMetricEvent, 'timestamp'> & { timestamp?: number },
 ): { event: MonitoringMetricEvent; alert?: MonitoringAlert } {
   const timestamp = event.timestamp ?? Date.now();
 
@@ -200,10 +191,7 @@ export function recordMonitoringMetric(
   }
 
   if (event.navigationType) {
-    normalized.navigationType = clampString(
-      event.navigationType,
-      MAX_NAVIGATION_TYPE_LENGTH
-    );
+    normalized.navigationType = clampString(event.navigationType, MAX_NAVIGATION_TYPE_LENGTH);
   }
 
   pushBounded(metricEvents, normalized, MAX_METRIC_EVENTS);
@@ -221,7 +209,7 @@ export function recordMonitoringMetric(
     threshold: budget,
     timestamp,
     message: `${normalized.name} exceeded budget (${normalized.value.toFixed(
-      normalized.name === 'CLS' ? 3 : 1
+      normalized.name === 'CLS' ? 3 : 1,
     )} > ${budget}).`,
   };
 
@@ -230,7 +218,7 @@ export function recordMonitoringMetric(
 }
 
 export function recordMonitoringClientError(
-  event: Omit<MonitoringClientErrorEvent, 'timestamp'> & { timestamp?: number }
+  event: Omit<MonitoringClientErrorEvent, 'timestamp'> & { timestamp?: number },
 ): { event: MonitoringClientErrorEvent; alert?: MonitoringAlert } {
   const timestamp = event.timestamp ?? Date.now();
   const normalized: MonitoringClientErrorEvent = {
@@ -239,9 +227,7 @@ export function recordMonitoringClientError(
     timestamp,
     url: clampString(event.url, MAX_URL_LENGTH),
     userAgent: clampString(event.userAgent, MAX_USER_AGENT_LENGTH),
-    ...(event.stack
-      ? { stack: clampString(event.stack, MAX_ERROR_STACK_LENGTH) }
-      : {}),
+    ...(event.stack ? { stack: clampString(event.stack, MAX_ERROR_STACK_LENGTH) } : {}),
   };
 
   pushBounded(clientErrorEvents, normalized, MAX_ERROR_EVENTS);
@@ -251,34 +237,26 @@ export function recordMonitoringClientError(
 }
 
 export function getMonitoringDashboardSnapshot(
-  windowMs = DEFAULT_DASHBOARD_WINDOW_MS
+  windowMs = DEFAULT_DASHBOARD_WINDOW_MS,
 ): MonitoringDashboardSnapshot {
   const now = Date.now();
   const effectiveWindowMs =
-    Number.isFinite(windowMs) && windowMs > 0
-      ? Math.floor(windowMs)
-      : DEFAULT_DASHBOARD_WINDOW_MS;
+    Number.isFinite(windowMs) && windowMs > 0 ? Math.floor(windowMs) : DEFAULT_DASHBOARD_WINDOW_MS;
 
   const windowStart = now - effectiveWindowMs;
 
-  const metricsInWindow = metricEvents.filter(
-    event => event.timestamp >= windowStart
-  );
-  const errorsInWindow = clientErrorEvents.filter(
-    event => event.timestamp >= windowStart
-  );
-  const alertsInWindow = alerts.filter(event => event.timestamp >= windowStart);
+  const metricsInWindow = metricEvents.filter((event) => event.timestamp >= windowStart);
+  const errorsInWindow = clientErrorEvents.filter((event) => event.timestamp >= windowStart);
+  const alertsInWindow = alerts.filter((event) => event.timestamp >= windowStart);
 
   const summaries = (Object.keys(MONITORING_BUDGETS) as MonitoringMetricName[])
-    .map(metricName => {
+    .map((metricName) => {
       const metricValues = metricsInWindow
-        .filter(event => event.name === metricName)
-        .map(event => event.value);
+        .filter((event) => event.name === metricName)
+        .map((event) => event.value);
 
       const budget = MONITORING_BUDGETS[metricName];
-      const overBudgetCount = metricValues.filter(
-        value => value > budget
-      ).length;
+      const overBudgetCount = metricValues.filter((value) => value > budget).length;
 
       return {
         name: metricName,
@@ -288,11 +266,10 @@ export function getMonitoringDashboardSnapshot(
         max: metricValues.length > 0 ? Math.max(...metricValues) : 0,
         budget,
         overBudgetCount,
-        overBudgetRate:
-          metricValues.length > 0 ? overBudgetCount / metricValues.length : 0,
+        overBudgetRate: metricValues.length > 0 ? overBudgetCount / metricValues.length : 0,
       } satisfies MonitoringMetricSummary;
     })
-    .filter(summary => summary.count > 0);
+    .filter((summary) => summary.count > 0);
 
   return {
     generatedAt: new Date(now).toISOString(),

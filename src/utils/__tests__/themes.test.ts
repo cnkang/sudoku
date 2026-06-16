@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import type { ThemeConfig } from '@/types';
 import {
   AccessibilityManager,
@@ -82,9 +82,7 @@ describe('Theme Utilities', () => {
 
     it('should validate compliant themes', () => {
       const oceanTheme = THEMES.ocean;
-      expect(AccessibilityManager.validateThemeCompliance(oceanTheme)).toBe(
-        true
-      );
+      expect(AccessibilityManager.validateThemeCompliance(oceanTheme)).toBe(true);
     });
 
     it('should reject themes with insufficient contrast', () => {
@@ -97,9 +95,7 @@ describe('Theme Utilities', () => {
         },
       };
 
-      expect(AccessibilityManager.validateThemeCompliance(badTheme)).toBe(
-        false
-      );
+      expect(AccessibilityManager.validateThemeCompliance(badTheme)).toBe(false);
     });
 
     it('should reject themes with small touch targets', () => {
@@ -111,9 +107,7 @@ describe('Theme Utilities', () => {
         },
       };
 
-      expect(AccessibilityManager.validateThemeCompliance(badTheme)).toBe(
-        false
-      );
+      expect(AccessibilityManager.validateThemeCompliance(badTheme)).toBe(false);
     });
 
     it('should reject themes with thin focus indicators', () => {
@@ -125,17 +119,14 @@ describe('Theme Utilities', () => {
         },
       };
 
-      expect(AccessibilityManager.validateThemeCompliance(badTheme)).toBe(
-        false
-      );
+      expect(AccessibilityManager.validateThemeCompliance(badTheme)).toBe(false);
     });
   });
 
   describe('AccessibilityManager.generateHighContrastVariant', () => {
     it('should generate high contrast variant', () => {
       const originalTheme = THEMES.ocean;
-      const highContrastTheme =
-        AccessibilityManager.generateHighContrastVariant(originalTheme);
+      const highContrastTheme = AccessibilityManager.generateHighContrastVariant(originalTheme);
 
       expect(highContrastTheme.id).toBe('ocean-high-contrast');
       expect(highContrastTheme.category).toBe('high-contrast');
@@ -150,21 +141,9 @@ describe('Theme Utilities', () => {
     it('should calculate appropriate font size for different grid sizes', () => {
       const accessibility = THEMES.ocean.accessibility;
 
-      const size4x4 = AccessibilityManager.calculateOptimalFontSize(
-        4,
-        320,
-        accessibility
-      );
-      const size6x6 = AccessibilityManager.calculateOptimalFontSize(
-        6,
-        320,
-        accessibility
-      );
-      const size9x9 = AccessibilityManager.calculateOptimalFontSize(
-        9,
-        320,
-        accessibility
-      );
+      const size4x4 = AccessibilityManager.calculateOptimalFontSize(4, 320, accessibility);
+      const size6x6 = AccessibilityManager.calculateOptimalFontSize(6, 320, accessibility);
+      const size9x9 = AccessibilityManager.calculateOptimalFontSize(9, 320, accessibility);
 
       expect(size4x4).toBeGreaterThan(size6x6);
       expect(size6x6).toBeGreaterThan(size9x9);
@@ -174,16 +153,8 @@ describe('Theme Utilities', () => {
     it('should scale with screen width', () => {
       const accessibility = THEMES.ocean.accessibility;
 
-      const sizeSmall = AccessibilityManager.calculateOptimalFontSize(
-        9,
-        320,
-        accessibility
-      );
-      const sizeLarge = AccessibilityManager.calculateOptimalFontSize(
-        9,
-        1024,
-        accessibility
-      );
+      const sizeSmall = AccessibilityManager.calculateOptimalFontSize(9, 320, accessibility);
+      const sizeLarge = AccessibilityManager.calculateOptimalFontSize(9, 1024, accessibility);
 
       expect(sizeLarge).toBeGreaterThan(sizeSmall);
     });
@@ -194,7 +165,7 @@ describe('Theme Utilities', () => {
       const recommendations = AccessibilityManager.getThemeRecommendations(
         'children',
         false,
-        false
+        false,
       );
 
       expect(recommendations.length).toBeGreaterThan(0);
@@ -204,11 +175,7 @@ describe('Theme Utilities', () => {
     });
 
     it('should recommend high contrast themes when needed', () => {
-      const recommendations = AccessibilityManager.getThemeRecommendations(
-        'all',
-        true,
-        false
-      );
+      const recommendations = AccessibilityManager.getThemeRecommendations('all', true, false);
 
       expect(recommendations.length).toBeGreaterThan(0);
       for (const theme of recommendations) {
@@ -217,11 +184,7 @@ describe('Theme Utilities', () => {
     });
 
     it('should filter out animated themes for reduced motion', () => {
-      const recommendations = AccessibilityManager.getThemeRecommendations(
-        'all',
-        false,
-        true
-      );
+      const recommendations = AccessibilityManager.getThemeRecommendations('all', false, true);
 
       for (const theme of recommendations) {
         expect(theme.childFriendly.enableAnimations).toBe(false);
@@ -312,23 +275,23 @@ describe('Theme Utilities', () => {
       // Check that CSS variables were set
       expect(mockRoot.style.setProperty).toHaveBeenCalledWith(
         '--color-primary',
-        theme.colors.primary
+        theme.colors.primary,
       );
       expect(mockRoot.style.setProperty).toHaveBeenCalledWith(
         '--color-background',
-        theme.colors.background
+        theme.colors.background,
       );
 
       // Check accessibility properties
       expect(mockRoot.style.setProperty).toHaveBeenCalledWith(
         '--focus-indicator-width',
-        `${theme.accessibility.focusIndicatorWidth}px`
+        `${theme.accessibility.focusIndicatorWidth}px`,
       );
 
       // Check child-friendly properties
       expect(mockRoot.style.setProperty).toHaveBeenCalledWith(
         '--border-radius',
-        `${theme.childFriendly.roundedCorners}px`
+        `${theme.childFriendly.roundedCorners}px`,
       );
 
       // Check theme class was added to body
@@ -341,9 +304,7 @@ describe('Theme Utilities', () => {
       const theme = THEMES.ocean;
       applyThemeToDocument(theme);
 
-      expect(mockDocument.body.className).toBe(
-        'existing-class other-class theme-ocean'
-      );
+      expect(mockDocument.body.className).toBe('existing-class other-class theme-ocean');
     });
 
     it('should handle missing document gracefully', () => {
@@ -391,12 +352,8 @@ describe('Theme Utilities', () => {
 
     it('should have proper CSS variable mapping', () => {
       for (const theme of Object.values(THEMES)) {
-        expect(theme.cssVariables['--color-primary']).toBe(
-          theme.colors.primary
-        );
-        expect(theme.cssVariables['--color-background']).toBe(
-          theme.colors.background
-        );
+        expect(theme.cssVariables['--color-primary']).toBe(theme.colors.primary);
+        expect(theme.cssVariables['--color-background']).toBe(theme.colors.background);
         expect(theme.cssVariables['--color-text']).toBe(theme.colors.text);
       }
     });

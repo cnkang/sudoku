@@ -13,10 +13,7 @@ export const getByModuleClass = (className: string) => {
 /**
  * Check if an element has a CSS module class
  */
-export const hasModuleClass = (
-  element: Element,
-  className: string
-): boolean => {
+export const hasModuleClass = (element: Element, className: string): boolean => {
   return element.className.includes(className);
 };
 
@@ -30,9 +27,6 @@ export const getByTestId = (testId: string) => {
 /**
  * Check if element has any of the expected CSS module classes
  */
-export const hasAnyModuleClass = (
-  element: Element,
-  classNames: string[]
-): boolean => {
-  return classNames.some(className => element.className.includes(className));
+export const hasAnyModuleClass = (element: Element, classNames: string[]): boolean => {
+  return classNames.some((className) => element.className.includes(className));
 };

@@ -1,18 +1,12 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  standardTestCleanup,
-  standardTestSetup,
-} from '@/test-utils/common-test-setup';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
+import { standardTestCleanup, standardTestSetup } from '@/test-utils/common-test-setup';
 import {
   COMMON_TEST_SCENARIOS,
   createGameControlsProps,
 } from '@/test-utils/component-props-factory';
 import GameControls from '../GameControls';
-import {
-  createLoadingStateTests,
-  createRenderingTests,
-} from './shared-test-suites';
+import { createLoadingStateTests, createRenderingTests } from './shared-test-suites';
 
 describe('GameControls', () => {
   let mockProps: ReturnType<typeof createGameControlsProps>;
@@ -25,9 +19,7 @@ describe('GameControls', () => {
   afterEach(standardTestCleanup);
 
   // Use shared rendering tests
-  createRenderingTests('GameControls', () =>
-    render(<GameControls {...mockProps} />)
-  );
+  createRenderingTests('GameControls', () => render(<GameControls {...mockProps} />));
 
   describe('Rendering', () => {
     const expectedButtons = [
@@ -68,8 +60,8 @@ describe('GameControls', () => {
 
   // Use shared loading state tests
   createLoadingStateTests(
-    props => render(<GameControls {...createGameControlsProps(props)} />),
-    'Loading...'
+    (props) => render(<GameControls {...createGameControlsProps(props)} />),
+    'Loading...',
   );
 
   describe('Button Interactions', () => {
@@ -118,11 +110,7 @@ describe('GameControls', () => {
 
   describe('Disabled States', () => {
     it('should disable main buttons when disabled prop is true', () => {
-      render(
-        <GameControls
-          {...createGameControlsProps(COMMON_TEST_SCENARIOS.DISABLED_STATE)}
-        />
-      );
+      render(<GameControls {...createGameControlsProps(COMMON_TEST_SCENARIOS.DISABLED_STATE)} />);
 
       const buttonsToCheck = [
         screen.getByRole('button', { name: /check your solution/i }),
@@ -130,17 +118,13 @@ describe('GameControls', () => {
         screen.getByRole('button', { name: /get a hint/i }),
       ];
 
-      buttonsToCheck.forEach(button => {
+      buttonsToCheck.forEach((button) => {
         expect(button).toBeDisabled();
       });
     });
 
     it('should enable main buttons when disabled prop is false', () => {
-      render(
-        <GameControls
-          {...createGameControlsProps({ disabled: false, canUndo: true })}
-        />
-      );
+      render(<GameControls {...createGameControlsProps({ disabled: false, canUndo: true })} />);
 
       const buttonsToCheck = [
         screen.getByRole('button', { name: /check your solution/i }),
@@ -149,7 +133,7 @@ describe('GameControls', () => {
         screen.getByRole('button', { name: /undo last move/i }),
       ];
 
-      buttonsToCheck.forEach(button => {
+      buttonsToCheck.forEach((button) => {
         expect(button).not.toBeDisabled();
       });
     });
@@ -183,18 +167,12 @@ describe('GameControls', () => {
 
     it('should disable undo button when canUndo is false', () => {
       render(<GameControls {...createGameControlsProps({ canUndo: false })} />);
-      expect(
-        screen.getByRole('button', { name: /undo last move/i })
-      ).toBeDisabled();
+      expect(screen.getByRole('button', { name: /undo last move/i })).toBeDisabled();
     });
 
     it('should disable reset button when loading', () => {
-      render(
-        <GameControls {...createGameControlsProps({ isLoading: true })} />
-      );
-      expect(
-        screen.getByRole('button', { name: /reset the game/i })
-      ).toBeDisabled();
+      render(<GameControls {...createGameControlsProps({ isLoading: true })} />);
+      expect(screen.getByRole('button', { name: /reset the game/i })).toBeDisabled();
     });
   });
 
@@ -295,18 +273,14 @@ describe('GameControls', () => {
     it('should show success message when isCorrect is true', () => {
       render(<GameControls {...mockProps} isCorrect={true} />);
 
-      expect(
-        screen.getByText(/congratulations! you solved it correctly!/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/congratulations! you solved it correctly!/i)).toBeInTheDocument();
       expect(screen.getByText(/🎉/)).toBeInTheDocument();
     });
 
     it('should show error message when isCorrect is false', () => {
       render(<GameControls {...mockProps} isCorrect={false} />);
 
-      expect(
-        screen.getByText(/not quite right. keep trying!/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/not quite right. keep trying!/i)).toBeInTheDocument();
       expect(screen.getByText(/❌/)).toBeInTheDocument();
     });
 
@@ -318,9 +292,7 @@ describe('GameControls', () => {
     });
 
     it('should apply correct CSS classes for success and error messages', () => {
-      const { rerender } = render(
-        <GameControls {...mockProps} isCorrect={true} />
-      );
+      const { rerender } = render(<GameControls {...mockProps} isCorrect={true} />);
 
       let resultMessage = screen.getByTestId('result-message');
       expect(resultMessage).toBeInTheDocument();
@@ -338,35 +310,21 @@ describe('GameControls', () => {
     it('should have proper aria-labels for all buttons', () => {
       render(<GameControls {...mockProps} />);
 
-      expect(
-        screen.getByRole('button', { name: 'Check your solution' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: 'Pause game' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: 'Undo last move' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: 'Get a hint' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: 'Reset the game' })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Check your solution' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Pause game' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Undo last move' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Get a hint' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Reset the game' })).toBeInTheDocument();
     });
 
     it('should update aria-label for pause/resume button based on state', () => {
       const { rerender } = render(<GameControls {...mockProps} />);
 
-      expect(
-        screen.getByRole('button', { name: 'Pause game' })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Pause game' })).toBeInTheDocument();
 
       rerender(<GameControls {...mockProps} isPaused={true} />);
 
-      expect(
-        screen.getByRole('button', { name: 'Resume game' })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Resume game' })).toBeInTheDocument();
     });
   });
 
@@ -398,24 +356,11 @@ describe('GameControls', () => {
     });
 
     it('should handle disabled state with all other states', () => {
-      render(
-        <GameControls
-          {...mockProps}
-          disabled={true}
-          isLoading={true}
-          isCorrect={true}
-        />
-      );
+      render(<GameControls {...mockProps} disabled={true} isLoading={true} isCorrect={true} />);
 
-      expect(
-        screen.getByRole('button', { name: /check your solution/i })
-      ).toBeDisabled();
-      expect(
-        screen.getByRole('button', { name: /pause game/i })
-      ).toBeDisabled();
-      expect(
-        screen.getByRole('button', { name: /reset the game/i })
-      ).toBeDisabled();
+      expect(screen.getByRole('button', { name: /check your solution/i })).toBeDisabled();
+      expect(screen.getByRole('button', { name: /pause game/i })).toBeDisabled();
+      expect(screen.getByRole('button', { name: /reset the game/i })).toBeDisabled();
       expect(screen.getByText(/congratulations/i)).toBeInTheDocument();
     });
   });

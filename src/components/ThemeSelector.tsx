@@ -19,18 +19,13 @@ export default function ThemeSelector({
   showHighContrastToggle = true,
   className = '',
 }: ThemeSelectorProps) {
-  const {
-    currentTheme,
-    availableThemes,
-    setTheme,
-    toggleHighContrast,
-    isHighContrastMode,
-  } = useThemeContext();
+  const { currentTheme, availableThemes, setTheme, toggleHighContrast, isHighContrastMode } =
+    useThemeContext();
 
   // Filter themes based on props
   const displayThemes = showChildFriendlyOnly
     ? getChildFriendlyThemes()
-    : availableThemes.filter(theme => theme.category !== 'high-contrast');
+    : availableThemes.filter((theme) => theme.category !== 'high-contrast');
 
   const handleThemeChange = (themeId: string) => {
     setTheme(themeId);
@@ -44,21 +39,17 @@ export default function ThemeSelector({
     <div className={`${styles.themeSelector} ${className}`}>
       <div className={styles.header}>
         <h3 className={styles.title}>Choose Your Adventure</h3>
-        <p className={styles.description}>
-          Pick a colorful theme that makes learning fun!
-        </p>
+        <p className={styles.description}>Pick a colorful theme that makes learning fun!</p>
       </div>
 
       <div className={styles.themeGrid}>
-        {displayThemes.map(theme => (
+        {displayThemes.map((theme) => (
           <button
             key={theme.id}
             type="button"
-            className={`${styles.themeCard} ${
-              currentTheme.id === theme.id ? styles.selected : ''
-            }`}
+            className={`${styles.themeCard} ${currentTheme.id === theme.id ? styles.selected : ''}`}
             onClick={() => handleThemeChange(theme.id)}
-            onKeyDown={event => {
+            onKeyDown={(event) => {
               if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
                 handleThemeChange(theme.id);
@@ -104,15 +95,11 @@ export default function ThemeSelector({
                 <p className={styles.themeDescription}>{theme.description}</p>
 
                 {theme.ageGroup === 'children' && (
-                  <span className={styles.childFriendlyBadge}>
-                    👶 Kid-Friendly
-                  </span>
+                  <span className={styles.childFriendlyBadge}>👶 Kid-Friendly</span>
                 )}
 
                 {theme.category === 'high-contrast' && (
-                  <span className={styles.accessibilityBadge}>
-                    ♿ High Contrast
-                  </span>
+                  <span className={styles.accessibilityBadge}>♿ High Contrast</span>
                 )}
               </div>
             </div>
@@ -131,27 +118,18 @@ export default function ThemeSelector({
         <div className={styles.accessibilityControls}>
           <button
             type="button"
-            className={`${styles.highContrastToggle} ${
-              isHighContrastMode ? styles.active : ''
-            }`}
+            className={`${styles.highContrastToggle} ${isHighContrastMode ? styles.active : ''}`}
             onClick={handleHighContrastToggle}
-            aria-label={`${
-              isHighContrastMode ? 'Disable' : 'Enable'
-            } high contrast mode`}
+            aria-label={`${isHighContrastMode ? 'Disable' : 'Enable'} high contrast mode`}
             aria-pressed={isHighContrastMode}
           >
-            <span className={styles.toggleIcon}>
-              {isHighContrastMode ? '🔆' : '🌓'}
-            </span>
+            <span className={styles.toggleIcon}>{isHighContrastMode ? '🔆' : '🌓'}</span>
             <span className={styles.toggleText}>High Contrast Mode</span>
-            <span className={styles.toggleStatus}>
-              {isHighContrastMode ? 'ON' : 'OFF'}
-            </span>
+            <span className={styles.toggleStatus}>{isHighContrastMode ? 'ON' : 'OFF'}</span>
           </button>
 
           <p className={styles.accessibilityNote}>
-            High contrast mode improves visibility for users with visual
-            impairments
+            High contrast mode improves visibility for users with visual impairments
           </p>
         </div>
       )}

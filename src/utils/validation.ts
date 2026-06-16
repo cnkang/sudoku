@@ -3,10 +3,7 @@
  */
 
 import type { GridConfig } from '@/types';
-import {
-  createValidationError,
-  VALIDATION_ERRORS,
-} from '@/utils/errorMessages';
+import { createValidationError, VALIDATION_ERRORS } from '@/utils/errorMessages';
 import { GridConfigManager } from '@/utils/gridConfig';
 
 /**
@@ -43,13 +40,9 @@ const clampToRange = (value: number, min: number, max: number) =>
  * Strict difficulty validation used by server APIs and shared utilities.
  * Throws descriptive errors for invalid inputs so callers can respond with proper status codes.
  */
-export const validateDifficulty = (
-  difficulty: unknown,
-  config?: GridConfig
-): number => {
+export const validateDifficulty = (difficulty: unknown, config?: GridConfig): number => {
   const minDifficulty = VALIDATION_CONSTANTS.MIN_DIFFICULTY;
-  const maxDifficulty =
-    config?.difficultyLevels ?? VALIDATION_CONSTANTS.MAX_DIFFICULTY;
+  const maxDifficulty = config?.difficultyLevels ?? VALIDATION_CONSTANTS.MAX_DIFFICULTY;
 
   if (difficulty === null || difficulty === undefined) {
     throw new TypeError(VALIDATION_ERRORS.DIFFICULTY_REQUIRED);
@@ -81,13 +74,9 @@ export const validateDifficulty = (
  * Legacy-friendly difficulty normalizer for client components that prefer protective clamping.
  * Continues to round decimals and clamp outside values while falling back to safe defaults for invalid inputs.
  */
-export const normalizeDifficulty = (
-  difficulty: unknown,
-  config?: GridConfig
-): number => {
+export const normalizeDifficulty = (difficulty: unknown, config?: GridConfig): number => {
   const minDifficulty = VALIDATION_CONSTANTS.MIN_DIFFICULTY;
-  const maxDifficulty =
-    config?.difficultyLevels ?? VALIDATION_CONSTANTS.MAX_DIFFICULTY;
+  const maxDifficulty = config?.difficultyLevels ?? VALIDATION_CONSTANTS.MAX_DIFFICULTY;
 
   let normalizedValue: unknown = difficulty;
 
@@ -110,11 +99,7 @@ export const normalizeDifficulty = (
 /**
  * Validates Sudoku cell coordinates - now supports multiple grid sizes
  */
-export const validateCellCoordinates = (
-  row: number,
-  col: number,
-  config?: GridConfig
-): void => {
+export const validateCellCoordinates = (row: number, col: number, config?: GridConfig): void => {
   const gridSize = config?.size ?? VALIDATION_CONSTANTS.SUDOKU_SIZE;
 
   if (!Number.isInteger(row) || row < 0 || row >= gridSize) {
@@ -132,10 +117,7 @@ export const validateCellCoordinates = (
 export const validateCellValue = (value: number, config?: GridConfig): void => {
   const maxValue = config?.maxValue ?? 9;
 
-  if (
-    !Number.isInteger(value) ||
-    (value !== 0 && (value < 1 || value > maxValue))
-  ) {
+  if (!Number.isInteger(value) || (value !== 0 && (value < 1 || value > maxValue))) {
     throw new Error(createValidationError.invalidCellValue(value, maxValue));
   }
 };
@@ -143,10 +125,7 @@ export const validateCellValue = (value: number, config?: GridConfig): void => {
 /**
  * Validates complete Sudoku grid structure - now supports multiple grid sizes
  */
-export const validateSudokuGrid = (
-  grid: number[][],
-  config?: GridConfig
-): void => {
+export const validateSudokuGrid = (grid: number[][], config?: GridConfig): void => {
   const gridSize = config?.size ?? VALIDATION_CONSTANTS.SUDOKU_SIZE;
 
   if (!Array.isArray(grid) || grid.length !== gridSize) {
@@ -166,8 +145,8 @@ export const validateSudokuGrid = (
           createValidationError.invalidCellAt(
             rowIndex,
             colIndex,
-            error instanceof Error ? error.message : 'Unknown error'
-          )
+            error instanceof Error ? error.message : 'Unknown error',
+          ),
         );
       }
     });
@@ -181,7 +160,7 @@ export const validateInputChange = (
   row: number,
   col: number,
   value: number,
-  config?: GridConfig
+  config?: GridConfig,
 ): void => {
   validateCellCoordinates(row, col, config);
   validateCellValue(value, config);
@@ -195,7 +174,7 @@ function hasRowConflict(
   row: number,
   col: number,
   value: number,
-  size: number
+  size: number,
 ): boolean {
   for (let c = 0; c < size; c++) {
     if (c !== col && grid[row]?.[c] === value) {
@@ -213,7 +192,7 @@ function hasColumnConflict(
   row: number,
   col: number,
   value: number,
-  size: number
+  size: number,
 ): boolean {
   for (let r = 0; r < size; r++) {
     if (r !== row && grid[r]?.[col] === value) {
@@ -231,7 +210,7 @@ function hasBoxConflict(
   row: number,
   col: number,
   value: number,
-  config: GridConfig
+  config: GridConfig,
 ): boolean {
   const boxStartRow = Math.floor(row / config.boxRows) * config.boxRows;
   const boxStartCol = Math.floor(col / config.boxCols) * config.boxCols;
@@ -254,7 +233,7 @@ export const detectConflicts = (
   row: number,
   col: number,
   value: number,
-  config: GridConfig
+  config: GridConfig,
 ): { hasConflict: boolean; conflictType?: 'row' | 'column' | 'box' } => {
   const isValid = GridConfigManager.validateMove(config, grid, row, col, value);
 

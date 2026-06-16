@@ -1,8 +1,5 @@
 import { UTILITY_ERRORS } from '@/utils/errorMessages';
-import {
-  createRequestKey,
-  deduplicateRequest,
-} from '@/utils/requestDeduplication';
+import { createRequestKey, deduplicateRequest } from '@/utils/requestDeduplication';
 
 interface CachedResponse {
   data: unknown;
@@ -73,7 +70,7 @@ export const clientCache = new ClientCache();
 export async function fetchWithCache(
   url: string,
   options: RequestInit = {},
-  forceRefresh = false
+  forceRefresh = false,
 ): Promise<unknown> {
   const cacheKey = `${url}-${JSON.stringify(options)}`;
 

@@ -35,14 +35,11 @@ export const Grid6x6 = memo<Grid6x6Props>(
   }) => {
     const getSubGridBorders = useCallback(
       (row: number, col: number) => ({
-        borderRight:
-          col === 2 || col === 5 ? '3px solid #1f2937' : '1px solid #d1d5db',
+        borderRight: col === 2 || col === 5 ? '3px solid #1f2937' : '1px solid #d1d5db',
         borderBottom:
-          row === 1 || row === 3 || row === 5
-            ? '3px solid #1f2937'
-            : '1px solid #d1d5db',
+          row === 1 || row === 3 || row === 5 ? '3px solid #1f2937' : '1px solid #d1d5db',
       }),
-      []
+      [],
     );
 
     return (
@@ -72,7 +69,7 @@ export const Grid6x6 = memo<Grid6x6Props>(
         ]}
       />
     );
-  }
+  },
 );
 
 Grid6x6.displayName = 'Grid6x6';

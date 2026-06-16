@@ -5,13 +5,8 @@
  */
 
 import * as fc from 'fast-check';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  isOffline,
-  isPWAInstalled,
-  isPWASupported,
-  pwaManager,
-} from '@/utils/pwa';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
+import { isOffline, isPWAInstalled, isPWASupported, pwaManager } from '@/utils/pwa';
 
 // Create comprehensive mocks for browser APIs
 const createMockServiceWorker = () => ({
@@ -40,9 +35,7 @@ const createMockCaches = () => ({
   match: vi.fn().mockResolvedValue(undefined),
 });
 
-const createMockNotification = (
-  permission: NotificationPermission = 'default'
-) => ({
+const createMockNotification = (permission: NotificationPermission = 'default') => ({
   requestPermission: vi.fn().mockResolvedValue(permission),
   permission,
 });
@@ -52,14 +45,13 @@ const createMockWindow = (
     hasCaches?: boolean;
     hasNotification?: boolean;
     displayMode?: string;
-  } = {}
+  } = {},
 ) => {
   const mockWindow: any = {
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
     matchMedia: vi.fn((query: string) => ({
-      matches:
-        query.includes('standalone') && options.displayMode === 'standalone',
+      matches: query.includes('standalone') && options.displayMode === 'standalone',
       media: query,
       onchange: null,
       addListener: vi.fn(),
@@ -86,7 +78,7 @@ const createMockNavigator = (
     hasServiceWorker?: boolean;
     onLine?: boolean;
     standalone?: boolean;
-  } = {}
+  } = {},
 ) => {
   const mockNavigator: any = {
     onLine: options.onLine ?? true,
@@ -152,12 +144,9 @@ const progressDataArbitrary = fc.record({
 });
 
 const achievementDataArbitrary = fc.record({
-  type: fc.constantFrom(
-    'completion',
-    'streak',
-    'speed',
-    'perfect'
-  ) as fc.Arbitrary<'completion' | 'streak' | 'speed' | 'perfect'>,
+  type: fc.constantFrom('completion', 'streak', 'speed', 'perfect') as fc.Arbitrary<
+    'completion' | 'streak' | 'speed' | 'perfect'
+  >,
   gridSize: fc.constantFrom(4, 6, 9) as fc.Arbitrary<4 | 6 | 9>,
   value: fc.integer({ min: 1, max: 1000 }),
   timestamp: fc.integer({ min: baseTimestamp - 43200000, max: baseTimestamp }),
@@ -168,7 +157,7 @@ const networkStatusArbitrary = fc.boolean();
 const notificationPermissionArbitrary = fc.constantFrom(
   'granted',
   'denied',
-  'default'
+  'default',
 ) as fc.Arbitrary<NotificationPermission>;
 
 const environmentConfigArbitrary = fc.record({
@@ -176,12 +165,7 @@ const environmentConfigArbitrary = fc.record({
   hasCaches: fc.boolean(),
   hasWindow: fc.boolean(),
   hasNotification: fc.boolean(),
-  displayMode: fc.constantFrom(
-    'browser',
-    'standalone',
-    'minimal-ui',
-    'fullscreen'
-  ),
+  displayMode: fc.constantFrom('browser', 'standalone', 'minimal-ui', 'fullscreen'),
   onLine: fc.boolean(),
   standalone: fc.boolean(),
 });
@@ -190,7 +174,7 @@ describe('PWA Functionality Property Tests', () => {
   describe('Property 17: Progressive Web App functionality', () => {
     it('should maintain PWA support detection consistency across different environments', () => {
       fc.assert(
-        fc.property(environmentConfigArbitrary, environment => {
+        fc.property(environmentConfigArbitrary, (environment) => {
           // Create environment-specific mocks
           const windowRef = environment.hasWindow
             ? createMockWindow({
@@ -223,13 +207,11 @@ describe('PWA Functionality Property Tests', () => {
 
           // PWA should be supported only when all required APIs are available
           const expectedSupport =
-            environment.hasWindow &&
-            environment.hasServiceWorker &&
-            environment.hasCaches;
+            environment.hasWindow && environment.hasServiceWorker && environment.hasCaches;
 
           expect(isSupported).toBe(expectedSupport);
         }),
-        { numRuns: 50 } // Reduced for faster execution
+        { numRuns: 50 }, // Reduced for faster execution
       );
     });
 
@@ -237,15 +219,10 @@ describe('PWA Functionality Property Tests', () => {
       fc.assert(
         fc.property(
           fc.record({
-            displayMode: fc.constantFrom(
-              'browser',
-              'standalone',
-              'minimal-ui',
-              'fullscreen'
-            ),
+            displayMode: fc.constantFrom('browser', 'standalone', 'minimal-ui', 'fullscreen'),
             standalone: fc.boolean(),
           }),
-          config => {
+          (config) => {
             // Create proper window mock with matchMedia
             const windowRef = createMockWindow({
               displayMode: config.displayMode,
@@ -275,19 +252,18 @@ describe('PWA Functionality Property Tests', () => {
             const isInstalled = isPWAInstalled();
 
             // Should be installed if either display mode is standalone or iOS standalone is true
-            const expectedInstalled =
-              config.displayMode === 'standalone' || config.standalone;
+            const expectedInstalled = config.displayMode === 'standalone' || config.standalone;
 
             expect(isInstalled).toBe(expectedInstalled);
-          }
+          },
         ),
-        { numRuns: 50 }
+        { numRuns: 50 },
       );
     });
 
     it('should handle offline status detection consistently', () => {
       fc.assert(
-        fc.property(networkStatusArbitrary, onlineStatus => {
+        fc.property(networkStatusArbitrary, (onlineStatus) => {
           // Create navigator mock with specific online status
           const navigatorRef = createMockNavigator({
             hasServiceWorker: true,
@@ -305,13 +281,13 @@ describe('PWA Functionality Property Tests', () => {
           // Offline status should be the inverse of online status
           expect(offlineStatus).toBe(!onlineStatus);
         }),
-        { numRuns: 50 }
+        { numRuns: 50 },
       );
     });
 
     it('should properly cache progress data for any valid progress input', async () => {
       await fc.assert(
-        fc.asyncProperty(progressDataArbitrary, async progressData => {
+        fc.asyncProperty(progressDataArbitrary, async (progressData) => {
           // Setup proper mocks for service worker
           const mockServiceWorker = createMockServiceWorker();
           mockServiceWorker.register.mockResolvedValue({
@@ -337,9 +313,7 @@ describe('PWA Functionality Property Tests', () => {
           });
 
           // Test caching progress data - should not throw
-          await expect(
-            pwaManager.cacheProgress(progressData)
-          ).resolves.not.toThrow();
+          await expect(pwaManager.cacheProgress(progressData)).resolves.not.toThrow();
 
           // Verify the data structure is preserved and valid
           expect(progressData.gridSize).toBeOneOf([4, 6, 9]);
@@ -350,13 +324,13 @@ describe('PWA Functionality Property Tests', () => {
           expect(progressData.hintsUsed).toBeGreaterThanOrEqual(0);
           expect(progressData.timestamp).toBeGreaterThan(0);
         }),
-        { numRuns: 30 } // Reduced for async operations
+        { numRuns: 30 }, // Reduced for async operations
       );
     });
 
     it('should properly cache achievement data for any valid achievement input', async () => {
       await fc.assert(
-        fc.asyncProperty(achievementDataArbitrary, async achievementData => {
+        fc.asyncProperty(achievementDataArbitrary, async (achievementData) => {
           // Setup proper mocks for service worker
           const mockServiceWorker = createMockServiceWorker();
           mockServiceWorker.register.mockResolvedValue({
@@ -382,29 +356,22 @@ describe('PWA Functionality Property Tests', () => {
           });
 
           // Test caching achievement data - should not throw
-          await expect(
-            pwaManager.cacheAchievement(achievementData)
-          ).resolves.not.toThrow();
+          await expect(pwaManager.cacheAchievement(achievementData)).resolves.not.toThrow();
 
           // Verify the data structure is preserved and valid
-          expect(achievementData.type).toBeOneOf([
-            'completion',
-            'streak',
-            'speed',
-            'perfect',
-          ]);
+          expect(achievementData.type).toBeOneOf(['completion', 'streak', 'speed', 'perfect']);
           expect(achievementData.gridSize).toBeOneOf([4, 6, 9]);
           expect(achievementData.value).toBeGreaterThan(0);
           expect(achievementData.value).toBeLessThanOrEqual(1000);
           expect(achievementData.timestamp).toBeGreaterThan(0);
         }),
-        { numRuns: 30 }
+        { numRuns: 30 },
       );
     });
 
     it('should handle notification permission requests consistently', async () => {
       await fc.assert(
-        fc.asyncProperty(notificationPermissionArbitrary, async permission => {
+        fc.asyncProperty(notificationPermissionArbitrary, async (permission) => {
           // Create proper notification mock
           const mockNotification = createMockNotification(permission);
           const windowRef = createMockWindow({
@@ -427,7 +394,7 @@ describe('PWA Functionality Property Tests', () => {
           // Should be one of the valid permission states
           expect(result).toBeOneOf(['granted', 'denied', 'default']);
         }),
-        { numRuns: 30 }
+        { numRuns: 30 },
       );
     });
 
@@ -440,18 +407,14 @@ describe('PWA Functionality Property Tests', () => {
             updateAvailable: fc.boolean(),
           }),
           // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: property test covers multiple branches
-          async scenario => {
+          async (scenario) => {
             // Create service worker mock based on scenario
             const mockServiceWorker = createMockServiceWorker();
 
             if (scenario.registrationSuccess) {
               const mockRegistration = {
-                active: scenario.hasActiveWorker
-                  ? { postMessage: vi.fn() }
-                  : null,
-                installing: scenario.updateAvailable
-                  ? { addEventListener: vi.fn() }
-                  : null,
+                active: scenario.hasActiveWorker ? { postMessage: vi.fn() } : null,
+                installing: scenario.updateAvailable ? { addEventListener: vi.fn() } : null,
                 addEventListener: vi.fn(),
                 update: vi.fn(),
                 showNotification: vi.fn(),
@@ -459,9 +422,7 @@ describe('PWA Functionality Property Tests', () => {
               };
               mockServiceWorker.register.mockResolvedValue(mockRegistration);
             } else {
-              mockServiceWorker.register.mockRejectedValue(
-                new Error('Registration failed')
-              );
+              mockServiceWorker.register.mockRejectedValue(new Error('Registration failed'));
             }
 
             const navigatorRef = createMockNavigator({
@@ -490,8 +451,7 @@ describe('PWA Functionality Property Tests', () => {
             const status = await pwaManager.getStatus();
 
             // Service worker should be ready only if registration succeeded and worker is active
-            const expectedReady =
-              scenario.registrationSuccess && scenario.hasActiveWorker;
+            const expectedReady = scenario.registrationSuccess && scenario.hasActiveWorker;
             expect(status.serviceWorkerReady).toBe(expectedReady);
 
             // Status should always have required properties
@@ -505,9 +465,9 @@ describe('PWA Functionality Property Tests', () => {
             expect(typeof status.isInstalled).toBe('boolean');
             expect(typeof status.isOffline).toBe('boolean');
             expect(typeof status.serviceWorkerReady).toBe('boolean');
-          }
+          },
         ),
-        { numRuns: 30 }
+        { numRuns: 30 },
       );
     });
 
@@ -522,7 +482,7 @@ describe('PWA Functionality Property Tests', () => {
               maxLength: 5,
             }),
           }),
-          async scenario => {
+          async (scenario) => {
             const windowRef = createMockWindow({
               hasCaches: scenario.cacheAvailable,
               hasNotification: true,
@@ -530,12 +490,8 @@ describe('PWA Functionality Property Tests', () => {
 
             if (scenario.cacheAvailable && windowRef.caches) {
               // Configure cache mocks based on scenario
-              windowRef.caches.keys = vi
-                .fn()
-                .mockResolvedValue(scenario.cacheNames);
-              windowRef.caches.delete = vi
-                .fn()
-                .mockResolvedValue(scenario.cacheOperationSuccess);
+              windowRef.caches.keys = vi.fn().mockResolvedValue(scenario.cacheNames);
+              windowRef.caches.delete = vi.fn().mockResolvedValue(scenario.cacheOperationSuccess);
             }
 
             Object.defineProperty(globalThis, 'window', {
@@ -550,20 +506,16 @@ describe('PWA Functionality Property Tests', () => {
             if (scenario.cacheAvailable && windowRef.caches) {
               expect(windowRef.caches.keys).toHaveBeenCalled();
             }
-          }
+          },
         ),
-        { numRuns: 30 }
+        { numRuns: 30 },
       );
     });
 
     it('should maintain data integrity during offline/online transitions', async () => {
       await fc.assert(
         fc.asyncProperty(
-          fc.tuple(
-            progressDataArbitrary,
-            achievementDataArbitrary,
-            fc.boolean()
-          ),
+          fc.tuple(progressDataArbitrary, achievementDataArbitrary, fc.boolean()),
           async ([progressData, achievementData, initialOnlineStatus]) => {
             // Setup comprehensive mocks
             const mockServiceWorker = createMockServiceWorker();
@@ -597,24 +549,15 @@ describe('PWA Functionality Property Tests', () => {
             });
 
             // Cache data - should not throw
-            await expect(
-              pwaManager.cacheProgress(progressData)
-            ).resolves.not.toThrow();
-            await expect(
-              pwaManager.cacheAchievement(achievementData)
-            ).resolves.not.toThrow();
+            await expect(pwaManager.cacheProgress(progressData)).resolves.not.toThrow();
+            await expect(pwaManager.cacheAchievement(achievementData)).resolves.not.toThrow();
 
             // Simulate network status change
             navigatorRef.onLine = !initialOnlineStatus;
 
             // Data should remain valid regardless of network status
             expect(progressData.gridSize).toBeOneOf([4, 6, 9]);
-            expect(achievementData.type).toBeOneOf([
-              'completion',
-              'streak',
-              'speed',
-              'perfect',
-            ]);
+            expect(achievementData.type).toBeOneOf(['completion', 'streak', 'speed', 'perfect']);
 
             // Timestamps should be reasonable (within generated range)
             // Use the same base timestamp as the generator
@@ -624,9 +567,9 @@ describe('PWA Functionality Property Tests', () => {
             expect(progressData.timestamp).toBeLessThanOrEqual(now);
             expect(achievementData.timestamp).toBeGreaterThanOrEqual(dayAgo);
             expect(achievementData.timestamp).toBeLessThanOrEqual(now);
-          }
+          },
         ),
-        { numRuns: 20 } // Reduced for complex async operations
+        { numRuns: 20 }, // Reduced for complex async operations
       );
     });
   });
@@ -638,14 +581,12 @@ expect.extend({
     const pass = expected.includes(received);
     if (pass) {
       return {
-        message: () =>
-          `expected ${received} not to be one of ${expected.join(', ')}`,
+        message: () => `expected ${received} not to be one of ${expected.join(', ')}`,
         pass: true,
       };
     } else {
       return {
-        message: () =>
-          `expected ${received} to be one of ${expected.join(', ')}`,
+        message: () => `expected ${received} to be one of ${expected.join(', ')}`,
         pass: false,
       };
     }

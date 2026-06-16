@@ -1,23 +1,17 @@
 import { act, renderHook } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import type { SudokuPuzzle } from '../../types';
 import { useGameState } from '../useGameState';
 import { useOptimisticSudoku } from '../useOptimisticSudoku';
 import { usePuzzleLoader } from '../usePuzzleLoader';
 
-const runPuzzleLoaderCase = (
-  difficulty: number,
-  shouldFetch: boolean,
-  expected: string | null
-) => {
+const runPuzzleLoaderCase = (difficulty: number, shouldFetch: boolean, expected: string | null) => {
   const { result } = renderHook(() => usePuzzleLoader(difficulty, shouldFetch));
   expect(result.current).toBe(expected);
 };
 
 describe('useGameState', () => {
-  let result: ReturnType<
-    typeof renderHook<ReturnType<typeof useGameState>, unknown>
-  >['result'];
+  let result: ReturnType<typeof renderHook<ReturnType<typeof useGameState>, unknown>>['result'];
 
   beforeEach(() => {
     const { result: hookResult } = renderHook(() => useGameState());
@@ -572,9 +566,7 @@ describe('useGameState', () => {
     ];
 
     it('should initialize with correct state', () => {
-      const { result } = renderHook(() =>
-        useOptimisticSudoku(initialUserInput)
-      );
+      const { result } = renderHook(() => useOptimisticSudoku(initialUserInput));
 
       expect(result.current.userInput).toEqual(initialUserInput);
       expect(result.current.isValidating).toBe(false);

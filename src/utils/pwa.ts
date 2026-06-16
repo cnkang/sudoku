@@ -70,29 +70,20 @@ const logError = (..._args: unknown[]): void => {};
 const isNavigatorStandalone = (navigatorRef?: Navigator): boolean => {
   if (!navigatorRef) return false;
   if ('standalone' in navigatorRef) {
-    return (
-      (navigatorRef as Navigator & { standalone?: boolean }).standalone === true
-    );
+    return (navigatorRef as Navigator & { standalone?: boolean }).standalone === true;
   }
   return false;
 };
 
-const SW_MESSAGE_TYPES = new Set([
-  'CACHE_UPDATED',
-  'OFFLINE_READY',
-  'SYNC_COMPLETE',
-]);
+const SW_MESSAGE_TYPES = new Set(['CACHE_UPDATED', 'OFFLINE_READY', 'SYNC_COMPLETE']);
 
 const isTrustedServiceWorkerMessage = (event: MessageEvent): boolean => {
   const windowRef = getWindow();
   const currentOrigin =
     windowRef?.location.origin ??
-    (globalThis.location === undefined
-      ? undefined
-      : globalThis.location.origin);
+    (globalThis.location === undefined ? undefined : globalThis.location.origin);
   if (!currentOrigin) return false;
-  const eventOrigin =
-    typeof event.origin === 'string' ? event.origin : undefined;
+  const eventOrigin = typeof event.origin === 'string' ? event.origin : undefined;
 
   if (eventOrigin && eventOrigin.length > 0 && eventOrigin !== currentOrigin) {
     return false;
@@ -115,9 +106,7 @@ const isTrustedServiceWorkerMessage = (event: MessageEvent): boolean => {
   return true;
 };
 
-const isValidServiceWorkerMessageData = (
-  data: unknown
-): data is { type: string } => {
+const isValidServiceWorkerMessageData = (data: unknown): data is { type: string } => {
   return (
     !!data &&
     typeof data === 'object' &&
@@ -130,7 +119,7 @@ const isValidServiceWorkerMessageData = (
 const isValidCacheStatusMessage = (data: unknown): data is CacheStatus => {
   if (!data || typeof data !== 'object') return false;
   if (!('caches' in data) || !Array.isArray(data.caches)) return false;
-  if (!data.caches.every(item => typeof item === 'string')) return false;
+  if (!data.caches.every((item) => typeof item === 'string')) return false;
   return (
     'totalSize' in data &&
     typeof data.totalSize === 'number' &&
@@ -192,10 +181,7 @@ class PWAManager {
         const newWorker = registration.installing;
         if (newWorker) {
           newWorker.addEventListener('statechange', () => {
-            if (
-              newWorker.state === 'installed' &&
-              navigatorRef.serviceWorker.controller
-            ) {
+            if (newWorker.state === 'installed' && navigatorRef.serviceWorker.controller) {
               // New service worker available
               this.notifyUpdate();
             }
@@ -206,7 +192,7 @@ class PWAManager {
       // Listen for messages from service worker
       navigatorRef.serviceWorker.addEventListener(
         'message',
-        this.handleServiceWorkerMessage.bind(this)
+        this.handleServiceWorkerMessage.bind(this),
       );
 
       logInfo('[PWA] Service Worker registered successfully');
@@ -228,12 +214,12 @@ class PWAManager {
     // Using passive: true for better performance (Requirement 8.1)
     windowRef.addEventListener(
       'beforeinstallprompt',
-      event => {
+      (event) => {
         event.preventDefault();
         this.installPromptEvent = event as BeforeInstallPromptEvent;
         this.updateStatus();
       },
-      { passive: false }
+      { passive: false },
     ); // Note: passive: false because we call preventDefault()
 
     windowRef.addEventListener(
@@ -242,7 +228,7 @@ class PWAManager {
         this.installPromptEvent = null;
         this.updateStatus();
       },
-      { passive: true }
+      { passive: true },
     );
   }
 
@@ -261,7 +247,7 @@ class PWAManager {
         this.updateStatus();
         this.syncPendingData();
       },
-      { passive: true }
+      { passive: true },
     );
 
     windowRef.addEventListener(
@@ -270,7 +256,7 @@ class PWAManager {
         logInfo('[PWA] Gone offline');
         this.updateStatus();
       },
-      { passive: true }
+      { passive: true },
     );
   }
 
@@ -321,14 +307,9 @@ class PWAManager {
       await this.registerServiceWorker();
     }
     const isSupported =
-      !!navigatorRef &&
-      !!windowRef &&
-      !!navigatorRef.serviceWorker &&
-      !!windowRef.caches;
+      !!navigatorRef && !!windowRef && !!navigatorRef.serviceWorker && !!windowRef.caches;
     const matchMedia = windowRef?.matchMedia?.('(display-mode: standalone)');
-    const isInstalled =
-      !!windowRef &&
-      (matchMedia?.matches || isNavigatorStandalone(navigatorRef));
+    const isInstalled = !!windowRef && (matchMedia?.matches || isNavigatorStandalone(navigatorRef));
     const isOffline = navigatorRef ? !navigatorRef.onLine : false;
     const serviceWorkerReady = !!this.serviceWorkerRegistration?.active;
 
@@ -358,16 +339,14 @@ class PWAManager {
     const activeWorker = registration?.active;
     if (!activeWorker) return undefined;
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       const messageChannel = new MessageChannel();
 
-      messageChannel.port1.onmessage = event => {
+      messageChannel.port1.onmessage = (event) => {
         resolve(isValidCacheStatusMessage(event.data) ? event.data : undefined);
       };
 
-      activeWorker.postMessage({ type: 'GET_CACHE_STATUS' }, [
-        messageChannel.port2,
-      ]);
+      activeWorker.postMessage({ type: 'GET_CACHE_STATUS' }, [messageChannel.port2]);
 
       // Timeout after 5 seconds
       setTimeout(() => resolve(undefined), 5000);
@@ -423,9 +402,7 @@ class PWAManager {
   /**
    * Cache achievement data for offline sync
    */
-  public async cacheAchievement(
-    achievementData: AchievementData
-  ): Promise<void> {
+  public async cacheAchievement(achievementData: AchievementData): Promise<void> {
     if (!this.serviceWorkerRegistration?.active) return;
 
     this.serviceWorkerRegistration.active.postMessage({
@@ -483,7 +460,7 @@ class PWAManager {
   public async showAchievementNotification(
     title: string,
     body: string,
-    data?: Record<string, unknown>
+    data?: Record<string, unknown>,
   ): Promise<void> {
     const permission = await this.requestNotificationPermission();
 
@@ -511,10 +488,7 @@ class PWAManager {
       requireInteraction: false,
     };
 
-    await this.serviceWorkerRegistration.showNotification(
-      title,
-      notificationOptions
-    );
+    await this.serviceWorkerRegistration.showNotification(title, notificationOptions);
   }
 
   /**
@@ -584,9 +558,7 @@ class PWAManager {
 
     try {
       const cacheNames = await cacheApi.keys();
-      await Promise.all(
-        cacheNames.map(cacheName => cacheApi.delete(cacheName))
-      );
+      await Promise.all(cacheNames.map((cacheName) => cacheApi.delete(cacheName)));
       logInfo('[PWA] All caches cleared');
     } catch (error) {
       logError('[PWA] Failed to clear caches:', error);
@@ -602,12 +574,7 @@ pwaManager.initialize();
 export const isPWASupported = (): boolean => {
   const windowRef = getWindow();
   const navigatorRef = getNavigator();
-  return (
-    !!windowRef &&
-    !!navigatorRef &&
-    !!navigatorRef.serviceWorker &&
-    !!windowRef.caches
-  );
+  return !!windowRef && !!navigatorRef && !!navigatorRef.serviceWorker && !!windowRef.caches;
 };
 
 export const isPWAInstalled = (): boolean => {

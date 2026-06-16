@@ -1,5 +1,5 @@
 import * as fc from 'fast-check';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test';
 
 // Create localStorage mock that works with the preferences module
 const localStorageMock = (() => {
@@ -76,18 +76,16 @@ describe('Property 11: Preference persistence', () => {
     localStorageMock._clearStore();
   });
 
-  const accessibilityArbitrary: fc.Arbitrary<AccessibilitySettings> = fc.record(
-    {
-      highContrast: fc.boolean(),
-      reducedMotion: fc.boolean(),
-      screenReaderMode: fc.boolean(),
-      largeText: fc.boolean(),
-      audioFeedback: fc.boolean(),
-      keyboardNavigation: fc.boolean(),
-      voiceInput: fc.boolean(),
-      adaptiveTouchTargets: fc.boolean(),
-    }
-  );
+  const accessibilityArbitrary: fc.Arbitrary<AccessibilitySettings> = fc.record({
+    highContrast: fc.boolean(),
+    reducedMotion: fc.boolean(),
+    screenReaderMode: fc.boolean(),
+    largeText: fc.boolean(),
+    audioFeedback: fc.boolean(),
+    keyboardNavigation: fc.boolean(),
+    voiceInput: fc.boolean(),
+    adaptiveTouchTargets: fc.boolean(),
+  });
 
   const progressStatsArbitrary: fc.Arbitrary<ProgressStats> = fc.record({
     puzzlesCompleted: fc.nat(1000),
@@ -104,8 +102,8 @@ describe('Property 11: Preference persistence', () => {
     lastPlayed: fc.option(
       fc
         .date({ min: new Date('2020-01-01'), max: new Date('2030-01-01') })
-        .filter(date => !Number.isNaN(date.getTime())),
-      { nil: null }
+        .filter((date) => !Number.isNaN(date.getTime())),
+      { nil: null },
     ),
     dailyStreak: fc.nat(365),
     weeklyGoalProgress: fc.nat(7),
@@ -125,9 +123,7 @@ describe('Property 11: Preference persistence', () => {
     difficulty?: number;
   };
 
-  const isAccessibilitySettings = (
-    data: unknown
-  ): data is AccessibilitySettings =>
+  const isAccessibilitySettings = (data: unknown): data is AccessibilitySettings =>
     typeof data === 'object' &&
     data !== null &&
     !Array.isArray(data) &&
@@ -143,7 +139,7 @@ describe('Property 11: Preference persistence', () => {
   const applyPreferenceOperation = (
     savedData: SavedPreferences,
     operation: string,
-    data: unknown
+    data: unknown,
   ) => {
     if (operation === 'accessibility' && isAccessibilitySettings(data)) {
       saveAccessibilitySettings(data);
@@ -177,7 +173,7 @@ describe('Property 11: Preference persistence', () => {
 
   it('should preserve accessibility settings across save/load cycles', () => {
     fc.assert(
-      fc.property(accessibilityArbitrary, settings => {
+      fc.property(accessibilityArbitrary, (settings) => {
         // Save settings
         saveAccessibilitySettings(settings);
 
@@ -187,15 +183,12 @@ describe('Property 11: Preference persistence', () => {
         // Should match exactly
         expect(loaded).toEqual(settings);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
   // Custom matcher for progress stats that handles date serialization
-  const expectProgressStatsEqual = (
-    actual: ProgressStats,
-    expected: ProgressStats
-  ) => {
+  const expectProgressStatsEqual = (actual: ProgressStats, expected: ProgressStats) => {
     expect(actual.puzzlesCompleted).toBe(expected.puzzlesCompleted);
     expect(actual.totalTime).toBe(expected.totalTime);
     expect(actual.averageTime).toBe(expected.averageTime);
@@ -242,7 +235,7 @@ describe('Property 11: Preference persistence', () => {
           '6x6': progressStatsArbitrary,
           '9x9': progressStatsArbitrary,
         }),
-        progressData => {
+        (progressData) => {
           // Save progress data
           saveProgressStats(progressData);
 
@@ -258,9 +251,9 @@ describe('Property 11: Preference persistence', () => {
           expect(Object.keys(loaded)).toContain('4x4');
           expect(Object.keys(loaded)).toContain('6x6');
           expect(Object.keys(loaded)).toContain('9x9');
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -290,19 +283,19 @@ describe('Property 11: Preference persistence', () => {
           expectProgressStatsEqual(loaded[gridSize], expectedStats);
 
           // Other grids should remain unchanged
-          const otherGrids = ['4x4', '6x6', '9x9'].filter(g => g !== gridSize);
-          otherGrids.forEach(otherGrid => {
+          const otherGrids = ['4x4', '6x6', '9x9'].filter((g) => g !== gridSize);
+          otherGrids.forEach((otherGrid) => {
             expectProgressStatsEqual(loaded[otherGrid], initialStats);
           });
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
   it('should preserve child mode preference across sessions', () => {
     fc.assert(
-      fc.property(fc.boolean(), childMode => {
+      fc.property(fc.boolean(), (childMode) => {
         // Save child mode
         saveChildMode(childMode);
 
@@ -312,13 +305,13 @@ describe('Property 11: Preference persistence', () => {
         // Should match exactly
         expect(loaded).toBe(childMode);
       }),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
   it('should preserve grid configuration choices', () => {
     fc.assert(
-      fc.property(gridConfigArbitrary, gridConfig => {
+      fc.property(gridConfigArbitrary, (gridConfig) => {
         // Save grid config
         saveGridConfig(gridConfig);
 
@@ -328,13 +321,13 @@ describe('Property 11: Preference persistence', () => {
         // Should match exactly
         expect(loaded).toEqual(gridConfig);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
   it('should preserve difficulty settings', () => {
     fc.assert(
-      fc.property(fc.nat(20), difficulty => {
+      fc.property(fc.nat(20), (difficulty) => {
         // Save difficulty
         saveDifficulty(difficulty);
 
@@ -344,7 +337,7 @@ describe('Property 11: Preference persistence', () => {
         // Should match exactly
         expect(loaded).toBe(difficulty);
       }),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
@@ -388,15 +381,15 @@ describe('Property 11: Preference persistence', () => {
           expect(loaded.childMode).toBe(childMode);
           expect(loaded.gridConfig).toEqual(gridConfig);
           expect(loaded.difficulty).toBe(difficulty);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
   it('should handle localStorage unavailability gracefully', () => {
     fc.assert(
-      fc.property(accessibilityArbitrary, settings => {
+      fc.property(accessibilityArbitrary, (settings) => {
         // Temporarily replace localStorage with a broken version
         const originalLocalStorage = globalThis.localStorage;
         const brokenStorage = {
@@ -439,14 +432,14 @@ describe('Property 11: Preference persistence', () => {
           });
         }
       }),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
   it('should handle corrupted localStorage data gracefully', () => {
     fc.assert(
       fc.property(
-        fc.string().filter(s => {
+        fc.string().filter((s) => {
           // Filter out strings that parse to valid accessibility settings
           try {
             const parsed = JSON.parse(s);
@@ -470,7 +463,7 @@ describe('Property 11: Preference persistence', () => {
             return true; // Keep unparseable strings
           }
         }),
-        corruptedData => {
+        (corruptedData) => {
           // Set corrupted data directly in the mock store
           const store = localStorageMock._getStore();
           store['sudoku-accessibility-settings'] = corruptedData;
@@ -489,9 +482,9 @@ describe('Property 11: Preference persistence', () => {
           expect(typeof childMode).toBe('boolean');
           expect(typeof difficulty).toBe('number');
           expect(difficulty).toBeGreaterThanOrEqual(1);
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
@@ -541,15 +534,15 @@ describe('Property 11: Preference persistence', () => {
           });
           expect(defaultChildMode).toBe(false);
           expect(defaultGridConfig).toBeNull();
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
   it('should provide accurate storage information', () => {
     fc.assert(
-      fc.property(accessibilityArbitrary, settings => {
+      fc.property(accessibilityArbitrary, (settings) => {
         // Get initial storage info
         const initialInfo = getStorageInfo();
         expect(initialInfo.available).toBe(true);
@@ -564,7 +557,7 @@ describe('Property 11: Preference persistence', () => {
         expect(typeof updatedInfo.usage).toBe('number');
         expect(updatedInfo.usage).toBeGreaterThanOrEqual(0);
       }),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
@@ -583,12 +576,12 @@ describe('Property 11: Preference persistence', () => {
             }),
             fc.record({
               operation: fc.constant('difficulty'),
-              data: fc.nat(20).map(n => n + 1), // Generate 1-21 instead of 0-20
-            })
+              data: fc.nat(20).map((n) => n + 1), // Generate 1-21 instead of 0-20
+            }),
           ),
-          { minLength: 5, maxLength: 20 }
+          { minLength: 5, maxLength: 20 },
         ),
-        operations => {
+        (operations) => {
           const savedData: SavedPreferences = {};
 
           // Apply all operations in sequence
@@ -598,9 +591,9 @@ describe('Property 11: Preference persistence', () => {
 
           // Verify that the final state matches what we expect
           assertSavedPreferences(savedData);
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 });

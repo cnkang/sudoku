@@ -2,7 +2,7 @@
  * Tests for Zod validation schemas
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import {
   GridSizeSchema,
   DifficultySchema,
@@ -84,14 +84,14 @@ describe('Validation Schemas', () => {
         PuzzleRequestSchema.parse({
           difficulty: 11,
           gridSize: '9',
-        })
+        }),
       ).toThrow();
 
       expect(() =>
         PuzzleRequestSchema.parse({
           difficulty: 5,
           gridSize: '12',
-        })
+        }),
       ).toThrow();
     });
 
@@ -101,7 +101,7 @@ describe('Validation Schemas', () => {
           difficulty: 5,
           gridSize: '9',
           seed: 'a'.repeat(101),
-        })
+        }),
       ).toThrow();
     });
   });
@@ -113,30 +113,18 @@ describe('Validation Schemas', () => {
     });
 
     it('should reject out-of-range row', () => {
-      expect(() =>
-        GridInputSchema.parse({ row: -1, col: 0, value: 1 })
-      ).toThrow();
-      expect(() =>
-        GridInputSchema.parse({ row: 9, col: 0, value: 1 })
-      ).toThrow();
+      expect(() => GridInputSchema.parse({ row: -1, col: 0, value: 1 })).toThrow();
+      expect(() => GridInputSchema.parse({ row: 9, col: 0, value: 1 })).toThrow();
     });
 
     it('should reject out-of-range column', () => {
-      expect(() =>
-        GridInputSchema.parse({ row: 0, col: -1, value: 1 })
-      ).toThrow();
-      expect(() =>
-        GridInputSchema.parse({ row: 0, col: 9, value: 1 })
-      ).toThrow();
+      expect(() => GridInputSchema.parse({ row: 0, col: -1, value: 1 })).toThrow();
+      expect(() => GridInputSchema.parse({ row: 0, col: 9, value: 1 })).toThrow();
     });
 
     it('should reject out-of-range value', () => {
-      expect(() =>
-        GridInputSchema.parse({ row: 0, col: 0, value: 0 })
-      ).toThrow();
-      expect(() =>
-        GridInputSchema.parse({ row: 0, col: 0, value: 10 })
-      ).toThrow();
+      expect(() => GridInputSchema.parse({ row: 0, col: 0, value: 0 })).toThrow();
+      expect(() => GridInputSchema.parse({ row: 0, col: 0, value: 10 })).toThrow();
     });
   });
 
@@ -173,7 +161,7 @@ describe('Validation Schemas', () => {
           hintsEnabled: false,
           difficulty: 5,
           gridSize: '9',
-        })
+        }),
       ).toThrow();
     });
   });
@@ -200,7 +188,7 @@ describe('Validation Schemas', () => {
           time: 86400001,
           hintsUsed: 0,
           timestamp: Date.now(),
-        })
+        }),
       ).toThrow();
     });
 
@@ -213,7 +201,7 @@ describe('Validation Schemas', () => {
           time: 300000,
           hintsUsed: 101,
           timestamp: Date.now(),
-        })
+        }),
       ).toThrow();
     });
   });
@@ -235,7 +223,7 @@ describe('Validation Schemas', () => {
         NotificationSchema.parse({
           title: 'a'.repeat(101),
           body: 'Test',
-        })
+        }),
       ).toThrow();
     });
 
@@ -244,7 +232,7 @@ describe('Validation Schemas', () => {
         NotificationSchema.parse({
           title: 'Test',
           body: 'a'.repeat(501),
-        })
+        }),
       ).toThrow();
     });
   });
@@ -272,14 +260,14 @@ describe('Validation Schemas', () => {
         LocalStorageDataSchema.parse({
           version: '1.0',
           lastUpdated: Date.now(),
-        })
+        }),
       ).toThrow();
 
       expect(() =>
         LocalStorageDataSchema.parse({
           version: 'v1.0.0',
           lastUpdated: Date.now(),
-        })
+        }),
       ).toThrow();
     });
   });

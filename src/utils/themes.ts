@@ -1,9 +1,4 @@
-import type {
-  ThemeAccessibility,
-  ThemeChildFriendly,
-  ThemeColors,
-  ThemeConfig,
-} from '@/types';
+import type { ThemeAccessibility, ThemeChildFriendly, ThemeColors, ThemeConfig } from '@/types';
 import { UTILITY_ERRORS } from '@/utils/errorMessages';
 
 /**
@@ -47,12 +42,9 @@ function getRelativeLuminance(color: string): number {
   const bsRGB = b / 255;
 
   // Apply gamma correction
-  const rLinear =
-    rsRGB <= 0.03928 ? rsRGB / 12.92 : ((rsRGB + 0.055) / 1.055) ** 2.4;
-  const gLinear =
-    gsRGB <= 0.03928 ? gsRGB / 12.92 : ((gsRGB + 0.055) / 1.055) ** 2.4;
-  const bLinear =
-    bsRGB <= 0.03928 ? bsRGB / 12.92 : ((bsRGB + 0.055) / 1.055) ** 2.4;
+  const rLinear = rsRGB <= 0.03928 ? rsRGB / 12.92 : ((rsRGB + 0.055) / 1.055) ** 2.4;
+  const gLinear = gsRGB <= 0.03928 ? gsRGB / 12.92 : ((gsRGB + 0.055) / 1.055) ** 2.4;
+  const bLinear = bsRGB <= 0.03928 ? bsRGB / 12.92 : ((bsRGB + 0.055) / 1.055) ** 2.4;
 
   // Calculate relative luminance
   return 0.2126 * rLinear + 0.7152 * gLinear + 0.0722 * bLinear;
@@ -75,30 +67,18 @@ export function calculateContrastRatio(color1: string, color2: string): number {
 /**
  * Check if color combination meets WCAG AAA standards
  */
-export function meetsWCAGAAA(
-  foreground: string,
-  background: string,
-  isLargeText = false
-): boolean {
+export function meetsWCAGAAA(foreground: string, background: string, isLargeText = false): boolean {
   const ratio = calculateContrastRatio(foreground, background);
-  const requiredRatio = isLargeText
-    ? WCAG_AAA_LARGE_TEXT_RATIO
-    : WCAG_AAA_NORMAL_TEXT_RATIO;
+  const requiredRatio = isLargeText ? WCAG_AAA_LARGE_TEXT_RATIO : WCAG_AAA_NORMAL_TEXT_RATIO;
   return ratio >= requiredRatio;
 }
 
 /**
  * Check if color combination meets WCAG AA standards
  */
-export function meetsWCAGAA(
-  foreground: string,
-  background: string,
-  isLargeText = false
-): boolean {
+export function meetsWCAGAA(foreground: string, background: string, isLargeText = false): boolean {
   const ratio = calculateContrastRatio(foreground, background);
-  const requiredRatio = isLargeText
-    ? WCAG_AA_LARGE_TEXT_RATIO
-    : WCAG_AA_NORMAL_TEXT_RATIO;
+  const requiredRatio = isLargeText ? WCAG_AA_LARGE_TEXT_RATIO : WCAG_AA_NORMAL_TEXT_RATIO;
   return ratio >= requiredRatio;
 }
 
@@ -384,8 +364,7 @@ export const THEMES: Record<string, ThemeConfig> = {
     id: 'ocean',
     name: 'ocean',
     displayName: 'Ocean Adventure',
-    description:
-      'Dive into learning with calming ocean blues and coral accents',
+    description: 'Dive into learning with calming ocean blues and coral accents',
     category: 'child-friendly',
     colors: oceanThemeColors,
     accessibility: defaultAccessibility,
@@ -558,7 +537,7 @@ export class AccessibilityManager {
   static calculateOptimalFontSize(
     gridSize: number,
     screenWidth: number,
-    accessibility: ThemeAccessibility
+    accessibility: ThemeAccessibility,
   ): number {
     const baseSize = accessibility.minimumFontSize;
 
@@ -586,17 +565,13 @@ export class AccessibilityManager {
   static getThemeRecommendations(
     ageGroup: 'children' | 'adults' | 'all',
     needsHighContrast: boolean,
-    prefersReducedMotion: boolean
+    prefersReducedMotion: boolean,
   ): ThemeConfig[] {
     const allThemes = Object.values(THEMES);
 
-    return allThemes.filter(theme => {
+    return allThemes.filter((theme) => {
       // Filter by age group
-      if (
-        ageGroup !== 'all' &&
-        theme.ageGroup !== 'all' &&
-        theme.ageGroup !== ageGroup
-      ) {
+      if (ageGroup !== 'all' && theme.ageGroup !== 'all' && theme.ageGroup !== ageGroup) {
         return false;
       }
 
@@ -644,18 +619,14 @@ export function getAllThemes(): ThemeConfig[] {
  * Get child-friendly themes
  */
 export function getChildFriendlyThemes(): ThemeConfig[] {
-  return Object.values(THEMES).filter(
-    theme => theme.category === 'child-friendly'
-  );
+  return Object.values(THEMES).filter((theme) => theme.category === 'child-friendly');
 }
 
 /**
  * Get high contrast themes
  */
 export function getHighContrastThemes(): ThemeConfig[] {
-  return Object.values(THEMES).filter(
-    theme => theme.category === 'high-contrast'
-  );
+  return Object.values(THEMES).filter((theme) => theme.category === 'high-contrast');
 }
 
 /**
@@ -672,44 +643,23 @@ export function applyThemeToDocument(theme: ThemeConfig): void {
   });
 
   // Apply accessibility properties
-  root.style.setProperty(
-    '--focus-indicator-width',
-    `${theme.accessibility.focusIndicatorWidth}px`
-  );
+  root.style.setProperty('--focus-indicator-width', `${theme.accessibility.focusIndicatorWidth}px`);
   root.style.setProperty(
     '--focus-indicator-offset',
-    `${theme.accessibility.focusIndicatorOffset}px`
+    `${theme.accessibility.focusIndicatorOffset}px`,
   );
-  root.style.setProperty(
-    '--minimum-touch-target',
-    `${theme.accessibility.minimumTouchTarget}px`
-  );
-  root.style.setProperty(
-    '--animation-duration',
-    `${theme.accessibility.animationDuration}ms`
-  );
+  root.style.setProperty('--minimum-touch-target', `${theme.accessibility.minimumTouchTarget}px`);
+  root.style.setProperty('--animation-duration', `${theme.accessibility.animationDuration}ms`);
   root.style.setProperty(
     '--reduced-motion-duration',
-    `${theme.accessibility.reducedMotionDuration}ms`
+    `${theme.accessibility.reducedMotionDuration}ms`,
   );
 
   // Apply child-friendly properties
-  root.style.setProperty(
-    '--border-radius',
-    `${theme.childFriendly.roundedCorners}px`
-  );
-  root.style.setProperty(
-    '--shadow-intensity',
-    theme.childFriendly.shadowIntensity.toString()
-  );
-  root.style.setProperty(
-    '--border-width',
-    `${theme.childFriendly.borderWidth}px`
-  );
-  root.style.setProperty(
-    '--extra-padding',
-    `${theme.childFriendly.extraPadding}px`
-  );
+  root.style.setProperty('--border-radius', `${theme.childFriendly.roundedCorners}px`);
+  root.style.setProperty('--shadow-intensity', theme.childFriendly.shadowIntensity.toString());
+  root.style.setProperty('--border-width', `${theme.childFriendly.borderWidth}px`);
+  root.style.setProperty('--extra-padding', `${theme.childFriendly.extraPadding}px`);
 
   // Set theme class on body
   document.body.className = document.body.className

@@ -1,9 +1,5 @@
 import type { NextConfig } from 'next';
-import {
-  defaultCSPDirectives,
-  generateCSPHeader,
-  getCSPHeaderName,
-} from './src/lib/security/csp';
+import { defaultCSPDirectives, generateCSPHeader, getCSPHeaderName } from './src/lib/security/csp';
 
 const reactCompilerOptions: Record<string, unknown> = {
   compilationMode: 'annotation',
@@ -32,9 +28,7 @@ const nextConfig: NextConfig = {
     },
   },
   // Enhanced React Compiler configuration for React 19
-  reactCompiler: reactCompilerOptions as NonNullable<
-    NextConfig['reactCompiler']
-  >,
+  reactCompiler: reactCompilerOptions as NonNullable<NextConfig['reactCompiler']>,
   experimental: experimentalOptions as NonNullable<NextConfig['experimental']>,
   // Ensure browser bundles do not emit source maps in production artifacts
   productionBrowserSourceMaps: false,

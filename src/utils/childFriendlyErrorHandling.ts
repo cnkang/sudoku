@@ -42,16 +42,11 @@ const ERROR_RESPONSES: Record<string, ChildFriendlyError> = {
   DUPLICATE_IN_ROW: {
     type: 'conflict',
     severity: 'info',
-    childMessage:
-      'Oops! That number is already in this row. Each number can only appear once! 🌟',
+    childMessage: 'Oops! That number is already in this row. Each number can only appear once! 🌟',
     adultMessage: 'Duplicate number detected in row',
     educationalExplanation:
       "In Sudoku, each row must have all different numbers. Try looking for a number that's not already in this row!",
-    recoveryActions: [
-      'highlight_conflict',
-      'suggest_alternatives',
-      'show_row_numbers',
-    ],
+    recoveryActions: ['highlight_conflict', 'suggest_alternatives', 'show_row_numbers'],
     visualStyle: 'gentle',
     encouragementLevel: 'low',
     icon: '🔍',
@@ -66,11 +61,7 @@ const ERROR_RESPONSES: Record<string, ChildFriendlyError> = {
     adultMessage: 'Duplicate number detected in column',
     educationalExplanation:
       'Each column needs all different numbers too! Look up and down to see which numbers are already there.',
-    recoveryActions: [
-      'highlight_conflict',
-      'suggest_alternatives',
-      'show_column_numbers',
-    ],
+    recoveryActions: ['highlight_conflict', 'suggest_alternatives', 'show_column_numbers'],
     visualStyle: 'gentle',
     encouragementLevel: 'low',
     icon: '👆',
@@ -85,11 +76,7 @@ const ERROR_RESPONSES: Record<string, ChildFriendlyError> = {
     adultMessage: 'Duplicate number detected in sub-grid',
     educationalExplanation:
       'The small boxes (sub-grids) also need all different numbers. Check the other cells in this box!',
-    recoveryActions: [
-      'highlight_conflict',
-      'suggest_alternatives',
-      'show_box_numbers',
-    ],
+    recoveryActions: ['highlight_conflict', 'suggest_alternatives', 'show_box_numbers'],
     visualStyle: 'gentle',
     encouragementLevel: 'low',
     icon: '📦',
@@ -99,16 +86,11 @@ const ERROR_RESPONSES: Record<string, ChildFriendlyError> = {
   INVALID_NUMBER_RANGE: {
     type: 'validation',
     severity: 'info',
-    childMessage:
-      'That number is too big for this puzzle! Try a smaller number! 🎯',
+    childMessage: 'That number is too big for this puzzle! Try a smaller number! 🎯',
     adultMessage: 'Number outside valid range for grid size',
     educationalExplanation:
       'This puzzle only uses certain numbers. Look at the number buttons to see which ones you can use!',
-    recoveryActions: [
-      'clear_input',
-      'show_valid_options',
-      'highlight_number_pad',
-    ],
+    recoveryActions: ['clear_input', 'show_valid_options', 'highlight_number_pad'],
     visualStyle: 'gentle',
     encouragementLevel: 'low',
     icon: '🎯',
@@ -118,8 +100,7 @@ const ERROR_RESPONSES: Record<string, ChildFriendlyError> = {
   CELL_ALREADY_FILLED: {
     type: 'validation',
     severity: 'info',
-    childMessage:
-      'This spot already has a number! Try clicking on an empty space! ✨',
+    childMessage: 'This spot already has a number! Try clicking on an empty space! ✨',
     adultMessage: 'Cannot modify pre-filled cell',
     educationalExplanation:
       'Some numbers are already given to help you solve the puzzle. You can only change the empty spaces!',
@@ -135,15 +116,10 @@ const ERROR_RESPONSES: Record<string, ChildFriendlyError> = {
     severity: 'error',
     childMessage:
       "Let's try making a new puzzle! Sometimes the puzzle maker needs a little break! 🎲",
-    adultMessage:
-      'Puzzle generation failed. Please try again or select a different difficulty.',
+    adultMessage: 'Puzzle generation failed. Please try again or select a different difficulty.',
     educationalExplanation:
       "Don't worry! Making puzzles is tricky work. Let's try again with a different setting!",
-    recoveryActions: [
-      'retry_generation',
-      'suggest_different_difficulty',
-      'offer_cached_puzzle',
-    ],
+    recoveryActions: ['retry_generation', 'suggest_different_difficulty', 'offer_cached_puzzle'],
     visualStyle: 'attention',
     encouragementLevel: 'medium',
     icon: '🎲',
@@ -153,16 +129,11 @@ const ERROR_RESPONSES: Record<string, ChildFriendlyError> = {
   NETWORK_ERROR: {
     type: 'network',
     severity: 'warning',
-    childMessage:
-      "No internet? No problem! Let's play with the puzzles we have! 🌐",
+    childMessage: "No internet? No problem! Let's play with the puzzles we have! 🌐",
     adultMessage: 'Network connection unavailable',
     educationalExplanation:
       'The app can work without internet! We have some puzzles saved just for you.',
-    recoveryActions: [
-      'use_offline_mode',
-      'show_cached_puzzles',
-      'retry_connection',
-    ],
+    recoveryActions: ['use_offline_mode', 'show_cached_puzzles', 'retry_connection'],
     visualStyle: 'attention',
     encouragementLevel: 'medium',
     icon: '🌐',
@@ -172,8 +143,7 @@ const ERROR_RESPONSES: Record<string, ChildFriendlyError> = {
   VALIDATION_ERROR: {
     type: 'validation',
     severity: 'info',
-    childMessage:
-      "Hmm, something doesn't look right. Let's double-check together! 🔍",
+    childMessage: "Hmm, something doesn't look right. Let's double-check together! 🔍",
     adultMessage: 'Input validation failed',
     educationalExplanation:
       "Let's make sure all the numbers follow the Sudoku rules. We can fix this together!",
@@ -187,16 +157,11 @@ const ERROR_RESPONSES: Record<string, ChildFriendlyError> = {
   TIMEOUT_ERROR: {
     type: 'system',
     severity: 'warning',
-    childMessage:
-      "That took a while! Let's try something easier or take a break! ⏰",
+    childMessage: "That took a while! Let's try something easier or take a break! ⏰",
     adultMessage: 'Operation timed out',
     educationalExplanation:
       "Sometimes things take longer than expected. That's okay! We can try again or pick something different.",
-    recoveryActions: [
-      'suggest_easier_difficulty',
-      'offer_break',
-      'retry_operation',
-    ],
+    recoveryActions: ['suggest_easier_difficulty', 'offer_break', 'retry_operation'],
     visualStyle: 'attention',
     encouragementLevel: 'high',
     icon: '⏰',
@@ -208,24 +173,21 @@ const ERROR_RESPONSES: Record<string, ChildFriendlyError> = {
 const ENCOURAGEMENT_MESSAGES: Record<string, EncouragementMessage[]> = {
   STRUGGLING: [
     {
-      message:
-        "You're doing great! Sudoku takes practice, and you're learning! 🌟",
+      message: "You're doing great! Sudoku takes practice, and you're learning! 🌟",
       type: 'general',
       intensity: 'gentle',
       icon: '🌟',
       duration: 4000,
     },
     {
-      message:
-        "Every mistake helps you learn! You're getting better with each try! 💪",
+      message: "Every mistake helps you learn! You're getting better with each try! 💪",
       type: 'progress',
       intensity: 'moderate',
       icon: '💪',
       duration: 4000,
     },
     {
-      message:
-        'Take your time! The best puzzle solvers think carefully about each move! 🧠',
+      message: 'Take your time! The best puzzle solvers think carefully about each move! 🧠',
       type: 'specific',
       intensity: 'gentle',
       icon: '🧠',
@@ -235,24 +197,21 @@ const ENCOURAGEMENT_MESSAGES: Record<string, EncouragementMessage[]> = {
 
   MULTIPLE_ERRORS: [
     {
-      message:
-        "That's okay! Even puzzle experts make mistakes. Let's try a different approach! 🎯",
+      message: "That's okay! Even puzzle experts make mistakes. Let's try a different approach! 🎯",
       type: 'general',
       intensity: 'moderate',
       icon: '🎯',
       duration: 4000,
     },
     {
-      message:
-        "You're being so patient! That's the most important skill for solving puzzles! ⭐",
+      message: "You're being so patient! That's the most important skill for solving puzzles! ⭐",
       type: 'progress',
       intensity: 'enthusiastic',
       icon: '⭐',
       duration: 4000,
     },
     {
-      message:
-        'Would you like a hint? Sometimes a little help makes everything clearer! 💡',
+      message: 'Would you like a hint? Sometimes a little help makes everything clearer! 💡',
       type: 'specific',
       intensity: 'gentle',
       icon: '💡',
@@ -262,16 +221,14 @@ const ENCOURAGEMENT_MESSAGES: Record<string, EncouragementMessage[]> = {
 
   SLOW_PROGRESS: [
     {
-      message:
-        "You're thinking so carefully! That's exactly how great puzzle solvers work! 🤔",
+      message: "You're thinking so carefully! That's exactly how great puzzle solvers work! 🤔",
       type: 'progress',
       intensity: 'moderate',
       icon: '🤔',
       duration: 4000,
     },
     {
-      message:
-        "There's no rush! The best solutions come to those who take their time! 🐌",
+      message: "There's no rush! The best solutions come to those who take their time! 🐌",
       type: 'general',
       intensity: 'gentle',
       icon: '🐌',
@@ -295,8 +252,7 @@ const ENCOURAGEMENT_MESSAGES: Record<string, EncouragementMessage[]> = {
       duration: 3000,
     },
     {
-      message:
-        "Great job! That number fits perfectly! You're getting the hang of this! ✨",
+      message: "Great job! That number fits perfectly! You're getting the hang of this! ✨",
       type: 'specific',
       intensity: 'moderate',
       icon: '✨',
@@ -331,7 +287,7 @@ export const createChildFriendlyError = (
     gridSize?: GridSize;
     childMode?: boolean;
     customMessage?: string;
-  }
+  },
 ): ChildFriendlyError => {
   const baseError = ERROR_RESPONSES[errorType];
 
@@ -340,8 +296,7 @@ export const createChildFriendlyError = (
       type: 'system',
       severity: 'error',
       childMessage:
-        context?.customMessage ||
-        'Something unexpected happened, but we can fix it together! 🛠️',
+        context?.customMessage || 'Something unexpected happened, but we can fix it together! 🛠️',
       adultMessage: 'Unknown error occurred',
       educationalExplanation: "Don't worry! We can try again or ask for help.",
       recoveryActions: ['retry_operation', 'contact_support'],
@@ -358,10 +313,7 @@ export const createChildFriendlyError = (
   if (context?.gridSize && context.gridSize < 9) {
     // Make messages even more encouraging for smaller grids (children)
     customizedError.encouragementLevel = 'high';
-    customizedError.childMessage = customizedError.childMessage.replaceAll(
-      '!',
-      '! 🌈'
-    );
+    customizedError.childMessage = customizedError.childMessage.replaceAll('!', '! 🌈');
   }
 
   if (context?.customMessage) {
@@ -380,7 +332,7 @@ export const detectStruggle = (
     row: number;
     col: number;
     errorType: string;
-  }
+  },
 ): {
   isStruggling: boolean;
   strugglingLevel: StruggleLevel;
@@ -394,7 +346,7 @@ export const detectStruggle = (
 
     // Track struggling cells
     const existingCell = updatedStruggle.strugglingCells.find(
-      cell => cell.row === newError.row && cell.col === newError.col
+      (cell) => cell.row === newError.row && cell.col === newError.col,
     );
 
     if (existingCell) {
@@ -429,8 +381,7 @@ export const detectStruggle = (
 
   // Determine if encouragement should be shown
   const shouldShowEncouragement =
-    strugglingLevel !== 'mild' &&
-    now - updatedStruggle.lastEncouragementTime > 30000; // At least 30 seconds between encouragements
+    strugglingLevel !== 'mild' && now - updatedStruggle.lastEncouragementTime > 30000; // At least 30 seconds between encouragements
 
   return {
     isStruggling: strugglingLevel !== 'mild',
@@ -449,10 +400,9 @@ export const getEncouragementMessage = (
     gridSize?: 4 | 6 | 9;
     childMode?: boolean;
     strugglingLevel?: 'mild' | 'moderate' | 'significant';
-  }
+  },
 ): EncouragementMessage => {
-  const messages =
-    ENCOURAGEMENT_MESSAGES[type] ?? ENCOURAGEMENT_MESSAGES.STRUGGLING ?? [];
+  const messages = ENCOURAGEMENT_MESSAGES[type] ?? ENCOURAGEMENT_MESSAGES.STRUGGLING ?? [];
   const randomMessage = pickSecureRandomElement(messages);
 
   if (!randomMessage) {
@@ -484,7 +434,7 @@ export const getEncouragementMessage = (
  */
 export const resetStruggleDetection = (
   currentStruggle: StruggleDetection,
-  type: 'partial' | 'complete' = 'partial'
+  type: 'partial' | 'complete' = 'partial',
 ): StruggleDetection => {
   if (type === 'complete') {
     return {
@@ -512,14 +462,14 @@ export const getRecoveryActions = (
     gridSize?: 4 | 6 | 9;
     hintsAvailable?: number;
     canUndo?: boolean;
-  }
+  },
 ): Array<{
   action: string;
   label: string;
   icon: string;
   primary: boolean;
 }> => {
-  const actions = error.recoveryActions.map(action => {
+  const actions = error.recoveryActions.map((action) => {
     switch (action) {
       case 'highlight_conflict':
         return {
@@ -577,7 +527,7 @@ export const getRecoveryActions = (
   }
 
   // Ensure at least one action is marked as primary
-  const hasPrimaryAction = actions.some(action => action.primary);
+  const hasPrimaryAction = actions.some((action) => action.primary);
   if (!hasPrimaryAction && actions.length > 0) {
     const [firstAction] = actions;
     if (firstAction) {
@@ -594,7 +544,7 @@ export const getRecoveryActions = (
 export const formatErrorMessage = (
   error: ChildFriendlyError,
   audience: 'child' | 'adult' | 'educator' = 'child',
-  includeExplanation: boolean = true
+  includeExplanation: boolean = true,
 ): string => {
   let message = '';
 

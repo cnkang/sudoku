@@ -6,17 +6,9 @@ import {
   enforceRateLimit,
   isSameOriginRequest,
 } from '@/app/api/_lib/security';
-import {
-  getCacheMetrics,
-  getOptimizedPuzzle,
-  getPuzzleCacheKey,
-} from '@/app/api/_lib/serverCache';
+import { getCacheMetrics, getOptimizedPuzzle, getPuzzleCacheKey } from '@/app/api/_lib/serverCache';
 import { BackwardCompatibility } from '@/utils/backwardCompatibility';
-import {
-  createErrorResponse,
-  ERROR_MESSAGES,
-  ERROR_TYPES,
-} from '@/utils/error-handling';
+import { createErrorResponse, ERROR_MESSAGES, ERROR_TYPES } from '@/utils/error-handling';
 import { VALIDATION_ERRORS } from '@/utils/errorMessages';
 import {
   sanitizeErrorForClient,
@@ -83,7 +75,7 @@ export async function POST(request: NextRequest) {
     return createRateLimitedResponse(
       request,
       rateLimit.retryAfterSeconds,
-      ERROR_MESSAGES.RATE_LIMITED
+      ERROR_MESSAGES.RATE_LIMITED,
     );
   }
   if (!isSameOriginRequest(request)) {
@@ -98,10 +90,7 @@ export async function POST(request: NextRequest) {
     const config = getConfig(gridSize);
 
     // Validate difficulty with grid-specific constraints
-    const difficulty = validateDifficulty(
-      searchParams.get('difficulty'),
-      config
-    );
+    const difficulty = validateDifficulty(searchParams.get('difficulty'), config);
 
     const seed = validateSeed(searchParams.get('seed'));
     const forceRefresh = searchParams.get('force') === 'true';
@@ -115,11 +104,8 @@ export async function POST(request: NextRequest) {
       const lastForce = puzzleCache.get(forceKey);
       if (lastForce) {
         return NextResponse.json(
-          createErrorResponse(
-            ERROR_MESSAGES.RATE_LIMITED,
-            ERROR_TYPES.RATE_LIMIT_ERROR
-          ),
-          { status: 429 }
+          createErrorResponse(ERROR_MESSAGES.RATE_LIMITED, ERROR_TYPES.RATE_LIMIT_ERROR),
+          { status: 429 },
         );
       }
       puzzleCache.set(forceKey, Date.now(), 10000);
@@ -129,12 +115,7 @@ export async function POST(request: NextRequest) {
     // 1. Check per-request cache (React.cache)
     // 2. Check cross-request cache (LRU)
     // 3. Generate only on cache miss
-    const puzzleResult = await getOptimizedPuzzle(
-      difficulty,
-      gridSize,
-      seed,
-      forceRefresh
-    );
+    const puzzleResult = await getOptimizedPuzzle(difficulty, gridSize, seed, forceRefresh);
 
     // Extract cached flag
     const { cached, ...puzzle } = puzzleResult;
@@ -152,8 +133,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Apply backward compatibility formatting if needed
-    const compatibleResponse =
-      BackwardCompatibility.ensureBackwardCompatibleResponse(response);
+    const compatibleResponse = BackwardCompatibility.ensureBackwardCompatibleResponse(response);
 
     return NextResponse.json(compatibleResponse, {
       status: 200,
@@ -173,15 +153,12 @@ export async function POST(request: NextRequest) {
     const detailedLog = createDetailedErrorLog(
       error,
       ERROR_TYPES.GENERATION_ERROR,
-      extractRequestContext(request)
+      extractRequestContext(request),
     );
     logErrorServerSide(detailedLog);
 
     // Return sanitized error to client (Requirements 12.4, 18.2)
-    const sanitizedError = sanitizeErrorForClient(
-      error,
-      ERROR_TYPES.GENERATION_ERROR
-    );
+    const sanitizedError = sanitizeErrorForClient(error, ERROR_TYPES.GENERATION_ERROR);
 
     return NextResponse.json(
       {
@@ -189,7 +166,7 @@ export async function POST(request: NextRequest) {
         code: sanitizedError.code,
         timestamp: sanitizedError.timestamp,
       },
-      { status: 500, headers: buildSecurityHeaders(request) }
+      { status: 500, headers: buildSecurityHeaders(request) },
     );
   }
 }

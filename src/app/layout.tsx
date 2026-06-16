@@ -68,8 +68,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Multi-Size Sudoku Challenge - Educational Puzzle Game for Children',
-    description:
-      'Educational Sudoku game with 4×4, 6×6, and 9×9 grids designed for children.',
+    description: 'Educational Sudoku game with 4×4, 6×6, and 9×9 grids designed for children.',
     images: ['/icons/icon-512x512.svg'],
   },
   appleWebApp: {
@@ -130,8 +129,7 @@ const structuredData = {
     name: 'Kang Liu',
   },
   genre: 'Educational Puzzle Game',
-  keywords:
-    'sudoku, children, kids, educational, puzzle, accessibility, learning, 4x4, 6x6, 9x9',
+  keywords: 'sudoku, children, kids, educational, puzzle, accessibility, learning, 4x4, 6x6, 9x9',
   audience: {
     '@type': 'Audience',
     audienceType: 'Children',
@@ -150,11 +148,7 @@ const structuredData = {
     'voiceNavigation',
   ],
   accessibilityHazard: 'none',
-  accessibilityControl: [
-    'fullKeyboardControl',
-    'fullMouseControl',
-    'fullTouchControl',
-  ],
+  accessibilityControl: ['fullKeyboardControl', 'fullMouseControl', 'fullTouchControl'],
 };
 
 export default function RootLayout({
@@ -169,10 +163,7 @@ export default function RootLayout({
           type="application/ld+json"
           // biome-ignore lint/security/noDangerouslySetInnerHtml: Structured data is static and safe
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData).replaceAll(
-              '<',
-              String.raw`\u003c`
-            ),
+            __html: JSON.stringify(structuredData).replaceAll('<', String.raw`\u003c`),
           }}
         />
       </head>

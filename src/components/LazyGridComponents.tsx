@@ -75,56 +75,56 @@ GridLoadingFallback.displayName = 'GridLoadingFallback';
 
 // Lazy load grid size specific components
 const Grid4x4Component = lazy(() =>
-  import('./grids/Grid4x4').then(module => ({ default: module.Grid4x4 }))
+  import('./grids/Grid4x4').then((module) => ({ default: module.Grid4x4 })),
 );
 
 const Grid6x6Component = lazy(() =>
-  import('./grids/Grid6x6').then(module => ({ default: module.Grid6x6 }))
+  import('./grids/Grid6x6').then((module) => ({ default: module.Grid6x6 })),
 );
 
 const Grid9x9Component = lazy(() =>
-  import('./grids/Grid9x9').then(module => ({ default: module.Grid9x9 }))
+  import('./grids/Grid9x9').then((module) => ({ default: module.Grid9x9 })),
 );
 
 // Lazy load non-critical PWA components
 const PWAInstallPromptComponent = lazy(() =>
-  import('./PWAInstallPrompt').then(module => ({ default: module.default }))
+  import('./PWAInstallPrompt').then((module) => ({ default: module.default })),
 );
 
 // Lazy load non-critical accessibility components
 const VisualFeedbackSystemComponent = lazy(() =>
-  import('./VisualFeedbackSystem').then(module => ({
+  import('./VisualFeedbackSystem').then((module) => ({
     default: module.default,
-  }))
+  })),
 );
 
 // Lazy load theme components
 const ThemeSelectorComponent = lazy(() =>
-  import('./ThemeSelector').then(module => ({ default: module.default }))
+  import('./ThemeSelector').then((module) => ({ default: module.default })),
 );
 
 // Lazy load game control components (Requirements 4.3, 18.7)
 const GameControlsComponent = lazy(() =>
-  import('./GameControls').then(module => ({ default: module.default }))
+  import('./GameControls').then((module) => ({ default: module.default })),
 );
 
 const TouchOptimizedControlsComponent = lazy(() =>
-  import('./TouchOptimizedControls').then(module => ({
+  import('./TouchOptimizedControls').then((module) => ({
     default: module.default,
-  }))
+  })),
 );
 
 // Lazy load decorative components
 const GeometricMeshComponent = lazy(() =>
-  import('./decorative/GeometricShapes').then(module => ({
+  import('./decorative/GeometricShapes').then((module) => ({
     default: module.GeometricMesh,
-  }))
+  })),
 );
 
 const CornerDecorationComponent = lazy(() =>
-  import('./decorative/GeometricShapes').then(module => ({
+  import('./decorative/GeometricShapes').then((module) => ({
     default: module.CornerDecoration,
-  }))
+  })),
 );
 
 // Props interfaces
@@ -156,32 +156,28 @@ type ThemeProviderProps = {
 import type { TouchOptimizedControlsProps } from './TouchOptimizedControls';
 
 // Grid size router with code splitting
-export const LazyGridRouter = memo<LazyGridProps>(
-  ({ gridConfig, ...props }) => {
-    'use memo'; // React Compiler directive
+export const LazyGridRouter = memo<LazyGridProps>(({ gridConfig, ...props }) => {
+  'use memo'; // React Compiler directive
 
-    const GridComponent = React.useMemo<
-      React.ComponentType<LazyGridProps>
-    >(() => {
-      switch (gridConfig.size) {
-        case 4:
-          return Grid4x4Component as unknown as React.ComponentType<LazyGridProps>;
-        case 6:
-          return Grid6x6Component as unknown as React.ComponentType<LazyGridProps>;
-        case 9:
-          return Grid9x9Component as unknown as React.ComponentType<LazyGridProps>;
-        default:
-          return Grid9x9Component as unknown as React.ComponentType<LazyGridProps>; // Fallback to 9x9
-      }
-    }, [gridConfig.size]);
+  const GridComponent = React.useMemo<React.ComponentType<LazyGridProps>>(() => {
+    switch (gridConfig.size) {
+      case 4:
+        return Grid4x4Component as unknown as React.ComponentType<LazyGridProps>;
+      case 6:
+        return Grid6x6Component as unknown as React.ComponentType<LazyGridProps>;
+      case 9:
+        return Grid9x9Component as unknown as React.ComponentType<LazyGridProps>;
+      default:
+        return Grid9x9Component as unknown as React.ComponentType<LazyGridProps>; // Fallback to 9x9
+    }
+  }, [gridConfig.size]);
 
-    return (
-      <Suspense fallback={<GridLoadingFallback />}>
-        <GridComponent gridConfig={gridConfig} {...props} />
-      </Suspense>
-    );
-  }
-);
+  return (
+    <Suspense fallback={<GridLoadingFallback />}>
+      <GridComponent gridConfig={gridConfig} {...props} />
+    </Suspense>
+  );
+});
 
 LazyGridRouter.displayName = 'LazyGridRouter';
 
@@ -201,21 +197,17 @@ export const LazyPWAInstallPrompt = memo((props: Record<string, never>) => (
 LazyPWAInstallPrompt.displayName = 'LazyPWAInstallPrompt';
 
 // Accessibility controls are on the critical path and loaded eagerly.
-export const LazyAccessibilityControls = memo(
-  (props: AccessibilityControlsProps) => (
-    <AccessibilityControlsComponent {...props} />
-  )
-);
+export const LazyAccessibilityControls = memo((props: AccessibilityControlsProps) => (
+  <AccessibilityControlsComponent {...props} />
+));
 
 LazyAccessibilityControls.displayName = 'LazyAccessibilityControls';
 
-export const LazyVisualFeedbackSystem = memo(
-  (props: VisualFeedbackSystemProps) => (
-    <Suspense fallback={<div>Loading visual feedback...</div>}>
-      <VisualFeedbackSystemComponent {...props} />
-    </Suspense>
-  )
-);
+export const LazyVisualFeedbackSystem = memo((props: VisualFeedbackSystemProps) => (
+  <Suspense fallback={<div>Loading visual feedback...</div>}>
+    <VisualFeedbackSystemComponent {...props} />
+  </Suspense>
+));
 
 LazyVisualFeedbackSystem.displayName = 'LazyVisualFeedbackSystem';
 
@@ -228,11 +220,9 @@ export const LazyThemeSelector = memo((props: ThemeSelectorProps) => (
 
 LazyThemeSelector.displayName = 'LazyThemeSelector';
 
-export const LazyThemeProvider = memo(
-  ({ children, ...props }: ThemeProviderProps) => (
-    <ThemeProviderComponent {...props}>{children}</ThemeProviderComponent>
-  )
-);
+export const LazyThemeProvider = memo(({ children, ...props }: ThemeProviderProps) => (
+  <ThemeProviderComponent {...props}>{children}</ThemeProviderComponent>
+));
 
 LazyThemeProvider.displayName = 'LazyThemeProvider';
 
@@ -245,13 +235,11 @@ export const LazyGameControls = memo((props: GameControlsProps) => (
 
 LazyGameControls.displayName = 'LazyGameControls';
 
-export const LazyTouchOptimizedControls = memo(
-  (props: TouchOptimizedControlsProps) => (
-    <Suspense fallback={<div>Loading touch controls...</div>}>
-      <TouchOptimizedControlsComponent {...props} />
-    </Suspense>
-  )
-);
+export const LazyTouchOptimizedControls = memo((props: TouchOptimizedControlsProps) => (
+  <Suspense fallback={<div>Loading touch controls...</div>}>
+    <TouchOptimizedControlsComponent {...props} />
+  </Suspense>
+));
 
 LazyTouchOptimizedControls.displayName = 'LazyTouchOptimizedControls';
 
@@ -274,13 +262,11 @@ interface CornerDecorationProps {
   position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 }
 
-export const LazyCornerDecoration = memo(
-  ({ position }: CornerDecorationProps) => (
-    <Suspense fallback={null}>
-      <CornerDecorationComponent position={position} />
-    </Suspense>
-  )
-);
+export const LazyCornerDecoration = memo(({ position }: CornerDecorationProps) => (
+  <Suspense fallback={null}>
+    <CornerDecorationComponent position={position} />
+  </Suspense>
+));
 
 LazyCornerDecoration.displayName = 'LazyCornerDecoration';
 
@@ -295,10 +281,7 @@ interface LazyErrorBoundaryState {
   error?: Error | undefined;
 }
 
-class LazyErrorBoundary extends React.Component<
-  LazyWrapperProps,
-  LazyErrorBoundaryState
-> {
+class LazyErrorBoundary extends React.Component<LazyWrapperProps, LazyErrorBoundaryState> {
   constructor(props: LazyWrapperProps) {
     super(props);
     this.state = { hasError: false };
@@ -339,7 +322,7 @@ class LazyErrorBoundary extends React.Component<
 export const withLazyLoading = <P extends object>(
   Component: React.ComponentType<P>,
   fallback?: React.ComponentType,
-  errorFallback?: React.ComponentType<{ error: Error }>
+  errorFallback?: React.ComponentType<{ error: Error }>,
 ) => {
   const LazyComponent = lazy(() => Promise.resolve({ default: Component }));
   const FallbackComponent = fallback ?? GridLoadingFallback;
@@ -368,17 +351,11 @@ export const preloadGridComponent = (size: 4 | 6 | 9) => {
 };
 
 export const preloadPWAComponents = () => {
-  return Promise.all([
-    import('./PWAGridSelector'),
-    import('./PWAInstallPrompt'),
-  ]);
+  return Promise.all([import('./PWAGridSelector'), import('./PWAInstallPrompt')]);
 };
 
 export const preloadAccessibilityComponents = () => {
-  return Promise.all([
-    import('./AccessibilityControls'),
-    import('./VisualFeedbackSystem'),
-  ]);
+  return Promise.all([import('./AccessibilityControls'), import('./VisualFeedbackSystem')]);
 };
 
 export const preloadThemeComponents = () => {
@@ -403,9 +380,7 @@ export const preloadDecorativeComponents = () => {
 };
 
 // Bundle size optimization utilities
-export const getComponentBundleSize = async (
-  componentName: string
-): Promise<number> => {
+export const getComponentBundleSize = async (componentName: string): Promise<number> => {
   if (globalThis.window === undefined) return 0;
 
   try {

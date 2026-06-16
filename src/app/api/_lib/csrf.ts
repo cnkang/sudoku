@@ -28,7 +28,7 @@ const csrfTokenStore = new Map<string, { token: string; expiresAt: number }>();
 function generateSecureToken(): string {
   const array = new Uint8Array(CSRF_TOKEN_LENGTH);
   crypto.getRandomValues(array);
-  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
 /**
@@ -165,7 +165,7 @@ export function validateCsrfFromRequest(request: NextRequest): boolean {
 export function createCsrfProtectedResponse<T>(
   request: NextRequest,
   payload: T,
-  status = 200
+  status = 200,
 ): NextResponse {
   const sessionId = getSessionId(request);
   const token = generateCsrfToken(sessionId);
@@ -190,9 +190,7 @@ export function createCsrfProtectedResponse<T>(
 /**
  * Creates a 403 Forbidden response for invalid CSRF token
  */
-export function createCsrfForbiddenResponse(
-  request: NextRequest
-): NextResponse {
+export function createCsrfForbiddenResponse(request: NextRequest): NextResponse {
   return createJsonResponse(
     request,
     {
@@ -200,7 +198,7 @@ export function createCsrfForbiddenResponse(
       error: 'Invalid or missing CSRF token',
       code: 'CSRF_TOKEN_INVALID',
     },
-    403
+    403,
   );
 }
 
@@ -211,9 +209,7 @@ export function createCsrfForbiddenResponse(
  * @param request - Incoming request
  * @returns null if valid, NextResponse with 403 if invalid
  */
-export function enforceCsrfProtection(
-  request: NextRequest
-): NextResponse | null {
+export function enforceCsrfProtection(request: NextRequest): NextResponse | null {
   // Only enforce CSRF for state-changing methods
   const method = request.method.toUpperCase();
   if (!['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {

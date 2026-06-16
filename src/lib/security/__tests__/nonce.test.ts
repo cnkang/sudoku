@@ -5,7 +5,7 @@
  * The actual nonce generation and injection is tested in integration tests.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vite-plus/test';
 
 // Mock next/headers
 vi.mock('next/headers', () => ({

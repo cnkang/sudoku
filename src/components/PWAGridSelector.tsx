@@ -38,9 +38,7 @@ interface BeforeInstallPromptEvent extends Event {
 
 const isNavigatorStandalone = (navigatorRef: Navigator): boolean => {
   if ('standalone' in navigatorRef) {
-    return (
-      (navigatorRef as Navigator & { standalone?: boolean }).standalone === true
-    );
+    return (navigatorRef as Navigator & { standalone?: boolean }).standalone === true;
   }
   return false;
 };
@@ -89,14 +87,13 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
   notificationPermission: _notificationPermission = 'default',
 }) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] =
-    useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
 
   // PWA installation detection
   useEffect(() => {
-    const handleBeforeInstallPrompt: EventListener = event => {
+    const handleBeforeInstallPrompt: EventListener = (event) => {
       event.preventDefault();
       const promptEvent = event as BeforeInstallPromptEvent;
       setDeferredPrompt(promptEvent);
@@ -110,23 +107,15 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
     };
 
     // Check if already installed
-    const isStandalone = globalThis.matchMedia(
-      '(display-mode: standalone)'
-    ).matches;
+    const isStandalone = globalThis.matchMedia('(display-mode: standalone)').matches;
     const isInWebAppiOS = isNavigatorStandalone(globalThis.navigator);
     setIsInstalled(isStandalone || isInWebAppiOS);
 
-    globalThis.addEventListener(
-      'beforeinstallprompt',
-      handleBeforeInstallPrompt
-    );
+    globalThis.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     globalThis.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
-      globalThis.removeEventListener(
-        'beforeinstallprompt',
-        handleBeforeInstallPrompt
-      );
+      globalThis.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       globalThis.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
@@ -182,21 +171,15 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
         setIsTransitioning(false);
       }, 300);
     },
-    [currentSize, disabled, isTransitioning, onSizeChange]
+    [currentSize, disabled, isTransitioning, onSizeChange],
   );
 
   const getGridConfig = (size: 4 | 6 | 9): GridConfig => GRID_CONFIGS[size];
-  let statusIndicator = (
-    <span className={styles.statusPlaceholder} aria-hidden="true" />
-  );
+  let statusIndicator = <span className={styles.statusPlaceholder} aria-hidden="true" />;
   if (offlineMode) {
-    statusIndicator = (
-      <div className={styles.offlineIndicator}>📱 Playing offline</div>
-    );
+    statusIndicator = <div className={styles.offlineIndicator}>📱 Playing offline</div>;
   } else if (isInstalled) {
-    statusIndicator = (
-      <div className={styles.installedIndicator}>✅ App installed</div>
-    );
+    statusIndicator = <div className={styles.installedIndicator}>✅ App installed</div>;
   }
 
   return (
@@ -244,7 +227,7 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
       >
         {GRID_OPTIONS.map(
           // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: render rich option cards
-          option => {
+          (option) => {
             const config = getGridConfig(option.size);
             const isSelected = currentSize === option.size;
             const isChildFriendly = config.childFriendly.enableAnimations;
@@ -298,9 +281,7 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
                   )}
 
                   <div className={styles.optionMeta}>
-                    <span className={styles.difficulty}>
-                      {option.difficulty}
-                    </span>
+                    <span className={styles.difficulty}>{option.difficulty}</span>
                     <span className={styles.clueRange}>
                       {config.minClues}-{config.maxClues} clues
                     </span>
@@ -316,19 +297,12 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
                       gridTemplateRows: `repeat(${option.size}, 1fr)`,
                     }}
                   >
-                    {Array.from(
-                      { length: option.size * option.size },
-                      (_, i) => (
-                        <div
-                          key={`${option.size}-${Math.floor(i / option.size)}-${
-                            i % option.size
-                          }`}
-                          className={`${styles.previewCell} ${
-                            i % 2 === 0 ? styles.filled : ''
-                          }`}
-                        />
-                      )
-                    )}
+                    {Array.from({ length: option.size * option.size }, (_, i) => (
+                      <div
+                        key={`${option.size}-${Math.floor(i / option.size)}-${i % option.size}`}
+                        className={`${styles.previewCell} ${i % 2 === 0 ? styles.filled : ''}`}
+                      />
+                    ))}
                   </div>
                 </div>
 
@@ -339,7 +313,7 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
                 )}
               </label>
             );
-          }
+          },
         )}
       </div>
 
@@ -369,8 +343,7 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
 
       {/* Accessibility announcements */}
       <div className={styles.srOnly} aria-live="polite" aria-atomic="true">
-        {isTransitioning &&
-          `Switching to ${currentSize}×${currentSize} grid...`}
+        {isTransitioning && `Switching to ${currentSize}×${currentSize} grid...`}
       </div>
     </div>
   );

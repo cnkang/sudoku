@@ -1,13 +1,13 @@
 import { act, renderHook } from '@testing-library/react';
 import * as fc from 'fast-check';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import type { AccessibilitySettings, ProgressStats } from '../../types';
 import { GRID_CONFIGS } from '../../utils/gridConfig';
 import { useGameState } from '../useGameState';
 
 const setAccessibility = (
   result: ReturnType<typeof renderHook<typeof useGameState>>['result'],
-  accessibilitySettings: AccessibilitySettings
+  accessibilitySettings: AccessibilitySettings,
 ) => {
   act(() => {
     result.current.dispatch({
@@ -19,7 +19,7 @@ const setAccessibility = (
 
 const setGridConfig = (
   result: ReturnType<typeof renderHook<typeof useGameState>>['result'],
-  gridConfig: (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS]
+  gridConfig: (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS],
 ) => {
   act(() => {
     result.current.dispatch({
@@ -31,7 +31,7 @@ const setGridConfig = (
 
 const changeGridSize = (
   result: ReturnType<typeof renderHook<typeof useGameState>>['result'],
-  gridConfig: (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS]
+  gridConfig: (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS],
 ) => {
   act(() => {
     result.current.dispatch({
@@ -43,7 +43,7 @@ const changeGridSize = (
 
 const setChildMode = (
   result: ReturnType<typeof renderHook<typeof useGameState>>['result'],
-  childMode: boolean
+  childMode: boolean,
 ) => {
   act(() => {
     result.current.dispatch({
@@ -55,7 +55,7 @@ const setChildMode = (
 
 const setDifficulty = (
   result: ReturnType<typeof renderHook<typeof useGameState>>['result'],
-  difficulty: number
+  difficulty: number,
 ) => {
   act(() => {
     result.current.dispatch({
@@ -67,7 +67,7 @@ const setDifficulty = (
 
 const setProgressData = (
   result: ReturnType<typeof renderHook<typeof useGameState>>['result'],
-  progressData: Record<string, ProgressStats>
+  progressData: Record<string, ProgressStats>,
 ) => {
   act(() => {
     Object.entries(progressData).forEach(([gridSize, stats]) => {
@@ -84,7 +84,7 @@ const buildFilledGrid = (size: number, value: number) =>
 
 const setPuzzleInProgress = (
   result: ReturnType<typeof renderHook<typeof useGameState>>['result'],
-  gridSize: number
+  gridSize: number,
 ) => {
   act(() => {
     result.current.dispatch({
@@ -102,7 +102,7 @@ const assertChildModeForGridChange = (
   initialChildMode: boolean,
   childFriendlyGrid: (typeof GRID_CONFIGS)[4],
   adultGrid: (typeof GRID_CONFIGS)[9],
-  result: ReturnType<typeof renderHook<typeof useGameState>>['result']
+  result: ReturnType<typeof renderHook<typeof useGameState>>['result'],
 ) => {
   changeGridSize(result, childFriendlyGrid);
 
@@ -120,12 +120,12 @@ const assertChildModeForGridChange = (
 
 const assertSequencePersistence = (
   gridSequence: Array<(typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS]>,
-  result: ReturnType<typeof renderHook<typeof useGameState>>['result']
+  result: ReturnType<typeof renderHook<typeof useGameState>>['result'],
 ) => {
   const initialAccessibility = result.current.state.accessibility;
   const initialProgress = result.current.state.progress;
 
-  gridSequence.forEach(grid => {
+  gridSequence.forEach((grid) => {
     changeGridSize(result, grid);
     expect(result.current.state.accessibility).toEqual(initialAccessibility);
     expect(result.current.state.progress).toEqual(initialProgress);
@@ -136,7 +136,7 @@ const assertSequencePersistence = (
 const assertAccessibilityPreserved = (
   initialGrid: (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS],
   newGrid: (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS],
-  accessibilitySettings: AccessibilitySettings
+  accessibilitySettings: AccessibilitySettings,
 ) => {
   const { result } = renderHook(() => useGameState());
 
@@ -153,7 +153,7 @@ const assertAccessibilityPreserved = (
 const assertProgressPreserved = (
   initialGrid: (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS],
   newGrid: (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS],
-  progressData: Record<string, ProgressStats>
+  progressData: Record<string, ProgressStats>,
 ) => {
   const { result } = renderHook(() => useGameState());
 
@@ -176,7 +176,7 @@ const assertStateResetOnGridChange = (
   initialGrid: (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS],
   newGrid: (typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS],
   childModePreference: boolean,
-  difficulty: number
+  difficulty: number,
 ) => {
   const { result } = renderHook(() => useGameState());
 
@@ -202,7 +202,7 @@ const assertStateResetOnGridChange = (
 
   const expectedDifficulty = Math.max(
     1,
-    Math.min(difficultyBeforeChange, newGrid.difficultyLevels)
+    Math.min(difficultyBeforeChange, newGrid.difficultyLevels),
   );
   expect(result.current.state.difficulty).toBe(expectedDifficulty);
 };
@@ -214,17 +214,12 @@ const assertChildModeHandling = (initialChildMode: boolean) => {
 
   const childFriendlyGrid = GRID_CONFIGS[4];
   const adultGrid = GRID_CONFIGS[9];
-  assertChildModeForGridChange(
-    initialChildMode,
-    childFriendlyGrid,
-    adultGrid,
-    result
-  );
+  assertChildModeForGridChange(initialChildMode, childFriendlyGrid, adultGrid, result);
 };
 
 const assertStateConsistency = (
   gridSequence: Array<(typeof GRID_CONFIGS)[keyof typeof GRID_CONFIGS]>,
-  accessibilitySettings: AccessibilitySettings
+  accessibilitySettings: AccessibilitySettings,
 ) => {
   const { result } = renderHook(() => useGameState());
 
@@ -245,16 +240,14 @@ const assertStateConsistency = (
 describe('Property 10: State persistence across grid changes', () => {
   const gridConfigArbitrary = fc.constantFrom(...Object.values(GRID_CONFIGS));
 
-  const accessibilityArbitrary: fc.Arbitrary<AccessibilitySettings> = fc.record(
-    {
-      highContrast: fc.boolean(),
-      reducedMotion: fc.boolean(),
-      screenReaderMode: fc.boolean(),
-      largeText: fc.boolean(),
-      audioFeedback: fc.boolean(),
-      keyboardNavigation: fc.boolean(),
-    }
-  );
+  const accessibilityArbitrary: fc.Arbitrary<AccessibilitySettings> = fc.record({
+    highContrast: fc.boolean(),
+    reducedMotion: fc.boolean(),
+    screenReaderMode: fc.boolean(),
+    largeText: fc.boolean(),
+    audioFeedback: fc.boolean(),
+    keyboardNavigation: fc.boolean(),
+  });
 
   const progressStatsArbitrary: fc.Arbitrary<ProgressStats> = fc.record({
     puzzlesCompleted: fc.nat(100),
@@ -273,9 +266,9 @@ describe('Property 10: State persistence across grid changes', () => {
         gridConfigArbitrary,
         gridConfigArbitrary,
         accessibilityArbitrary,
-        assertAccessibilityPreserved
+        assertAccessibilityPreserved,
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -289,9 +282,9 @@ describe('Property 10: State persistence across grid changes', () => {
           '6x6': progressStatsArbitrary,
           '9x9': progressStatsArbitrary,
         }),
-        assertProgressPreserved
+        assertProgressPreserved,
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -302,9 +295,9 @@ describe('Property 10: State persistence across grid changes', () => {
         gridConfigArbitrary,
         fc.boolean(),
         fc.nat(10),
-        assertStateResetOnGridChange
+        assertStateResetOnGridChange,
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -319,9 +312,9 @@ describe('Property 10: State persistence across grid changes', () => {
       fc.property(
         fc.array(gridConfigArbitrary, { minLength: 2, maxLength: 5 }),
         accessibilityArbitrary,
-        assertStateConsistency
+        assertStateConsistency,
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 });

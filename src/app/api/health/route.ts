@@ -41,12 +41,10 @@ export async function GET(request: NextRequest) {
       {
         status: 'error',
         message:
-          isProduction || !(error instanceof Error)
-            ? 'Internal server error'
-            : error.message,
+          isProduction || !(error instanceof Error) ? 'Internal server error' : error.message,
         timestamp: new Date().toISOString(),
       },
-      500
+      500,
     );
   }
 }

@@ -1,7 +1,7 @@
 /**
  * Centralized test setup utilities to reduce duplication across test files
  */
-import { vi } from 'vitest';
+import { vi } from 'vite-plus/test';
 import '@testing-library/jest-dom';
 
 /**
@@ -24,14 +24,14 @@ export const standardTestCleanup = () => {
  * Generic mock function factory for common component callbacks
  */
 export const createMockCallbacks = <T extends Record<string, unknown>>(
-  callbacks: (keyof T)[]
+  callbacks: (keyof T)[],
 ): Record<keyof T, ReturnType<typeof vi.fn>> => {
   return callbacks.reduce(
     (acc, callback) => {
       acc[callback] = vi.fn();
       return acc;
     },
-    {} as Record<keyof T, ReturnType<typeof vi.fn>>
+    {} as Record<keyof T, ReturnType<typeof vi.fn>>,
   );
 };
 
@@ -39,9 +39,7 @@ export const createMockCallbacks = <T extends Record<string, unknown>>(
  * Common Sudoku test data
  */
 export const TEST_DATA = {
-  EMPTY_GRID: Array.from({ length: 9 }, () =>
-    Array.from({ length: 9 }, () => 0)
-  ),
+  EMPTY_GRID: Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => 0)),
   SAMPLE_PUZZLE: [
     [5, 3, 0, 0, 7, 0, 0, 0, 0],
     [6, 0, 0, 1, 9, 5, 0, 0, 0],
@@ -53,9 +51,7 @@ export const TEST_DATA = {
     [0, 0, 0, 4, 1, 9, 0, 0, 5],
     [0, 0, 0, 0, 8, 0, 0, 7, 9],
   ],
-  FILLED_GRID: Array.from({ length: 9 }, () =>
-    Array.from({ length: 9 }, () => 5)
-  ),
+  FILLED_GRID: Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => 5)),
 } as const;
 
 /**
@@ -70,9 +66,7 @@ export const COMMON_VIEWPORTS = {
 /**
  * Setup responsive test environment with common configurations
  */
-export const setupResponsiveEnvironment = (
-  viewport: keyof typeof COMMON_VIEWPORTS
-) => {
+export const setupResponsiveEnvironment = (viewport: keyof typeof COMMON_VIEWPORTS) => {
   const size = COMMON_VIEWPORTS[viewport];
   Object.defineProperty(globalThis, 'innerWidth', {
     writable: true,

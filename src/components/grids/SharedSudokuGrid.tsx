@@ -63,7 +63,7 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
         ...accessibilityDefaults,
         ...accessibility,
       }),
-      [accessibility, accessibilityDefaults]
+      [accessibility, accessibilityDefaults],
     );
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally run once on mount
@@ -86,7 +86,7 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
 
         onInputChange(row, col, parsed);
       },
-      [gridSize, onInputChange]
+      [gridSize, onInputChange],
     );
 
     const getCellClassName = useCallback(
@@ -102,11 +102,7 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
         ]
           .filter(Boolean)
           .join(' '),
-      [
-        childMode,
-        accessibilitySettings.highContrast,
-        accessibilitySettings.largeText,
-      ]
+      [childMode, accessibilitySettings.highContrast, accessibilitySettings.largeText],
     );
 
     const renderCell = useCallback(
@@ -117,9 +113,7 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
         const isFixed = puzzleValue !== 0;
         const isHinted = hintCell?.row === row && hintCell?.col === col;
         const hasError =
-          !isFixed &&
-          userValue > 0 &&
-          (hasConflict ? hasConflict(row, col, userValue) : false);
+          !isFixed && userValue > 0 && (hasConflict ? hasConflict(row, col, userValue) : false);
         const cellClasses = getCellClassName(isFixed, isHinted, hasError);
         const subGridBorders = getSubGridBorders?.(row, col);
 
@@ -141,9 +135,7 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
                 min="1"
                 max={String(maxValue)}
                 value={userValue || ''}
-                onChange={event =>
-                  handleCellChange(row, col, event.target.value)
-                }
+                onChange={(event) => handleCellChange(row, col, event.target.value)}
                 disabled={disabled}
                 className={styles.cellInput}
                 aria-label={`Row ${row + 1}, Column ${col + 1}`}
@@ -166,7 +158,7 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
         puzzle,
         useAriaInvalid,
         userInput,
-      ]
+      ],
     );
 
     const renderRow = useCallback(
@@ -175,12 +167,12 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
           {Array.from({ length: gridSize }, (_, col) => renderCell(row, col))}
         </tr>
       ),
-      [gridSize, renderCell]
+      [gridSize, renderCell],
     );
 
     const renderGrid = useMemo(
       () => Array.from({ length: gridSize }, (_, row) => renderRow(row)),
-      [gridSize, renderRow]
+      [gridSize, renderRow],
     );
 
     return (
@@ -200,14 +192,14 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
 
         {childMode && childHints.length > 0 && (
           <div className={styles.childFriendlyHints}>
-            {childHints.map(hint => (
+            {childHints.map((hint) => (
               <p key={hint}>{hint}</p>
             ))}
           </div>
         )}
       </div>
     );
-  }
+  },
 );
 
 SharedSudokuGrid.displayName = 'SharedSudokuGrid';

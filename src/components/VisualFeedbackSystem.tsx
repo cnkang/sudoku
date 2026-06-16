@@ -1,10 +1,7 @@
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ThemeConfig } from '@/types';
-import {
-  pickSecureRandomElement,
-  secureRandomFraction,
-} from '@/utils/secureRandom';
+import { pickSecureRandomElement, secureRandomFraction } from '@/utils/secureRandom';
 import styles from './VisualFeedbackSystem.module.css';
 
 type PatternFeedbackType = 'success' | 'error' | 'warning' | 'hint';
@@ -50,15 +47,12 @@ export interface FeedbackTriggers {
   showPatternFeedback: (
     type: PatternFeedbackType,
     message?: string,
-    pattern?: PatternFeedbackStyle
+    pattern?: PatternFeedbackStyle,
   ) => void;
   // Gentle error highlighting
   highlightGentleError: (element: HTMLElement, duration?: number) => void;
   // Positive reinforcement
-  triggerPositiveReinforcement: (
-    type: ReinforcementType,
-    element?: HTMLElement
-  ) => void;
+  triggerPositiveReinforcement: (type: ReinforcementType, element?: HTMLElement) => void;
 }
 
 export type VisualFeedbackSystemProps = Readonly<
@@ -117,30 +111,18 @@ const PATTERN_CUES = {
   },
 } satisfies Record<PatternBasedCue['type'], PatternBasedCue>;
 
-const getFeedbackMessage = (
-  type: 'success' | 'error' | 'warning' | 'hint',
-  message?: string
-) => {
+const getFeedbackMessage = (type: 'success' | 'error' | 'warning' | 'hint', message?: string) => {
   if (message) return message;
   if (type === 'error') {
-    return pickRandomMessage(
-      FEEDBACK_MESSAGES.error.gentle,
-      "Let's try that again!"
-    );
+    return pickRandomMessage(FEEDBACK_MESSAGES.error.gentle, "Let's try that again!");
   }
   if (type === 'warning') {
-    return pickRandomMessage(
-      FEEDBACK_MESSAGES.error.warning,
-      'Check that spot!'
-    );
+    return pickRandomMessage(FEEDBACK_MESSAGES.error.warning, 'Check that spot!');
   }
   return pickRandomMessage(FEEDBACK_MESSAGES[type], `${type} feedback`);
 };
 
-const getCelebrationEmoji = (
-  celebrationType: 'confetti' | 'stars' | 'rainbow',
-  index: number
-) => {
+const getCelebrationEmoji = (celebrationType: 'confetti' | 'stars' | 'rainbow', index: number) => {
   if (celebrationType === 'stars') {
     const starEmojis = ['⭐', '🌟', '✨'];
     return starEmojis[index % starEmojis.length] ?? '⭐';
@@ -297,7 +279,7 @@ function VisualFeedbackSystem({
         patternOverlay.remove();
       }, duration);
     },
-    [reducedMotion, highContrast]
+    [reducedMotion, highContrast],
   );
 
   // Positive reinforcement animations
@@ -361,7 +343,7 @@ function VisualFeedbackSystem({
           break;
       }
     },
-    [reducedMotion, highContrast]
+    [reducedMotion, highContrast],
   );
 
   // Enhanced pattern-based feedback
@@ -369,7 +351,7 @@ function VisualFeedbackSystem({
     (
       type: PatternFeedbackType,
       message?: string,
-      pattern?: 'stripes' | 'dots' | 'waves' | 'stars'
+      pattern?: 'stripes' | 'dots' | 'waves' | 'stars',
     ) => {
       clearTimeouts();
       const patternCue = PATTERN_CUES[type];
@@ -389,20 +371,19 @@ function VisualFeedbackSystem({
       // Auto-hide after duration
       timeoutRef.current = setTimeout(
         () => {
-          setFeedback(prev => ({ ...prev, isVisible: false }));
+          setFeedback((prev) => ({ ...prev, isVisible: false }));
         },
-        type === 'error' ? 4000 : 3000
+        type === 'error' ? 4000 : 3000,
       );
     },
-    [clearTimeouts]
+    [clearTimeouts],
   );
 
   // Show success feedback with positive reinforcement
   const showSuccess = useCallback(
     (message?: string) => {
       clearTimeouts();
-      const randomMessage =
-        message || pickRandomMessage(FEEDBACK_MESSAGES.success, 'Great job!');
+      const randomMessage = message || pickRandomMessage(FEEDBACK_MESSAGES.success, 'Great job!');
 
       setFeedback({
         type: 'success',
@@ -419,10 +400,10 @@ function VisualFeedbackSystem({
 
       // Auto-hide after 3 seconds
       timeoutRef.current = setTimeout(() => {
-        setFeedback(prev => ({ ...prev, isVisible: false }));
+        setFeedback((prev) => ({ ...prev, isVisible: false }));
       }, 3000);
     },
-    [clearTimeouts, reducedMotion, triggerPositiveReinforcement]
+    [clearTimeouts, reducedMotion, triggerPositiveReinforcement],
   );
 
   // Show error feedback with gentle approach and pattern-based cues
@@ -430,12 +411,10 @@ function VisualFeedbackSystem({
     (message?: string, type: 'gentle' | 'warning' = 'gentle') => {
       clearTimeouts();
       const messages = FEEDBACK_MESSAGES.error[type];
-      const randomMessage =
-        message || pickRandomMessage(messages, "Let's try that again!");
+      const randomMessage = message || pickRandomMessage(messages, "Let's try that again!");
 
       // Use pattern-based feedback for colorblind accessibility
-      const patternCue =
-        type === 'gentle' ? PATTERN_CUES.error : PATTERN_CUES.warning;
+      const patternCue = type === 'gentle' ? PATTERN_CUES.error : PATTERN_CUES.warning;
 
       setFeedback({
         type: 'error',
@@ -448,10 +427,10 @@ function VisualFeedbackSystem({
 
       // Auto-hide after 4 seconds (longer for error messages)
       timeoutRef.current = setTimeout(() => {
-        setFeedback(prev => ({ ...prev, isVisible: false }));
+        setFeedback((prev) => ({ ...prev, isVisible: false }));
       }, 4000);
     },
-    [clearTimeouts]
+    [clearTimeouts],
   );
 
   // Show encouragement with positive reinforcement
@@ -459,11 +438,7 @@ function VisualFeedbackSystem({
     (message?: string) => {
       clearTimeouts();
       const randomMessage =
-        message ||
-        pickRandomMessage(
-          FEEDBACK_MESSAGES.encouragement,
-          "You're doing great!"
-        );
+        message || pickRandomMessage(FEEDBACK_MESSAGES.encouragement, "You're doing great!");
 
       setFeedback({
         type: 'encouragement',
@@ -480,10 +455,10 @@ function VisualFeedbackSystem({
 
       // Auto-hide after 3 seconds
       timeoutRef.current = setTimeout(() => {
-        setFeedback(prev => ({ ...prev, isVisible: false }));
+        setFeedback((prev) => ({ ...prev, isVisible: false }));
       }, 3000);
     },
-    [clearTimeouts, reducedMotion, triggerPositiveReinforcement]
+    [clearTimeouts, reducedMotion, triggerPositiveReinforcement],
   );
 
   // Show celebration with different types and enhanced patterns
@@ -492,10 +467,7 @@ function VisualFeedbackSystem({
       clearTimeouts();
 
       const celebrationMessages = FEEDBACK_MESSAGES.celebration;
-      const randomMessage = pickRandomMessage(
-        celebrationMessages,
-        'Great work!'
-      );
+      const randomMessage = pickRandomMessage(celebrationMessages, 'Great work!');
 
       setFeedback({
         type: 'celebration',
@@ -515,18 +487,17 @@ function VisualFeedbackSystem({
 
       // Auto-hide after 5 seconds (longer for celebrations)
       timeoutRef.current = setTimeout(() => {
-        setFeedback(prev => ({ ...prev, isVisible: false }));
+        setFeedback((prev) => ({ ...prev, isVisible: false }));
       }, 5000);
     },
-    [clearTimeouts, reducedMotion, triggerPositiveReinforcement]
+    [clearTimeouts, reducedMotion, triggerPositiveReinforcement],
   );
 
   // Show hint feedback with pattern-based cues
   const showHint = useCallback(
     (message?: string) => {
       clearTimeouts();
-      const randomMessage =
-        message || pickRandomMessage(FEEDBACK_MESSAGES.hint, 'Try this hint!');
+      const randomMessage = message || pickRandomMessage(FEEDBACK_MESSAGES.hint, 'Try this hint!');
 
       setFeedback({
         type: 'hint',
@@ -538,10 +509,10 @@ function VisualFeedbackSystem({
 
       // Auto-hide after 4 seconds
       timeoutRef.current = setTimeout(() => {
-        setFeedback(prev => ({ ...prev, isVisible: false }));
+        setFeedback((prev) => ({ ...prev, isVisible: false }));
       }, 4000);
     },
-    [clearTimeouts]
+    [clearTimeouts],
   );
 
   // Clear all feedback
@@ -565,11 +536,7 @@ function VisualFeedbackSystem({
 
   // Generate celebration particles
   const renderCelebrationParticles = () => {
-    if (
-      !feedback.isVisible ||
-      feedback.type !== 'celebration' ||
-      reducedMotion
-    ) {
+    if (!feedback.isVisible || feedback.type !== 'celebration' || reducedMotion) {
       return null;
     }
 
@@ -583,9 +550,7 @@ function VisualFeedbackSystem({
       particles.push(
         <div
           key={i}
-          className={`${styles.celebrationParticle} ${
-            styles[`particle${(i % 8) + 1}`]
-          }`}
+          className={`${styles.celebrationParticle} ${styles[`particle${(i % 8) + 1}`]}`}
           style={
             {
               '--delay': `${i * 0.1}s`,
@@ -594,7 +559,7 @@ function VisualFeedbackSystem({
           }
         >
           {emoji}
-        </div>
+        </div>,
       );
     }
 
@@ -624,9 +589,7 @@ function VisualFeedbackSystem({
   const renderPatternOverlay = () => {
     if (!feedback.pattern || !feedback.isVisible) return null;
 
-    const patternCue = Object.values(PATTERN_CUES).find(
-      cue => cue.pattern === feedback.pattern
-    );
+    const patternCue = Object.values(PATTERN_CUES).find((cue) => cue.pattern === feedback.pattern);
 
     return (
       <div
@@ -670,20 +633,14 @@ function VisualFeedbackSystem({
         <button
           type="button"
           onClick={onHighContrastToggle}
-          className={`${styles.contrastToggle} ${
-            highContrast ? styles.active : ''
-          }`}
-          aria-label={`${
-            highContrast ? 'Disable' : 'Enable'
-          } high contrast mode`}
+          className={`${styles.contrastToggle} ${highContrast ? styles.active : ''}`}
+          aria-label={`${highContrast ? 'Disable' : 'Enable'} high contrast mode`}
           data-testid="high-contrast-toggle"
         >
           <span className={styles.contrastIcon} aria-hidden="true">
             {highContrast ? '🌙' : '☀️'}
           </span>
-          <span className={styles.contrastText}>
-            {highContrast ? 'Normal' : 'High Contrast'}
-          </span>
+          <span className={styles.contrastText}>{highContrast ? 'Normal' : 'High Contrast'}</span>
         </button>
       )}
 
@@ -693,9 +650,7 @@ function VisualFeedbackSystem({
       {/* Feedback Message Display with Enhanced Patterns */}
       {feedback.isVisible && feedback.type && (
         <output
-          className={`${styles.feedbackMessage} ${
-            styles[feedback.type]
-          } ${getPatternClass()} ${
+          className={`${styles.feedbackMessage} ${styles[feedback.type]} ${getPatternClass()} ${
             feedback.subtype ? styles[feedback.subtype] : ''
           }`}
           aria-live="polite"
@@ -735,8 +690,7 @@ function VisualFeedbackSystem({
         {feedback.isVisible && feedback.type === 'error' && (
           <>
             Gentle reminder to try again
-            {feedback.pattern &&
-              ` Visual pattern: ${feedback.pattern} for accessibility`}
+            {feedback.pattern && ` Visual pattern: ${feedback.pattern} for accessibility`}
           </>
         )}
         {feedback.isVisible && feedback.type === 'hint' && (
@@ -761,9 +715,7 @@ function VisualFeedbackSystem({
             {Object.entries(PATTERN_CUES).map(([key, cue]) => (
               <div key={key} className={styles.legendItem}>
                 <div
-                  className={`${styles.legendPattern} ${
-                    styles[`${cue.pattern}Pattern`]
-                  }`}
+                  className={`${styles.legendPattern} ${styles[`${cue.pattern}Pattern`]}`}
                   style={
                     {
                       '--pattern-color': cue.color,
@@ -779,8 +731,7 @@ function VisualFeedbackSystem({
             ))}
           </div>
           <p className={styles.legendDescription}>
-            These patterns help you see different messages, even if colors look
-            the same!
+            These patterns help you see different messages, even if colors look the same!
           </p>
         </div>
       )}

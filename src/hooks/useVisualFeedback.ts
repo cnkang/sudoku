@@ -28,9 +28,7 @@ export interface VisualFeedbackHook {
  * Hook for managing visual feedback system
  * Provides methods to trigger different types of feedback with haptic and audio support
  */
-export function useVisualFeedback(
-  config: VisualFeedbackConfig
-): VisualFeedbackHook {
+export function useVisualFeedback(config: VisualFeedbackConfig): VisualFeedbackHook {
   const feedbackTriggersRef = useRef<FeedbackTriggers | null>(null);
 
   // Haptic feedback helper
@@ -47,7 +45,7 @@ export function useVisualFeedback(
         navigator.vibrate(patterns[type]);
       }
     },
-    [config.enableHapticFeedback]
+    [config.enableHapticFeedback],
   );
 
   // Audio feedback helper (placeholder for future implementation)
@@ -58,7 +56,7 @@ export function useVisualFeedback(
       // Future: Implement audio feedback
       // This could play different sounds for different feedback types
     },
-    [config.enableSoundEffects]
+    [config.enableSoundEffects],
   );
 
   // Set feedback triggers from the VisualFeedbackSystem component
@@ -75,7 +73,7 @@ export function useVisualFeedback(
         triggerAudioFeedback('success');
       }
     },
-    [triggerHapticFeedback, triggerAudioFeedback]
+    [triggerHapticFeedback, triggerAudioFeedback],
   );
 
   // Trigger error feedback with gentle approach
@@ -88,7 +86,7 @@ export function useVisualFeedback(
         triggerAudioFeedback('error');
       }
     },
-    [triggerHapticFeedback, triggerAudioFeedback]
+    [triggerHapticFeedback, triggerAudioFeedback],
   );
 
   // Trigger encouragement
@@ -100,7 +98,7 @@ export function useVisualFeedback(
         triggerAudioFeedback('success');
       }
     },
-    [triggerHapticFeedback, triggerAudioFeedback]
+    [triggerHapticFeedback, triggerAudioFeedback],
   );
 
   // Trigger celebration
@@ -112,7 +110,7 @@ export function useVisualFeedback(
         triggerAudioFeedback('celebration');
       }
     },
-    [triggerHapticFeedback, triggerAudioFeedback]
+    [triggerHapticFeedback, triggerAudioFeedback],
   );
 
   // Trigger hint feedback
@@ -124,7 +122,7 @@ export function useVisualFeedback(
         triggerAudioFeedback('hint');
       }
     },
-    [triggerHapticFeedback, triggerAudioFeedback]
+    [triggerHapticFeedback, triggerAudioFeedback],
   );
 
   // Clear all feedback
@@ -155,7 +153,7 @@ export function getContextualFeedback(
     | 'incorrect_move'
     | 'hint_used'
     | 'struggle_detected',
-  childMode: boolean = true
+  childMode: boolean = true,
 ): {
   type: 'success' | 'error' | 'encouragement' | 'celebration' | 'hint';
   message?: string;
@@ -163,14 +161,11 @@ export function getContextualFeedback(
   const childFriendlyMessages = {
     puzzle_complete: {
       type: 'celebration' as const,
-      message:
-        "🎉 Amazing! You solved the whole puzzle! You're a Sudoku superstar! 🌟",
+      message: "🎉 Amazing! You solved the whole puzzle! You're a Sudoku superstar! 🌟",
     },
     correct_move: {
       type: 'success' as const,
-      message: childMode
-        ? 'Great job! That number fits perfectly! ✨'
-        : 'Correct!',
+      message: childMode ? 'Great job! That number fits perfectly! ✨' : 'Correct!',
     },
     incorrect_move: {
       type: 'error' as const,
@@ -180,9 +175,7 @@ export function getContextualFeedback(
     },
     hint_used: {
       type: 'hint' as const,
-      message: childMode
-        ? "Here's a helpful hint! You're doing great! 💡"
-        : 'Hint provided',
+      message: childMode ? "Here's a helpful hint! You're doing great! 💡" : 'Hint provided',
     },
     struggle_detected: {
       type: 'encouragement' as const,
@@ -202,7 +195,7 @@ export function shouldShowEncouragement(
   incorrectMoves: number,
   timeSpentOnCell: number,
   hintsUsed: number,
-  childMode: boolean
+  childMode: boolean,
 ): boolean {
   if (!childMode) return false;
 
@@ -217,12 +210,7 @@ export function shouldShowEncouragement(
  * Helper function to determine celebration type based on achievement
  */
 export function getCelebrationType(
-  achievement:
-    | 'first_puzzle'
-    | 'fast_solve'
-    | 'no_hints'
-    | 'streak'
-    | 'perfect_game'
+  achievement: 'first_puzzle' | 'fast_solve' | 'no_hints' | 'streak' | 'perfect_game',
 ): 'confetti' | 'stars' | 'rainbow' {
   const celebrationTypes = {
     first_puzzle: 'confetti' as const,

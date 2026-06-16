@@ -20,11 +20,7 @@ export const getStats = (): GameStats => {
   );
 };
 
-export const updateStats = (
-  difficulty: number,
-  time: number,
-  completed: boolean
-): void => {
+export const updateStats = (difficulty: number, time: number, completed: boolean): void => {
   safeSync(() => {
     const stats = getStats();
     stats.gamesPlayed++;

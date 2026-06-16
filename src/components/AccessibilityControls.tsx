@@ -36,11 +36,8 @@ function AccessibilityControls({
   disabled = false,
 }: AccessibilityControlsProps) {
   // Filter themes based on child mode
-  const filteredThemes = availableThemes.filter(theme =>
-    childMode
-      ? theme.category === 'child-friendly' ||
-        theme.category === 'high-contrast'
-      : true
+  const filteredThemes = availableThemes.filter((theme) =>
+    childMode ? theme.category === 'child-friendly' || theme.category === 'high-contrast' : true,
   );
 
   const handleThemeSelect = useCallback(
@@ -48,7 +45,7 @@ function AccessibilityControls({
       const themeId = event.target.value;
       onThemeChange(themeId);
     },
-    [onThemeChange]
+    [onThemeChange],
   );
 
   const controlsClassName = [
@@ -79,7 +76,7 @@ function AccessibilityControls({
           className={styles.themeSelector}
           aria-describedby="theme-description"
         >
-          {filteredThemes.map(theme => (
+          {filteredThemes.map((theme) => (
             <option key={theme.id} value={theme.id}>
               {theme.displayName}
             </option>
@@ -130,9 +127,7 @@ function AccessibilityControls({
           </span>
         </label>
         <div id="reduced-motion-description" className={styles.description}>
-          {childMode
-            ? 'Uses fewer moving effects.'
-            : 'Reduces animations and motion effects'}
+          {childMode ? 'Uses fewer moving effects.' : 'Reduces animations and motion effects'}
         </div>
       </div>
 
@@ -163,34 +158,24 @@ function AccessibilityControls({
       {childMode && (
         <section className={styles.infoSection}>
           <details className={styles.infoSectionDetails}>
-            <summary className={styles.infoSectionSummary}>
-              🎯 Visual Helpers (optional)
-            </summary>
+            <summary className={styles.infoSectionSummary}>🎯 Visual Helpers (optional)</summary>
             <div className={styles.infoSectionBody}>
               <h4 className={styles.infoTitle}>Pattern Guide</h4>
               <div className={styles.patternExamples}>
                 <div className={styles.patternExample}>
-                  <div
-                    className={`${styles.patternSample} ${styles.successPattern}`}
-                  />
+                  <div className={`${styles.patternSample} ${styles.successPattern}`} />
                   <span>Great job! (stripes)</span>
                 </div>
                 <div className={styles.patternExample}>
-                  <div
-                    className={`${styles.patternSample} ${styles.errorPattern}`}
-                  />
+                  <div className={`${styles.patternSample} ${styles.errorPattern}`} />
                   <span>Try again! (dots)</span>
                 </div>
                 <div className={styles.patternExample}>
-                  <div
-                    className={`${styles.patternSample} ${styles.hintPattern}`}
-                  />
+                  <div className={`${styles.patternSample} ${styles.hintPattern}`} />
                   <span>Hint! (waves)</span>
                 </div>
               </div>
-              <p className={styles.infoText}>
-                Patterns help if colors look similar.
-              </p>
+              <p className={styles.infoText}>Patterns help if colors look similar.</p>
             </div>
           </details>
         </section>

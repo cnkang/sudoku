@@ -82,7 +82,7 @@ export interface IntersectionObserverResult {
  */
 export function useIntersectionObserver(
   options: IntersectionObserverOptions = {},
-  callback?: (entry: IntersectionObserverEntry) => void
+  callback?: (entry: IntersectionObserverEntry) => void,
 ): IntersectionObserverResult {
   const {
     root = null,
@@ -124,7 +124,7 @@ export function useIntersectionObserver(
 
       // Create new observer
       observerRef.current = new IntersectionObserver(
-        entries => {
+        (entries) => {
           const [observerEntry] = entries;
           if (!observerEntry) return;
 
@@ -149,13 +149,13 @@ export function useIntersectionObserver(
           root,
           rootMargin,
           threshold,
-        }
+        },
       );
 
       // Start observing
       observerRef.current.observe(node);
     },
-    [root, rootMargin, threshold, triggerOnce, callback]
+    [root, rootMargin, threshold, triggerOnce, callback],
   );
 
   // Cleanup on unmount
@@ -204,7 +204,7 @@ export function useIntersectionObserver(
  */
 export function useLazyLoad<T>(
   loadFn: () => Promise<T>,
-  options: IntersectionObserverOptions = {}
+  options: IntersectionObserverOptions = {},
 ) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -228,13 +228,10 @@ export function useLazyLoad<T>(
         }
       }
     },
-    [loadFn]
+    [loadFn],
   );
 
-  const { ref } = useIntersectionObserver(
-    { ...options, triggerOnce: true },
-    handleIntersection
-  );
+  const { ref } = useIntersectionObserver({ ...options, triggerOnce: true }, handleIntersection);
 
   return {
     isLoading,
@@ -264,22 +261,13 @@ export function useLazyLoad<T>(
  * }
  * ```
  */
-export function useMultipleIntersectionObserver(
-  options: IntersectionObserverOptions = {}
-) {
-  const [visibilityMap, setVisibilityMap] = useState<Record<string, boolean>>(
-    {}
-  );
+export function useMultipleIntersectionObserver(options: IntersectionObserverOptions = {}) {
+  const [visibilityMap, setVisibilityMap] = useState<Record<string, boolean>>({});
   const observerRef = useRef<IntersectionObserver | null>(null);
   const elementsRef = useRef<Map<string, Element>>(new Map());
   const elementIdsRef = useRef<WeakMap<Element, string>>(new WeakMap());
 
-  const {
-    root = null,
-    rootMargin = '0px',
-    threshold = 0,
-    triggerOnce = false,
-  } = options;
+  const { root = null, rootMargin = '0px', threshold = 0, triggerOnce = false } = options;
 
   // Initialize observer
   useEffect(() => {
@@ -288,7 +276,7 @@ export function useMultipleIntersectionObserver(
     }
 
     observerRef.current = new IntersectionObserver(
-      entries => {
+      (entries) => {
         const updates: Record<string, boolean> = {};
 
         for (const entry of entries) {
@@ -308,14 +296,14 @@ export function useMultipleIntersectionObserver(
         }
 
         if (Object.keys(updates).length > 0) {
-          setVisibilityMap(prev => ({ ...prev, ...updates }));
+          setVisibilityMap((prev) => ({ ...prev, ...updates }));
         }
       },
       {
         root,
         rootMargin,
         threshold,
-      }
+      },
     );
 
     return () => {

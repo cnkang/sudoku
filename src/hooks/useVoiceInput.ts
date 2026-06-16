@@ -55,12 +55,8 @@ interface SpeechRecognition extends EventTarget {
   abort(): void;
   onstart: ((this: SpeechRecognition, ev: Event) => void) | null;
   onend: ((this: SpeechRecognition, ev: Event) => void) | null;
-  onresult:
-    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void)
-    | null;
-  onerror:
-    | ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => void)
-    | null;
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void) | null;
+  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => void) | null;
 }
 
 declare global {
@@ -95,16 +91,14 @@ const NUMBER_WORDS: Record<string, number> = {
 const SAFE_NUMBER_PATTERN = String.raw`(?:${Object.keys(NUMBER_WORDS).join('|')}|\d{1,2})`;
 
 const CONTEXT_NUMBER_PATTERNS = [
-  new RegExp(
-    String.raw`\b(?:enter|put|place|set)\s+(${SAFE_NUMBER_PATTERN})\b`
-  ),
+  new RegExp(String.raw`\b(?:enter|put|place|set)\s+(${SAFE_NUMBER_PATTERN})\b`),
   new RegExp(String.raw`\b(${SAFE_NUMBER_PATTERN})\s+(?:please|now)\b`),
 ];
 
 export const useVoiceInput = (
   gridConfig: GridConfig,
   onNumberInput?: (value: number) => void,
-  onVoiceCommand?: (command: string) => void
+  onVoiceCommand?: (command: string) => void,
 ): [VoiceInputState, VoiceInputHandlers] => {
   const [state, setState] = useState<VoiceInputState>({
     isSupported: false,
@@ -124,14 +118,13 @@ export const useVoiceInput = (
   useEffect(() => {
     const speechRecognitionHost = globalThis as typeof globalThis & Window;
     const SpeechRecognition =
-      speechRecognitionHost.SpeechRecognition ||
-      speechRecognitionHost.webkitSpeechRecognition;
+      speechRecognitionHost.SpeechRecognition || speechRecognitionHost.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
       return undefined;
     }
 
-    setState(prev => ({ ...prev, isSupported: true }));
+    setState((prev) => ({ ...prev, isSupported: true }));
 
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
@@ -144,11 +137,11 @@ export const useVoiceInput = (
 
     // Event handlers
     recognition.onstart = () => {
-      setState(prev => ({ ...prev, isListening: true, error: null }));
+      setState((prev) => ({ ...prev, isListening: true, error: null }));
     };
 
     recognition.onend = () => {
-      setState(prev => ({ ...prev, isListening: false }));
+      setState((prev) => ({ ...prev, isListening: false }));
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
@@ -157,7 +150,7 @@ export const useVoiceInput = (
       const transcript = result[0].transcript.trim().toLowerCase();
       const confidence = result[0].confidence;
 
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         lastTranscript: transcript,
         confidence,
@@ -168,7 +161,7 @@ export const useVoiceInput = (
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         isListening: false,
         error: `Speech recognition error: ${event.error}`,
@@ -190,22 +183,14 @@ export const useVoiceInput = (
 
       // Check for direct number input
       const directNumber = Number.parseInt(transcript, 10);
-      if (
-        !Number.isNaN(directNumber) &&
-        directNumber >= 0 &&
-        directNumber <= gridConfig.maxValue
-      ) {
+      if (!Number.isNaN(directNumber) && directNumber >= 0 && directNumber <= gridConfig.maxValue) {
         onNumberInput?.(directNumber);
         return;
       }
 
       // Check for spoken numbers
       const spokenNumber = NUMBER_WORDS[transcript];
-      if (
-        spokenNumber !== undefined &&
-        spokenNumber >= 0 &&
-        spokenNumber <= gridConfig.maxValue
-      ) {
+      if (spokenNumber !== undefined && spokenNumber >= 0 && spokenNumber <= gridConfig.maxValue) {
         onNumberInput?.(spokenNumber);
         return;
       }
@@ -240,23 +225,14 @@ export const useVoiceInput = (
         if (match?.[1]) {
           const word = match[1];
           const number = NUMBER_WORDS[word] ?? Number.parseInt(word, 10);
-          if (
-            !Number.isNaN(number) &&
-            number >= 0 &&
-            number <= gridConfig.maxValue
-          ) {
+          if (!Number.isNaN(number) && number >= 0 && number <= gridConfig.maxValue) {
             onNumberInput?.(number);
             return;
           }
         }
       }
     },
-    [
-      state.currentSettings.confidence,
-      gridConfig.maxValue,
-      onNumberInput,
-      onVoiceCommand,
-    ]
+    [state.currentSettings.confidence, gridConfig.maxValue, onNumberInput, onVoiceCommand],
   );
 
   // Stop listening
@@ -273,8 +249,7 @@ export const useVoiceInput = (
 
   // Start listening
   const startListening = useCallback(() => {
-    if (!recognitionRef.current || !state.isEnabled || state.isListening)
-      return;
+    if (!recognitionRef.current || !state.isEnabled || state.isListening) return;
 
     try {
       recognitionRef.current.start();
@@ -284,7 +259,7 @@ export const useVoiceInput = (
         stopListening();
       }, 5000);
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         error: `Failed to start voice recognition: ${error}`,
       }));
@@ -302,7 +277,7 @@ export const useVoiceInput = (
 
   // Enable voice input
   const enableVoiceInput = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isEnabled: true,
       currentSettings: {
@@ -315,7 +290,7 @@ export const useVoiceInput = (
   // Disable voice input
   const disableVoiceInput = useCallback(() => {
     stopListening();
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isEnabled: false,
       currentSettings: {
@@ -326,35 +301,32 @@ export const useVoiceInput = (
   }, [stopListening]);
 
   // Update settings
-  const updateSettings = useCallback(
-    (newSettings: Partial<VoiceInputSettings>) => {
-      setState(prev => ({
-        ...prev,
-        currentSettings: {
-          ...prev.currentSettings,
-          ...newSettings,
-        },
-      }));
+  const updateSettings = useCallback((newSettings: Partial<VoiceInputSettings>) => {
+    setState((prev) => ({
+      ...prev,
+      currentSettings: {
+        ...prev.currentSettings,
+        ...newSettings,
+      },
+    }));
 
-      // Update recognition settings if available
-      if (recognitionRef.current) {
-        const recognition = recognitionRef.current;
-        if (newSettings.continuous !== undefined) {
-          recognition.continuous = newSettings.continuous;
-        }
-        if (newSettings.interimResults !== undefined) {
-          recognition.interimResults = newSettings.interimResults;
-        }
-        if (newSettings.language !== undefined) {
-          recognition.lang = newSettings.language;
-        }
-        if (newSettings.maxAlternatives !== undefined) {
-          recognition.maxAlternatives = newSettings.maxAlternatives;
-        }
+    // Update recognition settings if available
+    if (recognitionRef.current) {
+      const recognition = recognitionRef.current;
+      if (newSettings.continuous !== undefined) {
+        recognition.continuous = newSettings.continuous;
       }
-    },
-    []
-  );
+      if (newSettings.interimResults !== undefined) {
+        recognition.interimResults = newSettings.interimResults;
+      }
+      if (newSettings.language !== undefined) {
+        recognition.lang = newSettings.language;
+      }
+      if (newSettings.maxAlternatives !== undefined) {
+        recognition.maxAlternatives = newSettings.maxAlternatives;
+      }
+    }
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {

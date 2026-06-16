@@ -2,7 +2,7 @@
  * Tests for input sanitization utilities
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import {
   sanitizeString,
   sanitizeObject,
@@ -18,7 +18,7 @@ describe('Sanitization Utilities', () => {
   describe('sanitizeString', () => {
     it('should escape HTML special characters', () => {
       expect(sanitizeString('<script>alert("xss")</script>')).toBe(
-        '&lt;script&gt;alert(&quot;xss&quot;)&lt;&#x2F;script&gt;'
+        '&lt;script&gt;alert(&quot;xss&quot;)&lt;&#x2F;script&gt;',
       );
     });
 
@@ -27,9 +27,7 @@ describe('Sanitization Utilities', () => {
     });
 
     it('should escape quotes', () => {
-      expect(sanitizeString('He said "Hello"')).toBe(
-        'He said &quot;Hello&quot;'
-      );
+      expect(sanitizeString('He said "Hello"')).toBe('He said &quot;Hello&quot;');
       expect(sanitizeString("It's working")).toBe('It&#x27;s working');
     });
 
@@ -57,9 +55,7 @@ describe('Sanitization Utilities', () => {
 
       const result = sanitizeObject(input);
 
-      expect(result.name).toBe(
-        '&lt;script&gt;alert(&quot;xss&quot;)&lt;&#x2F;script&gt;'
-      );
+      expect(result.name).toBe('&lt;script&gt;alert(&quot;xss&quot;)&lt;&#x2F;script&gt;');
       expect(result.age).toBe(25);
       expect(result.active).toBe(true);
     });
@@ -87,11 +83,7 @@ describe('Sanitization Utilities', () => {
 
       const result = sanitizeObject(input);
 
-      expect(result.tags).toEqual([
-        '&lt;script&gt;',
-        'safe',
-        '&quot;quoted&quot;',
-      ]);
+      expect(result.tags).toEqual(['&lt;script&gt;', 'safe', '&quot;quoted&quot;']);
     });
 
     it('should sanitize arrays of objects', () => {
@@ -115,9 +107,7 @@ describe('Sanitization Utilities', () => {
 
     it('should sanitize truncated strings', () => {
       // Truncates to 10 chars first: '<script>al', then sanitizes
-      expect(sanitizeStringLength('<script>alert("xss")</script>', 10)).toBe(
-        '&lt;script&gt;al'
-      );
+      expect(sanitizeStringLength('<script>alert("xss")</script>', 10)).toBe('&lt;script&gt;al');
     });
 
     it('should not modify strings within limit', () => {
@@ -135,9 +125,7 @@ describe('Sanitization Utilities', () => {
     });
 
     it('should remove backslashes', () => {
-      expect(sanitizeFilename(String.raw`path\to\file.txt`)).toBe(
-        'pathtofile.txt'
-      );
+      expect(sanitizeFilename(String.raw`path\to\file.txt`)).toBe('pathtofile.txt');
     });
 
     it('should remove null bytes', () => {
@@ -173,9 +161,7 @@ describe('Sanitization Utilities', () => {
     });
 
     it('should block data: URLs', () => {
-      expect(sanitizeUrl('data:text/html,<script>alert("xss")</script>')).toBe(
-        ''
-      );
+      expect(sanitizeUrl('data:text/html,<script>alert("xss")</script>')).toBe('');
     });
 
     it('should block vbscript: URLs', () => {
@@ -184,9 +170,7 @@ describe('Sanitization Utilities', () => {
 
     it('should handle mixed case', () => {
       const dangerousProtocol = `java${'script'}:`;
-      expect(
-        sanitizeUrl(`${dangerousProtocol.toUpperCase()}alert("xss")`)
-      ).toBe('');
+      expect(sanitizeUrl(`${dangerousProtocol.toUpperCase()}alert("xss")`)).toBe('');
       expect(sanitizeUrl('HTTPS://example.com')).toBe('HTTPS://example.com');
     });
   });
@@ -197,9 +181,7 @@ describe('Sanitization Utilities', () => {
     });
 
     it('should allow hyphens and underscores', () => {
-      expect(sanitizeClassName('btn-primary_active')).toBe(
-        'btn-primary_active'
-      );
+      expect(sanitizeClassName('btn-primary_active')).toBe('btn-primary_active');
     });
 
     it('should remove special characters', () => {

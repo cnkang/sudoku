@@ -3,19 +3,10 @@
  * Implements React Compiler optimizations and performance monitoring
  */
 
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useVisualFeedback } from '@/hooks/useVisualFeedback';
 import type { GridConfig } from '@/types';
-import {
-  usePerformanceTracking,
-  withPerformanceTracking,
-} from '@/utils/performance-monitoring';
+import { usePerformanceTracking, withPerformanceTracking } from '@/utils/performance-monitoring';
 import styles from './SudokuGrid.module.css';
 
 interface OptimizedSudokuGridProps {
@@ -107,14 +98,7 @@ const SudokuCell = React.memo(
       if (accessibility?.largeText) classes.push(styles.largeText);
 
       return classes.join(' ');
-    }, [
-      isFixed,
-      isSelected,
-      isError,
-      isHinted,
-      isSuccess,
-      accessibility?.largeText,
-    ]);
+    }, [isFixed, isSelected, isError, isHinted, isSuccess, accessibility?.largeText]);
 
     // Optimized event handlers with useCallback
     const handleClick = useCallback(() => {
@@ -128,17 +112,13 @@ const SudokuCell = React.memo(
         if (disabled || isFixed) return;
 
         const newValue = Number.parseInt(e.target.value, 10);
-        if (
-          !Number.isNaN(newValue) &&
-          newValue >= 1 &&
-          newValue <= gridConfig.maxValue
-        ) {
+        if (!Number.isNaN(newValue) && newValue >= 1 && newValue <= gridConfig.maxValue) {
           onCellChange(row, col, newValue);
         } else if (e.target.value === '') {
           onCellChange(row, col, 0);
         }
       },
-      [disabled, isFixed, row, col, gridConfig.maxValue, onCellChange]
+      [disabled, isFixed, row, col, gridConfig.maxValue, onCellChange],
     );
 
     // Touch event handlers for mobile optimization (client-passive-event-listeners)
@@ -159,10 +139,10 @@ const SudokuCell = React.memo(
 
         // Long press detection for hints
         setTimeout(() => {
-          setTouchState(prev => (prev ? { ...prev, isLongPress: true } : null));
+          setTouchState((prev) => (prev ? { ...prev, isLongPress: true } : null));
         }, 500);
       },
-      [disabled, isFixed]
+      [disabled, isFixed],
     );
 
     const handleTouchEnd = useCallback(
@@ -182,7 +162,7 @@ const SudokuCell = React.memo(
 
         setTouchState(null);
       },
-      [touchState, disabled, isFixed, handleClick]
+      [touchState, disabled, isFixed, handleClick],
     );
 
     // Track render performance
@@ -197,7 +177,7 @@ const SudokuCell = React.memo(
         ref={cellRef}
         className={cellClasses}
         onClick={handleClick}
-        onKeyDown={event => {
+        onKeyDown={(event) => {
           onGridKeyDown(event);
           if (event.defaultPrevented) return;
           if (event.key === 'Enter' || event.key === ' ') {
@@ -210,9 +190,7 @@ const SudokuCell = React.memo(
         data-row={row}
         data-col={col}
         data-testid={`cell-${row}-${col}`}
-        aria-label={`Cell ${row + 1}, ${col + 1}${
-          value ? `, value ${value}` : ', empty'
-        }`}
+        aria-label={`Cell ${row + 1}, ${col + 1}${value ? `, value ${value}` : ', empty'}`}
         tabIndex={isSelected ? 0 : -1}
       >
         {isFixed ? (
@@ -233,7 +211,7 @@ const SudokuCell = React.memo(
         )}
       </td>
     );
-  }
+  },
 );
 
 SudokuCell.displayName = 'SudokuCell';
@@ -300,7 +278,7 @@ const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
 
     // Focus management for accessibility
     const cellElement = gridRef.current?.querySelector(
-      `[data-row="${row}"][data-col="${col}"] input`
+      `[data-row="${row}"][data-col="${col}"] input`,
     );
     if (cellElement instanceof HTMLInputElement) {
       cellElement.focus();
@@ -325,13 +303,7 @@ const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
         }
       }
     },
-    [
-      onInputChange,
-      onCorrectMove,
-      onIncorrectMove,
-      triggerSuccess,
-      triggerError,
-    ]
+    [onInputChange, onCorrectMove, onIncorrectMove, triggerSuccess, triggerError],
   );
 
   // Keyboard navigation
@@ -363,7 +335,7 @@ const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
       e.preventDefault();
       setSelectedCell({ row: newRow, col: newCol });
     },
-    [selectedCell, gridConfig.size]
+    [selectedCell, gridConfig.size],
   );
 
   // Performance tracking
@@ -387,10 +359,7 @@ const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
   }, [childMode, accessibility.highContrast]);
 
   const gridClasses = useMemo(() => {
-    const classes = [
-      styles.sudokuGrid,
-      `sudoku-grid-${gridConfig.size}x${gridConfig.size}`,
-    ];
+    const classes = [styles.sudokuGrid, `sudoku-grid-${gridConfig.size}x${gridConfig.size}`];
     return classes.join(' ');
   }, [gridConfig.size]);
 
@@ -412,7 +381,7 @@ const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
             const rowKey = rowData[0]?.row ?? rowIndex;
             return (
               <tr key={`row-${rowKey}`}>
-                {rowData.map(cellData => (
+                {rowData.map((cellData) => (
                   <SudokuCell
                     key={`cell-${cellData.row}-${cellData.col}`}
                     {...cellData}
@@ -434,7 +403,4 @@ const OptimizedSudokuGrid: React.FC<OptimizedSudokuGridProps> = ({
 };
 
 // Export with performance tracking wrapper
-export default withPerformanceTracking(
-  OptimizedSudokuGrid,
-  'OptimizedSudokuGrid'
-);
+export default withPerformanceTracking(OptimizedSudokuGrid, 'OptimizedSudokuGrid');

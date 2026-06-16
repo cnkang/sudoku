@@ -18,7 +18,7 @@ const LazyPWAGridSelector = createLazyComponent<PWAGridSelectorProps>(
           <div className="skeleton-subtitle"></div>
         </div>
         <div className="skeleton-grid">
-          {[1, 2, 3].map(i => (
+          {[1, 2, 3].map((i) => (
             <div key={i} className="skeleton-option">
               <div className="skeleton-icon"></div>
               <div className="skeleton-content">
@@ -137,7 +137,7 @@ const LazyPWAGridSelector = createLazyComponent<PWAGridSelectorProps>(
         }
       `}</style>
     </div>
-  )
+  ),
 );
 
 export default LazyPWAGridSelector;

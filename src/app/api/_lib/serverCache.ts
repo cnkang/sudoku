@@ -70,7 +70,7 @@ export const cacheMetrics = new CacheMetricsTracker();
 export const getCachedPuzzle = cache(
   async (difficulty: number, gridSize: GridSize): Promise<SudokuPuzzle> => {
     return await generateSudokuPuzzle(difficulty, gridSize);
-  }
+  },
 );
 
 /**
@@ -152,10 +152,7 @@ class ServerLRUCache<K, V> {
  * Cross-request puzzle cache with 30 second TTL
  * Requirement 7.2, 7.4: LRU cache with 30 second TTL
  */
-export const puzzleLRUCache = new ServerLRUCache<string, SudokuPuzzle>(
-  50,
-  30000
-);
+export const puzzleLRUCache = new ServerLRUCache<string, SudokuPuzzle>(50, 30000);
 
 /**
  * Helper to generate cache key from difficulty and gridSize
@@ -164,7 +161,7 @@ export const puzzleLRUCache = new ServerLRUCache<string, SudokuPuzzle>(
 export function getPuzzleCacheKey(
   difficulty: number,
   gridSize: GridSize,
-  seed = 'default'
+  seed = 'default',
 ): string {
   return `puzzle-${gridSize}-${difficulty}-${seed}`;
 }
@@ -197,7 +194,7 @@ export async function getOptimizedPuzzle(
   difficulty: number,
   gridSize: GridSize,
   seed = 'default',
-  forceRefresh = false
+  forceRefresh = false,
 ): Promise<SudokuPuzzle & { cached?: boolean }> {
   const cacheKey = getPuzzleCacheKey(difficulty, gridSize, seed);
 

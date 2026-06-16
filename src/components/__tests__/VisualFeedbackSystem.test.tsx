@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import type { ThemeConfig } from '@/types';
 import { THEMES } from '@/utils/themes';
 import VisualFeedbackSystem from '../VisualFeedbackSystem';
@@ -28,7 +28,7 @@ describe('VisualFeedbackSystem', () => {
     render(
       <VisualFeedbackSystem theme={mockTheme}>
         {() => <div>Test content</div>}
-      </VisualFeedbackSystem>
+      </VisualFeedbackSystem>,
     );
 
     expect(screen.getByTestId('visual-feedback-system')).toBeInTheDocument();
@@ -39,7 +39,7 @@ describe('VisualFeedbackSystem', () => {
     render(
       <VisualFeedbackSystem theme={mockTheme} onHighContrastToggle={mockToggle}>
         {() => <div>Test content</div>}
-      </VisualFeedbackSystem>
+      </VisualFeedbackSystem>,
     );
 
     const toggle = screen.getByTestId('high-contrast-toggle');
@@ -52,7 +52,7 @@ describe('VisualFeedbackSystem', () => {
     render(
       <VisualFeedbackSystem theme={mockTheme} onHighContrastToggle={mockToggle}>
         {() => <div>Test content</div>}
-      </VisualFeedbackSystem>
+      </VisualFeedbackSystem>,
     );
 
     const toggle = screen.getByTestId('high-contrast-toggle');
@@ -64,15 +64,12 @@ describe('VisualFeedbackSystem', () => {
   it('shows success feedback with pattern-based cues', async () => {
     render(
       <VisualFeedbackSystem theme={mockTheme} childMode>
-        {triggers => (
-          <button
-            type="button"
-            onClick={() => triggers.showSuccess('Great job!')}
-          >
+        {(triggers) => (
+          <button type="button" onClick={() => triggers.showSuccess('Great job!')}>
             Show Success
           </button>
         )}
-      </VisualFeedbackSystem>
+      </VisualFeedbackSystem>,
     );
 
     const button = screen.getByText('Show Success');
@@ -89,15 +86,12 @@ describe('VisualFeedbackSystem', () => {
   it('shows gentle error feedback with warm colors', async () => {
     render(
       <VisualFeedbackSystem theme={mockTheme} childMode>
-        {triggers => (
-          <button
-            type="button"
-            onClick={() => triggers.showError('Try again!', 'gentle')}
-          >
+        {(triggers) => (
+          <button type="button" onClick={() => triggers.showError('Try again!', 'gentle')}>
             Show Error
           </button>
         )}
-      </VisualFeedbackSystem>
+      </VisualFeedbackSystem>,
     );
 
     const button = screen.getByText('Show Error');
@@ -114,15 +108,12 @@ describe('VisualFeedbackSystem', () => {
   it('shows celebration with enhanced patterns', async () => {
     render(
       <VisualFeedbackSystem theme={mockTheme} childMode>
-        {triggers => (
-          <button
-            type="button"
-            onClick={() => triggers.showCelebration('confetti')}
-          >
+        {(triggers) => (
+          <button type="button" onClick={() => triggers.showCelebration('confetti')}>
             Celebrate
           </button>
         )}
-      </VisualFeedbackSystem>
+      </VisualFeedbackSystem>,
     );
 
     const button = screen.getByText('Celebrate');
@@ -138,17 +129,15 @@ describe('VisualFeedbackSystem', () => {
   it('shows pattern-based feedback for colorblind accessibility', async () => {
     render(
       <VisualFeedbackSystem theme={mockTheme} childMode>
-        {triggers => (
+        {(triggers) => (
           <button
             type="button"
-            onClick={() =>
-              triggers.showPatternFeedback('hint', "Here's a hint!", 'waves')
-            }
+            onClick={() => triggers.showPatternFeedback('hint', "Here's a hint!", 'waves')}
           >
             Show Pattern Feedback
           </button>
         )}
-      </VisualFeedbackSystem>
+      </VisualFeedbackSystem>,
     );
 
     const button = screen.getByText('Show Pattern Feedback');
@@ -166,22 +155,20 @@ describe('VisualFeedbackSystem', () => {
     render(
       <VisualFeedbackSystem theme={mockTheme} childMode>
         {() => <div>Test content</div>}
-      </VisualFeedbackSystem>
+      </VisualFeedbackSystem>,
     );
 
     const legend = screen.getByTestId('pattern-legend');
     expect(legend).toBeInTheDocument();
     expect(legend).toHaveTextContent('Visual Helpers');
-    expect(legend).toHaveTextContent(
-      'These patterns help you see different messages'
-    );
+    expect(legend).toHaveTextContent('These patterns help you see different messages');
   });
 
   it('does not display pattern legend when not in child mode', () => {
     render(
       <VisualFeedbackSystem theme={mockTheme} childMode={false}>
         {() => <div>Test content</div>}
-      </VisualFeedbackSystem>
+      </VisualFeedbackSystem>,
     );
 
     expect(screen.queryByTestId('pattern-legend')).not.toBeInTheDocument();
@@ -191,7 +178,7 @@ describe('VisualFeedbackSystem', () => {
     render(
       <VisualFeedbackSystem theme={mockTheme} highContrast>
         {() => <div>Test content</div>}
-      </VisualFeedbackSystem>
+      </VisualFeedbackSystem>,
     );
 
     const container = screen.getByTestId('visual-feedback-system');
@@ -201,15 +188,12 @@ describe('VisualFeedbackSystem', () => {
   it('respects reduced motion preferences', async () => {
     render(
       <VisualFeedbackSystem theme={mockTheme} reducedMotion>
-        {triggers => (
-          <button
-            type="button"
-            onClick={() => triggers.showCelebration('confetti')}
-          >
+        {(triggers) => (
+          <button type="button" onClick={() => triggers.showCelebration('confetti')}>
             Celebrate
           </button>
         )}
-      </VisualFeedbackSystem>
+      </VisualFeedbackSystem>,
     );
 
     const button = screen.getByText('Celebrate');
@@ -228,15 +212,12 @@ describe('VisualFeedbackSystem', () => {
   it('provides screen reader announcements', async () => {
     render(
       <VisualFeedbackSystem theme={mockTheme} childMode>
-        {triggers => (
-          <button
-            type="button"
-            onClick={() => triggers.showSuccess('Success!')}
-          >
+        {(triggers) => (
+          <button type="button" onClick={() => triggers.showSuccess('Success!')}>
             Show Success
           </button>
         )}
-      </VisualFeedbackSystem>
+      </VisualFeedbackSystem>,
     );
 
     const button = screen.getByText('Show Success');
@@ -246,9 +227,7 @@ describe('VisualFeedbackSystem', () => {
       const feedback = screen.getByTestId('feedback-success');
       expect(feedback).toBeInTheDocument();
 
-      const srAnnouncement = document.querySelector(
-        'output[aria-live="polite"]'
-      );
+      const srAnnouncement = document.querySelector('output[aria-live="polite"]');
       expect(srAnnouncement).toBeInTheDocument();
     });
   });
@@ -262,12 +241,9 @@ describe('VisualFeedbackSystem', () => {
   it('clears feedback when clearFeedback is called', async () => {
     render(
       <VisualFeedbackSystem theme={mockTheme}>
-        {triggers => (
+        {(triggers) => (
           <div>
-            <button
-              type="button"
-              onClick={() => triggers.showSuccess('Success!')}
-            >
+            <button type="button" onClick={() => triggers.showSuccess('Success!')}>
               Show Success
             </button>
             <button type="button" onClick={() => triggers.clearFeedback()}>
@@ -275,7 +251,7 @@ describe('VisualFeedbackSystem', () => {
             </button>
           </div>
         )}
-      </VisualFeedbackSystem>
+      </VisualFeedbackSystem>,
     );
 
     const showButton = screen.getByText('Show Success');
@@ -296,7 +272,7 @@ describe('VisualFeedbackSystem', () => {
   it('handles multiple feedback types correctly', async () => {
     render(
       <VisualFeedbackSystem theme={mockTheme} childMode>
-        {triggers => (
+        {(triggers) => (
           <div>
             <button
               type="button"
@@ -321,7 +297,7 @@ describe('VisualFeedbackSystem', () => {
             </button>
           </div>
         )}
-      </VisualFeedbackSystem>
+      </VisualFeedbackSystem>,
     );
 
     // Test success feedback - simplified to avoid timing issues
@@ -330,7 +306,7 @@ describe('VisualFeedbackSystem', () => {
       () => {
         expect(screen.getByTestId('feedback-success')).toBeInTheDocument();
       },
-      { timeout: 2000 }
+      { timeout: 2000 },
     );
   });
 
@@ -343,7 +319,7 @@ describe('VisualFeedbackSystem', () => {
         onHighContrastToggle={mockToggle}
       >
         {() => <div>Test content</div>}
-      </VisualFeedbackSystem>
+      </VisualFeedbackSystem>,
     );
 
     const toggle = screen.getByTestId('high-contrast-toggle');
@@ -355,13 +331,9 @@ describe('VisualFeedbackSystem', () => {
   it('updates high contrast toggle label when active', () => {
     const mockToggle = vi.fn();
     render(
-      <VisualFeedbackSystem
-        theme={mockTheme}
-        highContrast={true}
-        onHighContrastToggle={mockToggle}
-      >
+      <VisualFeedbackSystem theme={mockTheme} highContrast={true} onHighContrastToggle={mockToggle}>
         {() => <div>Test content</div>}
-      </VisualFeedbackSystem>
+      </VisualFeedbackSystem>,
     );
 
     const toggle = screen.getByTestId('high-contrast-toggle');

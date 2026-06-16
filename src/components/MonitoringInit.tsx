@@ -113,9 +113,7 @@ export default function MonitoringInit() {
         kind: 'client-error',
         message: truncate(message, MAX_MESSAGE_LENGTH),
         source: 'error',
-        ...(event.error?.stack
-          ? { stack: truncate(event.error.stack, MAX_STACK_LENGTH) }
-          : {}),
+        ...(event.error?.stack ? { stack: truncate(event.error.stack, MAX_STACK_LENGTH) } : {}),
         timestamp: Date.now(),
         url: globalThis.location.href,
         userAgent: navigator.userAgent,
@@ -128,9 +126,7 @@ export default function MonitoringInit() {
 
       if (event.reason instanceof Error) {
         message = event.reason.message || message;
-        stack = event.reason.stack
-          ? truncate(event.reason.stack, MAX_STACK_LENGTH)
-          : undefined;
+        stack = event.reason.stack ? truncate(event.reason.stack, MAX_STACK_LENGTH) : undefined;
       } else if (typeof event.reason === 'string' && event.reason.trim()) {
         message = event.reason.trim();
       }
@@ -151,10 +147,7 @@ export default function MonitoringInit() {
 
     return () => {
       globalThis.removeEventListener('error', handleError);
-      globalThis.removeEventListener(
-        'unhandledrejection',
-        handleUnhandledRejection
-      );
+      globalThis.removeEventListener('unhandledrejection', handleUnhandledRejection);
       reportedMetricIds.clear();
     };
   }, []);

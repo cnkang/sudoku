@@ -17,8 +17,7 @@ interface PendingRequest<T> {
  * Shares results across duplicate requests within a 5-second window
  */
 class RequestDeduplicator {
-  private readonly pendingRequests: Map<string, PendingRequest<unknown>> =
-    new Map();
+  private readonly pendingRequests: Map<string, PendingRequest<unknown>> = new Map();
   private readonly DEDUPLICATION_WINDOW = 5000; // 5 seconds
 
   /**
@@ -41,12 +40,12 @@ class RequestDeduplicator {
 
     // Create a new request
     const promise = requestFn()
-      .then(result => {
+      .then((result) => {
         // Clean up after successful completion
         this.pendingRequests.delete(key);
         return result;
       })
-      .catch(error => {
+      .catch((error) => {
         // Clean up after error
         this.pendingRequests.delete(key);
         throw error;
@@ -106,10 +105,7 @@ const globalDeduplicator = new RequestDeduplicator();
  * );
  * ```
  */
-export async function deduplicateRequest<T>(
-  key: string,
-  requestFn: () => Promise<T>
-): Promise<T> {
+export async function deduplicateRequest<T>(key: string, requestFn: () => Promise<T>): Promise<T> {
   return globalDeduplicator.deduplicate(key, requestFn);
 }
 

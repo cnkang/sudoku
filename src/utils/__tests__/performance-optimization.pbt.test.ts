@@ -5,7 +5,7 @@
  */
 
 import * as fc from 'fast-check';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import {
   createLazyComponent,
   getBundleSize,
@@ -57,32 +57,26 @@ describe('Performance Optimization Compliance Property Tests', () => {
 
   it('should have properly defined performance thresholds', () => {
     fc.assert(
-      fc.property(
-        fc.constantFrom('LCP', 'FID', 'CLS', 'FCP', 'TTI'),
-        metricName => {
-          const threshold =
-            PERFORMANCE_THRESHOLDS[
-              metricName as keyof typeof PERFORMANCE_THRESHOLDS
-            ];
+      fc.property(fc.constantFrom('LCP', 'FID', 'CLS', 'FCP', 'TTI'), (metricName) => {
+        const threshold = PERFORMANCE_THRESHOLDS[metricName as keyof typeof PERFORMANCE_THRESHOLDS];
 
-          expect(threshold).toBeDefined();
-          expect(threshold.GOOD).toBeGreaterThan(0);
-          expect(threshold.NEEDS_IMPROVEMENT).toBeGreaterThan(threshold.GOOD);
+        expect(threshold).toBeDefined();
+        expect(threshold.GOOD).toBeGreaterThan(0);
+        expect(threshold.NEEDS_IMPROVEMENT).toBeGreaterThan(threshold.GOOD);
 
-          // Verify thresholds match Web Vitals standards
-          if (metricName === 'LCP') {
-            expect(threshold.GOOD).toBe(2500);
-            expect(threshold.NEEDS_IMPROVEMENT).toBe(4000);
-          } else if (metricName === 'FID') {
-            expect(threshold.GOOD).toBe(100);
-            expect(threshold.NEEDS_IMPROVEMENT).toBe(300);
-          } else if (metricName === 'CLS') {
-            expect(threshold.GOOD).toBe(0.1);
-            expect(threshold.NEEDS_IMPROVEMENT).toBe(0.25);
-          }
+        // Verify thresholds match Web Vitals standards
+        if (metricName === 'LCP') {
+          expect(threshold.GOOD).toBe(2500);
+          expect(threshold.NEEDS_IMPROVEMENT).toBe(4000);
+        } else if (metricName === 'FID') {
+          expect(threshold.GOOD).toBe(100);
+          expect(threshold.NEEDS_IMPROVEMENT).toBe(300);
+        } else if (metricName === 'CLS') {
+          expect(threshold.GOOD).toBe(0.1);
+          expect(threshold.NEEDS_IMPROVEMENT).toBe(0.25);
         }
-      ),
-      { numRuns: 50 }
+      }),
+      { numRuns: 50 },
     );
   });
 
@@ -98,11 +92,9 @@ describe('Performance Optimization Compliance Property Tests', () => {
             noDefaultInfinity: true,
           }),
         }),
-        testCase => {
+        (testCase) => {
           const threshold =
-            PERFORMANCE_THRESHOLDS[
-              testCase.metricName as keyof typeof PERFORMANCE_THRESHOLDS
-            ];
+            PERFORMANCE_THRESHOLDS[testCase.metricName as keyof typeof PERFORMANCE_THRESHOLDS];
 
           let expectedRating: 'good' | 'needs-improvement' | 'poor';
           if (testCase.value <= threshold.GOOD) {
@@ -115,9 +107,9 @@ describe('Performance Optimization Compliance Property Tests', () => {
 
           // This tests the internal rating logic would work correctly
           expect(expectedRating).toMatch(/^(good|needs-improvement|poor)$/);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -129,7 +121,7 @@ describe('Performance Optimization Compliance Property Tests', () => {
           hasWindow: fc.boolean(),
           hasNavigator: fc.boolean(),
         }),
-        _environment => {
+        (_environment) => {
           // Test that performance monitor can be created in various environments
           const monitor = getPerformanceMonitor();
 
@@ -138,9 +130,9 @@ describe('Performance Optimization Compliance Property Tests', () => {
           expect(typeof monitor.meetsPerformanceRequirements).toBe('function');
           expect(typeof monitor.trackReactOptimization).toBe('function');
           expect(typeof monitor.disconnect).toBe('function');
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
@@ -157,14 +149,14 @@ describe('Performance Optimization Compliance Property Tests', () => {
           }),
           wasOptimized: fc.boolean(),
         }),
-        testCase => {
+        (testCase) => {
           const monitor = getPerformanceMonitor();
 
           // Track optimization
           monitor.trackReactOptimization(
             testCase.componentName,
             testCase.renderTime,
-            testCase.wasOptimized
+            testCase.wasOptimized,
           );
 
           const metrics = monitor.getReactMetrics();
@@ -174,9 +166,7 @@ describe('Performance Optimization Compliance Property Tests', () => {
           if (componentMetric) {
             expect(componentMetric.componentName).toBe(testCase.componentName);
             expect(componentMetric.renderCount).toBeGreaterThan(0);
-            expect(componentMetric.renderTime).toBeGreaterThanOrEqual(
-              testCase.renderTime
-            );
+            expect(componentMetric.renderTime).toBeGreaterThanOrEqual(testCase.renderTime);
 
             if (testCase.wasOptimized) {
               expect(componentMetric.memoizationHits).toBeGreaterThan(0);
@@ -184,56 +174,46 @@ describe('Performance Optimization Compliance Property Tests', () => {
               expect(componentMetric.memoizationMisses).toBeGreaterThan(0);
             }
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
   it('should create lazy components with proper structure', () => {
     fc.assert(
-      fc.property(
-        fc.string({ minLength: 1, maxLength: 20 }),
-        _componentName => {
-          const mockComponent = vi.fn(() => null);
-          const mockImport = vi
-            .fn()
-            .mockResolvedValue({ default: mockComponent });
+      fc.property(fc.string({ minLength: 1, maxLength: 20 }), (_componentName) => {
+        const mockComponent = vi.fn(() => null);
+        const mockImport = vi.fn().mockResolvedValue({ default: mockComponent });
 
-          const LazyComponent = createLazyComponent(mockImport);
+        const LazyComponent = createLazyComponent(mockImport);
 
-          expect(LazyComponent).toBeDefined();
-          expect(typeof LazyComponent).toBe('function');
+        expect(LazyComponent).toBeDefined();
+        expect(typeof LazyComponent).toBe('function');
 
-          // Test that it can be called (returns a React element structure)
-          const result = LazyComponent({});
-          expect(result).toBeDefined();
-        }
-      ),
-      { numRuns: 50 }
+        // Test that it can be called (returns a React element structure)
+        const result = LazyComponent({});
+        expect(result).toBeDefined();
+      }),
+      { numRuns: 50 },
     );
   });
 
   it('should wrap components with performance tracking', () => {
     fc.assert(
       fc.property(
-        fc
-          .string({ minLength: 1, maxLength: 20 })
-          .filter(s => s.trim().length > 0),
-        componentName => {
+        fc.string({ minLength: 1, maxLength: 20 }).filter((s) => s.trim().length > 0),
+        (componentName) => {
           const mockComponent = vi.fn(() => null);
 
-          const WrappedComponent = withPerformanceTracking(
-            mockComponent,
-            componentName
-          );
+          const WrappedComponent = withPerformanceTracking(mockComponent, componentName);
 
           expect(WrappedComponent).toBeDefined();
           // React.memo returns a component object in test environment
           expect(WrappedComponent).toBeTruthy();
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
@@ -244,7 +224,7 @@ describe('Performance Optimization Compliance Property Tests', () => {
           hasNavigationTiming: fc.boolean(),
           transferSize: fc.integer({ min: 0, max: 10000000 }), // 0-10MB
         }),
-        testCase => {
+        (testCase) => {
           if (testCase.hasNavigationTiming) {
             mockPerformance.getEntriesByType.mockReturnValue([
               { transferSize: testCase.transferSize },
@@ -259,9 +239,9 @@ describe('Performance Optimization Compliance Property Tests', () => {
           // Since getBundleSize is async, we just verify it returns a Promise
           const result = getBundleSize();
           expect(result).toBeInstanceOf(Promise);
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
@@ -273,7 +253,7 @@ describe('Performance Optimization Compliance Property Tests', () => {
           fidRating: fc.constantFrom('good', 'needs-improvement', 'poor'),
           clsRating: fc.constantFrom('good', 'needs-improvement', 'poor'),
         }),
-        _ratings => {
+        (_ratings) => {
           const monitor = getPerformanceMonitor();
 
           // Test that the method exists and returns a boolean
@@ -282,9 +262,9 @@ describe('Performance Optimization Compliance Property Tests', () => {
 
           // Since we can't easily mock the internal state, just verify the method works
           expect(meetsRequirements).toBeDefined();
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -300,25 +280,22 @@ describe('Performance Optimization Compliance Property Tests', () => {
               noNaN: true,
               noDefaultInfinity: true,
             })
-            .filter(n => !Number.isNaN(n)),
+            .filter((n) => !Number.isNaN(n)),
           componentName: fc
             .string({ minLength: 1, maxLength: 100 })
-            .filter(s => s.trim().length > 0),
+            .filter((s) => s.trim().length > 0),
         }),
         // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: property test covers multiple branches
-        testCase => {
+        (testCase) => {
           const monitor = getPerformanceMonitor();
 
           // Test with edge case values
-          if (
-            testCase.componentName.length > 0 &&
-            !Number.isNaN(testCase.renderTime)
-          ) {
+          if (testCase.componentName.length > 0 && !Number.isNaN(testCase.renderTime)) {
             for (let i = 0; i < testCase.renderCount; i++) {
               monitor.trackReactOptimization(
                 testCase.componentName,
                 testCase.renderTime,
-                i % 2 === 0 // Alternate optimization
+                i % 2 === 0, // Alternate optimization
               );
             }
 
@@ -331,15 +308,13 @@ describe('Performance Optimization Compliance Property Tests', () => {
                 expect(componentMetric.renderTime).toBeGreaterThanOrEqual(0);
                 expect(Number.isNaN(componentMetric.renderTime)).toBe(false);
                 // Allow for accumulation from previous test runs
-                expect(componentMetric.renderCount).toBeGreaterThanOrEqual(
-                  testCase.renderCount
-                );
+                expect(componentMetric.renderCount).toBeGreaterThanOrEqual(testCase.renderCount);
               }
             }
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -357,9 +332,9 @@ describe('Performance Optimization Compliance Property Tests', () => {
               noDefaultInfinity: true,
             }),
           }),
-          { minLength: 1, maxLength: 10 }
+          { minLength: 1, maxLength: 10 },
         ),
-        actions => {
+        (actions) => {
           const monitor = getPerformanceMonitor();
 
           // Execute a sequence of actions
@@ -367,11 +342,7 @@ describe('Performance Optimization Compliance Property Tests', () => {
             switch (action.action) {
               case 'track':
                 expect(() => {
-                  monitor.trackReactOptimization(
-                    action.componentName,
-                    action.renderTime,
-                    true
-                  );
+                  monitor.trackReactOptimization(action.componentName, action.renderTime, true);
                 }).not.toThrow();
                 break;
               case 'getMetrics':
@@ -388,9 +359,9 @@ describe('Performance Optimization Compliance Property Tests', () => {
                 break;
             }
           }
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 });
@@ -415,10 +386,7 @@ describe('Performance Monitoring Utilities', () => {
 
   it('should wrap components with performance tracking', () => {
     const mockComponent = vi.fn(() => null);
-    const WrappedComponent = withPerformanceTracking(
-      mockComponent,
-      'TestComponent'
-    );
+    const WrappedComponent = withPerformanceTracking(mockComponent, 'TestComponent');
 
     expect(WrappedComponent).toBeDefined();
     // React.memo returns a component object in test environment
