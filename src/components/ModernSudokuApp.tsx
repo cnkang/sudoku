@@ -9,27 +9,17 @@
 'use client';
 
 import type React from 'react';
-import {
-  Suspense,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  useTransition,
-} from 'react';
+import { Suspense, useContext, useEffect, useRef, useState, useTransition } from 'react';
 import { useGameState } from '@/hooks/useGameState';
+import { useGameTimer } from '@/hooks/useGameTimer';
 import { useOptimisticSudoku } from '@/hooks/useOptimisticSudoku';
 import { usePreferences } from '@/hooks/usePreferences';
+import { usePuzzleActions } from '@/hooks/usePuzzleActions';
 import { usePWA } from '@/hooks/usePWA';
 import { ThemeContext } from '@/hooks/useTheme';
 import { useVisualFeedback } from '@/hooks/useVisualFeedback';
-import type { SudokuPuzzle } from '@/types';
-import { fetchWithCache } from '@/utils/apiCache';
 import { GRID_CONFIGS } from '@/utils/gridConfig';
-import { getHint } from '@/utils/hints';
 import { usePerformanceTracking } from '@/utils/performance-monitoring';
-import { updateStats } from '@/utils/stats';
 import {
   LazyAccessibilityControls,
   LazyDifficultySelector,
@@ -88,14 +78,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
 
   // React 19: useTransition for non-urgent state updates with pending tracking
   const [isDifficultyPending, startDifficultyTransition] = useTransition();
-
-  // Local state for UI management
-  const [lastFetchTime, setLastFetchTime] = useState(0);
-  const [performanceMetrics, setPerformanceMetrics] = useState({
-    gridTransitionTime: 0,
-    puzzleLoadTime: 0,
-    renderTime: 0,
-  });
+  const [renderTime, setRenderTime] = useState(0);
 
   // Apply initial props on mount (before preferences override them)
   const hasAppliedInitialProps = useRef(false);
@@ -121,11 +104,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
         const endTime = performance.now();
         const initTime = endTime - startTime;
         trackRender(initTime, true);
-
-        setPerformanceMetrics((prev) => ({
-          ...prev,
-          renderTime: initTime,
-        }));
+        setRenderTime(initTime);
       } catch (error) {
         handleError(error);
       }
@@ -138,255 +117,27 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
   // Direct reference is sufficient since gridConfig is already stable
   const currentGridConfig = state.gridConfig;
 
-  // Grid size change handler (async-parallel optimization)
-  const handleGridSizeChange = useCallback(
-    async (newSize: 4 | 6 | 9) => {
-      if (newSize === currentGridConfig.size) return;
-
-      const transitionStart = performance.now();
-
-      try {
-        const newConfig = GRID_CONFIGS[newSize];
-        dispatch({ type: 'CHANGE_GRID_SIZE', payload: newConfig });
-
-        const targetDifficulty = Math.min(state.difficulty ?? 1, newConfig.difficultyLevels);
-        const url = `/api/solveSudoku?difficulty=${targetDifficulty}&gridSize=${newSize}`;
-
-        clearError();
-
-        // Start fetch early, await late (async-api-routes pattern)
-        const fetchPromise = fetchWithCache(
-          url,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-          },
-          true,
-        );
-
-        // Parallel operations: save preferences while fetching
-        const [data] = await Promise.all([fetchPromise, savePreferences()]);
-
-        const puzzle = data as SudokuPuzzle;
-        dispatch({ type: 'SET_PUZZLE', payload: puzzle });
-
-        const transitionTime = performance.now() - transitionStart;
-        trackTransition(transitionTime);
-        setPerformanceMetrics((prev) => ({
-          ...prev,
-          gridTransitionTime: transitionTime,
-        }));
-      } catch (error) {
-        dispatch({ type: 'SET_LOADING', payload: false });
-        handleError(error);
-      }
-    },
-    [
-      currentGridConfig.size,
-      state.difficulty,
-      dispatch,
-      clearError,
-      savePreferences,
-      trackTransition,
-      handleError,
-    ],
-  );
-
-  // Enhanced puzzle fetching with multi-size support
-  const fetchPuzzle = useCallback(
-    async (difficulty?: number, forceRefresh = false, isGridSizeChange = false) => {
-      const now = Date.now();
-
-      if (!isGridSizeChange && !forceRefresh && now - lastFetchTime < 5000) {
-        return;
-      }
-
-      if (!isGridSizeChange && forceRefresh && now - lastFetchTime < 10000) {
-        handleError(new Error('Please wait 10 seconds before resetting'));
-        return;
-      }
-
-      setLastFetchTime(now);
-      const fetchStart = performance.now();
-
-      try {
-        dispatch({ type: 'SET_LOADING', payload: true });
-        clearError();
-
-        const targetDifficulty = difficulty ?? state.difficulty;
-        const gridSize = currentGridConfig.size;
-        const url = `/api/solveSudoku?difficulty=${targetDifficulty}&gridSize=${gridSize}${
-          forceRefresh || isGridSizeChange ? '&force=true' : ''
-        }`;
-
-        const data = await fetchWithCache(
-          url,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-          },
-          forceRefresh || isGridSizeChange,
-        );
-
-        const puzzle = data as SudokuPuzzle;
-        dispatch({ type: 'SET_PUZZLE', payload: puzzle });
-
-        const loadTime = performance.now() - fetchStart;
-        setPerformanceMetrics((prev) => ({ ...prev, puzzleLoadTime: loadTime }));
-
-        if (state.childMode) {
-          visualFeedback.triggerEncouragement("New puzzle ready! Let's solve it together! 🧩");
-        }
-      } catch (error) {
-        dispatch({ type: 'SET_LOADING', payload: false });
-        handleError(error);
-      }
-    },
-    [
-      lastFetchTime,
-      state.difficulty,
-      state.childMode,
-      currentGridConfig.size,
-      dispatch,
-      clearError,
-      handleError,
-      visualFeedback,
-    ],
-  );
-
-  const handleInputChange = useCallback(
-    (row: number, col: number, value: number) => {
-      if (!state.userInput) {
-        handleError(new Error('Cannot update user input when puzzle is not loaded'));
-        return;
-      }
-
-      try {
-        // React 19: optimistic update shows the value instantly in the grid
-        optimisticUpdateCell(row, col, value);
-        // Reducer processes the actual state update
-        dispatch({ type: 'UPDATE_USER_INPUT', payload: { row, col, value } });
-        if (state.showHint?.row === row && state.showHint?.col === col) {
-          dispatch({ type: 'CLEAR_HINT' });
-        }
-
-        if (state.childMode && value !== 0) {
-          visualFeedback.triggerEncouragement('Great move! Keep going! ⭐');
-        }
-      } catch (error) {
-        handleError(error);
-      }
-    },
-    [
-      state.userInput,
-      state.showHint,
-      state.childMode,
-      dispatch,
-      optimisticUpdateCell,
-      handleError,
-      visualFeedback,
-    ],
-  );
-
-  const checkAnswer = useCallback(() => {
-    if (!state.userInput || !state.solution) {
-      handleError(new Error('Cannot check answer when puzzle is not loaded'));
-      return;
-    }
-
-    try {
-      dispatch({ type: 'CHECK_ANSWER' });
-
-      const isCorrect = state.userInput.every((row, i) =>
-        row.every((cell, j) => cell === state.solution?.[i]?.[j]),
-      );
-
-      if (isCorrect) {
-        const gridSizeKey = `${currentGridConfig.size}x${currentGridConfig.size}`;
-        dispatch({
-          type: 'COMPLETE_PUZZLE',
-          payload: {
-            gridSize: gridSizeKey,
-            time: state.time,
-            hintsUsed: state.hintsUsed,
-          },
-        });
-
-        if (state.childMode) {
-          visualFeedback.triggerCelebration('confetti');
-        }
-        savePreferences();
-      }
-
-      updateStats(state.difficulty, state.time, isCorrect);
-    } catch (error) {
-      handleError(error);
-    }
-  }, [
-    state.userInput,
-    state.solution,
-    state.time,
-    state.hintsUsed,
-    state.difficulty,
-    state.childMode,
-    currentGridConfig.size,
+  const {
+    fetchPuzzle,
+    handleGridSizeChange,
+    handleInputChange,
+    checkAnswer,
+    getGameHint,
+    resetGame,
+    pauseResumeGame,
+    undoMove,
+    handleAccessibilityChange,
+    performanceMetrics,
+  } = usePuzzleActions({
+    state,
     dispatch,
     handleError,
-    visualFeedback,
+    clearError,
     savePreferences,
-  ]);
-
-  const getGameHint = useCallback(() => {
-    if (!state.puzzle || !state.solution || !state.userInput) return;
-
-    const hint = getHint(state.puzzle, state.userInput, state.solution, currentGridConfig);
-    if (hint) {
-      dispatch({ type: 'USE_HINT' });
-      dispatch({
-        type: 'SHOW_HINT',
-        payload: {
-          row: hint.row,
-          col: hint.col,
-          message: state.childMode
-            ? `Try putting ${hint.value} here! It fits perfectly! ✨`
-            : hint.reason,
-        },
-      });
-
-      if (state.childMode) {
-        visualFeedback.triggerEncouragement("Here's a helpful hint! You've got this! 💡");
-      }
-    }
-  }, [
-    state.puzzle,
-    state.solution,
-    state.userInput,
-    state.childMode,
-    currentGridConfig,
-    dispatch,
+    trackTransition,
     visualFeedback,
-  ]);
-
-  const resetGame = useCallback(() => {
-    dispatch({ type: 'RESET_AND_FETCH' });
-    fetchPuzzle(undefined, true);
-  }, [dispatch, fetchPuzzle]);
-
-  const pauseResumeGame = useCallback(() => {
-    dispatch({ type: 'PAUSE_RESUME' });
-  }, [dispatch]);
-
-  const undoMove = useCallback(() => {
-    dispatch({ type: 'UNDO' });
-  }, [dispatch]);
-
-  const handleAccessibilityChange = useCallback(
-    (settings: Partial<typeof state.accessibility>) => {
-      dispatch({ type: 'UPDATE_ACCESSIBILITY', payload: settings });
-      savePreferences();
-    },
-    [dispatch, savePreferences],
-  );
+    optimisticUpdateCell,
+  });
 
   // Fetch puzzle when difficulty changes (initial load)
   useEffect(() => {
@@ -395,27 +146,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
     }
   }, [state.difficulty, state.puzzle, state.isLoading, fetchPuzzle]);
 
-  // Timer effect — uses Date.now() delta to avoid setInterval drift
-  useEffect(() => {
-    let timer: NodeJS.Timeout | undefined;
-    let lastTick = Date.now();
-
-    if (state.timerActive && !state.isPaused) {
-      timer = setInterval(() => {
-        const now = Date.now();
-        const elapsed = Math.round((now - lastTick) / 1000);
-        if (elapsed >= 1) {
-          for (let i = 0; i < elapsed; i++) {
-            dispatch({ type: 'TICK' });
-          }
-          lastTick = now;
-        }
-      }, 1000);
-    }
-    return () => {
-      if (timer) clearInterval(timer);
-    };
-  }, [state.timerActive, state.isPaused, dispatch]);
+  useGameTimer(state.timerActive, state.isPaused, dispatch);
 
   if (!themeContext) return null;
 
@@ -630,7 +361,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
         <div className={styles.debugInfo}>
           <details>
             <summary>Performance Metrics</summary>
-            <pre>{JSON.stringify(performanceMetrics, null, 2)}</pre>
+            <pre>{JSON.stringify({ ...performanceMetrics, renderTime }, null, 2)}</pre>
           </details>
         </div>
       )}
