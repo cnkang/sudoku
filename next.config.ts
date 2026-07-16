@@ -52,40 +52,6 @@ const nextConfig: NextConfig = {
   // Performance optimizations
   poweredByHeader: false,
   compress: true,
-  // Code splitting optimizations
-  webpack: (config, { dev, isServer }) => {
-    // Optimize bundle splitting for better caching
-    if (!dev && !isServer) {
-      config.optimization.splitChunks = {
-        ...config.optimization.splitChunks,
-        cacheGroups: {
-          ...config.optimization.splitChunks.cacheGroups,
-          // Separate vendor chunks for better caching
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-            priority: 10,
-          },
-          // Separate React chunks
-          react: {
-            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-            name: 'react',
-            chunks: 'all',
-            priority: 20,
-          },
-          // Separate utility chunks
-          utils: {
-            test: /[\\/]src[\\/]utils[\\/]/,
-            name: 'utils',
-            chunks: 'all',
-            priority: 5,
-          },
-        },
-      };
-    }
-    return config;
-  },
   // PWA configuration
   async rewrites() {
     return [
