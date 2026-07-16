@@ -1,5 +1,9 @@
 import type { NextConfig } from 'next';
-import { defaultCSPDirectives, generateCSPHeader, getCSPHeaderName } from './src/lib/security/csp';
+import {
+  defaultCSPDirectives,
+  generateCSPHeader,
+  getCSPHeaderName,
+} from './src/lib/security/csp.ts';
 
 const reactCompilerOptions: Record<string, unknown> = {
   compilationMode: 'annotation',

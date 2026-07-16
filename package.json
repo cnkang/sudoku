@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev --turbo",
     "dev:debug": "next dev --turbo --inspect",
-    "build": "next build --turbo && tsc && pnpm copy-cache-handler && pnpm strip:sourcemaps",
+    "build": "next build --turbo && pnpm type-check && pnpm copy-cache-handler && pnpm strip:sourcemaps",
     "copy-cache-handler": "test -f cache-handler.ts && cp cache-handler.ts .next/cache-handler.ts || echo 'No cache handler to copy'",
     "strip:sourcemaps": "node --experimental-strip-types scripts/strip-production-sourcemaps.ts",
     "start": "next start",
@@ -15,7 +15,7 @@
     "format": "vp fmt --write",
     "format:check": "vp fmt --check",
     "oxlint": "vp lint",
-    "type-check": "tsc --noEmit",
+    "type-check": "node node_modules/typescript-next/bin/tsc --noEmit",
     "quality": "vp check && pnpm type-check",
     "quality:fix": "vp check --fix && pnpm type-check",
     "test": "vp test",
@@ -59,7 +59,8 @@
     "husky": "9.1.7",
     "lint-staged": "17.0.8",
     "oxlint": "1.74.0",
-    "typescript": "7.0.2",
+    "typescript": "6.0.3",
+    "typescript-next": "npm:typescript@7.0.2",
     "vite": "8.1.4",
     "vite-plus": "^0.2.4",
     "vitest": "4.1.10"
