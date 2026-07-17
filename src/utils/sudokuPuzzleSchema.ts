@@ -1,6 +1,7 @@
 import type { SudokuPuzzle } from '@/types';
+import { GRID_CONFIGS } from '@/utils/gridConfig';
 
-const supportedGridSizes = new Set([4, 6, 9]);
+const supportedGridSizes = new Set(Object.keys(GRID_CONFIGS).map(Number));
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -45,14 +46,21 @@ export function parseSudokuPuzzle(value: unknown): SudokuPuzzle {
     throw new TypeError('Puzzle grid size must be 4, 6, or 9');
   }
 
+  if (!Array.isArray(value.solution)) {
+    throw new TypeError('Puzzle response must contain a solution matrix');
+  }
+
+  const gridConfig = GRID_CONFIGS[size as keyof typeof GRID_CONFIGS];
+  const maxDifficulty = gridConfig.difficultyLevels;
+
   const { difficulty } = value;
   if (
     typeof difficulty !== 'number' ||
     !Number.isInteger(difficulty) ||
     difficulty < 1 ||
-    difficulty > 10
+    difficulty > maxDifficulty
   ) {
-    throw new TypeError('Puzzle difficulty must be an integer between 1 and 10');
+    throw new TypeError(`Puzzle difficulty must be an integer between 1 and ${maxDifficulty}`);
   }
 
   return {
