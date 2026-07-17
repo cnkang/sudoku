@@ -31,7 +31,7 @@ export function useFeedbackController({
 }: FeedbackControllerOptions): { feedback: FeedbackState; triggers: FeedbackTriggers } {
   const [feedback, setFeedback] = useState<FeedbackState>(initialFeedback);
   const autoHideRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const effectTimersRef = useRef(new Set<ReturnType<typeof setTimeout>>());
+  const effectTimersRef = useRef(new Map<ReturnType<typeof setTimeout>, () => void>());
   const generatedElementsRef = useRef(new Set<HTMLElement>());
 
   const clearAutoHide = useCallback(() => {
@@ -44,7 +44,7 @@ export function useFeedbackController({
       effectTimersRef.current.delete(timer);
       callback();
     }, delay);
-    effectTimersRef.current.add(timer);
+    effectTimersRef.current.set(timer, callback);
   }, []);
 
   const scheduleAutoHide = useCallback(
@@ -66,6 +66,8 @@ export function useFeedbackController({
         backgroundColor: element.style.backgroundColor,
         boxShadow: element.style.boxShadow,
         transform: element.style.transform,
+        position: element.style.position,
+        transition: element.style.transition,
       };
       element.style.backgroundColor = highContrast ? '#ffff00' : '#fff7ed';
       element.style.boxShadow = highContrast
@@ -94,6 +96,8 @@ export function useFeedbackController({
         element.style.backgroundColor = originalStyle.backgroundColor;
         element.style.boxShadow = originalStyle.boxShadow;
         element.style.transform = originalStyle.transform;
+        element.style.position = originalStyle.position;
+        element.style.transition = originalStyle.transition;
         overlay.remove();
         generatedElementsRef.current.delete(overlay);
       }, duration);
@@ -236,8 +240,8 @@ export function useFeedbackController({
         isVisible: true,
       });
       triggerPositiveReinforcement('sparkle');
-      scheduleEffect(() => triggerPositiveReinforcement('glow'), 500);
-      scheduleEffect(() => triggerPositiveReinforcement('pulse'), 1_000);
+      scheduleEffect(() => triggerPositiveReinforcement('glow', document.body), 500);
+      scheduleEffect(() => triggerPositiveReinforcement('pulse', document.body), 1_000);
       scheduleAutoHide(5_000);
     },
     [scheduleAutoHide, scheduleEffect, triggerPositiveReinforcement],
@@ -265,9 +269,14 @@ export function useFeedbackController({
   useEffect(
     () => () => {
       clearAutoHide();
-      for (const timer of effectTimersRef.current) clearTimeout(timer);
+      for (const [timer, callback] of effectTimersRef.current) {
+        clearTimeout(timer);
+        callback();
+      }
       effectTimersRef.current.clear();
-      for (const element of generatedElementsRef.current) element.remove();
+      for (const element of generatedElementsRef.current) {
+        element.remove();
+      }
       generatedElementsRef.current.clear();
     },
     [clearAutoHide],
