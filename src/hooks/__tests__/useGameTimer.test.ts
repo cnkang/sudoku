@@ -22,8 +22,8 @@ describe('useGameTimer', () => {
     });
 
     expect(dispatch).toHaveBeenCalledTimes(2);
-    expect(dispatch).toHaveBeenNthCalledWith(1, { type: 'TICK' });
-    expect(dispatch).toHaveBeenNthCalledWith(2, { type: 'TICK' });
+    expect(dispatch).toHaveBeenNthCalledWith(1, { type: 'TICK', payload: 1 });
+    expect(dispatch).toHaveBeenNthCalledWith(2, { type: 'TICK', payload: 1 });
   });
 
   it('does not tick while paused or inactive', () => {
@@ -53,7 +53,10 @@ describe('useGameTimer', () => {
       vi.advanceTimersByTime(1_000);
     });
 
-    expect(dispatch).toHaveBeenCalledTimes(4);
+    // The interval fires once after 1s of timer time; Date.now() reports 4s total elapsed
+    // (3s from setSystemTime + 1s from advanceTimersByTime), so one TICK with payload=4
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    expect(dispatch).toHaveBeenCalledWith({ type: 'TICK', payload: 4 });
   });
 
   it('clears its interval on unmount', () => {

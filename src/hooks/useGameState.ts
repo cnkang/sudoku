@@ -179,7 +179,9 @@ const handleUserInteraction = (state: GameState, action: GameAction): GameState 
     }
 
     case 'TICK':
-      return state.timerActive && !state.isPaused ? { ...state, time: state.time + 1 } : state;
+      return state.timerActive && !state.isPaused
+        ? { ...state, time: state.time + (action.payload ?? 1) }
+        : state;
 
     case 'PAUSE_RESUME':
       return {

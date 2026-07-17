@@ -15,11 +15,8 @@ export function useGameTimer(
       const now = Date.now();
       const elapsed = Math.round((now - lastTick) / 1_000);
 
-      for (let index = 0; index < elapsed; index++) {
-        dispatch({ type: 'TICK' });
-      }
-
       if (elapsed >= 1) {
+        dispatch({ type: 'TICK', payload: elapsed });
         lastTick = now;
       }
     }, 1_000);

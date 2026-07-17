@@ -105,7 +105,7 @@ export type GameAction =
     }
   | { type: 'SET_DIFFICULTY'; payload: number }
   | { type: 'CHECK_ANSWER' }
-  | { type: 'TICK' }
+  | { type: 'TICK'; payload?: number }
   | { type: 'RESET' }
   | { type: 'RESET_AND_FETCH' }
   | { type: 'PAUSE_RESUME' }
