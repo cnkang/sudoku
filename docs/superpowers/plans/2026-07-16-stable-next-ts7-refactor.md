@@ -70,7 +70,7 @@ Expected: parser and component tests pass; TypeScript 7 reports no errors.
 
 - [ ] **Step 1: Write failing timer tests**
 
-Use fake timers to require one `TICK` per elapsed second, no ticks while paused, catch-up after a delayed interval, and cleanup on unmount.
+Use fake timers to require one `TICK` per elapsed second, no ticks while paused, catch up after a delayed interval, and cleanup on unmount.
 
 - [ ] **Step 2: Verify timer RED**
 
