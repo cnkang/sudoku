@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import type { Dispatch } from 'react';
 import type { AccessibilitySettings, GameAction, GameState, GridSize, SudokuPuzzle } from '@/types';
 import type { VisualFeedbackHook } from '@/hooks/useVisualFeedback';
@@ -59,7 +59,7 @@ export function usePuzzleActions({
   now = Date.now,
   performanceNow = performance.now.bind(performance),
 }: PuzzleActionOptions): PuzzleActions {
-  const [lastFetchTime, setLastFetchTime] = useState(0);
+  const lastFetchTimeRef = useRef(0);
   const [performanceMetrics, setPerformanceMetrics] = useState<PerformanceMetrics>({
     gridTransitionTime: 0,
     puzzleLoadTime: 0,
@@ -80,12 +80,12 @@ export function usePuzzleActions({
         const url = `/api/solveSudoku?difficulty=${targetDifficulty}&gridSize=${newSize}`;
 
         clearError();
-        const fetchPromise = fetchPuzzleData(
+        savePreferences();
+        const data = await fetchPuzzleData(
           url,
           { method: 'POST', headers: { 'Content-Type': 'application/json' } },
           true,
         );
-        const [data] = await Promise.all([fetchPromise, Promise.resolve(savePreferences())]);
         const puzzle = parsePuzzle(data);
         dispatch({ type: 'SET_PUZZLE', payload: puzzle });
 
@@ -118,14 +118,14 @@ export function usePuzzleActions({
     async (difficulty?: number, forceRefresh = false, isGridSizeChange = false) => {
       const currentTime = now();
 
-      if (!isGridSizeChange && !forceRefresh && currentTime - lastFetchTime < 5_000) return;
+      if (!isGridSizeChange && !forceRefresh && currentTime - lastFetchTimeRef.current < 5_000)
+        return;
 
-      if (!isGridSizeChange && forceRefresh && currentTime - lastFetchTime < 10_000) {
+      if (!isGridSizeChange && forceRefresh && currentTime - lastFetchTimeRef.current < 10_000) {
         handleError(new Error('Please wait 10 seconds before resetting'));
         return;
       }
 
-      setLastFetchTime(currentTime);
       const fetchStart = performanceNow();
 
       try {
@@ -144,6 +144,7 @@ export function usePuzzleActions({
         );
         const puzzle = parsePuzzle(data);
         dispatch({ type: 'SET_PUZZLE', payload: puzzle });
+        lastFetchTimeRef.current = currentTime;
 
         const loadTime = performanceNow() - fetchStart;
         setPerformanceMetrics((previous) => ({ ...previous, puzzleLoadTime: loadTime }));
@@ -158,7 +159,6 @@ export function usePuzzleActions({
     },
     [
       now,
-      lastFetchTime,
       performanceNow,
       dispatch,
       clearError,
