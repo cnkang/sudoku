@@ -81,8 +81,8 @@ export const PATTERN_CUES = {
   celebration: {
     type: 'celebration',
     pattern: 'stars',
-    color: '#ca8a04',
-    backgroundColor: '#fef3c7',
+    color: '#eab308',
+    backgroundColor: '#fefce8',
     description: 'Celebration indicated by star pattern and golden color',
   },
 } satisfies Record<PatternBasedCue['type'], PatternBasedCue>;
