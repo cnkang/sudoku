@@ -158,10 +158,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // Custom cache handler for performance monitoring
-  ...(process.env.NODE_ENV === 'production'
-    ? { cacheHandler: require.resolve('./cache-handler.ts') }
-    : {}),
 };
 
 export default nextConfig;

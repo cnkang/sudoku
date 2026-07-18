@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "next dev --turbo",
     "dev:debug": "next dev --turbo --inspect",
-    "build": "next build --turbo && pnpm type-check && pnpm copy-cache-handler && pnpm strip:sourcemaps",
-    "copy-cache-handler": "test -f cache-handler.ts && cp cache-handler.ts .next/cache-handler.ts || echo 'No cache handler to copy'",
+    "build": "next build --turbo && pnpm type-check && pnpm strip:sourcemaps",
     "strip:sourcemaps": "node --experimental-strip-types scripts/strip-production-sourcemaps.ts",
     "start": "next start",
     "lint": "vp lint",
