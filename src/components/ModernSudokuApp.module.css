@@ -9,7 +9,7 @@
     "accessibility";
   grid-template-rows: auto auto auto;
   grid-template-columns: 1fr;
-  gap: clamp(0.625rem, 1.8vw, 1rem);
+  gap: clamp(0.625rem, 1.4vw, 0.875rem);
   width: 100%;
   min-height: 0;
   padding: clamp(0.5rem, 1.4vw, 0.875rem);
@@ -32,7 +32,7 @@
     grid-template-areas:
       "game pwa"
       "game accessibility";
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto;
     grid-template-columns: minmax(0, 1fr) clamp(220px, 30vw, 280px);
     gap: clamp(1rem, 2vw, 1.5rem);
     align-items: start;
@@ -75,22 +75,22 @@
   padding: clamp(0.5rem, 1vw, 0.75rem);
   box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.08));
   border: 1px solid var(--border-color, #e2e8f0);
-  overflow: hidden;
+  overflow: visible;
   max-height: none;
 }
 
-/* Desktop: More compact, fixed height */
+/* Let the page own vertical scrolling so controls are never hidden in a nested panel. */
 @media (min-width: 768px) {
   .pwaSection {
-    overflow: auto;
-    max-height: min(56vh, 30rem);
+    overflow: visible;
+    max-height: none;
     padding: clamp(0.5rem, 0.8vw, 0.75rem);
   }
 }
 
 @media (min-width: 1024px) {
   .pwaSection {
-    max-height: min(62vh, 34rem);
+    max-height: none;
   }
 }
 
@@ -108,15 +108,15 @@
   padding: clamp(0.5rem, 1vw, 0.75rem);
   box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.08));
   border: 1px solid var(--border-color, #e2e8f0);
-  overflow: hidden;
+  overflow: visible;
   max-height: none;
 }
 
-/* Desktop: Scrollable with max height */
+/* Avoid a second scrollbar that makes the lower settings look clipped. */
 @media (min-width: 768px) {
   .accessibilitySection {
-    overflow: auto;
-    max-height: min(44vh, 22rem);
+    overflow: visible;
+    max-height: none;
     padding: clamp(0.5rem, 0.8vw, 0.75rem);
   }
 }
@@ -126,13 +126,13 @@
   grid-area: game;
   display: flex;
   flex-direction: column;
-  gap: clamp(0.625rem, 1.5vw, 1rem);
+  gap: clamp(0.5rem, 1.2vw, 0.875rem);
   background: var(--surface, white);
   border-radius: var(--border-radius, 0.75rem);
   padding: clamp(0.75rem, 1.8vw, 1.25rem);
   box-shadow: var(--shadow-md, 0 5px 14px rgba(15, 23, 42, 0.1));
   border: 1px solid var(--border-color, #e2e8f0);
-  min-height: clamp(26rem, 60dvh, 44rem);
+  min-height: 0;
 }
 
 @media (max-width: 768px) {
@@ -150,14 +150,14 @@
 .title {
   font-size: clamp(1.25rem, 2.6vw, 1.75rem);
   font-weight: 700;
-  color: var(--primary-color, #3b82f6);
+  color: var(--color-primary, #1e3a8a);
   margin: 0 0 0.5rem 0;
   line-height: 1.2;
 }
 
 .subtitle {
   font-size: clamp(0.875rem, 1.5vw, 1rem);
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary, #334155);
   margin: 0;
   font-weight: 500;
 }
@@ -173,15 +173,31 @@
 
 /* Controls Section */
 .controlsSection {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: clamp(0.5rem, 1.2vw, 0.75rem);
-  align-items: stretch;
+  align-items: end;
   justify-content: space-between;
   padding: clamp(0.5rem, 1.3vw, 0.75rem);
   background: var(--background-secondary, #f8fafc);
   border-radius: var(--border-radius, 0.5rem);
   border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.controlsSection :global(.difficulty-selector) {
+  gap: 0.375rem;
+  margin: 0;
+  max-width: none;
+}
+
+.controlsSection :global(.difficulty-hint) {
+  color: #374151;
+  margin: 0.125rem 0 0;
+}
+
+.controlsSection :global(.timer) {
+  margin: 0 0 0.25rem;
+  white-space: nowrap;
 }
 
 /* Grid Container with Container Queries */
@@ -192,7 +208,7 @@
   justify-content: center;
   gap: clamp(0.625rem, 1.4vw, 0.875rem);
   padding: clamp(0.625rem, 1.5vw, 1rem);
-  min-height: clamp(18rem, 44dvh, 28rem);
+  min-height: 0;
   background: var(--surface, white);
   border-radius: var(--border-radius, 0.75rem);
   box-shadow: var(--shadow-inner, inset 0 2px 4px rgba(0, 0, 0, 0.05));
@@ -219,7 +235,66 @@
 
 @media (max-width: 768px) {
   .gridContainer {
-    min-height: clamp(16rem, 40dvh, 23rem);
+    min-height: 0;
+    padding: 0.375rem;
+  }
+
+  .gameArea {
+    min-height: 0;
+    padding: 0.625rem;
+  }
+
+  .gameHeader {
+    margin-bottom: 0;
+  }
+
+  .title {
+    margin-bottom: 0.25rem;
+  }
+
+  .controlsSection {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    padding: 0.625rem;
+  }
+
+  .controlsSection :global(.difficulty-selector) {
+    text-align: start;
+  }
+
+  .controlsSection :global(.difficulty-label) {
+    margin-bottom: 0.125rem;
+  }
+
+  .controlsSection :global(.difficulty-select) {
+    max-width: none;
+  }
+
+  .controlsSection :global(.difficulty-hint) {
+    padding: 0;
+    text-align: start;
+  }
+
+  .controlsSection :global(.timer) {
+    margin: 0.25rem 0 0;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-color, #cbd5e1);
+    text-align: start;
+  }
+}
+
+@media (max-width: 480px) {
+  .modernApp {
+    padding: 0.25rem;
+  }
+
+  .gameArea {
+    padding: 0.5rem;
+  }
+
+  .gridContainer {
+    margin-inline: -0.5rem;
+    padding-inline: 0;
   }
 }
 
@@ -362,7 +437,7 @@
   flex-wrap: wrap;
   gap: clamp(0.5rem, 1.2vw, 0.75rem);
   justify-content: center;
-  padding: clamp(0.625rem, 1.4vw, 0.875rem);
+  padding: clamp(0.5rem, 1vw, 0.75rem);
   background: var(--background-secondary, #f8fafc);
   border-radius: var(--border-radius, 0.75rem);
   border: 1px solid var(--border-color, #e2e8f0);
@@ -381,6 +456,12 @@
   font-size: 0.75rem;
   max-width: 300px;
   z-index: 1000;
+}
+
+@media (max-width: 768px) {
+  .debugInfo {
+    display: none;
+  }
 }
 
 .debugInfo summary {

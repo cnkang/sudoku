@@ -184,27 +184,27 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
 
   return (
     <div className={styles.gridSelector} data-testid="pwa-grid-selector">
-      {/* PWA Status Bar */}
-      <div className={styles.pwaStatus}>
-        <div className={styles.statusLeft} aria-live="polite">
-          {statusIndicator}
-        </div>
+      {/* Only reserve status space when there is useful PWA information to show. */}
+      {(offlineMode || isInstalled || isInstallable) && (
+        <div className={styles.pwaStatus}>
+          <div className={styles.statusLeft} aria-live="polite">
+            {statusIndicator}
+          </div>
 
-        <div className={styles.statusRight}>
-          {isInstallable && !isInstalled ? (
-            <button
-              type="button"
-              onClick={handleInstallClick}
-              className={styles.installButton}
-              aria-label="Install Sudoku app for offline play"
-            >
-              📲 Install App
-            </button>
-          ) : (
-            <span className={styles.installPlaceholder} aria-hidden="true" />
+          {isInstallable && !isInstalled && (
+            <div className={styles.statusRight}>
+              <button
+                type="button"
+                onClick={handleInstallClick}
+                className={styles.installButton}
+                aria-label="Install Sudoku app for offline play"
+              >
+                📲 Install App
+              </button>
+            </div>
           )}
         </div>
-      </div>
+      )}
 
       {/* Grid Size Selection */}
       <div className={styles.selectorHeader}>

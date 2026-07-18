@@ -5,7 +5,7 @@
   --foreground: #1e293b;
   --card-background: #ffffff;
   --border-color: #e2e8f0;
-  --primary-color: #3b82f6;
+  --primary-color: #1e3a8a;
   --success-color: #10b981;
   --error-color: #ef4444;
   --warning-color: #f59e0b;
@@ -151,10 +151,10 @@ input {
 
 /* Skip-to-content link for keyboard/screen reader users */
 .skip-to-content {
-  position: absolute;
-  top: -100%;
+  position: fixed;
+  top: 0;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -120%);
   z-index: 9999;
   padding: 0.75rem 1rem;
   background: #1e3a8a;
@@ -170,8 +170,9 @@ input {
   justify-content: center;
 }
 
-.skip-to-content:focus {
+.skip-to-content:focus-visible {
   top: 0.5rem;
+  transform: translateX(-50%);
 }
 
 /* Custom scrollbar */

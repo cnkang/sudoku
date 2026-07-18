@@ -182,6 +182,9 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
         data-child-mode={childMode}
         data-high-contrast={accessibilitySettings.highContrast}
       >
+        {gridSize === 9 && (
+          <p className={styles.scrollHint}>Swipe or scroll sideways to see all 9 columns.</p>
+        )}
         <table
           className={`${styles.sudokuGrid} ${tableClassName}`}
           data-grid-size={String(gridSize)}

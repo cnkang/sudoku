@@ -154,6 +154,11 @@
   min-width: 50px;
 }
 
+.gridOption:has(.srOnly:focus-visible) {
+  outline: 3px solid #1e3a8a;
+  outline-offset: 3px;
+}
+
 .gridOption:hover:not(:disabled) {
   transform: translateY(-4px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
@@ -172,7 +177,7 @@
 }
 
 .gridOption.selected {
-  border-color: var(--option-color, #3b82f6);
+  border-color: color-mix(in srgb, var(--option-color, #3b82f6) 25%, #0f172a 75%);
   background: linear-gradient(
     135deg,
     rgba(59, 130, 246, 0.05) 0%,
@@ -246,7 +251,7 @@
 .difficulty {
   font-weight: 600;
   color: #1e293b;
-  color: color-mix(in srgb, var(--option-color, #3b82f6) 30%, #0f172a 70%);
+  color: color-mix(in srgb, var(--option-color, #3b82f6) 20%, #0f172a 80%);
 }
 
 .clueRange {
@@ -287,8 +292,8 @@
   width: 1.75rem;
   height: 1.75rem;
   background: #f8fafc;
-  color: var(--option-color, #1e3a8a);
-  border: 2px solid var(--option-color, #1e3a8a);
+  color: color-mix(in srgb, var(--option-color, #3b82f6) 20%, #0f172a 80%);
+  border: 2px solid color-mix(in srgb, var(--option-color, #3b82f6) 20%, #0f172a 80%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -360,6 +365,10 @@
 
 /* Container Queries for Responsive Design */
 @container pwa-selector (max-width: 600px) {
+  .childFeatures {
+    display: none;
+  }
+
   .gridOptions {
     grid-template-columns: 1fr;
     gap: 1rem;
@@ -483,28 +492,42 @@
   }
 
   .gridOptions {
-    grid-template-columns: 1fr;
-    gap: 0.625rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 0;
   }
 
   .gridOption {
-    padding: 0.875rem 0.75rem;
-    min-height: 132px;
+    justify-content: center;
+    padding: 0.75rem 0.375rem;
+    min-height: 92px;
+    border-width: 2px;
+    border-radius: 0.75rem;
     transition: none;
   }
 
   .optionIcon {
-    font-size: 1.875rem;
-    margin-bottom: 0.5rem;
+    display: none;
   }
 
   .optionTitle {
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.125rem;
     min-height: auto;
+    font-size: clamp(0.75rem, 3.4vw, 0.9375rem);
   }
 
   .optionMeta {
     font-size: 0.75rem;
+  }
+
+  .optionContent {
+    flex: 0 1 auto;
+    margin: 0;
+  }
+
+  .clueRange,
+  .gridPreview {
+    display: none;
   }
 
   .previewGrid {
@@ -516,8 +539,8 @@
     width: 1.5rem;
     height: 1.5rem;
     font-size: 0.875rem;
-    top: 0.5rem;
-    right: 0.5rem;
+    top: 0.25rem;
+    right: 0.25rem;
   }
 
   .gridOption.childFriendly {

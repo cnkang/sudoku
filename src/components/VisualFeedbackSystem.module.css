@@ -605,6 +605,8 @@
 
 /* Pattern Legend for Child Mode */
 .patternLegend {
+  /* The same guide is available on demand in Accessibility Settings. */
+  display: none;
   position: fixed;
   bottom: 1rem;
   left: 1rem;

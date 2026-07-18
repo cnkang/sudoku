@@ -9,6 +9,8 @@
   box-shadow: var(--feedback-shadow, 0 2px 8px rgba(0, 0, 0, 0.08));
   width: 100%;
   overflow: visible;
+  container-type: inline-size;
+  container-name: accessibility-controls;
 }
 
 /* Desktop: More compact */
@@ -249,7 +251,7 @@
 
 .childMode .description {
   font-size: 0.875rem;
-  color: #666;
+  color: #3f3f46;
   font-weight: 600;
   font-style: normal;
 }
@@ -276,7 +278,7 @@
   list-style: none;
   font-size: 0.875rem;
   font-weight: 700;
-  color: #ea580c;
+  color: #7c2d12;
   min-height: 44px;
   display: flex;
   align-items: center;
@@ -304,7 +306,7 @@
 .infoTitle {
   font-size: 0.9375rem;
   font-weight: 700;
-  color: #ea580c;
+  color: #7c2d12;
   margin: 0 0 0.5rem 0;
   text-align: center;
 }
@@ -323,7 +325,7 @@
   gap: 0.5rem;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #ea580c;
+  color: #7c2d12;
 }
 
 .patternSample {
@@ -400,7 +402,7 @@
 
 .infoText {
   font-size: 0.8125rem;
-  color: #ea580c;
+  color: #7c2d12;
   text-align: center;
   margin: 0;
   line-height: 1.4;
@@ -415,6 +417,12 @@
   margin-top: 0.875rem;
   padding-top: 0.75rem;
   border-top: 1px solid var(--color-cell-border, #d1d5db);
+}
+
+@container accessibility-controls (max-width: 340px) {
+  .quickActions {
+    display: none;
+  }
 }
 
 /* Desktop: 2 columns */

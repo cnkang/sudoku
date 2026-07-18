@@ -15,11 +15,37 @@
 
 .sudokuContainer {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  gap: 0.75rem;
   margin: 2rem 0;
   container-type: inline-size;
   container-name: sudoku-grid;
   padding: 0 1rem;
+}
+
+.childFriendlyHints {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: min(100%, 34rem);
+  padding: 0.75rem;
+  color: #3f3f46;
+  background: #fff7ed;
+  border: 2px solid #9a3412;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.childFriendlyHints p {
+  margin: 0;
+}
+
+.scrollHint {
+  display: none;
 }
 
 /* Child-friendly mode enhancements */
@@ -38,7 +64,7 @@
   table-layout: fixed !important;
 
   /* Dynamic sizing based on grid size */
-  --cell-size: 45px;
+  --cell-size: 47px;
   --grid-size: 9;
   width: calc(var(--grid-size) * var(--cell-size));
   max-width: calc(var(--grid-size) * var(--cell-size));
@@ -56,7 +82,7 @@
 }
 
 .sudokuGrid[data-grid-size="9"] {
-  --cell-size: 45px;
+  --cell-size: 47px;
   --grid-size: 9;
 }
 
@@ -70,7 +96,7 @@
   position: relative;
   background-color: white;
   transition: background-color 0.2s ease;
-  border: 1px solid #d1d5db;
+  border: 1px solid #64748b;
   padding: 0;
   margin: 0;
   cursor: pointer;
@@ -94,7 +120,7 @@
 /* Gentle error highlighting with warm colors */
 .sudokuCell.error {
   background-color: #fff7ed !important; /* Warm orange instead of harsh red */
-  box-shadow: inset 0 0 0 2px #fb923c;
+  box-shadow: inset 0 0 0 2px #9a3412;
   animation: gentleErrorPulse 1.5s ease-in-out 2;
 }
 
@@ -130,7 +156,7 @@
 .sudokuCell.hinted {
   background-color: #ecfdf5 !important; /* Gentle green */
   animation: gentlePulse 1s ease-in-out 3;
-  box-shadow: inset 0 0 0 2px #10b981;
+  box-shadow: inset 0 0 0 2px #047857;
 }
 
 /* Child-friendly gentle animations */
@@ -149,7 +175,7 @@
 /* Success highlighting for correct moves */
 .sudokuCell.success {
   background-color: #dcfce7 !important;
-  box-shadow: inset 0 0 0 2px #22c55e;
+  box-shadow: inset 0 0 0 2px #166534;
   animation: successGlow 0.8s ease-out;
 }
 
@@ -199,7 +225,7 @@
   text-align: center;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1d4ed8;
+  color: #1e3a8a;
   background: transparent;
   cursor: pointer;
   -webkit-user-select: none;
@@ -251,11 +277,11 @@
   }
 
   .sudokuGrid[data-grid-size="6"] {
-    --cell-size: 45px;
+    --cell-size: 47px;
   }
 
   .sudokuGrid[data-grid-size="9"] {
-    --cell-size: 40px;
+    --cell-size: 47px;
   }
 
   .fixedNumber,
@@ -270,11 +296,11 @@
   }
 
   .sudokuGrid[data-grid-size="6"] {
-    --cell-size: 40px;
+    --cell-size: 47px;
   }
 
   .sudokuGrid[data-grid-size="9"] {
-    --cell-size: 35px;
+    --cell-size: 47px;
   }
 
   .fixedNumber,
@@ -289,12 +315,12 @@
   }
 
   .sudokuGrid[data-grid-size="6"] {
-    --cell-size: 38px;
+    --cell-size: 47px;
   }
 
-  /* 9×9 at 320px: enforce 38px minimum for touch targets, allow horizontal scroll */
+  /* 9×9 at 320px: keep the AAA 44px target and allow horizontal scrolling. */
   .sudokuGrid[data-grid-size="9"] {
-    --cell-size: 38px;
+    --cell-size: 47px;
   }
 
   .fixedNumber,
@@ -318,12 +344,38 @@
 @media (max-width: 480px) {
   .sudokuContainer {
     margin: 0.75rem 0;
+    padding: 0;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
+    align-items: flex-start;
   }
 
-  .sudokuGrid {
+  .sudokuGrid[data-grid-size="4"],
+  .sudokuGrid[data-grid-size="6"] {
+    align-self: center;
     margin: 0 auto;
+  }
+
+  .childFriendlyHints {
+    grid-template-columns: 1fr;
+    align-self: stretch;
+    font-size: 0.8125rem;
+  }
+
+  .scrollHint {
+    display: block;
+    align-self: stretch;
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    color: #334155;
+    background: #f8fafc;
+    border: 1px solid #64748b;
+    border-radius: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: center;
   }
 }
 
@@ -331,8 +383,8 @@
 @media (hover: none) and (pointer: coarse) {
   .sudokuCell {
     /* Enforce minimum 44px touch targets on touch devices */
-    min-width: 44px !important;
-    min-height: 44px !important;
+    min-width: 47px !important;
+    min-height: 47px !important;
   }
 
   /* Child mode enforces 50px per product requirements */
@@ -365,17 +417,9 @@
   }
 }
 
-/* Modern viewport units for better mobile support */
-@supports (height: 100dvh) {
-  .sudokuContainer {
-    max-height: calc(100dvh - 200px);
-    overflow: auto;
-  }
-}
-
 /* Focus management for keyboard navigation */
 .sudokuCell:focus-visible {
-  outline: 2px solid #3b82f6;
+  outline: 3px solid #1d4ed8;
   outline-offset: 2px;
   z-index: 1;
 }

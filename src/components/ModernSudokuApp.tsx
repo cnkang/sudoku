@@ -357,14 +357,15 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
       </Suspense>
 
       {/* Performance Debug Info (Development Only) */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className={styles.debugInfo}>
-          <details>
-            <summary>Performance Metrics</summary>
-            <pre>{JSON.stringify({ ...performanceMetrics, renderTime }, null, 2)}</pre>
-          </details>
-        </div>
-      )}
+      {process.env.NODE_ENV === 'development' &&
+        process.env.NEXT_PUBLIC_SHOW_PERFORMANCE_METRICS === 'true' && (
+          <div className={styles.debugInfo}>
+            <details>
+              <summary>Performance Metrics</summary>
+              <pre>{JSON.stringify({ ...performanceMetrics, renderTime }, null, 2)}</pre>
+            </details>
+          </div>
+        )}
     </div>
   );
 };
