@@ -264,14 +264,14 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
       {/* Celebration Confetti */}
       {celebrationActive && !reducedMotion && (
         <div className={styles.confettiContainer} aria-hidden="true">
-          {Array.from({ length: 20 }, (_, i) => (
-            <div
-              key={`confetti-${i}-${i % 5}`}
-              className={`${styles.confetti} ${styles[`confetti${(i % 5) + 1}`]}`}
-            >
-              {['🎉', '⭐', '🌟', '🎊', '✨'][i % 5]}
-            </div>
-          ))}
+          {Array.from({ length: 20 }, (_, i) => {
+            const confettiClass = styles[`confetti${(i % 5) + 1}`] ?? '';
+            return (
+              <div key={`confetti-${i}-${i % 5}`} className={`${styles.confetti} ${confettiClass}`}>
+                {['🎉', '⭐', '🌟', '🎊', '✨'][i % 5]}
+              </div>
+            );
+          })}
         </div>
       )}
 

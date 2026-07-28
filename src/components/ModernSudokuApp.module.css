@@ -472,7 +472,7 @@
 .debugInfo pre {
   margin: 0.5rem 0 0 0;
   white-space: pre-wrap;
-  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* Container Query Responsive Design */

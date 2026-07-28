@@ -165,6 +165,8 @@ const SudokuCell = React.memo(
       [touchState, disabled, isFixed, handleClick],
     );
 
+    const cellValueDescription = value ? `, value ${value}` : ', empty';
+
     // Track render performance
     // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally run once on mount
     useEffect(() => {
@@ -190,7 +192,7 @@ const SudokuCell = React.memo(
         data-row={row}
         data-col={col}
         data-testid={`cell-${row}-${col}`}
-        aria-label={`Cell ${row + 1}, ${col + 1}${value ? `, value ${value}` : ', empty'}`}
+        aria-label={`Cell ${row + 1}, ${col + 1}${cellValueDescription}`}
         tabIndex={isSelected ? 0 : -1}
       >
         {isFixed ? (

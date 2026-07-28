@@ -161,12 +161,14 @@ export function useFeedbackController({
   const showPatternFeedback = useCallback(
     (type: PatternFeedbackType, message?: string, pattern?: PatternFeedbackStyle) => {
       const cue = PATTERN_CUES[type];
-      const fallback =
-        type === 'error'
-          ? pickRandomMessage(FEEDBACK_MESSAGES.error.gentle, "Let's try that again!")
-          : type === 'warning'
-            ? pickRandomMessage(FEEDBACK_MESSAGES.error.warning, 'Check that spot!')
-            : pickRandomMessage(FEEDBACK_MESSAGES[type], `${type} feedback`);
+      let fallback: string;
+      if (type === 'error') {
+        fallback = pickRandomMessage(FEEDBACK_MESSAGES.error.gentle, "Let's try that again!");
+      } else if (type === 'warning') {
+        fallback = pickRandomMessage(FEEDBACK_MESSAGES.error.warning, 'Check that spot!');
+      } else {
+        fallback = pickRandomMessage(FEEDBACK_MESSAGES[type], `${type} feedback`);
+      }
       const duration = type === 'error' ? 4_000 : 3_000;
       setFeedback({
         type,

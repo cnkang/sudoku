@@ -21,12 +21,14 @@ const getCelebrationEmoji = (
   celebrationType: 'confetti' | 'stars' | 'rainbow',
   index: number,
 ): string => {
-  const emojis =
-    celebrationType === 'stars'
-      ? ['⭐', '🌟', '✨']
-      : celebrationType === 'rainbow'
-        ? ['🌈', '🦄', '✨', '🌟', '💫']
-        : ['🎉', '🎊', '✨', '🌟', '⭐'];
+  let emojis: readonly string[];
+  if (celebrationType === 'stars') {
+    emojis = ['⭐', '🌟', '✨'];
+  } else if (celebrationType === 'rainbow') {
+    emojis = ['🌈', '🦄', '✨', '🌟', '💫'];
+  } else {
+    emojis = ['🎉', '🎊', '✨', '🌟', '⭐'];
+  }
   return emojis[index % emojis.length] ?? emojis[0] ?? '✨';
 };
 
@@ -54,20 +56,23 @@ function CelebrationParticles({ feedback, reducedMotion }: Readonly<FeedbackDisp
       aria-hidden="true"
       data-testid="celebration-particles"
     >
-      {Array.from({ length: 20 }, (_, index) => (
-        <div
-          key={index}
-          className={`${styles.celebrationParticle} ${styles[`particle${(index % 8) + 1}`] ?? ''}`}
-          style={
-            {
-              '--delay': `${index * 0.1}s`,
-              '--duration': `${2 + (index % 3)}s`,
-            } as React.CSSProperties
-          }
-        >
-          {getCelebrationEmoji(celebrationType, index)}
-        </div>
-      ))}
+      {Array.from({ length: 20 }, (_, index) => {
+        const particleClass = styles[`particle${(index % 8) + 1}`] ?? '';
+        return (
+          <div
+            key={index}
+            className={`${styles.celebrationParticle} ${particleClass}`}
+            style={
+              {
+                '--delay': `${index * 0.1}s`,
+                '--duration': `${2 + (index % 3)}s`,
+              } as React.CSSProperties
+            }
+          >
+            {getCelebrationEmoji(celebrationType, index)}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -93,23 +98,26 @@ function PatternLegend() {
     <div className={styles.patternLegend} data-testid="pattern-legend">
       <h4 className={styles.legendTitle}>Visual Helpers</h4>
       <div className={styles.legendItems}>
-        {Object.entries(PATTERN_CUES).map(([key, cue]) => (
-          <div key={key} className={styles.legendItem}>
-            <div
-              className={`${styles.legendPattern} ${styles[`${cue.pattern}Pattern`] ?? ''}`}
-              style={
-                {
-                  '--pattern-color': cue.color,
-                  backgroundColor: cue.backgroundColor,
-                } as React.CSSProperties
-              }
-              aria-hidden="true"
-            />
-            <span className={styles.legendText}>
-              {cue.type.charAt(0).toUpperCase() + cue.type.slice(1)}
-            </span>
-          </div>
-        ))}
+        {Object.entries(PATTERN_CUES).map(([key, cue]) => {
+          const patternClass = styles[`${cue.pattern}Pattern`] ?? '';
+          return (
+            <div key={key} className={styles.legendItem}>
+              <div
+                className={`${styles.legendPattern} ${patternClass}`}
+                style={
+                  {
+                    '--pattern-color': cue.color,
+                    backgroundColor: cue.backgroundColor,
+                  } as React.CSSProperties
+                }
+                aria-hidden="true"
+              />
+              <span className={styles.legendText}>
+                {cue.type.charAt(0).toUpperCase() + cue.type.slice(1)}
+              </span>
+            </div>
+          );
+        })}
       </div>
       <p className={styles.legendDescription}>
         These patterns help you see different messages, even if colors look the same!
