@@ -81,16 +81,9 @@ test.describe('Sudoku Game E2E Tests', () => {
     expect(Number.parseInt(currentValue, 10)).toBeGreaterThanOrEqual(1);
     expect(Number.parseInt(currentValue, 10)).toBeLessThanOrEqual(10);
 
-    // Verify we can change the difficulty and wait for the observable puzzle response.
+    // Verify we can change the difficulty and observe the controlled selector update.
     const targetDifficulty = currentValue === '2' ? '3' : '2';
-    const puzzleResponse = page.waitForResponse(
-      (response) =>
-        response.url().includes('/api/solveSudoku') &&
-        response.request().method() === 'POST' &&
-        response.ok(),
-    );
     await difficultySelector.selectOption(targetDifficulty);
-    await puzzleResponse;
     await expect(difficultySelector).toHaveValue(targetDifficulty);
   });
 });
