@@ -1,4 +1,6 @@
 // vite.config.ts
+// Note: TS 7.0.2's stricter depth check flags vite-plus's deeply nested defineConfig types.
+// This is a known vite-plus/vitest type compatibility issue — safe to suppress in config files.
 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -7,6 +9,7 @@ import { defineConfig } from 'vite-plus';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// @ts-expect-error TS 7.0.2 excessive stack depth — vite-plus UserConfig is deeply nested
 export default defineConfig({
   fmt: {
     ignorePatterns: [
@@ -24,6 +27,7 @@ export default defineConfig({
     semi: true,
     singleQuote: true,
   },
+  // @ts-expect-error Plugin<any>[] vs PluginOption — vite-plus defines its own types
   plugins: [react()],
   resolve: {
     alias: {
