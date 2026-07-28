@@ -58,7 +58,7 @@
     "happy-dom": "20.11.1",
     "husky": "9.1.7",
     "lint-staged": "17.2.0",
-    "oxlint": "1.75.0",
+    "oxlint": "1.76.0",
     "postcss": "8.5.23",
     "typescript": "6.0.3",
     "typescript-next": "npm:typescript@7.0.2",
