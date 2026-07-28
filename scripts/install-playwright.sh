@@ -7,10 +7,10 @@ echo "🎭 Installing Playwright browsers..."
 
 if [[ "$CI" = "true" ]]; then
     echo "🔧 CI: Installing Chromium only..."
-    pnpm exec playwright install --with-deps chromium
+    node node_modules/@playwright/test/cli.js install --with-deps chromium
 else
     echo "💻 Local: Installing all browsers..."
-    pnpm exec playwright install --with-deps
+    node node_modules/@playwright/test/cli.js install --with-deps
 fi
 
 echo "✅ Installation complete!"
