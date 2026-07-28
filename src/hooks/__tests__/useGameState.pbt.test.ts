@@ -105,17 +105,24 @@ const assertChildModeForGridChange = (
   result: ReturnType<typeof renderHook<typeof useGameState>>['result'],
 ) => {
   changeGridSize(result, childFriendlyGrid);
+  const childModeAfterChildGrid = result.current.state.childMode;
 
   if (childFriendlyGrid.childFriendly.enableAnimations) {
-    expect(result.current.state.childMode).toBe(true);
+    expect(childModeAfterChildGrid).toBe(true);
   }
 
   setChildMode(result, initialChildMode);
   changeGridSize(result, adultGrid);
+  const childModeAfterAdultGrid = result.current.state.childMode;
 
   if (!adultGrid.childFriendly.enableAnimations) {
-    expect(result.current.state.childMode).toBe(initialChildMode);
+    expect(childModeAfterAdultGrid).toBe(initialChildMode);
   }
+
+  return (
+    (childFriendlyGrid.childFriendly.enableAnimations ? childModeAfterChildGrid : true) &&
+    (adultGrid.childFriendly.enableAnimations ? true : childModeAfterAdultGrid === initialChildMode)
+  );
 };
 
 const assertSequencePersistence = (
@@ -131,6 +138,11 @@ const assertSequencePersistence = (
     expect(result.current.state.progress).toEqual(initialProgress);
     expect(result.current.state.gridConfig).toEqual(grid);
   });
+
+  return (
+    result.current.state.accessibility === initialAccessibility &&
+    result.current.state.progress === initialProgress
+  );
 };
 
 const assertAccessibilityPreserved = (
@@ -148,6 +160,7 @@ const assertAccessibilityPreserved = (
   const accessibilityAfterChange = result.current.state.accessibility;
 
   expect(accessibilityAfterChange).toEqual(accessibilityBeforeChange);
+  return JSON.stringify(accessibilityAfterChange) === JSON.stringify(accessibilityBeforeChange);
 };
 
 const assertProgressPreserved = (
@@ -170,6 +183,7 @@ const assertProgressPreserved = (
   const progressAfterChange = result.current.state.progress;
 
   expect(progressAfterChange).toEqual(progressBeforeChange);
+  return JSON.stringify(progressAfterChange) === JSON.stringify(progressBeforeChange);
 };
 
 const assertStateResetOnGridChange = (
@@ -205,6 +219,7 @@ const assertStateResetOnGridChange = (
     Math.min(difficultyBeforeChange, newGrid.difficultyLevels),
   );
   expect(result.current.state.difficulty).toBe(expectedDifficulty);
+  return result.current.state.difficulty === expectedDifficulty;
 };
 
 const assertChildModeHandling = (initialChildMode: boolean) => {
@@ -214,7 +229,7 @@ const assertChildModeHandling = (initialChildMode: boolean) => {
 
   const childFriendlyGrid = GRID_CONFIGS[4];
   const adultGrid = GRID_CONFIGS[9];
-  assertChildModeForGridChange(initialChildMode, childFriendlyGrid, adultGrid, result);
+  return assertChildModeForGridChange(initialChildMode, childFriendlyGrid, adultGrid, result);
 };
 
 const assertStateConsistency = (
@@ -224,7 +239,7 @@ const assertStateConsistency = (
   const { result } = renderHook(() => useGameState());
 
   setAccessibility(result, accessibilitySettings);
-  assertSequencePersistence(gridSequence, result);
+  return assertSequencePersistence(gridSequence, result);
 };
 
 /**
@@ -266,7 +281,11 @@ describe('Property 10: State persistence across grid changes', () => {
         gridConfigArbitrary,
         gridConfigArbitrary,
         accessibilityArbitrary,
-        assertAccessibilityPreserved,
+        (initialGrid, newGrid, accessibilitySettings) => {
+          expect(assertAccessibilityPreserved(initialGrid, newGrid, accessibilitySettings)).toBe(
+            true,
+          );
+        },
       ),
       { numRuns: 100 },
     );
@@ -282,7 +301,9 @@ describe('Property 10: State persistence across grid changes', () => {
           '6x6': progressStatsArbitrary,
           '9x9': progressStatsArbitrary,
         }),
-        assertProgressPreserved,
+        (initialGrid, newGrid, progressData) => {
+          expect(assertProgressPreserved(initialGrid, newGrid, progressData)).toBe(true);
+        },
       ),
       { numRuns: 100 },
     );
@@ -295,16 +316,25 @@ describe('Property 10: State persistence across grid changes', () => {
         gridConfigArbitrary,
         fc.boolean(),
         fc.nat(10),
-        assertStateResetOnGridChange,
+        (initialGrid, newGrid, childModePreference, difficulty) => {
+          expect(
+            assertStateResetOnGridChange(initialGrid, newGrid, childModePreference, difficulty),
+          ).toBe(true);
+        },
       ),
       { numRuns: 100 },
     );
   });
 
   it('should handle child mode appropriately when changing to child-friendly grids', () => {
-    fc.assert(fc.property(fc.boolean(), assertChildModeHandling), {
-      numRuns: 100,
-    });
+    fc.assert(
+      fc.property(fc.boolean(), (initialChildMode) => {
+        expect(assertChildModeHandling(initialChildMode)).toBe(true);
+      }),
+      {
+        numRuns: 100,
+      },
+    );
   });
 
   it('should maintain state consistency across multiple grid changes', () => {
@@ -312,7 +342,9 @@ describe('Property 10: State persistence across grid changes', () => {
       fc.property(
         fc.array(gridConfigArbitrary, { minLength: 2, maxLength: 5 }),
         accessibilityArbitrary,
-        assertStateConsistency,
+        (gridSequence, accessibilitySettings) => {
+          expect(assertStateConsistency(gridSequence, accessibilitySettings)).toBe(true);
+        },
       ),
       { numRuns: 50 },
     );

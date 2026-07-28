@@ -71,7 +71,7 @@ export const createUserInteractionTests = (
     interactions.forEach(({ name, trigger, expectation }) => {
       it(`should handle ${name}`, () => {
         trigger();
-        expectation();
+        expect(() => expectation()).not.toThrow();
       });
     });
   });
@@ -108,7 +108,7 @@ export const createEdgeCaseTests = (
     testCases.forEach(({ description, setup, expectation }) => {
       it(description, () => {
         setup();
-        expectation();
+        expect(() => expectation()).not.toThrow();
       });
     });
   });
@@ -143,7 +143,7 @@ export const createResponsiveTests = (
         }
 
         renderComponent();
-        checks();
+        expect(() => checks()).not.toThrow();
       });
     });
   });
@@ -164,7 +164,7 @@ export const createStateChangeTests = (
       it(description, () => {
         const { rerender } = renderComponent(initialProps);
         rerender(updatedProps);
-        expectation();
+        expect(() => expectation()).not.toThrow();
       });
     });
   });
@@ -187,7 +187,7 @@ export const createKeyboardNavigationTests = (
         const element = setup ? setup() : (document.activeElement as HTMLElement);
         fireEvent.keyDown(element, { key });
 
-        expectation();
+        expect(() => expectation()).not.toThrow();
       });
     });
   });

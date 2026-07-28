@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react';
 import * as fc from 'fast-check';
-import { afterEach, describe, it, vi } from 'vite-plus/test';
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test';
 import { secureRandomId } from '@/utils/secureRandom';
 import { getChildFriendlyThemes } from '@/utils/themes';
 import VisualFeedbackSystem from '../VisualFeedbackSystem';
@@ -163,7 +163,7 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
         // Should be using a child-friendly theme
         const isChildFriendlyTheme = theme.category === 'child-friendly';
 
-        return hasChildMode && isChildFriendlyTheme;
+        expect(hasChildMode && isChildFriendlyTheme).toBe(true);
       }),
       { numRuns: 15 },
     );
@@ -193,7 +193,7 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
         // Should have pattern-based visual cues
         const hasPatternElements = container.querySelectorAll('[data-pattern]').length > 0;
 
-        return hasChildMode && hasPatternElements;
+        expect(hasChildMode && hasPatternElements).toBe(true);
       }),
       { numRuns: 15 },
     );
@@ -221,7 +221,7 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
           const hasPatternLegend =
             container.querySelector('[data-testid="pattern-legend"]') !== null;
 
-          return hasChildMode && hasPatternLegend;
+          expect(hasChildMode && hasPatternLegend).toBe(true);
         },
       ),
       { numRuns: 15 },
@@ -244,7 +244,7 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
         // Should have screen reader support
         const hasAriaElements = container.querySelectorAll('[aria-live], [role]').length > 0;
 
-        return hasChildMode && hasAriaElements;
+        expect(hasChildMode && hasAriaElements).toBe(true);
       }),
       { numRuns: 15 },
     );
@@ -266,7 +266,7 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
         // Should have pattern legend (child-friendly feature)
         const hasPatternLegend = container.querySelector('[data-testid="pattern-legend"]') !== null;
 
-        return hasChildMode && hasPatternLegend;
+        expect(hasChildMode && hasPatternLegend).toBe(true);
       }),
       { numRuns: 15 },
     );
@@ -286,16 +286,15 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
         const patternLegend = container.querySelector('[data-testid="pattern-legend"]');
         const hasPatternLegend = patternLegend !== null;
 
-        if (!hasPatternLegend) {
-          return false;
-        }
+        expect(hasPatternLegend).toBe(true);
+        if (!patternLegend) return;
 
         // Should have child-friendly content
         const hasTitle = patternLegend.querySelector('h4') !== null;
         const hasPatternItems = patternLegend.querySelectorAll("[class*='legendItem']").length > 0;
         const hasDescription = patternLegend.textContent?.includes('help') || false;
 
-        return hasTitle && hasPatternItems && hasDescription;
+        expect(hasTitle && hasPatternItems && hasDescription).toBe(true);
       }),
       { numRuns: 15 },
     );
@@ -323,7 +322,7 @@ describe('Child-Friendly Visual Feedback Property-Based Tests', () => {
         const isChildFriendlyTheme =
           theme.category === 'child-friendly' && theme.ageGroup === 'children';
 
-        return hasChildMode && hasPatternLegend && isChildFriendlyTheme;
+        expect(hasChildMode && hasPatternLegend && isChildFriendlyTheme).toBe(true);
       }),
       { numRuns: 15 },
     );

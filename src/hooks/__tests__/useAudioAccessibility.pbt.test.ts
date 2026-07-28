@@ -329,13 +329,10 @@ describe('useAudioAccessibility - Property-based tests', () => {
             useAudioAccessibility({ ...settings, audioFeedback: true }),
           );
 
-          // Wait for the hook to initialize properly
-          act(() => {
-            // Ensure audio is enabled
-            if (!result.current[0].isEnabled) {
-              result.current[1].enableAudio();
-            }
-          });
+          // Ensure audio is enabled
+          if (!result.current[0].isEnabled) {
+            result.current[1].enableAudio();
+          }
 
           act(() => {
             result.current[1].speakMove(position.row, position.col, value, isCorrect);
@@ -420,13 +417,10 @@ describe('useAudioAccessibility - Property-based tests', () => {
             useAudioAccessibility({ ...settings, audioFeedback: true }),
           );
 
-          // Wait for the hook to initialize properly
-          act(() => {
-            // Ensure audio is enabled
-            if (!result.current[0].isEnabled) {
-              result.current[1].enableAudio();
-            }
-          });
+          // Ensure audio is enabled
+          if (!result.current[0].isEnabled) {
+            result.current[1].enableAudio();
+          }
 
           // Test with actual GridConfig parameter as expected by implementation
           act(() => {

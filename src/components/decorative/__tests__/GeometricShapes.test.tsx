@@ -113,33 +113,22 @@ describe('GeometricShapes', () => {
       expect(decoration.className).toContain('top-left');
     });
 
-    it('should render for top-right position', () => {
-      const { container } = render(<CornerDecoration position="top-right" />);
-      const decoration = container.firstChild as HTMLElement;
+    it.each(['top-right', 'bottom-left', 'bottom-right'] as const)(
+      'should render for %s position',
+      (position) => {
+        const { container } = render(<CornerDecoration position={position} />);
+        const decoration = container.firstChild as HTMLElement;
 
-      expect(decoration.className).toContain('top-right');
-    });
-
-    it('should render for bottom-left position', () => {
-      const { container } = render(<CornerDecoration position="bottom-left" />);
-      const decoration = container.firstChild as HTMLElement;
-
-      expect(decoration.className).toContain('bottom-left');
-    });
-
-    it('should render for bottom-right position', () => {
-      const { container } = render(<CornerDecoration position="bottom-right" />);
-      const decoration = container.firstChild as HTMLElement;
-
-      expect(decoration.className).toContain('bottom-right');
-    });
+        expect(decoration.className).toContain(position);
+      },
+    );
 
     it('should contain child shapes for each position', () => {
       const { container } = render(<CornerDecoration position="top-left" />);
       const decoration = container.firstChild as HTMLElement;
 
       // Each corner should have 2 child shapes
-      expect(decoration.children.length).toBe(2);
+      expect(decoration.children).toHaveLength(2);
     });
 
     it('should accept custom className', () => {

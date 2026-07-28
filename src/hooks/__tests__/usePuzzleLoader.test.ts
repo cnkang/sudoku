@@ -109,7 +109,7 @@ describe('usePuzzleLoader', () => {
 
       // Rerender with same props - should not trigger new fetch
       rerender({ difficulty: 1, shouldFetch: true, force: false });
-      expect(mockFetch.mock.calls.length).toBe(firstCallCount);
+      expect(mockFetch.mock.calls).toHaveLength(firstCallCount);
 
       // Rerender with different difficulty - should trigger new fetch
       rerender({ difficulty: 2, shouldFetch: true, force: false });

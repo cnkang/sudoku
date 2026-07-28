@@ -1,5 +1,5 @@
 import * as fc from 'fast-check';
-import { describe, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import {
   AccessibilityManager,
   calculateContrastRatio,
@@ -30,7 +30,7 @@ describe('Theme Property-Based Tests', () => {
           // This will be handled by the test framework
         }
 
-        return isCompliant;
+        expect(isCompliant).toBe(true);
       }),
       { numRuns: 100 },
     );
@@ -61,10 +61,12 @@ describe('Theme Property-Based Tests', () => {
         ];
 
         // All critical combinations should meet WCAG AAA
-        return criticalCombinations.every(({ fg, bg }) => {
-          const ratio = calculateContrastRatio(fg, bg);
-          return ratio >= 7; // WCAG AAA standard for normal text
-        });
+        expect(
+          criticalCombinations.every(({ fg, bg }) => {
+            const ratio = calculateContrastRatio(fg, bg);
+            return ratio >= 7; // WCAG AAA standard for normal text
+          }),
+        ).toBe(true);
       }),
       { numRuns: 100 },
     );
@@ -92,9 +94,9 @@ describe('Theme Property-Based Tests', () => {
         // Font size should be at least 14px for readability
         const fontSizeCompliant = accessibility.minimumFontSize >= 14;
 
-        return (
-          touchTargetCompliant && focusIndicatorCompliant && contrastCompliant && fontSizeCompliant
-        );
+        expect(
+          touchTargetCompliant && focusIndicatorCompliant && contrastCompliant && fontSizeCompliant,
+        ).toBe(true);
       }),
       { numRuns: 100 },
     );
@@ -121,7 +123,7 @@ describe('Theme Property-Based Tests', () => {
         const sameColorRatio = calculateContrastRatio(color1, color1);
         const sameColorCorrect = Math.abs(sameColorRatio - 1) < 0.001;
 
-        return isSymmetric && isInValidRange && sameColorCorrect;
+        expect(isSymmetric && isInValidRange && sameColorCorrect).toBe(true);
       }),
       { numRuns: 10 },
     );
@@ -156,13 +158,13 @@ describe('Theme Property-Based Tests', () => {
         );
         const hasMaxTextContrast = textBackgroundRatio >= 15; // Very high contrast
 
-        return (
+        expect(
           hasMaxContrast &&
-          isHighContrastCategory &&
-          hasCorrectId &&
-          animationsDisabled &&
-          hasMaxTextContrast
-        );
+            isHighContrastCategory &&
+            hasCorrectId &&
+            animationsDisabled &&
+            hasMaxTextContrast,
+        ).toBe(true);
       }),
       { numRuns: 100 },
     );
@@ -187,19 +189,21 @@ describe('Theme Property-Based Tests', () => {
           );
 
           // All recommendations should match the criteria
-          return recommendations.every((theme) => {
-            // Age group filter
-            const ageGroupMatch =
-              ageGroup === 'all' || theme.ageGroup === 'all' || theme.ageGroup === ageGroup;
+          expect(
+            recommendations.every((theme) => {
+              // Age group filter
+              const ageGroupMatch =
+                ageGroup === 'all' || theme.ageGroup === 'all' || theme.ageGroup === ageGroup;
 
-            // High contrast filter
-            const contrastMatch = !needsHighContrast || theme.category === 'high-contrast';
+              // High contrast filter
+              const contrastMatch = !needsHighContrast || theme.category === 'high-contrast';
 
-            // Reduced motion filter
-            const motionMatch = !prefersReducedMotion || !theme.childFriendly.enableAnimations;
+              // Reduced motion filter
+              const motionMatch = !prefersReducedMotion || !theme.childFriendly.enableAnimations;
 
-            return ageGroupMatch && contrastMatch && motionMatch;
-          });
+              return ageGroupMatch && contrastMatch && motionMatch;
+            }),
+          ).toBe(true);
         },
       ),
       { numRuns: 100 },
@@ -237,7 +241,7 @@ describe('Theme Property-Based Tests', () => {
             screenWidth < 400 || // Very narrow screen, allow smaller fonts
             fontSize >= Math.max(14, theme.accessibility.minimumFontSize); // Reasonable minimum for child grids
 
-          return meetsMinimum && reasonableSize && childFriendlyAppropriate;
+          expect(meetsMinimum && reasonableSize && childFriendlyAppropriate).toBe(true);
         },
       ),
       { numRuns: 100 },

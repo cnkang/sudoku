@@ -104,9 +104,9 @@ describe('TouchOptimizedControls', () => {
         name: /magic wand hint/i,
       });
 
-      await act(async () => {
-        fireEvent.click(magicWandButton);
-        // Wait for the delayed onHint call
+      fireEvent.click(magicWandButton);
+      // Wait for the delayed onHint call
+      act(() => {
         vi.advanceTimersByTime(200);
       });
 
@@ -120,9 +120,7 @@ describe('TouchOptimizedControls', () => {
         name: /magic wand hint/i,
       });
 
-      await act(async () => {
-        fireEvent.click(magicWandButton);
-      });
+      fireEvent.click(magicWandButton);
 
       expect(defaultProps.hapticFeedback?.hint).toHaveBeenCalledTimes(1);
       expect(mockVibrate).toHaveBeenCalledWith([50]);
@@ -153,9 +151,7 @@ describe('TouchOptimizedControls', () => {
         name: /magic wand hint/i,
       });
 
-      await act(async () => {
-        fireEvent.click(magicWandButton);
-      });
+      fireEvent.click(magicWandButton);
 
       // Check for sparkle animation elements by class name pattern
       const sparkleElements = document.querySelectorAll('[class*="sparkle"]');
@@ -176,9 +172,7 @@ describe('TouchOptimizedControls', () => {
         name: /get encouragement/i,
       });
 
-      await act(async () => {
-        fireEvent.click(encouragementButton);
-      });
+      fireEvent.click(encouragementButton);
 
       expect(defaultProps.onEncourage).toHaveBeenCalledTimes(1);
     });
@@ -190,9 +184,7 @@ describe('TouchOptimizedControls', () => {
         name: /get encouragement/i,
       });
 
-      await act(async () => {
-        fireEvent.click(encouragementButton);
-      });
+      fireEvent.click(encouragementButton);
 
       const message = screen.getByTestId('encouragement-message');
       expect(message).toBeInTheDocument();
@@ -208,9 +200,7 @@ describe('TouchOptimizedControls', () => {
         name: /get encouragement/i,
       });
 
-      await act(async () => {
-        fireEvent.click(encouragementButton);
-      });
+      fireEvent.click(encouragementButton);
 
       expect(defaultProps.hapticFeedback?.success).toHaveBeenCalledTimes(1);
       expect(mockVibrate).toHaveBeenCalledWith([100, 50, 100]);
@@ -223,9 +213,7 @@ describe('TouchOptimizedControls', () => {
         name: /get encouragement/i,
       });
 
-      await act(async () => {
-        fireEvent.click(encouragementButton);
-      });
+      fireEvent.click(encouragementButton);
 
       // Message should be visible initially
       expect(screen.getByTestId('encouragement-message')).toBeInTheDocument();
@@ -247,9 +235,7 @@ describe('TouchOptimizedControls', () => {
         name: /celebrate success/i,
       });
 
-      await act(async () => {
-        fireEvent.click(celebrationButton);
-      });
+      fireEvent.click(celebrationButton);
 
       expect(defaultProps.onCelebrate).toHaveBeenCalledTimes(1);
     });
@@ -261,9 +247,7 @@ describe('TouchOptimizedControls', () => {
         name: /celebrate success/i,
       });
 
-      await act(async () => {
-        fireEvent.click(celebrationButton);
-      });
+      fireEvent.click(celebrationButton);
 
       expect(defaultProps.hapticFeedback?.success).toHaveBeenCalledTimes(1);
       expect(mockVibrate).toHaveBeenCalledWith([100, 50, 100]);
@@ -276,9 +260,7 @@ describe('TouchOptimizedControls', () => {
         name: /celebrate success/i,
       });
 
-      await act(async () => {
-        fireEvent.click(celebrationButton);
-      });
+      fireEvent.click(celebrationButton);
 
       // Check for confetti animation elements by class name pattern
       const confettiElements = document.querySelectorAll('[class*="confetti"]');
@@ -315,9 +297,7 @@ describe('TouchOptimizedControls', () => {
         name: /magic wand hint/i,
       });
 
-      await act(async () => {
-        fireEvent.click(magicWandButton);
-      });
+      fireEvent.click(magicWandButton);
 
       // Check for screen reader announcement
       const announcement = screen.getByText(/magic wand activated with sparkles/i);
@@ -331,13 +311,11 @@ describe('TouchOptimizedControls', () => {
         name: /magic wand hint/i,
       });
 
-      await act(async () => {
-        fireEvent.click(magicWandButton);
-      });
+      fireEvent.click(magicWandButton);
 
       // Sparkles should not appear with reduced motion
       const sparkleElements = document.querySelectorAll('[class*="sparkle"]');
-      expect(sparkleElements.length).toBe(0);
+      expect(sparkleElements).toHaveLength(0);
     });
   });
 
@@ -403,9 +381,7 @@ describe('TouchOptimizedControls', () => {
         name: /celebrate success/i,
       });
 
-      await act(async () => {
-        fireEvent.click(celebrationButton);
-      });
+      fireEvent.click(celebrationButton);
 
       // Verify success haptic was called
       expect(propsWithErrorHaptic.hapticFeedback.success).toHaveBeenCalled();
@@ -419,13 +395,15 @@ describe('TouchOptimizedControls', () => {
       });
 
       // Click multiple times rapidly
-      await act(async () => {
-        fireEvent.click(magicWandButton);
+      fireEvent.click(magicWandButton);
+      act(() => {
         vi.advanceTimersByTime(100);
-        fireEvent.click(magicWandButton);
-        vi.advanceTimersByTime(100);
-        fireEvent.click(magicWandButton);
       });
+      fireEvent.click(magicWandButton);
+      act(() => {
+        vi.advanceTimersByTime(100);
+      });
+      fireEvent.click(magicWandButton);
 
       // Should handle multiple clicks without errors
       expect(defaultProps.onHint).toHaveBeenCalled();
@@ -439,13 +417,15 @@ describe('TouchOptimizedControls', () => {
       });
 
       // Click multiple times rapidly
-      await act(async () => {
-        fireEvent.click(encouragementButton);
+      fireEvent.click(encouragementButton);
+      act(() => {
         vi.advanceTimersByTime(100);
-        fireEvent.click(encouragementButton);
-        vi.advanceTimersByTime(100);
-        fireEvent.click(encouragementButton);
       });
+      fireEvent.click(encouragementButton);
+      act(() => {
+        vi.advanceTimersByTime(100);
+      });
+      fireEvent.click(encouragementButton);
 
       // Should handle multiple clicks without errors
       expect(defaultProps.onEncourage).toHaveBeenCalled();
@@ -458,9 +438,7 @@ describe('TouchOptimizedControls', () => {
         name: /magic wand hint \(0 remaining\)/i,
       });
 
-      await act(async () => {
-        fireEvent.click(magicWandButton);
-      });
+      fireEvent.click(magicWandButton);
 
       // Should not call onHint when disabled
       expect(defaultProps.onHint).not.toHaveBeenCalled();
@@ -473,9 +451,7 @@ describe('TouchOptimizedControls', () => {
         name: /magic wand hint/i,
       });
 
-      await act(async () => {
-        fireEvent.click(magicWandButton);
-      });
+      fireEvent.click(magicWandButton);
 
       // Should not call onHint when disabled
       expect(defaultProps.onHint).not.toHaveBeenCalled();

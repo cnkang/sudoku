@@ -23,8 +23,12 @@ test.describe('Accessibility E2E', () => {
   });
 
   test('should support keyboard-only navigation for core controls', async ({ page, isMobile }) => {
-    test.skip(isMobile, 'Keyboard-only focus flow is desktop-specific');
     await waitForAppReady(page);
+
+    if (isMobile) {
+      await expect(page.getByRole('radiogroup', { name: 'Grid size selection' })).toBeVisible();
+      return;
+    }
 
     const fourByFour = page.locator('#grid-option-4');
     const sixBySix = page.locator('#grid-option-6');

@@ -1,5 +1,5 @@
 import fc from 'fast-check';
-import { describe, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { GridConfigManager } from '@/utils/gridConfig';
 
 const createEmptyGrid = (size: number) =>
@@ -70,7 +70,7 @@ describe('GridConfig Property-Based Tests', () => {
         fc.integer({ min: 0, max: 100 }), // col
         fc.integer({ min: 0, max: 20 }), // value
         (gridSize, row, col, value) => {
-          return validateGridConfigConsistency(gridSize, row, col, value);
+          expect(validateGridConfigConsistency(gridSize, row, col, value)).toBe(true);
         },
       ),
       { numRuns: 100 },

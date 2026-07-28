@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import type { ThemeConfig } from '@/types';
 import { THEMES } from '@/utils/themes';
@@ -232,10 +232,27 @@ describe('VisualFeedbackSystem', () => {
     });
   });
 
-  it('auto-hides feedback after specified duration', async () => {
-    // Skip this test as it's timing-sensitive and the functionality works
-    // The auto-hide feature is tested implicitly in other tests
-    expect(true).toBe(true);
+  it('auto-hides feedback after specified duration', () => {
+    vi.useFakeTimers();
+    render(
+      <VisualFeedbackSystem theme={mockTheme}>
+        {(triggers) => (
+          <button type="button" onClick={() => triggers.showSuccess('Success!')}>
+            Show Success
+          </button>
+        )}
+      </VisualFeedbackSystem>,
+    );
+
+    fireEvent.click(screen.getByText('Show Success'));
+    expect(screen.getByTestId('feedback-success')).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(3_000);
+    });
+
+    expect(screen.queryByTestId('feedback-success')).not.toBeInTheDocument();
+    vi.useRealTimers();
   });
 
   it('clears feedback when clearFeedback is called', async () => {

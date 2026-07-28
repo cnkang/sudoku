@@ -220,6 +220,8 @@ describe('SudokuGrid', () => {
         fireEvent.touchEnd(editableCell, {
           changedTouches: [{ clientX: 100, clientY: 100 }],
         });
+
+        expect(navigator.vibrate).toHaveBeenCalledWith([20]);
       } finally {
         vi.useRealTimers();
       }
@@ -327,6 +329,9 @@ describe('SudokuGrid', () => {
       fireEvent.touchEnd(editableCell, {
         changedTouches: [{ clientX: 120, clientY: 120 }],
       });
+
+      expect(navigator.vibrate).toHaveBeenCalledWith([10]);
+      expect(navigator.vibrate).not.toHaveBeenCalledWith([20]);
     });
   });
 

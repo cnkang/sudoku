@@ -122,11 +122,9 @@ describe('useThrottledTouchMove', () => {
     } as React.TouchEvent<HTMLDivElement>;
 
     // Simulate rapid touch move events (like user dragging)
-    act(() => {
-      for (let i = 0; i < 10; i++) {
-        result.current(mockEvent);
-      }
-    });
+    for (let i = 0; i < 10; i++) {
+      result.current(mockEvent);
+    }
 
     // Should only call once due to throttling
     expect(handler).toHaveBeenCalledTimes(1);
@@ -213,11 +211,9 @@ describe('useTouchPerformanceMonitor', () => {
   it('should track frame times', () => {
     const { result } = renderHook(() => useTouchPerformanceMonitor());
 
-    act(() => {
-      result.current.recordFrame();
-      result.current.recordFrame();
-      result.current.recordFrame();
-    });
+    result.current.recordFrame();
+    result.current.recordFrame();
+    result.current.recordFrame();
 
     const fps = result.current.getAverageFPS();
     expect(fps).toBeGreaterThan(0);
@@ -227,11 +223,9 @@ describe('useTouchPerformanceMonitor', () => {
     const { result } = renderHook(() => useTouchPerformanceMonitor());
 
     // Record multiple frames
-    act(() => {
-      for (let i = 0; i < 10; i++) {
-        result.current.recordFrame();
-      }
-    });
+    for (let i = 0; i < 10; i++) {
+      result.current.recordFrame();
+    }
 
     const fps = result.current.getAverageFPS();
     // Should be close to 60fps (allowing some tolerance)
@@ -255,11 +249,9 @@ describe('useTouchPerformanceMonitor', () => {
     const { result } = renderHook(() => useTouchPerformanceMonitor());
 
     // Record more than 60 frames
-    act(() => {
-      for (let i = 0; i < 100; i++) {
-        result.current.recordFrame();
-      }
-    });
+    for (let i = 0; i < 100; i++) {
+      result.current.recordFrame();
+    }
 
     // Should still calculate FPS correctly
     const fps = result.current.getAverageFPS();

@@ -103,18 +103,21 @@ describe('CSRF Protection', () => {
       expect(result).toBeNull();
     });
 
-    it('blocks POST requests without CSRF token', () => {
-      const request = new NextRequest('http://localhost:3000/api/test', {
-        method: 'POST',
-        headers: {
-          'x-forwarded-for': TEST_CLIENT_IP,
-        },
-      });
+    it.each(['POST', 'PUT', 'DELETE'] as const)(
+      'blocks %s requests without CSRF token',
+      (method) => {
+        const request = new NextRequest('http://localhost:3000/api/test', {
+          method,
+          headers: {
+            'x-forwarded-for': TEST_CLIENT_IP,
+          },
+        });
 
-      const result = enforceCsrfProtection(request);
-      expect(result).not.toBeNull();
-      expect(result?.status).toBe(403);
-    });
+        const result = enforceCsrfProtection(request);
+        expect(result).not.toBeNull();
+        expect(result?.status).toBe(403);
+      },
+    );
 
     it('allows POST requests with valid CSRF token', () => {
       const sessionId = TEST_CLIENT_IP;
@@ -130,32 +133,6 @@ describe('CSRF Protection', () => {
 
       const result = enforceCsrfProtection(request);
       expect(result).toBeNull();
-    });
-
-    it('blocks PUT requests without CSRF token', () => {
-      const request = new NextRequest('http://localhost:3000/api/test', {
-        method: 'PUT',
-        headers: {
-          'x-forwarded-for': TEST_CLIENT_IP,
-        },
-      });
-
-      const result = enforceCsrfProtection(request);
-      expect(result).not.toBeNull();
-      expect(result?.status).toBe(403);
-    });
-
-    it('blocks DELETE requests without CSRF token', () => {
-      const request = new NextRequest('http://localhost:3000/api/test', {
-        method: 'DELETE',
-        headers: {
-          'x-forwarded-for': TEST_CLIENT_IP,
-        },
-      });
-
-      const result = enforceCsrfProtection(request);
-      expect(result).not.toBeNull();
-      expect(result?.status).toBe(403);
     });
   });
 

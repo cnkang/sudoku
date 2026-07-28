@@ -43,6 +43,7 @@ const assertEncouragingLanguage = (errorType: string, gridSize: number) => {
     messageWords.includes(element.toLowerCase()),
   );
   expect(containsEncouragement).toBe(true);
+  return true;
 };
 
 const assertEducationalExplanations = (errorType: string) => {
@@ -55,6 +56,7 @@ const assertEducationalExplanations = (errorType: string) => {
   expect(error.educationalExplanation).not.toBe('');
   expect(typeof error.educationalExplanation).toBe('string');
   expect(error.educationalExplanation?.length).toBeGreaterThan(20);
+  return true;
 };
 
 const assertRecoveryActions = (errorType: string, canUndo: boolean) => {
@@ -79,6 +81,7 @@ const assertRecoveryActions = (errorType: string, canUndo: boolean) => {
 
   const hasPrimaryAction = recoveryActions.some((action) => action.primary);
   expect(hasPrimaryAction).toBe(true);
+  return true;
 };
 
 const assertEncouragementMessage = (encouragementType: string) => {
@@ -98,6 +101,7 @@ const assertEncouragementMessage = (encouragementType: string) => {
 
   expect(message.duration).toBeGreaterThan(1000);
   expect(message.duration).toBeLessThan(10000);
+  return true;
 };
 
 const assertFormattedMessage = (errorType: string, audience: string) => {
@@ -114,18 +118,27 @@ const assertFormattedMessage = (errorType: string, audience: string) => {
   if (audience === 'child') {
     expect(formattedMessage).toContain(error.childMessage);
   }
+  return true;
 };
 
 describe('Child-Friendly Error Handling - Property Tests', () => {
   describe('Property 14: Gentle error messaging', () => {
     it('should always use encouraging language in child mode', () => {
-      fc.assert(fc.property(errorTypeGen, gridSizeGen, assertEncouragingLanguage), { numRuns: 5 });
+      fc.assert(
+        fc.property(errorTypeGen, gridSizeGen, (errorType, gridSize) => {
+          expect(assertEncouragingLanguage(errorType, gridSize)).toBe(true);
+        }),
+        { numRuns: 5 },
+      );
     });
 
     it('should provide educational explanations for all error types', () => {
-      fc.assert(fc.property(errorTypeGen, assertEducationalExplanations), {
-        numRuns: 5,
-      });
+      fc.assert(
+        fc.property(errorTypeGen, (errorType) => {
+          expect(assertEducationalExplanations(errorType)).toBe(true);
+        }),
+        { numRuns: 5 },
+      );
     });
 
     it('should always provide recovery actions for errors', () => {
@@ -133,21 +146,28 @@ describe('Child-Friendly Error Handling - Property Tests', () => {
         fc.property(
           errorTypeGen,
           fc.boolean(), // can undo
-          assertRecoveryActions,
+          (errorType, canUndo) => {
+            expect(assertRecoveryActions(errorType, canUndo)).toBe(true);
+          },
         ),
         { numRuns: 5 },
       );
     });
 
     it('should generate appropriate encouragement messages', () => {
-      fc.assert(fc.property(encouragementTypeGen, assertEncouragementMessage), {
-        numRuns: 5,
-      });
+      fc.assert(
+        fc.property(encouragementTypeGen, (encouragementType) => {
+          expect(assertEncouragementMessage(encouragementType)).toBe(true);
+        }),
+        { numRuns: 5 },
+      );
     });
 
     it('should format messages appropriately for different audiences', () => {
       fc.assert(
-        fc.property(errorTypeGen, fc.constantFrom('child', 'adult'), assertFormattedMessage),
+        fc.property(errorTypeGen, fc.constantFrom('child', 'adult'), (errorType, audience) => {
+          expect(assertFormattedMessage(errorType, audience)).toBe(true);
+        }),
         { numRuns: 5 },
       );
     });

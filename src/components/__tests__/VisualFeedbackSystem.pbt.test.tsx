@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import * as fc from 'fast-check';
-import { afterEach, beforeEach, describe, it, vi } from 'vite-plus/test';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import { getAllThemes } from '@/utils/themes';
 import VisualFeedbackSystem from '../VisualFeedbackSystem';
 
@@ -193,7 +193,7 @@ describe('VisualFeedbackSystem Property-Based Tests', () => {
             container.querySelector('[data-testid="pattern-legend"]') !== null;
           const patternLegendExpected = childMode ? hasPatternLegend : true; // Not required for non-child mode
 
-          return hasMainContainer && hasAriaElements && patternLegendExpected;
+          expect(hasMainContainer && hasAriaElements && patternLegendExpected).toBe(true);
         } finally {
           unmount();
         }
@@ -232,7 +232,7 @@ describe('VisualFeedbackSystem Property-Based Tests', () => {
             container.querySelector('[data-testid="pattern-legend"]') !== null;
 
           // At least one pattern-related feature should be present
-          return hasPatternElements || hasPatternClasses || hasPatternLegend;
+          expect(hasPatternElements || hasPatternClasses || hasPatternLegend).toBe(true);
         } finally {
           unmount();
         }
@@ -267,7 +267,7 @@ describe('VisualFeedbackSystem Property-Based Tests', () => {
             highContrastElement?.className.includes('highContrast') || false;
 
           // High contrast mode should apply different styling
-          return !normalHasHighContrast && highContrastHasClass;
+          expect(!normalHasHighContrast && highContrastHasClass).toBe(true);
         } finally {
           unmount();
         }
@@ -290,7 +290,7 @@ describe('VisualFeedbackSystem Property-Based Tests', () => {
 
         try {
           const element = container.querySelector('[data-testid="visual-feedback-system"]');
-          return element?.className.includes('reducedMotion') || false;
+          expect(element?.className.includes('reducedMotion') || false).toBe(true);
         } finally {
           unmount();
         }
@@ -326,9 +326,9 @@ describe('VisualFeedbackSystem Property-Based Tests', () => {
             container.querySelector('[data-testid="pattern-legend"]') !== null;
 
           // Child mode should have additional features
-          return (
-            hasChildModeClass && hasPatternLegend && !normalHasChildMode && !normalHasPatternLegend
-          );
+          expect(
+            hasChildModeClass && hasPatternLegend && !normalHasChildMode && !normalHasPatternLegend,
+          ).toBe(true);
         } finally {
           unmount();
         }
@@ -360,7 +360,7 @@ describe('VisualFeedbackSystem Property-Based Tests', () => {
           const hasSrOnlyElements = container.querySelectorAll("[class*='srOnly']").length > 0;
 
           // At least one screen reader feature should be present
-          return hasAriaLive || hasRoleStatus || hasSrOnlyElements;
+          expect(hasAriaLive || hasRoleStatus || hasSrOnlyElements).toBe(true);
         } finally {
           unmount();
         }
@@ -387,19 +387,11 @@ describe('VisualFeedbackSystem Property-Based Tests', () => {
           // Should have high contrast toggle when callback provided
           const toggleButton = container.querySelector('[data-testid="high-contrast-toggle"]');
 
-          if (toggleButton) {
-            // Should be focusable
-            const isFocusable =
-              toggleButton.tagName === 'BUTTON' || (toggleButton as HTMLElement).tabIndex >= 0;
-
-            // Should have ARIA label
-            const hasAriaLabel = toggleButton.hasAttribute('aria-label');
-
-            return isFocusable && hasAriaLabel;
-          }
-
-          // If no toggle button, that's also valid (no callback provided)
-          return true;
+          const keyboardSupport =
+            toggleButton === null ||
+            ((toggleButton.tagName === 'BUTTON' || (toggleButton as HTMLElement).tabIndex >= 0) &&
+              toggleButton.hasAttribute('aria-label'));
+          expect(keyboardSupport).toBe(true);
         } finally {
           unmount();
         }

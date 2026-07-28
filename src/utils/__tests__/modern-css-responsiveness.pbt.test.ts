@@ -490,15 +490,6 @@ describe('Modern CSS Responsiveness Property Tests', () => {
           // Property: At least one layout method should be available in realistic scenarios
           expect(features.cssGrid || features.flexbox).toBe(true);
 
-          // Property: Fallbacks should be provided for missing features
-          if (!features.containerQueries) {
-            expect(true).toBe(true); // Fallback exists
-          }
-
-          if (!features.modernViewport) {
-            expect(true).toBe(true); // Fallback exists
-          }
-
           // Property: Core functionality should remain intact
           expect(features.cssGrid || features.flexbox).toBe(true);
         },

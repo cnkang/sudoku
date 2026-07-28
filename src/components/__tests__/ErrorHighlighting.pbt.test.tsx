@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import * as fc from 'fast-check';
 import React from 'react';
-import { afterEach, describe, it, vi } from 'vite-plus/test';
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test';
 import { secureRandomId } from '@/utils/secureRandom';
 import { getChildFriendlyThemes } from '@/utils/themes';
 import VisualFeedbackSystem from '../VisualFeedbackSystem';
@@ -183,17 +183,14 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
           // Find and click the trigger button
           clickFirstMatch(container, 'button[data-testid^="error-trigger-"]');
 
-          if (!errorTriggered) {
-            return false;
-          }
+          expect(errorTriggered).toBe(true);
 
           // Should show error feedback
           const errorElement = container.querySelector('[data-testid="feedback-error"]');
           const hasErrorFeedback = errorElement !== null;
 
-          if (!hasErrorFeedback) {
-            return false;
-          }
+          expect(hasErrorFeedback).toBe(true);
+          if (!errorElement) return;
 
           // Should have gentle or warning styling (not harsh)
           const hasGentleClass = errorElement.className.includes('gentle');
@@ -217,14 +214,14 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
             (errorElement.textContent.includes(errorMessage) ||
               errorElement.textContent.length > 0);
 
-          return (
+          expect(
             hasErrorFeedback &&
-            hasAppropriateErrorClass &&
-            hasPattern &&
-            hasWarmColorPattern &&
-            !hasHarshRedClass &&
-            hasEncouragingContent
-          );
+              hasAppropriateErrorClass &&
+              hasPattern &&
+              hasWarmColorPattern &&
+              !hasHarshRedClass &&
+              hasEncouragingContent,
+          ).toBe(true);
         },
       ),
       { numRuns: 30 },
@@ -257,17 +254,14 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
         // Find and click the trigger button
         clickFirstMatch(container, 'button[data-testid^="gentle-error-"]');
 
-        if (!gentleErrorTriggered) {
-          return false;
-        }
+        expect(gentleErrorTriggered).toBe(true);
 
         // Should show error feedback with gentle styling
         const errorElement = container.querySelector('[data-testid="feedback-error"]');
         const hasErrorFeedback = errorElement !== null;
 
-        if (!hasErrorFeedback) {
-          return false;
-        }
+        expect(hasErrorFeedback).toBe(true);
+        if (!errorElement) return;
 
         // Should specifically have gentle class
         const hasGentleClass = errorElement.className.includes('gentle');
@@ -284,13 +278,13 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
         const hasAriaSupport =
           errorElement.hasAttribute('aria-live') || errorElement.hasAttribute('role');
 
-        return (
+        expect(
           hasErrorFeedback &&
-          hasGentleClass &&
-          hasDotsPattern &&
-          hasEncouragingLanguage &&
-          hasAriaSupport
-        );
+            hasGentleClass &&
+            hasDotsPattern &&
+            hasEncouragingLanguage &&
+            hasAriaSupport,
+        ).toBe(true);
       }),
       { numRuns: 30 },
     );
@@ -322,17 +316,14 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
         // Find and click the trigger button
         clickFirstMatch(container, 'button[data-testid^="warning-error-"]');
 
-        if (!warningErrorTriggered) {
-          return false;
-        }
+        expect(warningErrorTriggered).toBe(true);
 
         // Should show error feedback with warning styling
         const errorElement = container.querySelector('[data-testid="feedback-error"]');
         const hasErrorFeedback = errorElement !== null;
 
-        if (!hasErrorFeedback) {
-          return false;
-        }
+        expect(hasErrorFeedback).toBe(true);
+        if (!errorElement) return;
 
         // Should have warning class
         const hasWarningClass = errorElement.className.includes('warning');
@@ -349,9 +340,9 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
         const hasAriaSupport =
           errorElement.hasAttribute('aria-live') || errorElement.hasAttribute('role');
 
-        return (
-          hasErrorFeedback && hasWarningClass && hasStripesPattern && hasContent && hasAriaSupport
-        );
+        expect(
+          hasErrorFeedback && hasWarningClass && hasStripesPattern && hasContent && hasAriaSupport,
+        ).toBe(true);
       }),
       { numRuns: 30 },
     );
@@ -387,17 +378,14 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
           // Find and click the trigger button
           clickFirstMatch(container, 'button[data-testid^="pattern-error-"]');
 
-          if (!errorTriggered) {
-            return false;
-          }
+          expect(errorTriggered).toBe(true);
 
           // Should show error feedback with pattern
           const errorElement = container.querySelector('[data-testid="feedback-error"]');
           const hasErrorFeedback = errorElement !== null;
 
-          if (!hasErrorFeedback) {
-            return false;
-          }
+          expect(hasErrorFeedback).toBe(true);
+          if (!errorElement) return;
 
           // Should have pattern attribute
           const hasPattern = 'pattern' in errorElement.dataset;
@@ -416,13 +404,13 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
           const srDescription = errorElement.querySelector('[class*="srOnly"]');
           const hasScreenReaderPattern = srDescription?.textContent?.includes('pattern');
 
-          return (
+          expect(
             hasErrorFeedback &&
-            hasPattern &&
-            hasCorrectPattern &&
-            hasPatternOverlay &&
-            hasScreenReaderPattern
-          );
+              hasPattern &&
+              hasCorrectPattern &&
+              hasPatternOverlay &&
+              hasScreenReaderPattern,
+          ).toBe(true);
         },
       ),
       { numRuns: 30 },
@@ -455,17 +443,14 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
         // Find and click the trigger button
         clickFirstMatch(container, 'button[data-testid^="theme-error-"]');
 
-        if (!errorTriggered) {
-          return false;
-        }
+        expect(errorTriggered).toBe(true);
 
         // Should show error feedback
         const errorElement = container.querySelector('[data-testid="feedback-error"]');
         const hasErrorFeedback = errorElement !== null;
 
-        if (!hasErrorFeedback) {
-          return false;
-        }
+        expect(hasErrorFeedback).toBe(true);
+        if (!errorElement) return;
 
         // Should be using a child-friendly theme
         const isChildFriendlyTheme = theme.category === 'child-friendly';
@@ -484,14 +469,14 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
         const feedbackSystem = container.querySelector('[data-testid="visual-feedback-system"]');
         const hasChildModeClass = feedbackSystem?.className.includes('childMode');
 
-        return (
+        expect(
           hasErrorFeedback &&
-          isChildFriendlyTheme &&
-          hasGentleClass &&
-          hasPattern &&
-          hasWarmPattern &&
-          hasChildModeClass
-        );
+            isChildFriendlyTheme &&
+            hasGentleClass &&
+            hasPattern &&
+            hasWarmPattern &&
+            hasChildModeClass,
+        ).toBe(true);
       }),
       { numRuns: 30 },
     );
@@ -517,18 +502,15 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
         // Find and click the trigger button
         clickFirstMatch(container, 'button[data-testid^="highlight-trigger-"]');
 
-        if (!highlightApplied) {
-          return false;
-        }
+        expect(highlightApplied).toBe(true);
 
         // Find the target element
         const targetElement = container.querySelector(
           'div[data-testid^="highlight-target-"]',
         ) as HTMLElement;
 
-        if (!targetElement) {
-          return false;
-        }
+        expect(targetElement).not.toBeNull();
+        if (!targetElement) return;
 
         // Should have gentle highlighting applied (check for warm background colors)
         const backgroundColor = targetElement.style.backgroundColor;
@@ -553,7 +535,9 @@ describe('Error Highlighting Consistency Property-Based Tests', () => {
         const transition = targetElement.style.transition;
         const hasTransition = transition.includes('all') && transition.includes('ease');
 
-        return hasWarmBackground && hasGentleShadow && hasGentleTransform && hasTransition;
+        expect(hasWarmBackground && hasGentleShadow && hasGentleTransform && hasTransition).toBe(
+          true,
+        );
       }),
       { numRuns: 20 }, // Reduced runs due to DOM manipulation complexity
     );

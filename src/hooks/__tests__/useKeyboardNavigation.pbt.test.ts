@@ -504,8 +504,9 @@ describe('useKeyboardNavigation Property-Based Tests', () => {
           });
 
           // When disabled, no callbacks should be triggered
-          // (except for some global shortcuts that might still work)
-          // The exact behavior depends on implementation, but it should be consistent
+          expect(mockOnCellFocus).not.toHaveBeenCalled();
+          expect(mockOnCellActivate).not.toHaveBeenCalled();
+          expect(mockOnValueInput).not.toHaveBeenCalled();
         },
       ),
       { numRuns: 50 },

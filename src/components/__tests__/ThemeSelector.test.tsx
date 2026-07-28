@@ -271,7 +271,7 @@ describe('ThemeSelector', () => {
         expect(miniGrid).toBeInTheDocument();
 
         const miniCells = card.querySelectorAll('[class*="miniCell"]');
-        expect(miniCells.length).toBe(4);
+        expect(miniCells).toHaveLength(4);
       });
     });
 

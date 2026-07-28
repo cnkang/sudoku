@@ -97,7 +97,7 @@ describe('Home Page Responsive Tests', () => {
 
       // No inline <style> tags — all styles handled via CSS Modules
       const styleElements = document.querySelectorAll('style');
-      expect(styleElements.length).toBe(0);
+      expect(styleElements).toHaveLength(0);
 
       // Page wrapper should have CSS Module class names
       const pageDiv = container.firstElementChild;

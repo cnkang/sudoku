@@ -31,7 +31,7 @@ async function switchGridSize(page: Page, size: 4 | 6 | 9) {
 
     const interactionAttempts: Array<() => Promise<void>> = [
       async () => {
-        await radioLocator.check({ force: true });
+        await radioLocator.check();
       },
       async () => {
         await radioLocator.evaluate((input: HTMLInputElement) => {
@@ -46,32 +46,11 @@ async function switchGridSize(page: Page, size: 4 | 6 | 9) {
     for (const trigger of interactionAttempts) {
       try {
         await trigger();
+        await expect(radioLocator).toBeChecked({ timeout: 1000 });
+        return;
       } catch {
         // Try alternate interaction strategy below (browser-specific radio behavior can differ).
       }
-      await page.waitForTimeout(50);
-      if (
-        await page.evaluate((s) => {
-          const radio = document.querySelector<HTMLInputElement>(
-            `input[name="grid-size"][value="${s}"]`,
-          );
-          return radio?.checked === true;
-        }, size)
-      ) {
-        break;
-      }
-    }
-
-    if (
-      await page.evaluate((s) => {
-        const radio = document.querySelector<HTMLInputElement>(
-          `input[name="grid-size"][value="${s}"]`,
-        );
-        return radio?.checked === true;
-      }, size)
-    ) {
-      await page.waitForTimeout(300);
-      return;
     }
   }
 
@@ -120,10 +99,12 @@ test.describe('Grid Size Switching Tests', () => {
 
   test('should switch from 9x9 to 4x4 and generate correct puzzle', async ({ page }) => {
     await switchGridSize(page, 4);
+    await expect(page.getByTestId('sudoku-grid')).toHaveAttribute('data-grid-size', '4');
   });
 
   test('should switch from 9x9 to 6x6 and generate correct puzzle', async ({ page }) => {
     await switchGridSize(page, 6);
+    await expect(page.getByTestId('sudoku-grid')).toHaveAttribute('data-grid-size', '6');
   });
 
   test('should switch between all grid sizes correctly', async ({ page }) => {
@@ -131,6 +112,7 @@ test.describe('Grid Size Switching Tests', () => {
 
     for (const size of gridSizes) {
       await switchGridSize(page, size);
+      await expect(page.getByTestId('sudoku-grid')).toHaveAttribute('data-grid-size', String(size));
     }
   });
 
