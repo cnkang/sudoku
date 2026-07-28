@@ -31,15 +31,10 @@ async function switchGridSize(page: Page, size: 4 | 6 | 9) {
 
     const interactionAttempts: Array<() => Promise<void>> = [
       async () => {
-        await radioLocator.check();
+        await radioLocator.dispatchEvent('click');
       },
       async () => {
-        await radioLocator.evaluate((input: HTMLInputElement) => {
-          input.checked = true;
-          input.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-          input.dispatchEvent(new Event('input', { bubbles: true }));
-          input.dispatchEvent(new Event('change', { bubbles: true }));
-        });
+        await radioLocator.check();
       },
     ];
 
