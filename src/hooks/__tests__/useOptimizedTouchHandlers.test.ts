@@ -236,11 +236,9 @@ describe('useTouchPerformanceMonitor', () => {
   it('should detect good performance', () => {
     const { result } = renderHook(() => useTouchPerformanceMonitor());
 
-    act(() => {
-      for (let i = 0; i < 10; i++) {
-        result.current.recordFrame();
-      }
-    });
+    for (let i = 0; i < 10; i++) {
+      result.current.recordFrame();
+    }
 
     expect(result.current.isPerformanceGood()).toBe(true);
   });
