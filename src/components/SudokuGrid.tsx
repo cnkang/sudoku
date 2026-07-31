@@ -33,8 +33,6 @@ interface SudokuGridProps {
     reducedMotion?: boolean;
     largeText?: boolean;
   };
-  onCorrectMove?: () => void;
-  onIncorrectMove?: () => void;
   onPuzzleComplete?: () => void;
 }
 
@@ -87,6 +85,40 @@ const getCellAriaLabel = ({
   return `Editable cell in row ${rowIndex + 1}, column ${colIndex + 1}. Enter numbers 1 to ${maxValue}. ${valueText}. ${fixedText} ${errorText} ${hintText}`.trim();
 };
 
+const hasConflictInLine = (
+  userInput: number[][],
+  row: number,
+  col: number,
+  value: number,
+  size: number,
+): boolean => {
+  for (let c = 0; c < size; c++) {
+    if (c !== col && userInput[row]?.[c] === value) return true;
+  }
+  for (let r = 0; r < size; r++) {
+    if (r !== row && userInput[r]?.[col] === value) return true;
+  }
+  return false;
+};
+
+const hasConflictInBox = (
+  userInput: number[][],
+  row: number,
+  col: number,
+  value: number,
+  boxRows: number,
+  boxCols: number,
+): boolean => {
+  const boxRow = Math.floor(row / boxRows) * boxRows;
+  const boxCol = Math.floor(col / boxCols) * boxCols;
+  for (let r = boxRow; r < boxRow + boxRows; r++) {
+    for (let c = boxCol; c < boxCol + boxCols; c++) {
+      if ((r !== row || c !== col) && userInput[r]?.[c] === value) return true;
+    }
+  }
+  return false;
+};
+
 const hasConflict = (
   userInput: number[][],
   row: number,
@@ -96,21 +128,10 @@ const hasConflict = (
 ): boolean => {
   if (value === 0) return false;
   const { size, boxRows, boxCols } = gridConfig;
-
-  for (let c = 0; c < size; c++) {
-    if (c !== col && userInput[row]?.[c] === value) return true;
-  }
-  for (let r = 0; r < size; r++) {
-    if (r !== row && userInput[r]?.[col] === value) return true;
-  }
-  const boxRow = Math.floor(row / boxRows) * boxRows;
-  const boxCol = Math.floor(col / boxCols) * boxCols;
-  for (let r = boxRow; r < boxRow + boxRows; r++) {
-    for (let c = boxCol; c < boxCol + boxCols; c++) {
-      if ((r !== row || c !== col) && userInput[r]?.[c] === value) return true;
-    }
-  }
-  return false;
+  return (
+    hasConflictInLine(userInput, row, col, value, size) ||
+    hasConflictInBox(userInput, row, col, value, boxRows, boxCols)
+  );
 };
 
 const isValidCellInput = (value: string, maxValue: number) =>
@@ -170,12 +191,12 @@ const Cell = memo(function Cell({
   const cellClasses = [
     styles.sudokuCell,
     fixed ? styles.fixedCell : styles.editableCell,
-    hasError ? styles.errorCell : '',
-    isHinted ? styles.hintedCell : '',
-    isSelected ? styles.selectedCell : '',
-    largeText ? styles.largeText : '',
-    highContrast ? styles.highContrastCell : '',
-    childMode ? styles.childModeCell : '',
+    hasError && styles.errorCell,
+    isHinted && styles.hintedCell,
+    isSelected && styles.selectedCell,
+    largeText && styles.largeText,
+    highContrast && styles.highContrastCell,
+    childMode && styles.childModeCell,
   ]
     .filter(Boolean)
     .join(' ');
@@ -399,16 +420,15 @@ const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(function 
           e.preventDefault();
           focusCell(row, size - 1);
           break;
-        case 'Tab':
+        case 'Tab': {
           e.preventDefault();
-          if (e.shiftKey) {
-            if (col > 0) focusCell(row, col - 1);
-            else if (row > 0) focusCell(row - 1, size - 1);
-          } else {
-            if (col < size - 1) focusCell(row, col + 1);
-            else if (row < size - 1) focusCell(row + 1, 0);
-          }
+          const shiftBack = e.shiftKey && (col > 0 || row > 0);
+          const shiftFwd = !e.shiftKey && (col < size - 1 || row < size - 1);
+          if (shiftBack) focusCell(col > 0 ? row : row - 1, col > 0 ? col - 1 : size - 1);
+          else if (shiftFwd)
+            focusCell(col < size - 1 ? row : row + 1, col < size - 1 ? col + 1 : 0);
           break;
+        }
         default:
           break;
       }
@@ -421,14 +441,8 @@ const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(function 
     selectedCellRef.current = { row, col };
   }, []);
 
-  // Handle composition
-  const handleCompositionStart = useCallback(() => {
-    isComposingRef.current = true;
-  }, []);
-
-  const handleCompositionEnd = useCallback(() => {
-    isComposingRef.current = false;
-  }, []);
+  // Handle composition (inline refs — no separate callbacks needed)
+  // isComposingRef is toggled directly in handleInputChange
 
   // Get cell state
   const getCellState = useCallback(
@@ -613,7 +627,11 @@ const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(function 
       role="grid"
       aria-label={`${size}×${size} Sudoku grid`}
     >
-      <table className={styles.sudokuGrid} role="presentation">
+      <table
+        className={styles.sudokuGrid}
+        role="grid"
+        aria-label={`${size}×${size} Sudoku grid cells`}
+      >
         <tbody>{rows}</tbody>
       </table>
     </div>
