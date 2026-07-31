@@ -1,3 +1,5 @@
+.arts/*
+
 # Dependencies
 node_modules/
 jspm_packages/

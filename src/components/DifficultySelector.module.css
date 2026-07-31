@@ -1,0 +1,120 @@
+/* ==========================================================================
+   DIFFICULTY SELECTOR — Apple Design System
+   ========================================================================== */
+
+.difficultySelector {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.modernFlexControls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.difficultyLabel {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-fg-secondary);
+  text-align: center;
+  width: 100%;
+}
+
+.difficultySelect {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-base);
+  font-family: inherit;
+  background-color: var(--color-bg-elevated);
+  color: var(--color-fg-primary);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.difficultySelect:hover:not(:disabled) {
+  border-color: var(--color-border-strong);
+}
+
+.difficultySelect:focus-visible {
+  outline: none;
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.difficultySelect:disabled {
+  background-color: var(--color-bg-tertiary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.difficultyHint {
+  font-size: var(--text-sm);
+  color: var(--color-fg-tertiary);
+  margin: 0;
+  text-align: center;
+  font-style: italic;
+  line-height: var(--text-sm-lh);
+}
+
+/* Touch device optimization */
+@media (hover: none) and (pointer: coarse) {
+  .difficultySelect {
+    min-height: 48px;
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .difficultySelect:hover {
+    border-color: var(--color-border-default);
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .difficultySelect {
+    border-width: 2px;
+    border-color: currentColor;
+  }
+
+  .difficultySelect:focus-visible {
+    outline-width: 3px;
+    outline-color: currentColor;
+    outline-offset: 2px;
+  }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .difficultySelect {
+    background-color: var(--color-bg-elevated);
+    border-color: var(--color-border-default);
+    color: var(--color-fg-primary);
+  }
+
+  .difficultySelect:disabled {
+    background-color: var(--color-bg-tertiary);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .difficultySelect {
+    transition: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .difficultySelect {
+    border: 1px solid black;
+    background: white;
+    color: black;
+  }
+}
