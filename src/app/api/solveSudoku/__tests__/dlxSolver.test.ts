@@ -47,7 +47,7 @@ describe('dlxSolver', () => {
       const result = await solveSudoku(board, solutions, 1, config4x4);
 
       expect(result).toBe(true);
-      expect(solutions.length).toBe(1);
+      expect(solutions).toHaveLength(1);
       const sol = solutions[0];
       expect(sol).toBeDefined();
       expect(sol!.flat().every((v) => v > 0)).toBe(true);
@@ -79,7 +79,7 @@ describe('dlxSolver', () => {
       const result = await solveSudoku(invalidBoard, solutions, 1, config4x4);
 
       expect(result).toBe(false);
-      expect(solutions.length).toBe(0);
+      expect(solutions).toHaveLength(0);
     });
 
     it('should handle already complete 4x4 board', async () => {
@@ -94,7 +94,7 @@ describe('dlxSolver', () => {
       const result = await solveSudoku(board, solutions, 1, config4x4);
 
       expect(result).toBe(true);
-      expect(solutions.length).toBe(1);
+      expect(solutions).toHaveLength(1);
     });
 
     it('should solve a 6x6 puzzle', async () => {
@@ -111,7 +111,7 @@ describe('dlxSolver', () => {
       const result = await solveSudoku(board, solutions, 1, config6x6);
 
       expect(result).toBe(true);
-      expect(solutions.length).toBe(1);
+      expect(solutions).toHaveLength(1);
     });
 
     it('should return true when maxSolutions reached', async () => {
@@ -125,7 +125,7 @@ describe('dlxSolver', () => {
       const solutions: number[][][] = [];
       const result = await solveSudoku(board, solutions, 1, config4x4);
       expect(result).toBe(true);
-      expect(solutions.length).toBe(1);
+      expect(solutions).toHaveLength(1);
     });
 
     it('should return false when no empty cell and maxSolutions not reached', async () => {
@@ -139,7 +139,7 @@ describe('dlxSolver', () => {
       const solutions: number[][][] = [];
       const result = await solveSudoku(board, solutions, 2, config4x4);
       expect(result).toBe(false);
-      expect(solutions.length).toBe(1);
+      expect(solutions).toHaveLength(1);
     });
   });
 
@@ -168,7 +168,7 @@ describe('dlxSolver', () => {
       const solutions: number[][][] = [];
       const result = await solveSudoku(board, solutions, 1);
 
-      expect(solutions.length).toBe(0);
+      expect(solutions).toHaveLength(0);
       expect(result).toBe(false);
     });
 
@@ -193,7 +193,7 @@ describe('dlxSolver', () => {
       const result = await solveSudoku(board, solutions, 1);
 
       expect(result).toBe(true);
-      expect(solutions.length).toBe(1);
+      expect(solutions).toHaveLength(1);
     });
   });
 });
