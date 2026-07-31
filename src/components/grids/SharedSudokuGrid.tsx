@@ -94,10 +94,10 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
         [
           styles.sudokuCell,
           isFixed ? styles.fixedCell : styles.editableCell,
-          isHinted ? styles.hinted : '',
-          hasError ? styles.error : '',
-          childMode ? styles.childFriendlyCell : '',
-          accessibilitySettings.highContrast ? styles.highContrast : '',
+          isHinted ? styles.hintedCell : '',
+          hasError ? styles.errorCell : '',
+          childMode ? styles.childModeCell : '',
+          accessibilitySettings.highContrast ? styles.highContrastCell : '',
           accessibilitySettings.largeText ? styles.largeText : '',
         ]
           .filter(Boolean)

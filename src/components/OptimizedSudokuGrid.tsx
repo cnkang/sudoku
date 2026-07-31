@@ -90,11 +90,11 @@ const SudokuCell = React.memo(
     const cellClasses = useMemo(() => {
       const classes = [styles.sudokuCell];
 
-      if (!isFixed) classes.push(styles.editable);
-      if (isSelected) classes.push(styles.selected);
-      if (isError) classes.push(styles.error);
-      if (isHinted) classes.push(styles.hinted);
-      if (isSuccess) classes.push(styles.success);
+      if (!isFixed) classes.push(styles.editableCell);
+      if (isSelected) classes.push(styles.selectedCell);
+      if (isError) classes.push(styles.errorCell);
+      if (isHinted) classes.push(styles.hintedCell);
+      if (isSuccess) classes.push(styles.successCell);
       if (accessibility?.largeText) classes.push(styles.largeText);
 
       return classes.join(' ');
