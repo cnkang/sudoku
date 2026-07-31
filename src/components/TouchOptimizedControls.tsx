@@ -193,7 +193,7 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
         {Array.from({ length: 8 }, (_, i) => (
           <div
             key={`sparkle-${i + 1}`}
-            className={`${styles.sparkle} ${styles[`sparkle${i + 1}`]}`}
+            className={[styles.sparkle, styles[`sparkle${i + 1}`]].filter(Boolean).join(' ')}
           >
             ✨
           </div>
