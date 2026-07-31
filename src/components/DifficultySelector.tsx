@@ -68,7 +68,7 @@ const DifficultySelector: React.FC<DifficultySelectProps> = memo(
           value={normalizedDifficulty}
           onChange={handleChange}
           disabled={disabled || isLoading}
-          className={`${styles.difficultySelect} ${styles.modernFlexButton} ${styles.modernTransition} ${styles.modernFocusRing}`}
+          className={styles.difficultySelect}
           title="Change difficulty to get a new puzzle"
         >
           {Array.from({ length: maxDifficulty }, (_, i) => (
