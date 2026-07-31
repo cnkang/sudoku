@@ -155,10 +155,22 @@ const Cell = memo(function Cell({
     .filter(Boolean)
     .join(' ');
 
+  const cellDataAttrs = {
+    'data-is-fixed': fixed ? 'true' : undefined,
+    'data-is-editable': !fixed ? 'true' : undefined,
+    'data-has-error': hasError ? 'true' : undefined,
+    'data-is-hinted': isHinted ? 'true' : undefined,
+    'data-is-selected': isSelected ? 'true' : undefined,
+    'data-child-mode': childMode ? 'true' : undefined,
+    'data-high-contrast': highContrast ? 'true' : undefined,
+    'data-large-text': largeText ? 'true' : undefined,
+  };
+
   return (
     <td
       key={cellKey}
       id={cellId}
+      data-testid={cellId}
       role="gridcell"
       aria-label={ariaLabel}
       aria-selected={isSelected}
@@ -172,6 +184,13 @@ const Cell = memo(function Cell({
           transition: 'transform 0.05s ease-out',
         } as React.CSSProperties
       }
+      {...cellDataAttrs}
+      onMouseDown={onPressDown}
+      onMouseUp={onPressUp}
+      onMouseLeave={onPressUp}
+      onTouchStart={onPressDown}
+      onTouchEnd={onPressUp}
+      onTouchCancel={onPressUp}
     >
       {fixed ? (
         <span className={styles.fixedNumber} aria-hidden="true">
@@ -191,14 +210,6 @@ const Cell = memo(function Cell({
           onChange={onInputChange}
           onKeyDown={onKeyDown}
           onFocus={onFocus}
-          onMouseDown={onPressDown}
-          onMouseUp={onPressUp}
-          onMouseLeave={onPressUp}
-          onTouchStart={onPressDown}
-          onTouchEnd={onPressUp}
-          onTouchCancel={onPressUp}
-          onCompositionStart={onCompositionStart}
-          onCompositionEnd={onCompositionEnd}
           disabled={disabled}
           className={styles.cellInput}
           aria-describedby={hasError ? `${cellId}-error` : undefined}
@@ -324,9 +335,29 @@ const SudokuGrid = memo(function SudokuGrid({
       // Backspace/Delete to clear
       if (e.key === 'Backspace' || e.key === 'Delete') {
         onInputChange(row, col, 0);
+        e.preventDefault();
+      }
+
+      // Arrow key navigation
+      const arrowKeys: Record<string, { dr: number; dc: number }> = {
+        ArrowUp: { dr: -1, dc: 0 },
+        ArrowDown: { dr: 1, dc: 0 },
+        ArrowLeft: { dr: 0, dc: -1 },
+        ArrowRight: { dr: 0, dc: 1 },
+      };
+
+      const delta = arrowKeys[e.key];
+      if (delta) {
+        e.preventDefault();
+        const newRow = row + delta.dr;
+        const newCol = col + delta.dc;
+        if (newRow >= 0 && newRow < size && newCol >= 0 && newCol < size) {
+          const nextCell = cellRefs.current[generateCellKey(newRow, newCol)];
+          nextCell?.focus();
+        }
       }
     },
-    [maxValue, onInputChange],
+    [maxValue, onInputChange, size, cellRefs],
   );
 
   // Handle focus

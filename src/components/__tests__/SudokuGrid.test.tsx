@@ -269,8 +269,8 @@ describe('SudokuGrid', () => {
         />,
       );
 
-      const grid = screen.getByRole('table');
-      expect(grid).toHaveAttribute('aria-label', expect.stringContaining('4×4 Sudoku puzzle grid'));
+      const grid = screen.getByTestId('sudoku-grid');
+      expect(grid).toHaveAttribute('aria-label', expect.stringContaining('4×4 Sudoku grid'));
 
       const input = getFirstEditableInput();
       expect(input).toBeTruthy();
