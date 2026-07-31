@@ -288,9 +288,10 @@ const SudokuGrid = memo(function SudokuGrid({
       if (cell && !cell.disabled) {
         pressedCellRef.current = { row, col };
         pressSpring.setTarget(1, 0); // animate to pressed state
+        _visualFeedback.triggerHint();
       }
     },
-    [disabled, pressSpring],
+    [disabled, pressSpring, _visualFeedback],
   );
 
   // Handle cell press up
@@ -355,6 +356,18 @@ const SudokuGrid = memo(function SudokuGrid({
           const nextCell = cellRefs.current[generateCellKey(newRow, newCol)];
           nextCell?.focus();
         }
+      }
+
+      // Home/End navigation
+      if (e.key === 'Home') {
+        e.preventDefault();
+        const firstCol = cellRefs.current[generateCellKey(row, 0)];
+        firstCol?.focus();
+      }
+      if (e.key === 'End') {
+        e.preventDefault();
+        const lastCol = cellRefs.current[generateCellKey(row, size - 1)];
+        lastCol?.focus();
       }
     },
     [maxValue, onInputChange, size, cellRefs],

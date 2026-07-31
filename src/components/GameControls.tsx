@@ -23,8 +23,26 @@ const GameControls = React.memo(function GameControls({
   const [isResetCooldown, setIsResetCooldown] = useState(false);
   const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Spring for button press feedback
-  const pressSpring = useSpring(0, { config: SPRING_PRESETS.stiff });
+  const spring0 = useSpring(0, { config: SPRING_PRESETS.stiff });
+  const spring1 = useSpring(0, { config: SPRING_PRESETS.stiff });
+  const spring2 = useSpring(0, { config: SPRING_PRESETS.stiff });
+  const spring3 = useSpring(0, { config: SPRING_PRESETS.stiff });
+  const spring4 = useSpring(0, { config: SPRING_PRESETS.stiff });
+
+  const buttonSprings = [spring0, spring1, spring2, spring3, spring4];
+
+  const createPressHandler = useCallback(
+    (index: number, onClick: () => void) => {
+      return () => {
+        const pressSpring = buttonSprings[index];
+        if (!pressSpring) return;
+        pressSpring.setTarget(1, 0);
+        onClick();
+        setTimeout(() => pressSpring.setTarget(0, 0), 120);
+      };
+    },
+    [buttonSprings],
+  );
 
   const handleReset = useCallback(() => {
     if (isResetCooldown) return;
@@ -120,17 +138,17 @@ const GameControls = React.memo(function GameControls({
         className={`${styles.controlButtons} ${styles.modernFlexRow}`}
         data-testid="control-buttons"
       >
-        {buttons.map((btn) => (
+        {buttons.map((btn, index) => (
           <button
             key={btn.ariaLabel}
             type="button"
-            onClick={btn.onClick}
+            onClick={createPressHandler(index, btn.onClick)}
             disabled={btn.disabled}
             className={`${styles.btn} ${getVariantClass(btn.variant)} ${styles.modernFlexButton} ${styles.modernTransition} ${styles.modernHoverLift} ${styles.modernFocusRing}`}
             aria-label={btn.ariaLabel}
             style={
               {
-                transform: `scale(${1 - 0.03 * pressSpring.value})`,
+                transform: `scale(${1 - 0.03 * (buttonSprings[index]?.value ?? 0)})`,
                 transition: 'transform 0.05s ease-out',
               } as React.CSSProperties
             }
