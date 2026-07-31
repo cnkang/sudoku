@@ -1,8 +1,16 @@
 packages:
   - '.'
+nodeLinker: hoisted
+strictPeerDependencies: false
+autoInstallPeers: true
+shamefullyHoist: true
+resolutionMode: highest
+dedupePeerDependents: true
+registries:
+  default: https://registry.npmjs.org/
 overrides:
   flatted: 3.4.2
-  postcss: 8.5.23
+  postcss: 8.5.25
   esbuild: 0.28.1
   source-map: 0.7.4
   ws: 8.21.0

@@ -1,6 +1,6 @@
 {
   "name": "sudoku-project",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -41,13 +41,13 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.12.1",
-    "@biomejs/biome": "2.5.5",
+    "@biomejs/biome": "2.5.6",
     "@playwright/test": "1.62.0",
     "@testing-library/dom": "10.4.1",
     "@testing-library/jest-dom": "7.0.0",
     "@testing-library/react": "16.3.2",
     "@testing-library/user-event": "14.6.1",
-    "@types/node": "26.1.1",
+    "@types/node": "26.1.2",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.4",
@@ -59,8 +59,8 @@
     "husky": "9.1.7",
     "lint-staged": "17.2.0",
     "oxlint": "1.76.0",
-    "postcss": "8.5.23",
-    "typescript": "6.0.3",
+    "postcss": "8.5.25",
+    "typescript": "7.0.2",
     "typescript-next": "npm:typescript@7.0.2",
     "vite": "8.1.5",
     "vite-plus": "^0.2.6",
@@ -72,11 +72,5 @@
     "not dead",
     "not ie 11"
   ],
-  "packageManager": "pnpm@11.6.0+sha512.9a36518224080c6fe5165afdcfe79bfa118c29be703f3f462b1e32efe1e98e47e8750b148e08286250aad4113cc7993ca413c4e2cd447752708c2ee5751bc95f",
-  "pnpm": {
-    "overrides": {
-      "postcss": "8.5.23",
-      "sharp": "0.35.3"
-    }
-  }
+  "packageManager": "pnpm@11.6.0+sha512.9a36518224080c6fe5165afdcfe79bfa118c29be703f3f462b1e32efe1e98e47e8750b148e08286250aad4113cc7993ca413c4e2cd447752708c2ee5751bc95f"
 }

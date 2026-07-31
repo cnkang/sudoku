@@ -19,6 +19,7 @@ const experimentalOptions: Record<string, unknown> = {
   optimizeCss: true,
   optimizeServerReact: true,
   serverSourceMaps: false,
+  useTypeScriptCli: true,
 };
 
 const nextConfig: NextConfig = {
