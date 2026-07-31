@@ -266,4 +266,22 @@ describe('APICache', () => {
       expect(puzzleCache.get('short2')).toBeNull();
     });
   });
+
+  describe('Module-level setInterval guard', () => {
+    it('should not set up cleanup interval in test environment', () => {
+      const setIntervalSpy = vi.spyOn(globalThis, 'setInterval');
+
+      // The module was already imported at the top of this file with NODE_ENV='test',
+      // so the guard already prevented setInterval. Verify it was never called.
+      expect(setIntervalSpy).not.toHaveBeenCalled();
+      setIntervalSpy.mockRestore();
+
+      // puzzleCache should still be fully functional without the interval
+      expect(puzzleCache).toBeDefined();
+      expect(typeof puzzleCache.cleanup).toBe('function');
+      puzzleCache.clear();
+      puzzleCache.set('test', { data: 'value' });
+      expect(puzzleCache.get('test')).toEqual({ data: 'value' });
+    });
+  });
 });

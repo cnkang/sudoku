@@ -1,24 +1,38 @@
+/* ==========================================================================
+   GAME CONTROLS — Apple Design System
+   Fluid spring-animated buttons, accessible, responsive
+   ========================================================================== */
+
 .gameControls {
-  margin: 1.5rem 0;
+  margin: var(--space-block-lg) 0;
+  width: 100%;
 }
 
 .controlButtons {
   display: flex;
-  gap: 1rem;
+  gap: var(--space-4);
   flex-wrap: wrap;
   justify-content: center;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
 }
 
+/* --- Base Button --- */
 .btn {
-  padding: 0.75rem 1.5rem;
+  padding: var(--space-3) var(--space-6);
   border: none;
-  border-radius: 0.5rem;
-  font-size: 1rem;
+  border-radius: var(--radius-xl);
+  font-size: var(--text-base);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
-  min-width: 120px;
+  transition: transform var(--duration-fast) var(--ease-spring-stiff),
+    background-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+  min-width: 140px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
 }
 
 .btn:disabled {
@@ -26,99 +40,221 @@
   cursor: not-allowed;
 }
 
+/* --- Button Variants --- */
+
 .btnPrimary {
-  background-color: #1e3a8a;
-  color: white;
+  background-color: var(--color-brand-primary);
+  color: var(--color-brand-primary-fg);
 }
 
 .btnPrimary:hover:not(:disabled) {
-  background-color: #1e40af;
+  background-color: var(--color-brand-primary-hover);
   transform: translateY(-1px);
+  box-shadow: var(--shadow-e2);
+}
+
+.btnPrimary:focus-visible {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: 2px;
 }
 
 .btnSecondary {
-  background-color: #374151;
-  color: white;
+  background-color: var(--color-fg-secondary);
+  color: var(--color-fg-inverse);
 }
 
 .btnSecondary:hover:not(:disabled) {
-  background-color: #1f2937;
+  background-color: var(--color-fg-primary);
   transform: translateY(-1px);
+  box-shadow: var(--shadow-e2);
+}
+
+.btnSecondary:focus-visible {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: 2px;
 }
 
 .btnDanger {
-  background-color: #7f1d1d;
-  color: white;
+  background-color: var(--color-error);
+  color: var(--color-error-fg);
 }
 
 .btnDanger:hover:not(:disabled) {
-  background-color: #991b1b;
+  background-color: #b91c1c;
   transform: translateY(-1px);
+  box-shadow: var(--shadow-e2);
 }
 
 .btnDanger:disabled {
-  background-color: #9ca3af;
+  background-color: var(--color-fg-tertiary);
   cursor: not-allowed;
   transform: none;
+}
+
+.btnDanger:focus-visible {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: 2px;
 }
 
 .btnWarning {
-  background-color: #92400e;
-  color: white;
+  background-color: var(--color-warning);
+  color: var(--color-warning-fg);
 }
 
 .btnWarning:hover:not(:disabled) {
-  background-color: #78350f;
+  background-color: #a16207;
   transform: translateY(-1px);
+  box-shadow: var(--shadow-e2);
 }
 
 .btnWarning:disabled {
-  background-color: #9ca3af;
+  background-color: var(--color-fg-tertiary);
   cursor: not-allowed;
   transform: none;
+}
+
+.btnWarning:focus-visible {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: 2px;
 }
 
 .btnInfo {
-  background-color: #0e7490;
-  color: white;
+  background-color: var(--color-info);
+  color: var(--color-info-fg);
 }
 
 .btnInfo:hover:not(:disabled) {
-  background-color: #155e75;
+  background-color: #1d4ed8;
   transform: translateY(-1px);
+  box-shadow: var(--shadow-e2);
 }
 
 .btnInfo:disabled {
-  background-color: #9ca3af;
+  background-color: var(--color-fg-tertiary);
   cursor: not-allowed;
   transform: none;
 }
 
+.btnInfo:focus-visible {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* --- Result Message --- */
 .resultMessage {
   text-align: center;
-  padding: 1rem;
-  border-radius: 0.5rem;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
+  line-height: var(--text-lg-lh);
+  animation: slideUpFadeIn var(--duration-normal) var(--ease-out);
 }
 
 .resultMessage.success {
-  background-color: #d1fae5;
-  color: #065f46;
-  border: 2px solid #10b981;
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+  border: 2px solid var(--color-success);
 }
 
 .resultMessage.error {
-  background-color: #fee2e2;
-  color: #991b1b;
-  border: 2px solid #ef4444;
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+  border: 2px solid var(--color-error);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .resultMessage {
+    animation: crossFadeIn var(--duration-normal) var(--ease-out);
+  }
+}
+
+/* --- Modern Flex Classes (for CSS-in-JS compatibility) --- */
+.modernFlexControls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.modernFlexRow {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.modernFlexButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border: none;
+  border-radius: var(--radius-xl);
+  font-size: var(--text-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--duration-fast) var(--ease-spring-stiff),
+    background-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+  min-height: 44px;
+  min-width: 120px;
+  white-space: nowrap;
+}
+
+.modernFlexButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.modernTransition {
+  transition: transform var(--duration-fast) var(--ease-spring-stiff),
+    background-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.modernHoverLift:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-e2);
+}
+
+.modernFocusRing:focus-visible {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.modernFocusRing:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* --- Touch Device Optimizations --- */
+@media (hover: none) and (pointer: coarse) {
+  .btn,
+  .modernFlexButton {
+    min-height: 48px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn:hover,
+  .modernFlexButton:hover {
+    transform: none;
+  }
+
+  .btn:active:not(:disabled),
+  .modernFlexButton:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+}
+
+/* --- Responsive --- */
 @media (max-width: 768px) {
   .controlButtons {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
+    gap: var(--space-3);
     max-width: 400px;
     margin: 0 auto;
   }
@@ -126,34 +262,60 @@
   .btn {
     width: 100%;
     min-width: auto;
-    padding: 0.875rem 0.75rem;
-    font-size: 0.875rem;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-sm);
+  }
+
+  .modernFlexRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+  }
+
+  .modernFlexButton {
+    width: 100%;
+    min-width: auto;
+    padding: var(--space-3) var(--space-3);
+    font-size: var(--text-sm);
   }
 }
 
 @media (max-width: 480px) {
   .gameControls {
-    margin: 1rem 0;
+    margin: var(--space-block-md) 0;
   }
 
   .controlButtons {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: var(--space-3);
     width: 100%;
   }
 
   .btn {
     width: 100%;
-    padding: 1rem;
-    font-size: 0.875rem;
+    padding: var(--space-4);
+    font-size: var(--text-sm);
     min-height: 48px;
   }
 
+  .modernFlexRow {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .modernFlexButton {
+    width: 100%;
+    padding: var(--space-3);
+    font-size: var(--text-sm);
+    min-height: 44px;
+  }
+
   .resultMessage {
-    font-size: 0.875rem;
-    padding: 0.75rem;
-    margin-top: 0.75rem;
+    font-size: var(--text-base);
+    padding: var(--space-3);
+    margin-top: var(--space-3);
   }
 }
 
@@ -161,27 +323,101 @@
   .controlButtons {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
+    gap: var(--space-2);
     max-width: 600px;
   }
 
   .btn {
-    padding: 0.75rem 0.5rem;
-    font-size: 0.8rem;
+    padding: var(--space-2) var(--space-2);
+    font-size: var(--text-xs);
+  }
+
+  .modernFlexRow {
+    grid-template-columns: repeat(5, 1fr);
   }
 }
 
-@media (hover: none) and (pointer: coarse) {
+/* --- Dark Mode --- */
+@media (prefers-color-scheme: dark) {
+  .btnPrimary {
+    background-color: var(--color-brand-primary);
+  }
+
+  .btnPrimary:hover:not(:disabled) {
+    background-color: var(--color-brand-primary-hover);
+  }
+
+  .btnSecondary {
+    background-color: var(--color-fg-secondary);
+  }
+
+  .btnSecondary:hover:not(:disabled) {
+    background-color: var(--color-fg-primary);
+  }
+
+  .resultMessage.success {
+    background-color: var(--color-success-bg);
+    color: var(--color-success);
+  }
+
+  .resultMessage.error {
+    background-color: var(--color-error-bg);
+    color: var(--color-error);
+  }
+}
+
+/* --- High Contrast Mode --- */
+@media (prefers-contrast: high) {
   .btn {
-    min-height: 44px;
-    -webkit-tap-highlight-color: transparent;
+    border: 2px solid currentColor;
+    font-weight: 700;
   }
 
-  .btn:hover {
-    transform: none;
+  .btnPrimary,
+  .btnSecondary,
+  .btnDanger,
+  .btnWarning,
+  .btnInfo {
+    background-color: var(--color-bg-primary);
+    color: var(--color-fg-primary);
   }
 
-  .btn:active {
-    transform: scale(0.98);
+  .btn:focus-visible {
+    outline-width: 4px;
+    outline-offset: 2px;
+  }
+
+  .resultMessage {
+    border-width: 2px;
+  }
+}
+
+/* --- Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+
+  .modernTransition {
+    transition: none;
+  }
+
+  .resultMessage {
+    animation: crossFadeIn var(--duration-normal) var(--ease-out);
+  }
+}
+
+/* --- Reduced Transparency --- */
+@media (prefers-reduced-transparency: reduce) {
+  /* Buttons don't use transparency, but ensure solid backgrounds */
+  .btn {
+    backdrop-filter: none;
+  }
+}
+
+/* --- Print Styles --- */
+@media print {
+  .gameControls {
+    display: none;
   }
 }

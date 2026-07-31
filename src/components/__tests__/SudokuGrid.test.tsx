@@ -168,6 +168,33 @@ describe('SudokuGrid', () => {
       const cells = screen.getAllByTestId(/sudoku-cell-\d+-\d+/);
       expect(cells).toHaveLength(81);
     });
+
+    it('updates the selected cell when focus moves', () => {
+      render(
+        <SudokuGrid
+          puzzle={samplePuzzle4x4}
+          userInput={sampleUserInput4x4}
+          onInputChange={mockOnInputChange}
+          gridConfig={GRID_CONFIGS[4]}
+        />,
+      );
+
+      const firstCell = screen.getByTestId('sudoku-cell-0-1');
+      const secondCell = screen.getByTestId('sudoku-cell-0-2');
+      const firstInput = firstCell.querySelector('input');
+      const secondInput = secondCell.querySelector('input');
+
+      expect(firstInput).not.toBeNull();
+      expect(secondInput).not.toBeNull();
+
+      fireEvent.focus(firstInput);
+      expect(firstCell).toHaveAttribute('aria-selected', 'true');
+      expect(secondCell).toHaveAttribute('aria-selected', 'false');
+
+      fireEvent.focus(secondInput);
+      expect(firstCell).toHaveAttribute('aria-selected', 'false');
+      expect(secondCell).toHaveAttribute('aria-selected', 'true');
+    });
   });
 
   describe('Child-friendly features', () => {
@@ -182,7 +209,7 @@ describe('SudokuGrid', () => {
         />,
       );
 
-      const container = screen.getByTestId('sudoku-container');
+      const container = screen.getByTestId('sudoku-grid');
       expect(container).toHaveAttribute('data-child-mode', 'true');
 
       const cells = screen.getAllByTestId(/sudoku-cell-\d+-\d+/);
@@ -221,7 +248,7 @@ describe('SudokuGrid', () => {
           changedTouches: [{ clientX: 100, clientY: 100 }],
         });
 
-        expect(navigator.vibrate).toHaveBeenCalledWith([20]);
+        expect(navigator.vibrate).toHaveBeenCalledWith([10]);
       } finally {
         vi.useRealTimers();
       }
@@ -240,7 +267,7 @@ describe('SudokuGrid', () => {
         />,
       );
 
-      const container = screen.getByTestId('sudoku-container');
+      const container = screen.getByTestId('sudoku-grid');
       expect(container).toHaveAttribute('data-high-contrast', 'true');
     });
 
@@ -255,7 +282,7 @@ describe('SudokuGrid', () => {
         />,
       );
 
-      const fixedNumbers = screen.getAllByTestId('fixed-number');
+      const fixedNumbers = screen.getAllByTestId(/^sudoku-cell-\d+-\d+$/);
       expect(fixedNumbers[0].className).toContain('largeText');
     });
 
@@ -269,12 +296,13 @@ describe('SudokuGrid', () => {
         />,
       );
 
-      const grid = screen.getByRole('table');
-      expect(grid).toHaveAttribute('aria-label', expect.stringContaining('4×4 Sudoku puzzle grid'));
+      const grid = screen.getByTestId('sudoku-grid');
+      expect(grid).toHaveAttribute('aria-label', expect.stringContaining('4×4 Sudoku grid'));
 
       const input = getFirstEditableInput();
       expect(input).toBeTruthy();
-      expect(input).toHaveAttribute('aria-label', expect.stringContaining('Enter numbers 1 to 4'));
+      const cell = input?.closest('[data-testid]');
+      expect(cell).toHaveAttribute('aria-label', expect.stringContaining('Enter numbers 1 to 4'));
     });
   });
 

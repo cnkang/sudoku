@@ -1,10 +1,11 @@
-import type React from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+'use client';
+
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { pickSecureRandomElement } from '@/utils/secureRandom';
-import type { GridConfig } from '../types';
+import type { GridConfig } from '@/types';
+import { useSpring, SPRING_PRESETS } from '@/hooks/useSpring';
 import styles from './TouchOptimizedControls.module.css';
 
-// Child-friendly encouragement messages
 const encouragementMessages = [
   "You're doing great! Keep going! 🌟",
   "Almost there! You've got this! 💪",
@@ -25,7 +26,6 @@ export interface TouchOptimizedControlsProps {
   disabled?: boolean;
   childMode?: boolean;
   gridConfig: GridConfig;
-  // Modern touch features
   hapticFeedback?: {
     success: () => void;
     error: () => void;
@@ -36,7 +36,6 @@ export interface TouchOptimizedControlsProps {
     onLongPress: () => void;
     onPinch: (scale: number) => void;
   };
-  // Accessibility
   reducedMotion?: boolean;
   highContrast?: boolean;
 }
@@ -63,8 +62,13 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
   const [celebrationActive, setCelebrationActive] = useState(false);
 
   const magicWandRef = useRef<HTMLButtonElement>(null);
-  const sparkleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const encouragementTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const sparkleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const encouragementTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Spring animations for fluid interactions
+  const wandPressSpring = useSpring(0, { config: SPRING_PRESETS.stiff, reducedMotion });
+  const encouragePressSpring = useSpring(0, { config: SPRING_PRESETS.stiff, reducedMotion });
+  const celebratePressSpring = useSpring(0, { config: SPRING_PRESETS.stiff, reducedMotion });
 
   // Haptic feedback helper
   const triggerHaptic = useCallback(
@@ -74,7 +78,6 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
         handler();
       }
 
-      // Fallback to navigator.vibrate if available
       if ('vibrate' in navigator) {
         switch (type) {
           case 'success':
@@ -100,7 +103,6 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
     setShowSparkles(true);
     triggerHaptic('hint');
 
-    // Clear existing timeout
     if (sparkleTimeoutRef.current) {
       clearTimeout(sparkleTimeoutRef.current);
     }
@@ -110,7 +112,6 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
       onHint();
     }, 200);
 
-    // Hide sparkles and reset animation
     sparkleTimeoutRef.current = setTimeout(
       () => {
         setShowSparkles(false);
@@ -124,16 +125,14 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
   const handleEncouragement = useCallback(() => {
     const randomMessage = pickSecureRandomElement(encouragementMessages) ?? "You're doing great!";
 
-    setEncouragementMessage(randomMessage ?? "You're doing great!");
+    setEncouragementMessage(randomMessage);
     triggerHaptic('success');
     onEncourage();
 
-    // Clear existing timeout
     if (encouragementTimeoutRef.current) {
       clearTimeout(encouragementTimeoutRef.current);
     }
 
-    // Hide encouragement message after delay
     encouragementTimeoutRef.current = setTimeout(() => {
       setEncouragementMessage('');
     }, 3000);
@@ -145,7 +144,6 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
     triggerHaptic('success');
     onCelebrate();
 
-    // Reset celebration after animation
     setTimeout(
       () => {
         setCelebrationActive(false);
@@ -166,8 +164,28 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
     };
   }, []);
 
-  // Generate sparkle elements for animation
-  const renderSparkles = () => {
+  // Spring press handlers (extracted to avoid inline function coverage gaps)
+  const handleWandPress = useCallback(() => wandPressSpring.setTarget(1, 0), [wandPressSpring]);
+  const handleWandRelease = useCallback(() => wandPressSpring.setTarget(0, 0), [wandPressSpring]);
+  const handleEncouragePress = useCallback(
+    () => encouragePressSpring.setTarget(1, 0),
+    [encouragePressSpring],
+  );
+  const handleEncourageRelease = useCallback(
+    () => encouragePressSpring.setTarget(0, 0),
+    [encouragePressSpring],
+  );
+  const handleCelebratePress = useCallback(
+    () => celebratePressSpring.setTarget(1, 0),
+    [celebratePressSpring],
+  );
+  const handleCelebrateRelease = useCallback(
+    () => celebratePressSpring.setTarget(0, 0),
+    [celebratePressSpring],
+  );
+
+  // Render sparkles
+  const renderSparkles = useCallback(() => {
     if (!showSparkles || reducedMotion) return null;
 
     return (
@@ -175,14 +193,14 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
         {Array.from({ length: 8 }, (_, i) => (
           <div
             key={`sparkle-${i + 1}`}
-            className={[styles.sparkle, styles[`sparkle${i + 1}`]].join(' ')}
+            className={[styles.sparkle, styles[`sparkle${i + 1}`]].filter(Boolean).join(' ')}
           >
             ✨
           </div>
         ))}
       </div>
     );
-  };
+  }, [showSparkles, reducedMotion]);
 
   const controlsClassName = [
     styles.touchControls,
@@ -205,6 +223,18 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
           className={`${styles.magicWandButton} ${isAnimating ? styles.animating : ''}`}
           aria-label={`Magic wand hint (${hintsRemaining} remaining)`}
           aria-describedby="magic-wand-description"
+          style={
+            {
+              transform: `scale(${1 - 0.03 * wandPressSpring.value})`,
+              transition: 'transform 0.05s ease-out',
+            } as React.CSSProperties
+          }
+          onMouseDown={handleWandPress}
+          onMouseUp={handleWandRelease}
+          onMouseLeave={handleWandRelease}
+          onTouchStart={handleWandPress}
+          onTouchEnd={handleWandRelease}
+          onTouchCancel={handleWandRelease}
         >
           <span className={styles.wandIcon} aria-hidden="true">
             🪄
@@ -229,6 +259,18 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
         disabled={disabled}
         className={styles.encouragementButton}
         aria-label="Get encouragement"
+        style={
+          {
+            transform: `scale(${1 - 0.03 * encouragePressSpring.value})`,
+            transition: 'transform 0.05s ease-out',
+          } as React.CSSProperties
+        }
+        onMouseDown={handleEncouragePress}
+        onMouseUp={handleEncourageRelease}
+        onMouseLeave={handleEncourageRelease}
+        onTouchStart={handleEncouragePress}
+        onTouchEnd={handleEncourageRelease}
+        onTouchCancel={handleEncourageRelease}
       >
         <span className={styles.encouragementIcon} aria-hidden="true">
           💪
@@ -243,6 +285,18 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
         disabled={disabled}
         className={`${styles.celebrationButton} ${celebrationActive ? styles.celebrating : ''}`}
         aria-label="Celebrate success"
+        style={
+          {
+            transform: `scale(${1 - 0.03 * celebratePressSpring.value})`,
+            transition: 'transform 0.05s ease-out',
+          } as React.CSSProperties
+        }
+        onMouseDown={handleCelebratePress}
+        onMouseUp={handleCelebrateRelease}
+        onMouseLeave={handleCelebrateRelease}
+        onTouchStart={handleCelebratePress}
+        onTouchEnd={handleCelebrateRelease}
+        onTouchCancel={handleCelebrateRelease}
       >
         <span className={styles.celebrationIcon} aria-hidden="true">
           🎉
