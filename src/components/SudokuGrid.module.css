@@ -374,6 +374,11 @@
     align-items: flex-start;
   }
 
+  .sudokuCell {
+    min-width: var(--cell-size-mobile, 44px) !important;
+    min-height: var(--cell-size-mobile, 44px) !important;
+  }
+
   .sudokuGrid[data-grid-size="4"],
   .sudokuGrid[data-grid-size="6"] {
     align-self: center;
@@ -381,7 +386,7 @@
   }
 
   .sudokuGrid[data-grid-size="9"] {
-    /* Allow horizontal scroll for 9×9 on narrow screens */
+    overflow-x: auto;
   }
 }
 

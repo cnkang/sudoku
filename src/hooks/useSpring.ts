@@ -477,7 +477,7 @@ export function useGestureSpring(
   const spring = useSpring(initialValue, { ...springOptions, config });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
-  const [snapIndex] = useState(0);
+  const [snapIndex, setSnapIndex] = useState(0);
 
   // Gesture tracking
   const gestureHistoryRef = useRef<GestureState[]>([]);
@@ -491,7 +491,7 @@ export function useGestureSpring(
     if (recent.length < 2) return { x: 0, y: 0 };
 
     const first = recent[0]!;
-    const last = recent[recent.length - 1]!;
+    const last = recent.at(-1)!;
     const dt = (last.timestamp - first.timestamp) / 1000; // seconds
     if (dt === 0) return { x: 0, y: 0 };
 
@@ -565,6 +565,7 @@ export function useGestureSpring(
         const newIndex = snapPoints.findIndex((p) => Math.abs(p - target) < 0.5);
         if (newIndex !== -1 && newIndex !== lastSnapIndexRef.current) {
           lastSnapIndexRef.current = newIndex;
+          setSnapIndex(newIndex);
           onSnapChange?.(newIndex);
         }
       } else if (bounds) {

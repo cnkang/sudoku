@@ -191,7 +191,15 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
 
         {/* Game Controls */}
         <div className={styles.controlsSection}>
-          <Suspense fallback={<div className={styles.controlSkeleton} aria-hidden="true" />}>
+          <Suspense
+            fallback={
+              <output
+                className={styles.controlSkeleton}
+                aria-busy="true"
+                aria-label="Loading difficulty selector"
+              />
+            }
+          >
             <LazyDifficultySelector
               difficulty={state.difficulty}
               gridSize={state.gridConfig.size}
@@ -300,7 +308,15 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
       {/* PWA Status and Grid Selector */}
       {enablePWA && (
         <section className={styles.pwaSection} aria-label="PWA and grid size settings">
-          <Suspense fallback={<div className={styles.controlSkeleton} aria-hidden="true" />}>
+          <Suspense
+            fallback={
+              <output
+                className={styles.controlSkeleton}
+                aria-busy="true"
+                aria-label="Loading PWA grid selector"
+              />
+            }
+          >
             <LazyPWAGridSelector
               currentSize={currentGridConfig.size}
               onSizeChange={handleGridSizeChange}
@@ -317,7 +333,15 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
 
       {/* Accessibility Controls */}
       <section className={styles.accessibilitySection} aria-label="Accessibility settings">
-        <Suspense fallback={<div className={styles.controlSkeleton} aria-hidden="true" />}>
+        <Suspense
+          fallback={
+            <output
+              className={styles.controlSkeleton}
+              aria-busy="true"
+              aria-label="Loading accessibility controls"
+            />
+          }
+        >
           <LazyAccessibilityControls
             currentTheme={currentTheme}
             availableThemes={availableThemes}

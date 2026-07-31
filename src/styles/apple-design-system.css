@@ -175,7 +175,7 @@
   --ease-spring-bounce-reverse: cubic-bezier(0.36, 0, 0.66, -0.56);
   --cell-size-desktop: 48px;
   --cell-size-tablet: 44px;
-  --cell-size-mobile: 40px;
+  --cell-size-mobile: 44px;
   --cell-size-child: 52px;     /* child mode: larger touch target */
   --cell-font-size: var(--text-mono-lg);
   --cell-font-size-child: var(--text-mono-xl);
