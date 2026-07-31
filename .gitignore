@@ -92,3 +92,5 @@ Thumbs.db
 
 # Local UI verification artifacts
 artifacts/ui-audit/
+
+.pnpm-store/*
