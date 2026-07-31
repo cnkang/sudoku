@@ -17,17 +17,18 @@ const GameControls = React.memo(function GameControls({
   isLoading = false,
   canUndo = false,
   hintsUsed = 0,
+  reducedMotion = false,
 }: GameControlsProps) {
   'use memo';
 
   const [isResetCooldown, setIsResetCooldown] = useState(false);
   const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const spring0 = useSpring(0, { config: SPRING_PRESETS.stiff });
-  const spring1 = useSpring(0, { config: SPRING_PRESETS.stiff });
-  const spring2 = useSpring(0, { config: SPRING_PRESETS.stiff });
-  const spring3 = useSpring(0, { config: SPRING_PRESETS.stiff });
-  const spring4 = useSpring(0, { config: SPRING_PRESETS.stiff });
+  const spring0 = useSpring(0, { config: SPRING_PRESETS.stiff, reducedMotion });
+  const spring1 = useSpring(0, { config: SPRING_PRESETS.stiff, reducedMotion });
+  const spring2 = useSpring(0, { config: SPRING_PRESETS.stiff, reducedMotion });
+  const spring3 = useSpring(0, { config: SPRING_PRESETS.stiff, reducedMotion });
+  const spring4 = useSpring(0, { config: SPRING_PRESETS.stiff, reducedMotion });
 
   const buttonSprings = [spring0, spring1, spring2, spring3, spring4];
 

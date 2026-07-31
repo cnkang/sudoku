@@ -172,6 +172,8 @@ export function rubberBand(
 export interface UseSpringOptions {
   /** Spring configuration */
   config?: SpringConfig;
+  /** Disable spring animation for app-level accessibility settings */
+  reducedMotion?: boolean;
   /** Called when animation completes */
   onComplete?: () => void;
   /** Called on every frame with current value */
@@ -203,7 +205,13 @@ export function useSpring(
   initialValue: number = 0,
   options: UseSpringOptions = {},
 ): UseSpringReturn {
-  const { config = SPRING_PRESETS.default, onComplete, onFrame, immediate = false } = options;
+  const {
+    config = SPRING_PRESETS.default,
+    onComplete,
+    onFrame,
+    immediate = false,
+    reducedMotion: reducedMotionOption = false,
+  } = options;
 
   const [state, setState] = useState<SpringState>({
     value: initialValue,
@@ -217,11 +225,20 @@ export function useSpring(
   const lastTimeRef = useRef<number>(0);
   const configRef = useRef(config);
   const callbacksRef = useRef({ onComplete, onFrame });
+  const reducedMotionRef = useRef(reducedMotionOption);
+
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  });
+  const prefersReducedMotionRef = useRef(prefersReducedMotion);
 
   // Update refs on each render
   configRef.current = config;
   callbacksRef.current = { onComplete, onFrame };
   stateRef.current = state;
+  reducedMotionRef.current = reducedMotionOption;
+  prefersReducedMotionRef.current = prefersReducedMotion;
 
   const animate = useCallback((timestamp: number) => {
     if (lastTimeRef.current === 0) {
@@ -249,6 +266,18 @@ export function useSpring(
   const setTarget = useCallback(
     (target: number, initialVelocity = 0) => {
       targetRef.current = target;
+      if (reducedMotionRef.current || prefersReducedMotionRef.current) {
+        stateRef.current = { value: target, velocity: 0, isAnimating: false };
+        setState(stateRef.current);
+        callbacksRef.current.onFrame?.(target);
+        if (rafRef.current !== null) {
+          cancelAnimationFrame(rafRef.current);
+          rafRef.current = null;
+          lastTimeRef.current = 0;
+        }
+        return;
+      }
+
       if (initialVelocity !== 0) {
         stateRef.current = { ...stateRef.current, velocity: initialVelocity };
         setState(stateRef.current);
@@ -283,14 +312,12 @@ export function useSpring(
   }, []);
 
   // Reduced motion handling with listener for changes
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  });
-
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const handler = () => setPrefersReducedMotion(mediaQuery.matches);
+    const handler = () => {
+      prefersReducedMotionRef.current = mediaQuery.matches;
+      setPrefersReducedMotion(mediaQuery.matches);
+    };
     handler(); // run once to set initial
     mediaQuery.addEventListener('change', handler);
     return () => mediaQuery.removeEventListener('change', handler);
@@ -298,7 +325,7 @@ export function useSpring(
 
   // Handle reduced motion — instant snap when enabled
   useEffect(() => {
-    if (prefersReducedMotion && !immediate) {
+    if (prefersReducedMotion || reducedMotionOption) {
       // In reduced motion, set value instantly to target
       stateRef.current = {
         ...stateRef.current,
@@ -314,11 +341,11 @@ export function useSpring(
         lastTimeRef.current = 0;
       }
     }
-  }, [prefersReducedMotion, immediate]);
+  }, [prefersReducedMotion, reducedMotionOption]);
 
   // Start animation loop if needed
   useEffect(() => {
-    if (immediate) {
+    if (immediate && !prefersReducedMotionRef.current && !reducedMotionRef.current) {
       targetRef.current = initialValue;
       lastTimeRef.current = 0;
       rafRef.current = requestAnimationFrame(animate);

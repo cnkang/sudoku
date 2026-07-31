@@ -66,9 +66,9 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
   const encouragementTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Spring animations for fluid interactions
-  const wandPressSpring = useSpring(0, { config: SPRING_PRESETS.stiff });
-  const encouragePressSpring = useSpring(0, { config: SPRING_PRESETS.stiff });
-  const celebratePressSpring = useSpring(0, { config: SPRING_PRESETS.stiff });
+  const wandPressSpring = useSpring(0, { config: SPRING_PRESETS.stiff, reducedMotion });
+  const encouragePressSpring = useSpring(0, { config: SPRING_PRESETS.stiff, reducedMotion });
+  const celebratePressSpring = useSpring(0, { config: SPRING_PRESETS.stiff, reducedMotion });
 
   // Haptic feedback helper
   const triggerHaptic = useCallback(

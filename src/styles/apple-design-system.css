@@ -85,8 +85,8 @@
   --space-gap-md: var(--space-4);
   --space-gap-lg: var(--space-6);
   --space-gap-xl: var(--space-8);
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-  --font-mono: ui-monospace, 'SF Mono', 'Monaco', 'Cascadia Code', 'Consolas',
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', Consolas, monospace;
   --font-display: var(--font-sans);
   --text-base-size: 1rem;        /* 16px default, scales with user preference */
   --text-base-line-height: 1.5;
@@ -143,10 +143,10 @@
   --radius-cell: var(--radius-sm);
   --radius-input: var(--radius-lg);
   --radius-sheet: var(--radius-3xl);
-  --shadow-e1: 0 1px 2px 0 var(--color-shadow-ambient),
-  --shadow-e2: 0 4px 6px -1px var(--color-shadow-key),
-  --shadow-e3: 0 10px 15px -3px var(--color-shadow-key),
-  --shadow-e4: 0 20px 25px -5px var(--color-shadow-key),
+  --shadow-e1: 0 1px 2px 0 var(--color-shadow-ambient);
+  --shadow-e2: 0 4px 6px -1px var(--color-shadow-key);
+  --shadow-e3: 0 10px 15px -3px var(--color-shadow-key);
+  --shadow-e4: 0 20px 25px -5px var(--color-shadow-key);
   --shadow-glass: 0 4px 24px var(--color-shadow-glass);
   --shadow-glass-strong: 0 8px 32px var(--color-shadow-glass);
   --focus-ring: 0 0 0 3px var(--color-focus-ring);
@@ -182,7 +182,7 @@
   --cell-border-thin: 1px;
   --cell-border-thick: 3px;
   --cell-border-subgrid: 2px;
-  --cell-transition: background-color var(--duration-fast) var(--ease-out),
+  --cell-transition: background-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
 }
 
 

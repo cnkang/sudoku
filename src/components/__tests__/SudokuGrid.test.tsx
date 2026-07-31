@@ -168,6 +168,33 @@ describe('SudokuGrid', () => {
       const cells = screen.getAllByTestId(/sudoku-cell-\d+-\d+/);
       expect(cells).toHaveLength(81);
     });
+
+    it('updates the selected cell when focus moves', () => {
+      render(
+        <SudokuGrid
+          puzzle={samplePuzzle4x4}
+          userInput={sampleUserInput4x4}
+          onInputChange={mockOnInputChange}
+          gridConfig={GRID_CONFIGS[4]}
+        />,
+      );
+
+      const firstCell = screen.getByTestId('sudoku-cell-0-1');
+      const secondCell = screen.getByTestId('sudoku-cell-0-2');
+      const firstInput = firstCell.querySelector('input');
+      const secondInput = secondCell.querySelector('input');
+
+      expect(firstInput).not.toBeNull();
+      expect(secondInput).not.toBeNull();
+
+      fireEvent.focus(firstInput);
+      expect(firstCell).toHaveAttribute('aria-selected', 'true');
+      expect(secondCell).toHaveAttribute('aria-selected', 'false');
+
+      fireEvent.focus(secondInput);
+      expect(firstCell).toHaveAttribute('aria-selected', 'false');
+      expect(secondCell).toHaveAttribute('aria-selected', 'true');
+    });
   });
 
   describe('Child-friendly features', () => {

@@ -171,6 +171,7 @@ export interface GameControlsProps {
   isLoading?: boolean;
   canUndo?: boolean;
   hintsUsed?: number;
+  reducedMotion?: boolean;
 }
 
 export interface PWAGridSelectorProps {

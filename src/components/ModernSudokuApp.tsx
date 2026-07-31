@@ -222,7 +222,6 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
               <LazyGridRouter
                 gridConfig={currentGridConfig}
                 puzzle={state.puzzle}
-                solution={state.solution!}
                 userInput={optimisticUserInput}
                 onInputChange={handleInputChange}
                 disabled={isGameDisabled}
@@ -285,6 +284,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
                   isLoading={state.isLoading}
                   canUndo={state.history.length > 1}
                   hintsUsed={state.hintsUsed}
+                  reducedMotion={state.accessibility.reducedMotion}
                 />
               </Suspense>
             )}

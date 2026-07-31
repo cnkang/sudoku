@@ -131,7 +131,6 @@ const CornerDecorationComponent = lazy(() =>
 interface LazyGridProps {
   gridConfig: GridConfig;
   puzzle: number[][];
-  solution: number[][]; // Add solution for completion check
   userInput: number[][];
   onInputChange: (row: number, col: number, value: number) => void;
   disabled?: boolean;

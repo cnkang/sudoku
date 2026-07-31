@@ -382,7 +382,7 @@ function useSudokuGridLogic(props: SudokuGridProps, forwardedRef: React.Ref<Sudo
   const { size, boxRows, boxCols, maxValue } = gridConfig;
 
   const cellRefs = useRef<Record<string, HTMLInputElement | null>>({});
-  const selectedCellRef = useRef<{ row: number; col: number } | null>(null);
+  const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
   const pressedCellRef = useRef<{ row: number; col: number } | null>(null);
   const isComposingRef = useRef(false);
 
@@ -397,6 +397,7 @@ function useSudokuGridLogic(props: SudokuGridProps, forwardedRef: React.Ref<Sudo
   const pressSpring = useSpring(0, {
     config: SPRING_PRESETS.stiff,
     immediate: false,
+    reducedMotion,
   });
 
   const getCellElement = useCallback(
@@ -477,7 +478,7 @@ function useSudokuGridLogic(props: SudokuGridProps, forwardedRef: React.Ref<Sudo
   );
 
   const handleFocus = useCallback((row: number, col: number) => {
-    selectedCellRef.current = { row, col };
+    setSelectedCell({ row, col });
   }, []);
 
   const getCellState = useCallback(
@@ -487,28 +488,26 @@ function useSudokuGridLogic(props: SudokuGridProps, forwardedRef: React.Ref<Sudo
       const hasError =
         !isFixed && currentValue > 0 && hasConflict(userInput, row, col, currentValue, gridConfig);
       const isHinted = hintCell?.row === row && hintCell?.col === col;
-      const isSelected =
-        selectedCellRef.current?.row === row && selectedCellRef.current?.col === col;
+      const isSelected = selectedCell?.row === row && selectedCell?.col === col;
 
       return { currentValue, isFixed, hasError, isHinted, isSelected };
     },
-    [userInput, puzzle, gridConfig, hintCell],
+    [userInput, puzzle, gridConfig, hintCell, selectedCell],
   );
 
-  const getSelectedCell = useCallback(() => selectedCellRef.current, []);
+  const getSelectedCell = useCallback(() => selectedCell, [selectedCell]);
 
   const selectCell = useCallback((row: number, col: number) => {
-    selectedCellRef.current = { row, col };
+    setSelectedCell({ row, col });
   }, []);
 
   const clearSelection = useCallback(() => {
-    selectedCellRef.current = null;
+    setSelectedCell(null);
   }, []);
 
   const isCellSelected = useCallback(
-    (row: number, col: number) =>
-      selectedCellRef.current?.row === row && selectedCellRef.current?.col === col,
-    [],
+    (row: number, col: number) => selectedCell?.row === row && selectedCell?.col === col,
+    [selectedCell],
   );
 
   const isCellFixed = useCallback((row: number, col: number) => puzzle[row]?.[col] !== 0, [puzzle]);
