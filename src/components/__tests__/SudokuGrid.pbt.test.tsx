@@ -229,7 +229,7 @@ describe('SudokuGrid Property-Based Tests', () => {
   };
 
   const assertContainerType = (container: HTMLElement) => {
-    const containerElem = container.querySelector('[data-testid="sudoku-container"]');
+    const containerElem = container.querySelector('[data-testid="sudoku-grid"]');
     expect(containerElem).toBeTruthy();
 
     if (!containerElem) return;
@@ -311,7 +311,7 @@ describe('SudokuGrid Property-Based Tests', () => {
     gridSize: number,
     accessibility: AccessibilitySettings,
   ) => {
-    const sudokuContainer = container.querySelector('[data-testid="sudoku-container"]');
+    const sudokuContainer = container.querySelector('[data-testid="sudoku-grid"]');
     expect(sudokuContainer).toBeTruthy();
 
     if (sudokuContainer) {
@@ -346,7 +346,7 @@ describe('SudokuGrid Property-Based Tests', () => {
 
   const assertChildModeFeedback = (container: HTMLElement, childMode: boolean) => {
     if (!childMode) return;
-    const sudokuContainer = container.querySelector('[data-testid="sudoku-container"]');
+    const sudokuContainer = container.querySelector('[data-testid="sudoku-grid"]');
     expect(sudokuContainer?.dataset.childMode).toBe('true');
   };
 

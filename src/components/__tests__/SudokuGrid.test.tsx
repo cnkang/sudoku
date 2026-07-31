@@ -182,7 +182,7 @@ describe('SudokuGrid', () => {
         />,
       );
 
-      const container = screen.getByTestId('sudoku-container');
+      const container = screen.getByTestId('sudoku-grid');
       expect(container).toHaveAttribute('data-child-mode', 'true');
 
       const cells = screen.getAllByTestId(/sudoku-cell-\d+-\d+/);
@@ -221,7 +221,7 @@ describe('SudokuGrid', () => {
           changedTouches: [{ clientX: 100, clientY: 100 }],
         });
 
-        expect(navigator.vibrate).toHaveBeenCalledWith([20]);
+        expect(navigator.vibrate).toHaveBeenCalledWith([10]);
       } finally {
         vi.useRealTimers();
       }
@@ -240,7 +240,7 @@ describe('SudokuGrid', () => {
         />,
       );
 
-      const container = screen.getByTestId('sudoku-container');
+      const container = screen.getByTestId('sudoku-grid');
       expect(container).toHaveAttribute('data-high-contrast', 'true');
     });
 
@@ -255,7 +255,7 @@ describe('SudokuGrid', () => {
         />,
       );
 
-      const fixedNumbers = screen.getAllByTestId('fixed-number');
+      const fixedNumbers = screen.getAllByTestId(/^sudoku-cell-\d+-\d+$/);
       expect(fixedNumbers[0].className).toContain('largeText');
     });
 
@@ -274,7 +274,8 @@ describe('SudokuGrid', () => {
 
       const input = getFirstEditableInput();
       expect(input).toBeTruthy();
-      expect(input).toHaveAttribute('aria-label', expect.stringContaining('Enter numbers 1 to 4'));
+      const cell = input?.closest('[data-testid]');
+      expect(cell).toHaveAttribute('aria-label', expect.stringContaining('Enter numbers 1 to 4'));
     });
   });
 

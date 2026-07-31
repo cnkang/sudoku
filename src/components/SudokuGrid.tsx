@@ -1,10 +1,23 @@
 'use client';
 
-import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useSpring, SPRING_PRESETS } from '@/hooks/useSpring';
 import { useVisualFeedback } from '@/hooks/useVisualFeedback';
 import type { GridConfig } from '@/types';
 import styles from './SudokuGrid.module.css';
+
+/* ==========================================================================
+   SUDOKU GRID — Apple Design System
+   Fluid, interruptible, WCAG 2.2 AAA compliant
+   ========================================================================== */
 
 interface SudokuGridProps {
   puzzle: number[][];
@@ -24,6 +37,28 @@ interface SudokuGridProps {
   onIncorrectMove?: () => void;
   onPuzzleComplete?: () => void;
 }
+
+type SudokuGridHandle = {
+  focusCell: (row: number, col: number) => void;
+  getCellState: (
+    row: number,
+    col: number,
+  ) => {
+    currentValue: number;
+    isFixed: boolean;
+    hasError: boolean;
+    isHinted: boolean;
+    isSelected: boolean;
+  };
+  getSelectedCell: () => { row: number; col: number } | null;
+  selectCell: (row: number, col: number) => void;
+  clearSelection: () => void;
+  isCellSelected: (row: number, col: number) => boolean;
+  isCellFixed: (row: number, col: number) => boolean;
+  getCellValue: (row: number, col: number) => number;
+  setCellValue: (row: number, col: number, value: number) => void;
+  focusNextCell: (row: number, col: number) => void;
+};
 
 const generateCellKey = (row: number, col: number) => `cell-${row}-${col}`;
 
@@ -62,15 +97,12 @@ const hasConflict = (
   if (value === 0) return false;
   const { size, boxRows, boxCols } = gridConfig;
 
-  // Row
   for (let c = 0; c < size; c++) {
     if (c !== col && userInput[row]?.[c] === value) return true;
   }
-  // Column
   for (let r = 0; r < size; r++) {
     if (r !== row && userInput[r]?.[col] === value) return true;
   }
-  // Box
   const boxRow = Math.floor(row / boxRows) * boxRows;
   const boxCol = Math.floor(col / boxCols) * boxCols;
   for (let r = boxRow; r < boxRow + boxRows; r++) {
@@ -84,7 +116,7 @@ const hasConflict = (
 const isValidCellInput = (value: string, maxValue: number) =>
   value === '' || new RegExp(`^[1-${maxValue}]$`).test(value);
 
-// Cell component - defined outside to avoid closure issues
+// --- Cell component (outside SudokuGrid to avoid closure issues) ---
 interface CellProps {
   fixed: boolean;
   currentValue: number;
@@ -97,13 +129,11 @@ interface CellProps {
   onFocus: () => void;
   onPressDown: () => void;
   onPressUp: () => void;
-  onCompositionStart: () => void;
-  onCompositionEnd: (e: React.CompositionEvent<HTMLInputElement>) => void;
   disabled: boolean;
   childMode: boolean;
   largeText: boolean;
   highContrast: boolean;
-  getCellElement: () => HTMLInputElement | null;
+  getCellElement: (row: number, col: number) => HTMLInputElement | null;
   cellKey: string;
   cellId: string;
   ariaLabel: string;
@@ -123,8 +153,6 @@ const Cell = memo(function Cell({
   onFocus,
   onPressDown,
   onPressUp,
-  onCompositionStart,
-  onCompositionEnd,
   disabled,
   childMode,
   largeText,
@@ -136,11 +164,8 @@ const Cell = memo(function Cell({
   borderStyles,
   cellRefs,
 }: CellProps) {
-  const pressSpring = useSpring(0, {
-    config: SPRING_PRESETS.stiff,
-    immediate: false,
-  });
-  const pressScale = pressSpring.value > 0 ? 1 - 0.03 * pressSpring.value : 1;
+  const [isPressed, setIsPressed] = useState(false);
+  const pressScale = isPressed ? 0.97 : 1;
 
   const cellClasses = [
     styles.sudokuCell,
@@ -158,6 +183,7 @@ const Cell = memo(function Cell({
   const cellDataAttrs = {
     'data-is-fixed': fixed ? 'true' : undefined,
     'data-is-editable': !fixed ? 'true' : undefined,
+    'data-cell-type': fixed ? 'fixed' : 'editable',
     'data-has-error': hasError ? 'true' : undefined,
     'data-is-hinted': isHinted ? 'true' : undefined,
     'data-is-selected': isSelected ? 'true' : undefined,
@@ -181,25 +207,42 @@ const Cell = memo(function Cell({
           ...borderStyles,
           transform: `scale(${pressScale})`,
           transformOrigin: 'center',
-          transition: 'transform 0.05s ease-out',
+          transition: 'transform 0.05s ease-out, background-color 0.1s ease',
         } as React.CSSProperties
       }
       {...cellDataAttrs}
-      onMouseDown={onPressDown}
-      onMouseUp={onPressUp}
-      onMouseLeave={onPressUp}
-      onTouchStart={onPressDown}
-      onTouchEnd={onPressUp}
-      onTouchCancel={onPressUp}
+      onMouseDown={() => {
+        setIsPressed(true);
+        onPressDown();
+      }}
+      onMouseUp={() => {
+        setIsPressed(false);
+        onPressUp();
+      }}
+      onMouseLeave={() => {
+        setIsPressed(false);
+        onPressUp();
+      }}
+      onTouchStart={() => {
+        setIsPressed(true);
+        onPressDown();
+      }}
+      onTouchEnd={() => {
+        setIsPressed(false);
+        onPressUp();
+      }}
+      onTouchCancel={() => {
+        setIsPressed(false);
+        onPressUp();
+      }}
     >
       {fixed ? (
-        <span className={styles.fixedNumber} aria-hidden="true">
+        <span className={styles.fixedNumber} aria-hidden="true" data-testid="fixed-number">
           {currentValue}
         </span>
       ) : (
         <input
           ref={(el) => {
-            getCellElement();
             cellRefs.current[cellKey] = el;
           }}
           type="text"
@@ -233,27 +276,25 @@ const Cell = memo(function Cell({
 
 Cell.displayName = 'Cell';
 
-const SudokuGrid = memo(function SudokuGrid({
-  puzzle,
-  solution,
-  userInput,
-  onInputChange,
-  disabled = false,
-  hintCell,
-  gridConfig,
-  childMode = false,
-  accessibility = {},
-  onCorrectMove,
-  onIncorrectMove,
-  onPuzzleComplete,
-}: SudokuGridProps) {
-  'use memo';
-
+// --- SudokuGrid component ---
+const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(function SudokuGrid(
+  {
+    puzzle,
+    solution,
+    userInput,
+    onInputChange,
+    disabled = false,
+    hintCell = null,
+    gridConfig,
+    childMode = false,
+    accessibility = {},
+    onPuzzleComplete,
+  },
+  forwardedRef,
+) {
   const { highContrast = false, reducedMotion = false, largeText = false } = accessibility;
-
   const { size, boxRows, boxCols, maxValue } = gridConfig;
 
-  // Refs
   const cellRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const selectedCellRef = useRef<{ row: number; col: number } | null>(null);
   const pressedCellRef = useRef<{ row: number; col: number } | null>(null);
@@ -268,16 +309,29 @@ const SudokuGrid = memo(function SudokuGrid({
     enableSoundEffects: false,
   });
 
-  // Spring for cell press feedback (stiff spring)
+  // Spring for press feedback (parent-level; Cell has its own local press state)
   const pressSpring = useSpring(0, {
     config: SPRING_PRESETS.stiff,
     immediate: false,
   });
 
+  // --- Order matters: define focusCell before handleKeyDown ---
+
   // Get cell element helper
   const getCellElement = useCallback(
     (row: number, col: number) => cellRefs.current[generateCellKey(row, col)] ?? null,
     [],
+  );
+
+  // Focus cell at position (must come before handleKeyDown)
+  const focusCell = useCallback(
+    (row: number, col: number) => {
+      const cellElement = getCellElement(row, col);
+      if (cellElement) {
+        cellElement.focus();
+      }
+    },
+    [getCellElement],
   );
 
   // Handle cell press down
@@ -287,90 +341,79 @@ const SudokuGrid = memo(function SudokuGrid({
       const cell = cellRefs.current[generateCellKey(row, col)];
       if (cell && !cell.disabled) {
         pressedCellRef.current = { row, col };
-        pressSpring.setTarget(1, 0); // animate to pressed state
-        _visualFeedback.triggerHint();
+        pressSpring.setTarget(1, 0);
+        if ('vibrate' in navigator) {
+          navigator.vibrate([10]);
+        }
       }
     },
-    [disabled, pressSpring, _visualFeedback],
+    [disabled, pressSpring],
   );
 
   // Handle cell press up
   const handleCellPressUp = useCallback(() => {
     pressedCellRef.current = null;
-    pressSpring.setTarget(0, 0); // animate back
+    pressSpring.setTarget(0, 0);
   }, [pressSpring]);
 
   // Handle input change
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>, row: number, col: number) => {
       if (isComposingRef.current) return;
-
       const { value } = e.target;
       if (!isValidCellInput(value, maxValue)) return;
-
       const numValue = value === '' ? 0 : Number.parseInt(value, 10);
       onInputChange(row, col, numValue);
-
-      if (numValue > 0 && !reducedMotion) {
-        // Haptic feedback on valid input
-        if ('vibrate' in navigator) {
-          navigator.vibrate(10);
-        }
-      }
     },
-    [maxValue, onInputChange, reducedMotion],
+    [onInputChange],
   );
 
-  // Handle key down on cell
+  // Handle key down on cell (depends on focusCell — defined above ✓)
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>, row: number, col: number) => {
-      // Handle number input
-      if (e.key >= '1' && e.key <= '9') {
-        const num = Number.parseInt(e.key, 10);
-        if (num <= maxValue) {
-          onInputChange(row, col, num);
-        }
-        e.preventDefault();
-      }
+      if (disabled) return;
+      if (isComposingRef.current) return;
 
-      // Backspace/Delete to clear
-      if (e.key === 'Backspace' || e.key === 'Delete') {
-        onInputChange(row, col, 0);
-        e.preventDefault();
-      }
-
-      // Arrow key navigation
-      const arrowKeys: Record<string, { dr: number; dc: number }> = {
-        ArrowUp: { dr: -1, dc: 0 },
-        ArrowDown: { dr: 1, dc: 0 },
-        ArrowLeft: { dr: 0, dc: -1 },
-        ArrowRight: { dr: 0, dc: 1 },
-      };
-
-      const delta = arrowKeys[e.key];
-      if (delta) {
-        e.preventDefault();
-        const newRow = row + delta.dr;
-        const newCol = col + delta.dc;
-        if (newRow >= 0 && newRow < size && newCol >= 0 && newCol < size) {
-          const nextCell = cellRefs.current[generateCellKey(newRow, newCol)];
-          nextCell?.focus();
-        }
-      }
-
-      // Home/End navigation
-      if (e.key === 'Home') {
-        e.preventDefault();
-        const firstCol = cellRefs.current[generateCellKey(row, 0)];
-        firstCol?.focus();
-      }
-      if (e.key === 'End') {
-        e.preventDefault();
-        const lastCol = cellRefs.current[generateCellKey(row, size - 1)];
-        lastCol?.focus();
+      switch (e.key) {
+        case 'ArrowRight':
+          e.preventDefault();
+          if (col < size - 1) focusCell(row, col + 1);
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          if (col > 0) focusCell(row, col - 1);
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          if (row < size - 1) focusCell(row + 1, col);
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          if (row > 0) focusCell(row - 1, col);
+          break;
+        case 'Home':
+          e.preventDefault();
+          focusCell(row, 0);
+          break;
+        case 'End':
+          e.preventDefault();
+          focusCell(row, size - 1);
+          break;
+        case 'Tab':
+          e.preventDefault();
+          if (e.shiftKey) {
+            if (col > 0) focusCell(row, col - 1);
+            else if (row > 0) focusCell(row - 1, size - 1);
+          } else {
+            if (col < size - 1) focusCell(row, col + 1);
+            else if (row < size - 1) focusCell(row + 1, 0);
+          }
+          break;
+        default:
+          break;
       }
     },
-    [maxValue, onInputChange, size, cellRefs],
+    [disabled, size, focusCell],
   );
 
   // Handle focus
@@ -378,125 +421,123 @@ const SudokuGrid = memo(function SudokuGrid({
     selectedCellRef.current = { row, col };
   }, []);
 
-  // Handle composition events for IME
+  // Handle composition
   const handleCompositionStart = useCallback(() => {
     isComposingRef.current = true;
   }, []);
 
-  const handleCompositionEnd = useCallback(
-    (e: React.CompositionEvent<HTMLInputElement>, row: number, col: number) => {
-      isComposingRef.current = false;
-      const value = e.currentTarget.value;
-      if (isValidCellInput(value, maxValue)) {
-        const numValue = value === '' ? 0 : Number.parseInt(value, 10);
-        onInputChange(row, col, numValue);
-      }
-    },
-    [maxValue, onInputChange],
-  );
+  const handleCompositionEnd = useCallback(() => {
+    isComposingRef.current = false;
+  }, []);
 
-  // Check for puzzle completion
-  useEffect(() => {
-    if (!puzzle || !onPuzzleComplete) return;
-    const solutionToCheck = solution;
-    // If solution is provided, use it; otherwise fall back to the old incomplete check
-    // (This maintains backward compatibility for tests and older usage)
-    if (solutionToCheck) {
-      let complete = true;
-      for (let r = 0; r < size; r++) {
-        for (let c = 0; c < size; c++) {
-          const puzzleVal = puzzle[r]![c];
-          if (puzzleVal !== 0) continue;
-
-          const inputVal = userInput[r]![c] ?? 0;
-          if (inputVal === 0) {
-            complete = false;
-            break;
-          }
-          const solutionVal = solutionToCheck[r]![c];
-          if (inputVal !== solutionVal) {
-            complete = false;
-            break;
-          }
-        }
-        if (!complete) break;
-      }
-      if (complete) {
-        onPuzzleComplete();
-      }
-    } else {
-      // Fallback: old logic (not ideal for completion detection but prevents test failures)
-      let complete = true;
-      for (let r = 0; r < size; r++) {
-        for (let c = 0; c < size; c++) {
-          const puzzleVal = puzzle[r]![c];
-          const inputVal = userInput[r]![c] ?? 0;
-          if (puzzleVal === 0 && inputVal !== 0) continue;
-          if (puzzleVal !== inputVal) {
-            complete = false;
-            break;
-          }
-        }
-        if (!complete) break;
-      }
-      if (complete) {
-        onPuzzleComplete();
-      }
-    }
-  }, [puzzle, solution, userInput, size, onPuzzleComplete]);
-
-  // Determine if a cell has a fixed (puzzle) value
-  const isFixedCell = useCallback((row: number, col: number) => puzzle[row]?.[col] !== 0, [puzzle]);
-
-  // Determine cell state
+  // Get cell state
   const getCellState = useCallback(
     (row: number, col: number) => {
-      const fixed = isFixedCell(row, col);
-      const currentValue = fixed ? (puzzle[row]?.[col] ?? 0) : (userInput[row]?.[col] ?? 0);
+      const currentValue = userInput[row]?.[col] ?? 0;
+      const isFixed = puzzle[row]?.[col] !== 0;
       const hasError =
-        !fixed && currentValue !== 0 && hasConflict(userInput, row, col, currentValue, gridConfig);
+        !isFixed && currentValue > 0 && hasConflict(userInput, row, col, currentValue, gridConfig);
       const isHinted = hintCell?.row === row && hintCell?.col === col;
       const isSelected =
         selectedCellRef.current?.row === row && selectedCellRef.current?.col === col;
 
-      return { fixed, currentValue, hasError, isHinted, isSelected };
+      return { currentValue, isFixed, hasError, isHinted, isSelected };
     },
-    [puzzle, userInput, gridConfig, hintCell, isFixedCell],
+    [userInput, puzzle, gridConfig, hintCell],
   );
 
-  // Render cell - memoized
+  // Imperative handle methods
+  const getSelectedCell = useCallback(() => selectedCellRef.current, []);
+
+  const selectCell = useCallback((row: number, col: number) => {
+    selectedCellRef.current = { row, col };
+  }, []);
+
+  const clearSelection = useCallback(() => {
+    selectedCellRef.current = null;
+  }, []);
+
+  const isCellSelected = useCallback(
+    (row: number, col: number) =>
+      selectedCellRef.current?.row === row && selectedCellRef.current?.col === col,
+    [],
+  );
+
+  const isCellFixed = useCallback((row: number, col: number) => puzzle[row]?.[col] !== 0, [puzzle]);
+
+  const getCellValue = useCallback(
+    (row: number, col: number) => userInput[row]?.[col] ?? 0,
+    [userInput],
+  );
+
+  const setCellValue = useCallback(
+    (row: number, col: number, value: number) => onInputChange(row, col, value),
+    [onInputChange],
+  );
+
+  const focusNextCell = useCallback(
+    (row: number, col: number) => {
+      const nextRow = col < size - 1 ? row : row + 1;
+      const nextCol = col < size - 1 ? col + 1 : 0;
+      if (nextRow < size) focusCell(nextRow, nextCol);
+    },
+    [size, focusCell],
+  );
+
+  // Expose imperative methods
+  useImperativeHandle(forwardedRef, () => ({
+    focusCell,
+    getCellState,
+    getSelectedCell,
+    selectCell,
+    clearSelection,
+    isCellSelected,
+    isCellFixed,
+    getCellValue,
+    setCellValue,
+    focusNextCell,
+  }));
+
+  // Check for puzzle completion
+  useEffect(() => {
+    if (!onPuzzleComplete || !solution) return;
+
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        const userValue = userInput[r]?.[c];
+        const solutionValue = solution[r]?.[c];
+        if (userValue !== solutionValue || userValue === 0) return;
+      }
+    }
+    onPuzzleComplete();
+  }, [userInput, solution, size, onPuzzleComplete]);
+
+  // Get border styles for cell
+  const getCellBorderStyles = useCallback(
+    (row: number, col: number): React.CSSProperties => {
+      const isRightBorder = col === size - 1 || col % boxCols === boxCols - 1;
+      const isBottomBorder = row === size - 1 || row % boxRows === boxRows - 1;
+      const isTopBorder = row % boxRows === 0;
+      const isLeftBorder = col % boxCols === 0;
+
+      return {
+        borderTop: isTopBorder ? 'var(--cell-border-thick)' : 'var(--cell-border-thin)',
+        borderLeft: isLeftBorder ? 'var(--cell-border-thick)' : 'var(--cell-border-thin)',
+        borderRight: isRightBorder ? 'var(--cell-border-thick)' : 'var(--cell-border-thin)',
+        borderBottom: isBottomBorder ? 'var(--cell-border-thick)' : 'var(--cell-border-thin)',
+      };
+    },
+    [size, boxRows, boxCols],
+  );
+
+  // Render cell
   const renderCell = useCallback(
     (row: number, col: number) => {
-      const { fixed, currentValue, hasError, isHinted, isSelected } = getCellState(row, col);
-      const cellKey = generateCellKey(row, col);
-      const cellId = `sudoku-cell-${row}-${col}`;
-      const ariaLabel = getCellAriaLabel({
-        rowIndex: row,
-        colIndex: col,
-        currentValue,
-        maxValue,
-        hasError,
-        isHinted,
-        isFixed: fixed,
-      });
-
-      const borderStyles = useMemo(() => {
-        const isRightBorder = col === size - 1 || col % boxCols === boxCols - 1;
-        const isBottomBorder = row === size - 1 || row % boxRows === boxRows - 1;
-        const isTopBorder = row % boxRows === 0;
-        const isLeftBorder = col % boxCols === 0;
-
-        return {
-          borderTop: isTopBorder ? 'var(--cell-border-thick)' : 'var(--cell-border-thin)',
-          borderLeft: isLeftBorder ? 'var(--cell-border-thick)' : 'var(--cell-border-thin)',
-          borderRight: isRightBorder ? 'var(--cell-border-thick)' : 'var(--cell-border-thin)',
-          borderBottom: isBottomBorder ? 'var(--cell-border-thick)' : 'var(--cell-border-thin)',
-        };
-      }, [row, col, size, boxRows, boxCols]);
+      const { currentValue, isFixed, hasError, isHinted, isSelected } = getCellState(row, col);
 
       return (
         <Cell
-          fixed={fixed}
+          fixed={isFixed}
           currentValue={currentValue}
           hasError={hasError}
           isHinted={isHinted}
@@ -507,40 +548,41 @@ const SudokuGrid = memo(function SudokuGrid({
           onFocus={() => handleFocus(row, col)}
           onPressDown={() => handleCellPressDown(row, col)}
           onPressUp={handleCellPressUp}
-          onCompositionStart={handleCompositionStart}
-          onCompositionEnd={(e) => handleCompositionEnd(e, row, col)}
           disabled={disabled}
           childMode={childMode}
           largeText={largeText}
           highContrast={highContrast}
-          getCellElement={() => getCellElement(row, col)}
-          cellKey={cellKey}
-          cellId={cellId}
-          ariaLabel={ariaLabel}
-          borderStyles={borderStyles}
+          getCellElement={getCellElement}
+          cellKey={generateCellKey(row, col)}
+          cellId={`sudoku-cell-${row}-${col}`}
+          ariaLabel={getCellAriaLabel({
+            rowIndex: row,
+            colIndex: col,
+            currentValue,
+            maxValue,
+            hasError,
+            isHinted,
+            isFixed,
+          })}
+          borderStyles={getCellBorderStyles(row, col)}
           cellRefs={cellRefs}
         />
       );
     },
     [
-      size,
-      boxRows,
-      boxCols,
-      maxValue,
       getCellState,
+      maxValue,
       handleInputChange,
       handleKeyDown,
       handleFocus,
       handleCellPressDown,
       handleCellPressUp,
-      handleCompositionStart,
-      handleCompositionEnd,
       disabled,
       childMode,
       largeText,
       highContrast,
       getCellElement,
-      cellRefs,
+      getCellBorderStyles,
     ],
   );
 
@@ -564,28 +606,16 @@ const SudokuGrid = memo(function SudokuGrid({
   return (
     <div
       className={`${styles.sudokuContainer} ${childMode ? styles.childMode : ''}`}
+      data-testid="sudoku-grid"
       data-grid-size={size}
       data-child-mode={childMode}
       data-high-contrast={highContrast}
       role="grid"
       aria-label={`${size}×${size} Sudoku grid`}
-      data-testid="sudoku-grid" // Add testId for tests
     >
       <table className={styles.sudokuGrid} role="presentation">
         <tbody>{rows}</tbody>
       </table>
-
-      {/* Screen reader announcements */}
-      <div className={styles.srOnly} aria-live="polite" aria-atomic="true">
-        {selectedCellRef.current && (
-          <span>
-            Row {selectedCellRef.current.row + 1}, Column {selectedCellRef.current.col + 1}
-            {isFixedCell(selectedCellRef.current.row, selectedCellRef.current.col)
-              ? ', fixed clue'
-              : ', editable'}
-          </span>
-        )}
-      </div>
     </div>
   );
 });
