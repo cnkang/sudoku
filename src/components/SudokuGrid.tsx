@@ -154,7 +154,6 @@ interface CellProps {
   childMode: boolean;
   largeText: boolean;
   highContrast: boolean;
-  getCellElement: (row: number, col: number) => HTMLInputElement | null;
   cellKey: string;
   cellId: string;
   ariaLabel: string;
@@ -178,7 +177,6 @@ const Cell = memo(function Cell({
   childMode,
   largeText,
   highContrast,
-  getCellElement,
   cellKey,
   cellId,
   ariaLabel,
@@ -566,7 +564,6 @@ const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(function 
           childMode={childMode}
           largeText={largeText}
           highContrast={highContrast}
-          getCellElement={getCellElement}
           cellKey={generateCellKey(row, col)}
           cellId={`sudoku-cell-${row}-${col}`}
           ariaLabel={getCellAriaLabel({
@@ -595,7 +592,6 @@ const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(function 
       childMode,
       largeText,
       highContrast,
-      getCellElement,
       getCellBorderStyles,
     ],
   );

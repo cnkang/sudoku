@@ -523,7 +523,7 @@ export function useGestureSpring(
   );
 
   const onUp = useCallback(
-    (clientX: number, clientY: number, timestamp: number) => {
+    (_clientX: number, _clientY: number, _timestamp: number) => {
       if (!dragStartRef.current) return;
 
       const velocity = calculateVelocity();
