@@ -197,7 +197,7 @@ describe('AccessibilityControls', () => {
       expect(selector).toBeInTheDocument();
       // The select should have options for filtered themes only
       const options = selector.querySelectorAll('option');
-      expect(options.length).toBe(2); // high-contrast + ocean
+      expect(options).toHaveLength(2);
     });
 
     it('should show all themes when childMode is false', () => {
@@ -211,7 +211,7 @@ describe('AccessibilityControls', () => {
       );
       const selector = screen.getByLabelText('Theme:');
       const options = selector.querySelectorAll('option');
-      expect(options.length).toBe(3); // All themes
+      expect(options).toHaveLength(3);
     });
   });
 

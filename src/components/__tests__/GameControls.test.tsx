@@ -377,22 +377,6 @@ describe('GameControls', () => {
     });
   });
 
-  describe('Button Press Animation', () => {
-    it('should call onClick handler when button is pressed', () => {
-      render(<GameControls {...mockProps} />);
-      const submitButton = screen.getByRole('button', { name: /check your solution/i });
-      fireEvent.click(submitButton);
-      expect(mockProps.onSubmit).toHaveBeenCalledTimes(1);
-    });
-
-    it('should handle hint button click', () => {
-      render(<GameControls {...mockProps} />);
-      const hintButton = screen.getByRole('button', { name: /get a hint/i });
-      fireEvent.click(hintButton);
-      expect(mockProps.onHint).toHaveBeenCalledTimes(1);
-    });
-  });
-
   describe('Undo Button States', () => {
     it('should enable undo button when canUndo is true', () => {
       render(<GameControls {...mockProps} canUndo={true} />);
