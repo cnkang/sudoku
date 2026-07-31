@@ -448,7 +448,7 @@ export function useGestureSpring(
   const spring = useSpring(initialValue, { ...springOptions, config });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
-  const [snapIndex, setSnapIndex] = useState(0);
+  const [snapIndex] = useState(0);
 
   // Gesture tracking
   const gestureHistoryRef = useRef<GestureState[]>([]);
