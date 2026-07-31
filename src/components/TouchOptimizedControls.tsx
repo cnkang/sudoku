@@ -164,8 +164,28 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
     };
   }, []);
 
+  // Spring press handlers (extracted to avoid inline function coverage gaps)
+  const handleWandPress = useCallback(() => wandPressSpring.setTarget(1, 0), [wandPressSpring]);
+  const handleWandRelease = useCallback(() => wandPressSpring.setTarget(0, 0), [wandPressSpring]);
+  const handleEncouragePress = useCallback(
+    () => encouragePressSpring.setTarget(1, 0),
+    [encouragePressSpring],
+  );
+  const handleEncourageRelease = useCallback(
+    () => encouragePressSpring.setTarget(0, 0),
+    [encouragePressSpring],
+  );
+  const handleCelebratePress = useCallback(
+    () => celebratePressSpring.setTarget(1, 0),
+    [celebratePressSpring],
+  );
+  const handleCelebrateRelease = useCallback(
+    () => celebratePressSpring.setTarget(0, 0),
+    [celebratePressSpring],
+  );
+
   // Render sparkles
-  const renderSparkles = () => {
+  const renderSparkles = useCallback(() => {
     if (!showSparkles || reducedMotion) return null;
 
     return (
@@ -180,7 +200,7 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
         ))}
       </div>
     );
-  };
+  }, [showSparkles, reducedMotion]);
 
   const controlsClassName = [
     styles.touchControls,
@@ -209,12 +229,12 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
               transition: 'transform 0.05s ease-out',
             } as React.CSSProperties
           }
-          onMouseDown={() => wandPressSpring.setTarget(1, 0)}
-          onMouseUp={() => wandPressSpring.setTarget(0, 0)}
-          onMouseLeave={() => wandPressSpring.setTarget(0, 0)}
-          onTouchStart={() => wandPressSpring.setTarget(1, 0)}
-          onTouchEnd={() => wandPressSpring.setTarget(0, 0)}
-          onTouchCancel={() => wandPressSpring.setTarget(0, 0)}
+          onMouseDown={handleWandPress}
+          onMouseUp={handleWandRelease}
+          onMouseLeave={handleWandRelease}
+          onTouchStart={handleWandPress}
+          onTouchEnd={handleWandRelease}
+          onTouchCancel={handleWandRelease}
         >
           <span className={styles.wandIcon} aria-hidden="true">
             🪄
@@ -245,12 +265,12 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
             transition: 'transform 0.05s ease-out',
           } as React.CSSProperties
         }
-        onMouseDown={() => encouragePressSpring.setTarget(1, 0)}
-        onMouseUp={() => encouragePressSpring.setTarget(0, 0)}
-        onMouseLeave={() => encouragePressSpring.setTarget(0, 0)}
-        onTouchStart={() => encouragePressSpring.setTarget(1, 0)}
-        onTouchEnd={() => encouragePressSpring.setTarget(0, 0)}
-        onTouchCancel={() => encouragePressSpring.setTarget(0, 0)}
+        onMouseDown={handleEncouragePress}
+        onMouseUp={handleEncourageRelease}
+        onMouseLeave={handleEncourageRelease}
+        onTouchStart={handleEncouragePress}
+        onTouchEnd={handleEncourageRelease}
+        onTouchCancel={handleEncourageRelease}
       >
         <span className={styles.encouragementIcon} aria-hidden="true">
           💪
@@ -271,12 +291,12 @@ const TouchOptimizedControls: React.FC<TouchOptimizedControlsProps> = ({
             transition: 'transform 0.05s ease-out',
           } as React.CSSProperties
         }
-        onMouseDown={() => celebratePressSpring.setTarget(1, 0)}
-        onMouseUp={() => celebratePressSpring.setTarget(0, 0)}
-        onMouseLeave={() => celebratePressSpring.setTarget(0, 0)}
-        onTouchStart={() => celebratePressSpring.setTarget(1, 0)}
-        onTouchEnd={() => celebratePressSpring.setTarget(0, 0)}
-        onTouchCancel={() => celebratePressSpring.setTarget(0, 0)}
+        onMouseDown={handleCelebratePress}
+        onMouseUp={handleCelebrateRelease}
+        onMouseLeave={handleCelebrateRelease}
+        onTouchStart={handleCelebratePress}
+        onTouchEnd={handleCelebrateRelease}
+        onTouchCancel={handleCelebrateRelease}
       >
         <span className={styles.celebrationIcon} aria-hidden="true">
           🎉
