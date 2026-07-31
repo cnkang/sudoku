@@ -155,12 +155,8 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
 
   return (
     <div className={`${styles.modernApp} ${state.childMode ? styles.childMode : ''}`}>
-      <a href="#main-content" className="skip-to-content">
-        Skip to main content
-      </a>
-
       {/* Main Game Area */}
-      <main id="main-content" className={styles.gameArea} role="main" aria-label="Game area">
+      <section className={styles.gameArea} role="region" aria-label="Game area">
         {/* Game Header */}
         <header className={styles.gameHeader}>
           <h1 className={styles.title}>{state.childMode ? 'Sudoku Fun!' : 'Sudoku Challenge'}</h1>
@@ -299,7 +295,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
             <div className={styles.actionPlaceholder} />
           </div>
         )}
-      </main>
+      </section>
 
       {/* PWA Status and Grid Selector */}
       {enablePWA && (
