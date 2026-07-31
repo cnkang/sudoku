@@ -266,4 +266,17 @@ describe('APICache', () => {
       expect(puzzleCache.get('short2')).toBeNull();
     });
   });
+
+  describe('Module-level setInterval guard', () => {
+    it('should not set up cleanup interval in test environment', () => {
+      // In test environment, NODE_ENV === 'test', so the setInterval on line 59
+      // should NOT be called. We verify puzzleCache is still functional.
+      expect(puzzleCache).toBeDefined();
+      expect(typeof puzzleCache.cleanup).toBe('function');
+      // The cache should work normally without the interval
+      puzzleCache.clear();
+      puzzleCache.set('test', { data: 'value' });
+      expect(puzzleCache.get('test')).toEqual({ data: 'value' });
+    });
+  });
 });

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
+import type { GridConfig } from '@/types';
 import { getHint } from '../hints';
 
 describe('Hints Utility', () => {
@@ -107,5 +108,121 @@ describe('Hints Utility', () => {
     if (hint) {
       expect(hint.value).toBe(mockSolution[hint.row][hint.col]);
     }
+  });
+
+  describe('getCellValues undefined branches', () => {
+    it('should handle puzzle with sparse rows gracefully via config', () => {
+      // Use a 4x4 config to test with smaller grids
+      const config4x4: GridConfig = {
+        size: 4,
+        boxRows: 2,
+        boxCols: 2,
+        maxValue: 4,
+        minClues: 8,
+        maxClues: 12,
+        difficultyLevels: 5,
+        cellSize: { desktop: 80, tablet: 70, mobile: 60 },
+        childFriendly: {
+          enableAnimations: true,
+          showHelpText: true,
+          useExtraLargeTargets: true,
+        },
+      };
+
+      const puzzle4 = [
+        [1, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 1],
+      ];
+      const solution4 = [
+        [1, 2, 3, 4],
+        [3, 4, 1, 2],
+        [2, 1, 4, 3],
+        [4, 3, 2, 1],
+      ];
+      const userInput4 = puzzle4.map((row) => [...row]);
+
+      // This exercises the getCellValues path with valid data
+      const hint = getHint(puzzle4, userInput4, solution4, config4x4);
+      expect(hint).toBeDefined();
+      expect(hint?.value).toBeGreaterThan(0);
+    });
+
+    it('should handle all empty 4x4 puzzle', () => {
+      const config4x4: GridConfig = {
+        size: 4,
+        boxRows: 2,
+        boxCols: 2,
+        maxValue: 4,
+        minClues: 8,
+        maxClues: 12,
+        difficultyLevels: 5,
+        cellSize: { desktop: 80, tablet: 70, mobile: 60 },
+        childFriendly: {
+          enableAnimations: true,
+          showHelpText: true,
+          useExtraLargeTargets: true,
+        },
+      };
+
+      const puzzle4 = [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+      ];
+      const solution4 = [
+        [1, 2, 3, 4],
+        [3, 4, 1, 2],
+        [2, 1, 4, 3],
+        [4, 3, 2, 1],
+      ];
+      const userInput4 = puzzle4.map((row) => [...row]);
+
+      const hint = getHint(puzzle4, userInput4, solution4, config4x4);
+      expect(hint).toBeDefined();
+      expect(hint?.row).toBe(0);
+      expect(hint?.col).toBe(0);
+      expect(hint?.value).toBe(1);
+    });
+  });
+
+  describe('with GridConfig', () => {
+    const config4x4: GridConfig = {
+      size: 4,
+      boxRows: 2,
+      boxCols: 2,
+      maxValue: 4,
+      minClues: 8,
+      maxClues: 12,
+      difficultyLevels: 5,
+      cellSize: { desktop: 80, tablet: 70, mobile: 60 },
+      childFriendly: {
+        enableAnimations: true,
+        showHelpText: true,
+        useExtraLargeTargets: true,
+      },
+    };
+
+    it('should work with 4x4 grid config', () => {
+      const puzzle4 = [
+        [1, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 1],
+      ];
+      const solution4 = [
+        [1, 2, 3, 4],
+        [3, 4, 1, 2],
+        [2, 1, 4, 3],
+        [4, 3, 2, 1],
+      ];
+      const userInput4 = puzzle4.map((row) => [...row]);
+
+      const hint = getHint(puzzle4, userInput4, solution4, config4x4);
+      expect(hint).toBeDefined();
+      expect(hint?.value).toBeGreaterThan(0);
+    });
   });
 });

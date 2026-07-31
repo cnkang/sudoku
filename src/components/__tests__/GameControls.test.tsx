@@ -364,4 +364,49 @@ describe('GameControls', () => {
       expect(screen.getByText(/congratulations/i)).toBeInTheDocument();
     });
   });
+
+  describe('Reduced Motion', () => {
+    it('should render with reducedMotion prop set to true', () => {
+      render(<GameControls {...mockProps} reducedMotion={true} />);
+      expect(screen.getByTestId('game-controls')).toBeInTheDocument();
+    });
+
+    it('should render with reducedMotion prop set to false', () => {
+      render(<GameControls {...mockProps} reducedMotion={false} />);
+      expect(screen.getByTestId('game-controls')).toBeInTheDocument();
+    });
+  });
+
+  describe('Button Press Animation', () => {
+    it('should call onClick handler when button is pressed', () => {
+      render(<GameControls {...mockProps} />);
+      const submitButton = screen.getByRole('button', { name: /check your solution/i });
+      fireEvent.click(submitButton);
+      expect(mockProps.onSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle hint button click', () => {
+      render(<GameControls {...mockProps} />);
+      const hintButton = screen.getByRole('button', { name: /get a hint/i });
+      fireEvent.click(hintButton);
+      expect(mockProps.onHint).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Undo Button States', () => {
+    it('should enable undo button when canUndo is true', () => {
+      render(<GameControls {...mockProps} canUndo={true} />);
+      expect(screen.getByRole('button', { name: /undo last move/i })).not.toBeDisabled();
+    });
+
+    it('should disable undo button when canUndo is false', () => {
+      render(<GameControls {...mockProps} canUndo={false} />);
+      expect(screen.getByRole('button', { name: /undo last move/i })).toBeDisabled();
+    });
+
+    it('should disable undo when disabled is true even if canUndo is true', () => {
+      render(<GameControls {...mockProps} disabled={true} canUndo={true} />);
+      expect(screen.getByRole('button', { name: /undo last move/i })).toBeDisabled();
+    });
+  });
 });

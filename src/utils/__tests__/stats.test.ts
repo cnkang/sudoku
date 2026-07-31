@@ -145,4 +145,77 @@ describe('Stats Utils', () => {
       expect(() => updateStats(2, 120, true)).not.toThrow();
     });
   });
+
+  describe('updateStats additional branches', () => {
+    it('should not update bestTimes when completed is false', () => {
+      const existingStats = {
+        gamesPlayed: 1,
+        gamesCompleted: 0,
+        totalTime: 300,
+        bestTimes: {},
+        averageTime: 300,
+      };
+      mockLocalStorage.getItem.mockReturnValue(JSON.stringify(existingStats));
+
+      updateStats(5, 200, false);
+
+      const savedData = mockLocalStorage.setItem.mock.calls[0][1];
+      const parsedStats = JSON.parse(savedData);
+      // bestTimes should remain empty since completed is false
+      expect(parsedStats.bestTimes).toEqual({});
+      expect(parsedStats.gamesCompleted).toBe(0);
+    });
+
+    it('should set best time when no existing best time for difficulty', () => {
+      const existingStats = {
+        gamesPlayed: 1,
+        gamesCompleted: 1,
+        totalTime: 300,
+        bestTimes: {}, // No best time for difficulty 3
+        averageTime: 300,
+      };
+      mockLocalStorage.getItem.mockReturnValue(JSON.stringify(existingStats));
+
+      updateStats(3, 250, true);
+
+      const savedData = mockLocalStorage.setItem.mock.calls[0][1];
+      const parsedStats = JSON.parse(savedData);
+      expect(parsedStats.bestTimes[3]).toBe(250);
+    });
+
+    it('should correctly calculate average time across multiple games', () => {
+      const existingStats = {
+        gamesPlayed: 2,
+        gamesCompleted: 1,
+        totalTime: 600,
+        bestTimes: {},
+        averageTime: 300,
+      };
+      mockLocalStorage.getItem.mockReturnValue(JSON.stringify(existingStats));
+
+      updateStats(5, 300, false);
+
+      const savedData = mockLocalStorage.setItem.mock.calls[0][1];
+      const parsedStats = JSON.parse(savedData);
+      expect(parsedStats.gamesPlayed).toBe(3);
+      expect(parsedStats.totalTime).toBe(900);
+      expect(parsedStats.averageTime).toBe(300);
+    });
+  });
+
+  describe('getStats additional branches', () => {
+    it('should return defaults when localStorage returns invalid JSON', () => {
+      mockLocalStorage.getItem.mockReturnValue('invalid json');
+
+      const stats = getStats();
+
+      expect(stats).toEqual({
+        gamesPlayed: 0,
+        gamesCompleted: 0,
+        bestTimes: {},
+        totalTime: 0,
+        averageTime: 0,
+      });
+    });
+  });
 });

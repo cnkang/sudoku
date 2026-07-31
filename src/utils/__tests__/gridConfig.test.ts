@@ -129,7 +129,7 @@ describe('GridConfigManager', () => {
       expect(GridConfigManager.validateConfig(GRID_CONFIGS[9])).toBe(true);
     });
 
-    it('should reject invalid configurations', () => {
+    it('should reject invalid configurations - box mismatch', () => {
       const invalidConfig: GridConfig = {
         size: 4,
         boxRows: 2,
@@ -147,6 +147,196 @@ describe('GridConfigManager', () => {
       };
 
       expect(GridConfigManager.validateConfig(invalidConfig)).toBe(false);
+    });
+
+    it('should reject unsupported grid size', () => {
+      const invalidConfig: GridConfig = {
+        size: 5 as any,
+        boxRows: 1,
+        boxCols: 5,
+        maxValue: 5,
+        minClues: 8,
+        maxClues: 20,
+        difficultyLevels: 5,
+        cellSize: { desktop: 80, tablet: 70, mobile: 60 },
+        childFriendly: {
+          enableAnimations: true,
+          showHelpText: true,
+          useExtraLargeTargets: true,
+        },
+      };
+
+      expect(GridConfigManager.validateConfig(invalidConfig)).toBe(false);
+    });
+
+    it('should reject when maxValue does not match size', () => {
+      const invalidConfig: GridConfig = {
+        size: 4,
+        boxRows: 2,
+        boxCols: 2,
+        maxValue: 9, // Invalid: maxValue !== size
+        minClues: 8,
+        maxClues: 12,
+        difficultyLevels: 5,
+        cellSize: { desktop: 80, tablet: 70, mobile: 60 },
+        childFriendly: {
+          enableAnimations: true,
+          showHelpText: true,
+          useExtraLargeTargets: true,
+        },
+      };
+
+      expect(GridConfigManager.validateConfig(invalidConfig)).toBe(false);
+    });
+
+    it('should reject when minClues >= maxClues', () => {
+      const invalidConfig: GridConfig = {
+        size: 4,
+        boxRows: 2,
+        boxCols: 2,
+        maxValue: 4,
+        minClues: 12,
+        maxClues: 8, // Invalid: minClues >= maxClues
+        difficultyLevels: 5,
+        cellSize: { desktop: 80, tablet: 70, mobile: 60 },
+        childFriendly: {
+          enableAnimations: true,
+          showHelpText: true,
+          useExtraLargeTargets: true,
+        },
+      };
+
+      expect(GridConfigManager.validateConfig(invalidConfig)).toBe(false);
+    });
+
+    it('should reject when difficultyLevels <= 0', () => {
+      const invalidConfig: GridConfig = {
+        size: 4,
+        boxRows: 2,
+        boxCols: 2,
+        maxValue: 4,
+        minClues: 8,
+        maxClues: 12,
+        difficultyLevels: 0, // Invalid
+        cellSize: { desktop: 80, tablet: 70, mobile: 60 },
+        childFriendly: {
+          enableAnimations: true,
+          showHelpText: true,
+          useExtraLargeTargets: true,
+        },
+      };
+
+      expect(GridConfigManager.validateConfig(invalidConfig)).toBe(false);
+    });
+
+    it('should reject when cellSize has non-positive values', () => {
+      const invalidConfig: GridConfig = {
+        size: 4,
+        boxRows: 2,
+        boxCols: 2,
+        maxValue: 4,
+        minClues: 8,
+        maxClues: 12,
+        difficultyLevels: 5,
+        cellSize: { desktop: 0, tablet: 70, mobile: 60 }, // Invalid: desktop <= 0
+        childFriendly: {
+          enableAnimations: true,
+          showHelpText: true,
+          useExtraLargeTargets: true,
+        },
+      };
+
+      expect(GridConfigManager.validateConfig(invalidConfig)).toBe(false);
+    });
+
+    it('should reject when cellSize mobile is non-positive', () => {
+      const invalidConfig: GridConfig = {
+        size: 4,
+        boxRows: 2,
+        boxCols: 2,
+        maxValue: 4,
+        minClues: 8,
+        maxClues: 12,
+        difficultyLevels: 5,
+        cellSize: { desktop: 80, tablet: 70, mobile: -1 }, // Invalid
+        childFriendly: {
+          enableAnimations: true,
+          showHelpText: true,
+          useExtraLargeTargets: true,
+        },
+      };
+
+      expect(GridConfigManager.validateConfig(invalidConfig)).toBe(false);
+    });
+  });
+
+  describe('validateMove edge cases', () => {
+    it('should reject negative row', () => {
+      const config = GridConfigManager.getConfig(4);
+      const grid = [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+      ];
+      expect(GridConfigManager.validateMove(config, grid, -1, 0, 1)).toBe(false);
+    });
+
+    it('should reject negative column', () => {
+      const config = GridConfigManager.getConfig(4);
+      const grid = [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+      ];
+      expect(GridConfigManager.validateMove(config, grid, 0, -1, 1)).toBe(false);
+    });
+
+    it('should reject negative value', () => {
+      const config = GridConfigManager.getConfig(4);
+      const grid = [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+      ];
+      expect(GridConfigManager.validateMove(config, grid, 0, 0, -1)).toBe(false);
+    });
+
+    it('should allow value 0 (clear)', () => {
+      const config = GridConfigManager.getConfig(4);
+      const grid = [
+        [1, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+      ];
+      expect(GridConfigManager.validateMove(config, grid, 0, 0, 0)).toBe(true);
+    });
+
+    it('should reject column conflict', () => {
+      const config = GridConfigManager.getConfig(4);
+      const grid = [
+        [1, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+      ];
+      // Value 1 already in column 0
+      expect(GridConfigManager.validateMove(config, grid, 1, 0, 1)).toBe(false);
+    });
+
+    it('should reject box conflict', () => {
+      const config = GridConfigManager.getConfig(4);
+      const grid = [
+        [1, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+      ];
+      // Value 1 already in top-left 2x2 box
+      expect(GridConfigManager.validateMove(config, grid, 1, 1, 1)).toBe(false);
     });
   });
 });
