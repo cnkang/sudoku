@@ -120,9 +120,9 @@ const GameControls = React.memo(function GameControls({
         className={`${styles.controlButtons} ${styles.modernFlexRow}`}
         data-testid="control-buttons"
       >
-        {buttons.map((btn, index) => (
+        {buttons.map((btn) => (
           <button
-            key={index}
+            key={btn.ariaLabel}
             type="button"
             onClick={btn.onClick}
             disabled={btn.disabled}
