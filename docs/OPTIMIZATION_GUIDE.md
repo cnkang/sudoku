@@ -410,7 +410,7 @@ Before committing code, verify:
 - [ ] Server components use React.cache()
 - [ ] Event listeners are passive where appropriate
 - [ ] Static JSX hoisted outside render
-- [ ] Test coverage maintained at 87.5%
+- [ ] Test coverage maintained at 95.8% statements / 92.4% branches
 
 ---
 
@@ -423,5 +423,5 @@ Before committing code, verify:
 
 ---
 
-**Last Updated**: 2026-03-03
+**Last Updated**: 2026-07-31
 **Maintained By**: Development Team

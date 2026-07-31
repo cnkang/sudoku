@@ -2,25 +2,26 @@
 
 ## Project Description
 
-A modern, full-featured Sudoku game supporting 4×4, 6×6, and 9×9 grids, built with Next.js 16 and React 19. Features intelligent puzzle generation, child-friendly design, and comprehensive accessibility. Comprehensively optimized across design, performance, security, and code quality with 16% bundle size reduction, WCAG AAA accessibility, and distinctive geometric design system. Achieves 87.5% test coverage with 70+ validated correctness properties.
+A modern, full-featured Sudoku game supporting 4×4, 6×6, and 9×9 grids, built with Next.js 16 and React 19. Features intelligent puzzle generation, child-friendly design, and comprehensive accessibility. The UI follows the Apple Design System (WWDC 2018 "Designing Fluid Interfaces" and WWDC 2020 "Details of UI Typography"), fully compliant with WCAG 2.2 AAA. Backed by 1052 tests (95.8% statement / 92.4% branch coverage) and 70+ validated correctness properties.
 
 ## Features
 
 ## Comprehensive Optimization Highlights
 
-This application has undergone comprehensive optimization across four key areas, transforming it from functional to unforgettable while maintaining 87.5% test coverage and WCAG AAA accessibility:
+This application has undergone comprehensive optimization across four key areas, transforming it from functional to unforgettable while maintaining WCAG 2.2 AAA accessibility and 95.8% statement / 92.4% branch coverage:
 
-### 🎨 Design System Transformation
-- **Custom Typography**: Professional font system with Space Grotesk, Inter Variable, and JetBrains Mono
-- **Geometric Sunset Palette**: Distinctive warm colors (coral, amber, teal, indigo) with validated 7:1 contrast ratios
-- **Delightful Animations**: 60fps CSS animations (ripple, burst, shake, reveal, confetti) with reduced-motion support
-- **Build-Time Validation**: Automated contrast ratio checking prevents accessibility regressions
+### 🎨 Apple Design System
+- **Fluid Interfaces**: Physics-based, interruptible spring animations via a custom `useSpring` hook (per-button press springs, snap transitions), following WWDC 2018.
+- **Typography**: Fluid type scale with Inter (body) and JetBrains Mono (grid numbers) loaded via `next/font`, system-ui fallbacks, and optical sizing, following WWDC 2020.
+- **Semantic Color Tokens**: Mode-aware, high-contrast palette validated to ≥ 7:1 (normal) and ≥ 4.5:1 (large text) at build time.
+- **Glassmorphism & Elevation**: Glass surfaces, ambient/key shadow tokens, and AAA-compliant focus rings.
+- **Reduced Motion**: Respects `prefers-reduced-motion` across all spring and CSS animations.
 
 ### ⚡ Performance Optimization
-- **16% Bundle Reduction**: 250KB → 210KB through tree-shaking, code splitting, and direct imports
-- **25-40% Faster Operations**: Parallelized async operations eliminate request waterfalls
 - **Two-Tier Caching**: React.cache() + LRU with 80%+ hit rate for puzzle generation
-- **Optimized Re-renders**: React.memo, useEvent pattern, and stable callbacks minimize unnecessary updates
+- **Parallelized Async**: `Promise.all()` eliminates request waterfalls for 25-40% faster grid changes
+- **Hoisted node_modules**: pnpm hoisted layout for broad tooling compatibility
+- **React.memo & Stable Callbacks**: Minimized re-renders for SudokuGrid and Timer components
 
 ### 🔒 Security Hardening
 - **Defense in Depth**: CSP with nonce, comprehensive security headers (HSTS, X-Frame-Options, etc.)
@@ -29,9 +30,9 @@ This application has undergone comprehensive optimization across four key areas,
 - **Zero Vulnerabilities**: Automated pnpm audit with Dependabot for continuous security
 
 ### ✅ Code Quality & Testing
-- **TypeScript Strict Mode**: No any types, explicit return types, discriminated unions
+- **TypeScript 7**: Strict mode, no `any` types, explicit return types, discriminated unions (native compiler)
 - **70+ Property Tests**: Correctness properties validated with fast-check for design, performance, security, and accessibility
-- **Comprehensive Coverage**: 87.5% test coverage maintained across all optimizations
+- **Comprehensive Coverage**: 95.8% statements / 92.4% branches / 94.0% functions / 96.5% lines (1052 tests, 73 files)
 - **Progressive Enhancement**: Modern features with fallbacks for older browsers
 
 ### Core Gameplay
@@ -51,24 +52,22 @@ This application has undergone comprehensive optimization across four key areas,
 - **Grid Size Selector**: Switch between 4×4, 6×6, and 9×9 grids
 - **Difficulty Selector**: Adaptive difficulty ranges per grid size
 
-### Design System (v3.0)
+### Apple Design System (v3.0)
 
-- **Custom Typography System**: Space Grotesk for display, Inter Variable for body, JetBrains Mono for grid numbers
-- **Font Loading Optimization**: next/font with font-display: swap, CLS < 0.1, system font fallbacks
-- **Geometric Sunset Palette**: Coral, amber, teal, indigo primaries with warm cream backgrounds
-- **WCAG AAA Compliance**: All color combinations maintain 7:1 contrast ratios (validated at build time)
-- **Delightful Animations**: Ripple effects, particle bursts, gentle shakes, geometric reveals, confetti explosions
-- **60fps Performance**: CSS-only animations with GPU acceleration
-- **Reduced Motion Support**: Respects prefers-reduced-motion for accessibility
-- **Geometric Decorative Elements**: Circles, triangles, squares with mesh gradients
-- **Asymmetric Layout**: Diagonal flow composition with Container Queries
+Based on WWDC 2018 "Designing Fluid Interfaces" and WWDC 2020 "Details of UI Typography", WCAG 2.2 AAA compliant.
+
+- **Fluid Typography Scale**: Inter for body/UI, JetBrains Mono for grid numbers, loaded via `next/font` with `font-display: swap` and optical sizing
+- **Semantic Color Tokens**: Mode-aware palette (brand, success, warning, error, info) all ≥ 7:1 contrast on white — validated at build time
+- **Physics-Based Animations**: Interruptible spring animations via the `useSpring` hook (press feedback, snap transitions, Suspense fallbacks)
+- **Glassmorphism Surfaces**: Glass backgrounds, elevated shadows, and AAA-compliant focus rings
+- **Reduced Motion Support**: Respects `prefers-reduced-motion` across all spring and CSS animations
+- **Container Queries & Asymmetric Layout**: Diagonal flow composition with Container Queries for truly fluid responsiveness
 
 ### Performance Optimizations
 
 #### Bundle Optimization
-- **16% Bundle Size Reduction**: From 250KB to 210KB gzipped through comprehensive optimization
-- **Tree-Shaking**: Direct imports (no barrel files), lodash-es for ES modules
-- **Code Splitting**: React.lazy() for heavy components (> 50KB), route-based splitting
+- **Tree-Shaking**: Direct imports (no barrel files) and ES-module-friendly dependencies
+- **Code Splitting**: React.lazy() for heavy components, route-based splitting
 - **Font Optimization**: next/font with automatic subsetting and preloading
 
 #### Runtime Performance
@@ -125,24 +124,24 @@ This application has undergone comprehensive optimization across four key areas,
 - **Server-side Puzzle Generation**: Advanced DLX algorithm for unique, solvable puzzles
 - **Intelligent Caching**: Two-tier caching with React.cache() and LRU with TTL
 - **Mobile-first Design**: Fully responsive with touch optimization and haptic feedback
-- **Comprehensive Testing**: 87.5% test coverage with unit, integration, property-based, and E2E tests
+- **Comprehensive Testing**: 1052 tests (95.8% statement / 92.4% branch coverage) across unit, integration, property-based, and E2E suites
 - **Property-Based Testing**: 70+ correctness properties validated with fast-check
-- **Type Safety**: Full TypeScript strict mode with no any types
+- **Type Safety**: TypeScript 7 strict mode with no any types
 - **Progressive Enhancement**: Modern CSS with @supports queries and fallbacks
 - **Error Boundaries**: Graceful error handling with user progress preservation
 - **Retry Logic**: Exponential backoff for failed API requests
-- **Accessibility Excellence**: WCAG AAA compliance with keyboard navigation and screen reader support
+- **Accessibility Excellence**: WCAG 2.2 AAA compliance with keyboard navigation and screen reader support
 
 ## Prerequisites
 
-- Node.js `24.14.1` (see `.nvmrc`)
-- `pnpm 10.29.2+`
+- Node.js `24.18.0` LTS (see `.nvmrc`)
+- `pnpm 11.6.0+`
 
 ## Installation
 
 ```bash
 corepack enable
-corepack use pnpm@10.29.2
+corepack use pnpm@11.6.0
 pnpm install
 ```
 
@@ -161,7 +160,7 @@ pnpm start
 
 ## Testing
 
-**Test Coverage: 87.5%** (Maintained through comprehensive optimizations)
+**Test Coverage: 95.8% statements / 92.4% branches / 94.0% functions** (1052 tests across 73 files)
 
 ```bash
 # Run all tests
@@ -180,7 +179,7 @@ pnpm test:e2e
 ### Test Categories
 
 - **Component Tests**: 40+ tests for UI components with React Testing Library
-- **Hook Tests**: Comprehensive state management and custom hook validation
+- **Hook Tests**: Comprehensive state management and custom hook validation (incl. `useSpring`)
 - **API Tests**: 31+ tests with caching, rate limiting, and security validation
 - **Property-Based Tests**: 70+ correctness properties validated with fast-check
   - Design system properties (contrast, fonts, animations, reduced-motion)
@@ -202,23 +201,22 @@ pnpm test:e2e
 - **CLS (Cumulative Layout Shift)**: < 0.1 during page load and font loading
 
 ### Optimization Results
-- **Bundle Size**: 210KB gzipped (16% reduction from 250KB baseline)
 - **Grid Size Change Latency**: 25-40% improvement through async parallelization
 - **Cache Hit Rate**: > 80% for puzzle generation with two-tier caching
-- **Animation Performance**: Consistent 60fps with GPU acceleration
+- **Animation Performance**: Consistent 60fps with GPU-accelerated spring/CSS animations
 - **Font Loading CLS**: < 0.1 with optimized fallbacks and font-display: swap
-- **Re-render Optimization**: Minimized unnecessary renders with React.memo and useEvent
+- **Re-render Optimization**: Minimized unnecessary renders with React.memo and stable callbacks
 
 ### Lighthouse Scores (Mobile)
 - **Performance**: 95+ (optimized bundle, caching, lazy loading)
-- **Accessibility**: 100 (WCAG AAA compliant with 7:1 contrast)
+- **Accessibility**: 100 (WCAG 2.2 AAA compliant with ≥ 7:1 contrast)
 - **Best Practices**: 100 (security headers, HTTPS, modern standards)
 - **SEO**: 100 (semantic HTML, meta tags, structured data)
 
 ### Build Metrics
-- **TypeScript Strict Mode**: Zero any types, explicit return types
+- **TypeScript 7 Strict Mode**: Zero any types, explicit return types
 - **Zero Critical Vulnerabilities**: Automated pnpm audit in CI
-- **Test Coverage**: 87.5% with 70+ property-based tests
+- **Test Coverage**: 95.8% statements / 92.4% branches across 1052 tests
 - **Bundle Size Budget**: < 15% increase enforced in CI pipeline
 
 ## Code Quality
@@ -243,19 +241,24 @@ src/
 │   ├── api/solveSudoku/   # Puzzle generation API
 │   ├── __tests__/         # Page component tests
 │   ├── globals.css        # Global styles
-│   ├── page.styles.ts     # Page-specific styles
+│   ├── page.module.css    # Page-specific styles
 │   └── page.tsx           # Main game page
 ├── components/            # React components
 │   ├── __tests__/         # Component tests
+│   ├── ModernSudokuApp.tsx # Top-level app shell
 │   ├── SudokuGrid.tsx     # Interactive game grid
-│   ├── SudokuGrid.styles.ts # Grid component styles
 │   ├── GameControls.tsx   # Game control buttons
-│   ├── GameControls.styles.ts # Controls component styles
-│   ├── Timer.tsx          # Game timer
-│   └── DifficultySelector.tsx
+│   ├── TouchOptimizedControls.tsx # Touch-optimized controls
+│   ├── DifficultySelector.tsx
+│   └── decorative/         # Geometric decorative elements
 ├── hooks/                 # Custom React hooks
 │   ├── __tests__/         # Hook tests
-│   └── useGameState.ts    # Game state management
+│   ├── useGameState.ts    # Game state management
+│   └── useSpring.ts       # Physics-based spring animations
+├── styles/                # Design system stylesheets
+│   ├── apple-design-system.css # Apple Design System tokens
+│   ├── asymmetric-layout.css  # Asymmetric layout utilities
+│   └── modern-responsive.css  # Container-query responsive utilities
 ├── utils/                 # Utility functions
 │   ├── __tests__/         # Utility tests
 │   ├── hints.ts           # Hint generation logic
@@ -297,19 +300,23 @@ src/
 
 ### Runtime
 
-- **next** (16.1.6) - React framework with App Router and Turbopack
-- **react** (19.2.4) - UI library with React Compiler optimizations
-- **react-dom** (19.2.4) - React DOM renderer
-- **fast-sudoku-solver** (3.0.0) - Advanced DLX algorithm for puzzle generation
-- **zod** (4.3.6) - TypeScript-first schema validation
+- **next** (16.2.12) - React framework with App Router and Turbopack
+- **react** (19.2.8) - UI library with React Compiler optimizations
+- **react-dom** (19.2.8) - React DOM renderer
+- **fast-sudoku-solver** (3.0.3) - Advanced DLX algorithm for puzzle generation
+- **zod** (4.4.3) - TypeScript-first schema validation
+- **sharp** (0.35.3) - Image optimization
+- **web-vitals** (6.0.1) - Core Web Vitals reporting
 
 ### Development
 
-- **typescript** (5.9.3) - Type safety with strict mode
-- **vitest** (4.0.18) - Fast testing framework with coverage
-- **@biomejs/biome** (2.4.4) - Fast linter and formatter
-- **playwright** (1.58.2) - E2E testing framework
-- **fast-check** (4.5.3) - Property-based testing library
+- **typescript** (7.0.2) - Type safety with strict mode (native compiler)
+- **vite** (8.1.5) - Build tool and dev server
+- **vitest** (4.1.10) - Fast testing framework with coverage
+- **@biomejs/biome** (2.5.6) - Fast linter and formatter
+- **oxlint** (1.76.0) - Oxidation linter
+- **playwright** (1.62.0) - E2E testing framework
+- **fast-check** (4.9.0) - Property-based testing library
 - **husky** (9.1.7) - Git hooks for quality gates
 
 ## License

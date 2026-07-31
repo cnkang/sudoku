@@ -1,6 +1,6 @@
 # Browser Compatibility Matrix
 
-Last validated: 2026-03-03
+Last validated: 2026-07-31
 
 ## Test Scope
 
