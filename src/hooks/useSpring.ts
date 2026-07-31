@@ -212,62 +212,35 @@ export function useSpring(
   });
 
   const targetRef = useRef(initialValue);
+  const stateRef = useRef(state);
   const rafRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
   const configRef = useRef(config);
   const callbacksRef = useRef({ onComplete, onFrame });
 
-  // Update refs
+  // Update refs on each render
   configRef.current = config;
   callbacksRef.current = { onComplete, onFrame };
-
-  const animate = useCallback(
-    (timestamp: number) => {
-      if (lastTimeRef.current === 0) {
-        lastTimeRef.current = timestamp;
-        rafRef.current = requestAnimationFrame(animate);
-        return;
-      }
-
-      const dt = Math.min((timestamp - lastTimeRef.current) / 1000, 1 / 30); // cap at 30fps min
-      lastTimeRef.current = timestamp;
-
-      const newState = springStep(state, targetRef.current, configRef.current, dt);
-
-      setState(newState);
-      callbacksRef.current.onFrame?.(newState.value);
-
-      if (newState.isAnimating) {
-        rafRef.current = requestAnimationFrame(animate);
-      } else {
-        callbacksRef.current.onComplete?.();
-      }
-    },
-    [state],
-  ); // state is captured via closure in springStep, but we need fresh state
-
-  // Actually, we need a different approach - use ref for state
-  const stateRef = useRef(state);
   stateRef.current = state;
 
-  const animateRef = useCallback((timestamp: number) => {
+  const animate = useCallback((timestamp: number) => {
     if (lastTimeRef.current === 0) {
       lastTimeRef.current = timestamp;
-      rafRef.current = requestAnimationFrame(animateRef);
+      rafRef.current = requestAnimationFrame(animate);
       return;
     }
 
-    const dt = Math.min((timestamp - lastTimeRef.current) / 1000, 1 / 30);
+    const dt = Math.min((timestamp - lastTimeRef.current) / 1000, 1 / 30); // cap at 30fps min
     lastTimeRef.current = timestamp;
 
     const newState = springStep(stateRef.current, targetRef.current, configRef.current, dt);
 
     stateRef.current = newState;
-    setState(newState); // trigger re-render
+    setState(newState);
     callbacksRef.current.onFrame?.(newState.value);
 
     if (newState.isAnimating) {
-      rafRef.current = requestAnimationFrame(animateRef);
+      rafRef.current = requestAnimationFrame(animate);
     } else {
       callbacksRef.current.onComplete?.();
     }
@@ -282,10 +255,10 @@ export function useSpring(
       }
       if (!stateRef.current.isAnimating) {
         lastTimeRef.current = 0;
-        rafRef.current = requestAnimationFrame(animateRef);
+        rafRef.current = requestAnimationFrame(animate);
       }
     },
-    [animateRef],
+    [animate],
   );
 
   const setValue = useCallback((value: number) => {
@@ -309,27 +282,24 @@ export function useSpring(
     setState(stateRef.current);
   }, []);
 
-  // Start animation if immediate
-  useEffect(() => {
-    if (immediate) {
-      targetRef.current = initialValue;
-      lastTimeRef.current = 0;
-      rafRef.current = requestAnimationFrame(animateRef);
-    }
-    return () => {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
-    };
-  }, [immediate, initialValue, animateRef]);
-
-  // Handle reduced motion — instant snap
-  const prefersReducedMotion =
-    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Reduced motion handling with listener for changes
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  });
 
   useEffect(() => {
-    if (prefersReducedMotion) {
-      // In reduced motion, just set value instantly
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handler = () => setPrefersReducedMotion(mediaQuery.matches);
+    handler(); // run once to set initial
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+  // Handle reduced motion — instant snap when enabled
+  useEffect(() => {
+    if (prefersReducedMotion && !immediate) {
+      // In reduced motion, set value instantly to target
       stateRef.current = {
         ...stateRef.current,
         value: targetRef.current,
@@ -337,8 +307,28 @@ export function useSpring(
         isAnimating: false,
       };
       setState(stateRef.current);
+      // Cancel any ongoing animation
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+        lastTimeRef.current = 0;
+      }
     }
-  }, [prefersReducedMotion]);
+  }, [prefersReducedMotion, immediate]);
+
+  // Start animation loop if needed
+  useEffect(() => {
+    if (immediate) {
+      targetRef.current = initialValue;
+      lastTimeRef.current = 0;
+      rafRef.current = requestAnimationFrame(animate);
+    }
+    return () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, [immediate, initialValue, animate]);
 
   return {
     value: state.value,
@@ -471,9 +461,8 @@ export function useGestureSpring(
     const recent = gestureHistoryRef.current.filter((s) => now - s.timestamp < 100);
     if (recent.length < 2) return { x: 0, y: 0 };
 
-    const first = recent[0];
-    const last = recent[recent.length - 1];
-    if (!first || !last) return { x: 0, y: 0 };
+    const first = recent[0]!;
+    const last = recent[recent.length - 1]!;
     const dt = (last.timestamp - first.timestamp) / 1000; // seconds
     if (dt === 0) return { x: 0, y: 0 };
 
@@ -510,7 +499,8 @@ export function useGestureSpring(
       let constrainedDelta = deltaX;
       if (bounds) {
         const currentPos = startValue + deltaX;
-        constrainedDelta = rubberBand(currentPos, bounds.min, bounds.max, dimension) - startValue;
+        constrainedDelta =
+          rubberBand(currentPos, bounds.min, bounds.max, dimension || 300) - startValue;
       }
 
       setDragOffset(constrainedDelta);
@@ -529,27 +519,23 @@ export function useGestureSpring(
       const cutoff = timestamp - 200;
       gestureHistoryRef.current = gestureHistoryRef.current.filter((s) => s.timestamp > cutoff);
     },
-    [spring, bounds, dimension],
+    [dragStartRef, spring, bounds, dimension],
   );
 
   const onUp = useCallback(
-    (_clientX: number, _clientY: number, _timestamp: number) => {
+    (clientX: number, clientY: number, timestamp: number) => {
       if (!dragStartRef.current) return;
 
       const velocity = calculateVelocity();
       const releaseVelocity = velocity.x; // horizontal drag
 
-      // Project momentum
       let target = spring.value;
       if (snapPoints.length > 0) {
         const projected = spring.value + projectMomentum(releaseVelocity);
         target = snapToNearest(projected, snapPoints);
-
-        // Update snap index
-        const newIndex = snapPoints.indexOf(target);
+        const newIndex = snapPoints.findIndex((p) => Math.abs(p - target) < 0.5);
         if (newIndex !== -1 && newIndex !== lastSnapIndexRef.current) {
           lastSnapIndexRef.current = newIndex;
-          setSnapIndex(newIndex);
           onSnapChange?.(newIndex);
         }
       } else if (bounds) {
@@ -564,9 +550,18 @@ export function useGestureSpring(
       spring.setTarget(target, initialVelocity);
       setIsDragging(false);
       dragStartRef.current = null;
+      gestureHistoryRef.current = [];
+      setDragOffset(0);
     },
-    [spring, snapPoints, bounds, dimension, calculateVelocity, onSnapChange],
+    [spring, calculateVelocity, snapPoints, bounds, onSnapChange],
   );
+
+  // Cleanup animation frame on unmount
+  useEffect(() => {
+    return () => {
+      spring.stop();
+    };
+  }, [spring]);
 
   return {
     ...spring,
@@ -577,32 +572,4 @@ export function useGestureSpring(
     isDragging,
     snapIndex,
   };
-}
-
-// ============================================================================
-// Utility: Normalize velocity for Framer Motion / Motion (expects px/s)
-// ============================================================================
-
-/**
- * Convert our spring's relative velocity to absolute px/s for Motion/Framer
- */
-export function toAbsoluteVelocity(
-  relativeVelocity: number,
-  currentValue: number,
-  targetValue: number,
-): number {
-  const distance = targetValue - currentValue;
-  return relativeVelocity * Math.abs(distance);
-}
-
-/**
- * Convert Motion's absolute px/s to our relative velocity
- */
-export function toRelativeVelocity(
-  absoluteVelocity: number,
-  currentValue: number,
-  targetValue: number,
-): number {
-  const distance = targetValue - currentValue;
-  return distance !== 0 ? absoluteVelocity / distance : 0;
 }
