@@ -246,7 +246,15 @@ export function usePuzzleActions({
   const getGameHint = useCallback(() => {
     if (!state.puzzle || !state.solution || !state.userInput) return;
 
-    const hint = getHint(state.puzzle, state.userInput, state.solution, currentGridConfig);
+    // Exclude the currently-shown hint so a repeated request advances to a new
+    // cell. If the user already followed the previous hint, that cell is no
+    // longer empty/incorrect and would be skipped anyway; passing it as exclude
+    // also covers the case where they haven't applied it yet.
+    const exclude = state.showHint
+      ? { row: state.showHint.row, col: state.showHint.col }
+      : undefined;
+
+    const hint = getHint(state.puzzle, state.userInput, state.solution, currentGridConfig, exclude);
     if (!hint) return;
 
     dispatch({ type: 'USE_HINT' });
@@ -267,6 +275,7 @@ export function usePuzzleActions({
     state.puzzle,
     state.solution,
     state.userInput,
+    state.showHint,
     state.childMode,
     currentGridConfig,
     dispatch,

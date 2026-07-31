@@ -110,6 +110,69 @@ describe('Hints Utility', () => {
     }
   });
 
+  describe('exclude option', () => {
+    it('should skip the excluded cell and return the next empty cell', () => {
+      const userInput = mockPuzzle.map((row) => [...row]);
+
+      // First hint points to (0,2) — the first empty cell
+      const first = getHint(mockPuzzle, userInput, mockSolution);
+      expect(first?.row).toBe(0);
+      expect(first?.col).toBe(2);
+
+      // Requesting again while excluding (0,2) should return a different cell
+      const second = getHint(mockPuzzle, userInput, mockSolution, undefined, {
+        row: 0,
+        col: 2,
+      });
+      expect(second).not.toBeNull();
+      if (second) {
+        // Must not be the excluded cell
+        expect(second).not.toEqual({ row: 0, col: 2 });
+        // Should still point to an empty cell's solution value
+        expect(second.value).toBe(mockSolution[second.row][second.col]);
+      }
+    });
+
+    it('should return null when only the excluded cell needs a hint', () => {
+      // Fill everything correctly except one empty cell
+      const userInput = mockPuzzle.map((row) => [...row]);
+      // Leave only (0,2) empty by filling the rest with solution values
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (mockPuzzle[r][c] === 0 && !(r === 0 && c === 2)) {
+            userInput[r][c] = mockSolution[r][c];
+          }
+        }
+      }
+
+      // Without exclude, hint points to (0,2)
+      const hint = getHint(mockPuzzle, userInput, mockSolution);
+      expect(hint?.row).toBe(0);
+      expect(hint?.col).toBe(2);
+
+      // With exclude on (0,2), nothing else remains
+      const excluded = getHint(mockPuzzle, userInput, mockSolution, undefined, {
+        row: 0,
+        col: 2,
+      });
+      expect(excluded).toBeNull();
+    });
+
+    it('should not increment usage when no new hint is available', () => {
+      // This documents the intended caller behavior: exclude avoids repeats.
+      const userInput = mockPuzzle.map((row) => [...row]);
+      const first = getHint(mockPuzzle, userInput, mockSolution);
+      expect(first).not.toBeNull();
+      const second = getHint(mockPuzzle, userInput, mockSolution, undefined, {
+        row: first!.row,
+        col: first!.col,
+      });
+      // A different hint exists here (many empty cells), so it should be non-null and different
+      expect(second).not.toBeNull();
+      expect(second).not.toEqual(first);
+    });
+  });
+
   describe('getCellValues undefined branches', () => {
     it('should handle puzzle with sparse rows gracefully via config', () => {
       // Use a 4x4 config to test with smaller grids

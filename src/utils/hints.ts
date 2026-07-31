@@ -37,9 +37,14 @@ const findMatchingCell = (
   gridSize: number,
   predicate: (values: CellValues) => boolean,
   buildReason: (solutionCell: number, row: number, col: number) => string,
+  exclude?: { row: number; col: number },
 ): HintResult | null => {
   for (let row = 0; row < gridSize; row++) {
     for (let col = 0; col < gridSize; col++) {
+      // Skip the currently-shown hint so a repeated request advances to a new cell
+      if (exclude && exclude.row === row && exclude.col === col) {
+        continue;
+      }
       const values = getCellValues(puzzle, userInput, solution, row, col);
       if (!values) {
         continue;
@@ -62,6 +67,7 @@ export const getHint = (
   userInput: number[][],
   solution: number[][],
   config?: GridConfig,
+  exclude?: { row: number; col: number },
 ): HintResult | null => {
   // Validate inputs using grid config if provided
   validateSudokuGrid(puzzle, config);
@@ -78,6 +84,7 @@ export const getHint = (
     gridSize,
     ({ puzzleCell, inputCell }) => puzzleCell === 0 && inputCell === 0,
     (solutionCell, row, col) => `Try placing ${solutionCell} in row ${row + 1}, column ${col + 1}`,
+    exclude,
   );
 
   if (emptyCellHint) {
@@ -93,5 +100,6 @@ export const getHint = (
       puzzleCell === 0 && inputCell !== 0 && inputCell !== solutionCell,
     (solutionCell, row, col) =>
       `The value in row ${row + 1}, column ${col + 1} should be ${solutionCell}`,
+    exclude,
   );
 };
