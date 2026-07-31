@@ -156,7 +156,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
   return (
     <div className={`${styles.modernApp} ${state.childMode ? styles.childMode : ''}`}>
       {/* Main Game Area */}
-      <section className={styles.gameArea} role="region" aria-label="Game area">
+      <section className={styles.gameArea} aria-label="Game area">
         {/* Game Header */}
         <header className={styles.gameHeader}>
           <h1 className={styles.title}>{state.childMode ? 'Sudoku Fun!' : 'Sudoku Challenge'}</h1>

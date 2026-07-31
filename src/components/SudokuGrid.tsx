@@ -211,6 +211,16 @@ const Cell = memo(function Cell({
     'data-large-text': largeText ? 'true' : undefined,
   };
 
+  const handlePointerDown = useCallback(() => {
+    setIsPressed(true);
+    onPressDown();
+  }, [onPressDown]);
+
+  const handlePointerUp = useCallback(() => {
+    setIsPressed(false);
+    onPressUp();
+  }, [onPressUp]);
+
   return (
     <td
       key={cellKey}
@@ -230,30 +240,12 @@ const Cell = memo(function Cell({
         } as React.CSSProperties
       }
       {...cellDataAttrs}
-      onMouseDown={() => {
-        setIsPressed(true);
-        onPressDown();
-      }}
-      onMouseUp={() => {
-        setIsPressed(false);
-        onPressUp();
-      }}
-      onMouseLeave={() => {
-        setIsPressed(false);
-        onPressUp();
-      }}
-      onTouchStart={() => {
-        setIsPressed(true);
-        onPressDown();
-      }}
-      onTouchEnd={() => {
-        setIsPressed(false);
-        onPressUp();
-      }}
-      onTouchCancel={() => {
-        setIsPressed(false);
-        onPressUp();
-      }}
+      onMouseDown={handlePointerDown}
+      onMouseUp={handlePointerUp}
+      onMouseLeave={handlePointerUp}
+      onTouchStart={handlePointerDown}
+      onTouchEnd={handlePointerUp}
+      onTouchCancel={handlePointerUp}
     >
       {fixed ? (
         <span className={styles.fixedNumber} aria-hidden="true" data-testid="fixed-number">
@@ -295,9 +287,8 @@ const Cell = memo(function Cell({
 
 Cell.displayName = 'Cell';
 
-// --- SudokuGrid component ---
-const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(function SudokuGrid(
-  {
+function useSudokuGridLogic(props: SudokuGridProps, forwardedRef: React.Ref<SudokuGridHandle>) {
+  const {
     puzzle,
     solution,
     userInput,
@@ -308,9 +299,8 @@ const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(function 
     childMode = false,
     accessibility = {},
     onPuzzleComplete,
-  },
-  forwardedRef,
-) {
+  } = props;
+
   const { highContrast = false, reducedMotion = false, largeText = false } = accessibility;
   const { size, boxRows, boxCols, maxValue } = gridConfig;
 
@@ -319,7 +309,6 @@ const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(function 
   const pressedCellRef = useRef<{ row: number; col: number } | null>(null);
   const isComposingRef = useRef(false);
 
-  // Visual feedback system
   const _visualFeedback = useVisualFeedback({
     childMode,
     highContrast,
@@ -328,21 +317,16 @@ const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(function 
     enableSoundEffects: false,
   });
 
-  // Spring for press feedback (parent-level; Cell has its own local press state)
   const pressSpring = useSpring(0, {
     config: SPRING_PRESETS.stiff,
     immediate: false,
   });
 
-  // --- Order matters: define focusCell before handleKeyDown ---
-
-  // Get cell element helper
   const getCellElement = useCallback(
     (row: number, col: number) => cellRefs.current[generateCellKey(row, col)] ?? null,
     [],
   );
 
-  // Focus cell at position (must come before handleKeyDown)
   const focusCell = useCallback(
     (row: number, col: number) => {
       const cellElement = getCellElement(row, col);
@@ -353,7 +337,6 @@ const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(function 
     [getCellElement],
   );
 
-  // Handle cell press down
   const handleCellPressDown = useCallback(
     (row: number, col: number) => {
       if (disabled) return;
@@ -369,13 +352,11 @@ const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(function 
     [disabled, pressSpring],
   );
 
-  // Handle cell press up
   const handleCellPressUp = useCallback(() => {
     pressedCellRef.current = null;
     pressSpring.setTarget(0, 0);
   }, [pressSpring]);
 
-  // Handle input change
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>, row: number, col: number) => {
       if (isComposingRef.current) return;
@@ -384,65 +365,44 @@ const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(function 
       const numValue = value === '' ? 0 : Number.parseInt(value, 10);
       onInputChange(row, col, numValue);
     },
-    [onInputChange],
+    [onInputChange, maxValue],
   );
 
-  // Handle key down on cell (depends on focusCell — defined above ✓)
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>, row: number, col: number) => {
-      if (disabled) return;
-      if (isComposingRef.current) return;
+      if (disabled || isComposingRef.current) return;
 
-      switch (e.key) {
-        case 'ArrowRight':
-          e.preventDefault();
-          if (col < size - 1) focusCell(row, col + 1);
-          break;
-        case 'ArrowLeft':
-          e.preventDefault();
-          if (col > 0) focusCell(row, col - 1);
-          break;
-        case 'ArrowDown':
-          e.preventDefault();
-          if (row < size - 1) focusCell(row + 1, col);
-          break;
-        case 'ArrowUp':
-          e.preventDefault();
-          if (row > 0) focusCell(row - 1, col);
-          break;
-        case 'Home':
-          e.preventDefault();
-          focusCell(row, 0);
-          break;
-        case 'End':
-          e.preventDefault();
-          focusCell(row, size - 1);
-          break;
-        case 'Tab': {
-          e.preventDefault();
+      const actions: Record<string, () => void> = {
+        ArrowRight: () => col < size - 1 && focusCell(row, col + 1),
+        ArrowLeft: () => col > 0 && focusCell(row, col - 1),
+        ArrowDown: () => row < size - 1 && focusCell(row + 1, col),
+        ArrowUp: () => row > 0 && focusCell(row - 1, col),
+        Home: () => focusCell(row, 0),
+        End: () => focusCell(row, size - 1),
+        Tab: () => {
           const shiftBack = e.shiftKey && (col > 0 || row > 0);
           const shiftFwd = !e.shiftKey && (col < size - 1 || row < size - 1);
-          if (shiftBack) focusCell(col > 0 ? row : row - 1, col > 0 ? col - 1 : size - 1);
-          else if (shiftFwd)
+          if (shiftBack) {
+            focusCell(col > 0 ? row : row - 1, col > 0 ? col - 1 : size - 1);
+          } else if (shiftFwd) {
             focusCell(col < size - 1 ? row : row + 1, col < size - 1 ? col + 1 : 0);
-          break;
-        }
-        default:
-          break;
+          }
+        },
+      };
+
+      const action = actions[e.key];
+      if (action) {
+        e.preventDefault();
+        action();
       }
     },
     [disabled, size, focusCell],
   );
 
-  // Handle focus
   const handleFocus = useCallback((row: number, col: number) => {
     selectedCellRef.current = { row, col };
   }, []);
 
-  // Handle composition (inline refs — no separate callbacks needed)
-  // isComposingRef is toggled directly in handleInputChange
-
-  // Get cell state
   const getCellState = useCallback(
     (row: number, col: number) => {
       const currentValue = userInput[row]?.[col] ?? 0;
@@ -458,7 +418,6 @@ const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(function 
     [userInput, puzzle, gridConfig, hintCell],
   );
 
-  // Imperative handle methods
   const getSelectedCell = useCallback(() => selectedCellRef.current, []);
 
   const selectCell = useCallback((row: number, col: number) => {
@@ -496,7 +455,6 @@ const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(function 
     [size, focusCell],
   );
 
-  // Expose imperative methods
   useImperativeHandle(forwardedRef, () => ({
     focusCell,
     getCellState,
@@ -510,7 +468,6 @@ const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(function 
     focusNextCell,
   }));
 
-  // Check for puzzle completion
   useEffect(() => {
     if (!onPuzzleComplete || !solution) return;
 
@@ -524,7 +481,6 @@ const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(function 
     onPuzzleComplete();
   }, [userInput, solution, size, onPuzzleComplete]);
 
-  // Get border styles for cell
   const getCellBorderStyles = useCallback(
     (row: number, col: number): React.CSSProperties => {
       const isRightBorder = col === size - 1 || col % boxCols === boxCols - 1;
@@ -542,97 +498,136 @@ const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(function 
     [size, boxRows, boxCols],
   );
 
-  // Render cell
-  const renderCell = useCallback(
-    (row: number, col: number) => {
-      const { currentValue, isFixed, hasError, isHinted, isSelected } = getCellState(row, col);
+  return {
+    size,
+    maxValue,
+    childMode,
+    highContrast,
+    largeText,
+    disabled,
+    cellRefs,
+    getCellState,
+    handleInputChange,
+    handleKeyDown,
+    handleFocus,
+    handleCellPressDown,
+    handleCellPressUp,
+    getCellBorderStyles,
+  };
+}
 
-      return (
-        <Cell
-          fixed={isFixed}
-          currentValue={currentValue}
-          hasError={hasError}
-          isHinted={isHinted}
-          isSelected={isSelected}
-          maxValue={maxValue}
-          onInputChange={(e) => handleInputChange(e, row, col)}
-          onKeyDown={(e) => handleKeyDown(e, row, col)}
-          onFocus={() => handleFocus(row, col)}
-          onPressDown={() => handleCellPressDown(row, col)}
-          onPressUp={handleCellPressUp}
-          disabled={disabled}
-          childMode={childMode}
-          largeText={largeText}
-          highContrast={highContrast}
-          cellKey={generateCellKey(row, col)}
-          cellId={`sudoku-cell-${row}-${col}`}
-          ariaLabel={getCellAriaLabel({
-            rowIndex: row,
-            colIndex: col,
-            currentValue,
-            maxValue,
-            hasError,
-            isHinted,
-            isFixed,
-          })}
-          borderStyles={getCellBorderStyles(row, col)}
-          cellRefs={cellRefs}
-        />
-      );
-    },
-    [
-      getCellState,
+// --- SudokuGrid component ---
+const SudokuGrid = React.forwardRef<SudokuGridHandle, SudokuGridProps>(
+  function SudokuGrid(props, forwardedRef) {
+    const {
+      size,
       maxValue,
+      childMode,
+      highContrast,
+      largeText,
+      disabled,
+      cellRefs,
+      getCellState,
       handleInputChange,
       handleKeyDown,
       handleFocus,
       handleCellPressDown,
       handleCellPressUp,
-      disabled,
-      childMode,
-      largeText,
-      highContrast,
       getCellBorderStyles,
-    ],
-  );
+    } = useSudokuGridLogic(props, forwardedRef);
 
-  // Render rows
-  const rows = useMemo(() => {
-    const result: React.ReactNode[] = [];
-    for (let r = 0; r < size; r++) {
-      const cells: React.ReactNode[] = [];
-      for (let c = 0; c < size; c++) {
-        cells.push(renderCell(r, c));
+    // Render cell
+    const renderCell = useCallback(
+      (row: number, col: number) => {
+        const { currentValue, isFixed, hasError, isHinted, isSelected } = getCellState(row, col);
+
+        return (
+          <Cell
+            fixed={isFixed}
+            currentValue={currentValue}
+            hasError={hasError}
+            isHinted={isHinted}
+            isSelected={isSelected}
+            maxValue={maxValue}
+            onInputChange={(e) => handleInputChange(e, row, col)}
+            onKeyDown={(e) => handleKeyDown(e, row, col)}
+            onFocus={() => handleFocus(row, col)}
+            onPressDown={() => handleCellPressDown(row, col)}
+            onPressUp={handleCellPressUp}
+            disabled={disabled}
+            childMode={childMode}
+            largeText={largeText}
+            highContrast={highContrast}
+            cellKey={generateCellKey(row, col)}
+            cellId={`sudoku-cell-${row}-${col}`}
+            ariaLabel={getCellAriaLabel({
+              rowIndex: row,
+              colIndex: col,
+              currentValue,
+              maxValue,
+              hasError,
+              isHinted,
+              isFixed,
+            })}
+            borderStyles={getCellBorderStyles(row, col)}
+            cellRefs={cellRefs}
+          />
+        );
+      },
+      [
+        getCellState,
+        maxValue,
+        handleInputChange,
+        handleKeyDown,
+        handleFocus,
+        handleCellPressDown,
+        handleCellPressUp,
+        disabled,
+        childMode,
+        largeText,
+        highContrast,
+        getCellBorderStyles,
+      ],
+    );
+
+    // Render rows
+    const rows = useMemo(() => {
+      const result: React.ReactNode[] = [];
+      for (let r = 0; r < size; r++) {
+        const cells: React.ReactNode[] = [];
+        for (let c = 0; c < size; c++) {
+          cells.push(renderCell(r, c));
+        }
+        result.push(
+          <tr key={`row-${r}`} role="row">
+            {cells}
+          </tr>,
+        );
       }
-      result.push(
-        <tr key={`row-${r}`} role="row">
-          {cells}
-        </tr>,
-      );
-    }
-    return result;
-  }, [size, renderCell]);
+      return result;
+    }, [size, renderCell]);
 
-  return (
-    <div
-      className={`${styles.sudokuContainer} ${childMode ? styles.childMode : ''}`}
-      data-testid="sudoku-grid"
-      data-grid-size={size}
-      data-child-mode={childMode}
-      data-high-contrast={highContrast}
-      role="grid"
-      aria-label={`${size}×${size} Sudoku grid`}
-    >
-      <table
-        className={styles.sudokuGrid}
+    return (
+      <div
+        className={`${styles.sudokuContainer} ${childMode ? styles.childMode : ''}`}
+        data-testid="sudoku-grid"
+        data-grid-size={size}
+        data-child-mode={childMode}
+        data-high-contrast={highContrast}
         role="grid"
-        aria-label={`${size}×${size} Sudoku grid cells`}
+        aria-label={`${size}×${size} Sudoku grid`}
       >
-        <tbody>{rows}</tbody>
-      </table>
-    </div>
-  );
-});
+        <table
+          className={styles.sudokuGrid}
+          role="grid"
+          aria-label={`${size}×${size} Sudoku grid cells`}
+        >
+          <tbody>{rows}</tbody>
+        </table>
+      </div>
+    );
+  },
+);
 
 SudokuGrid.displayName = 'SudokuGrid';
 
