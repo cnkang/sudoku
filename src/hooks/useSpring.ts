@@ -355,11 +355,13 @@ export interface UseSpring2DReturn {
   stop: () => void;
 }
 
+const DEFAULT_SPRING_2D_VALUE: { x: number; y: number } = { x: 0, y: 0 };
+
 /**
  * 2D spring with independent X/Y — avoids desync when velocities differ
  */
 export function useSpring2D(
-  initialValue: { x: number; y: number } = { x: 0, y: 0 },
+  initialValue: { x: number; y: number } = DEFAULT_SPRING_2D_VALUE,
   options: UseSpringOptions = {},
 ): UseSpring2DReturn {
   const x = useSpring(initialValue.x, options);
