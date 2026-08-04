@@ -1,11 +1,12 @@
 echo "🔍 Running pre-commit checks..."
 
-# Run lint-staged for file formatting
-echo "📝 Checking file formatting..."
-pnpm lint-staged
+# Run staged-file formatting and linting through Vite+
+echo "📝 Checking staged files..."
+vp staged
 
-# Run quality checks (lint + format + type-check)
+# Run full format, lint, and TypeScript checks through Vite+
 echo "🔍 Running quality checks..."
-pnpm quality
+vp check
+vp exec tsc --noEmit
 
 echo "✅ Pre-commit checks completed!"

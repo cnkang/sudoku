@@ -26,6 +26,9 @@ export default defineConfig({
     semi: true,
     singleQuote: true,
   },
+  staged: {
+    '**/*.{js,jsx,ts,tsx}': ['vp fmt --write', 'vp lint --fix'],
+  },
   plugins: [react()],
   resolve: {
     alias: {
