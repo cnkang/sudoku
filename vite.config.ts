@@ -5,8 +5,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite-plus';
-import type { PluginOption } from '@voidzero-dev/vite-plus-core';
+import { defineConfig, type PluginOption } from 'vite-plus';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
