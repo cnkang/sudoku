@@ -21,11 +21,13 @@ const logger = {
 export async function generateSudokuPuzzle(
   difficulty: number,
   gridSize: 4 | 6 | 9 = 9,
+  seed?: string,
 ): Promise<SudokuPuzzle> {
   const config = getConfig(gridSize);
-  const board = generateCompleteBoard(config);
+  const randomInt = createRandomInt(seed);
+  const board = generateCompleteBoard(config, randomInt);
   logger.debug(`Complete ${config.size}×${config.size} board generated: ${JSON.stringify(board)}`);
-  const puzzle = await removeNumbers(board, difficulty, config);
+  const puzzle = await removeNumbers(board, difficulty, config, randomInt);
   logger.debug(
     `Puzzle generated with difficulty: ${difficulty} for ${config.size}×${config.size} grid`,
   );
@@ -33,23 +35,26 @@ export async function generateSudokuPuzzle(
 }
 
 // Generates a complete solved Sudoku board for any grid size.
-function generateCompleteBoard(config: GridConfig): number[][] {
+function generateCompleteBoard(config: GridConfig, randomInt: RandomInt): number[][] {
   const board: number[][] = Array.from({ length: config.size }, () =>
     Array.from({ length: config.size }, () => 0),
   );
-  fillBoard(board, config);
+  fillBoard(board, config, randomInt);
   return board;
 }
 
 // Recursively fills the board using backtracking for any grid size.
-function fillBoard(board: number[][], config: GridConfig): boolean {
+function fillBoard(board: number[][], config: GridConfig, randomInt: RandomInt): boolean {
   const emptyCell = findEmptyCell(board, config);
   if (!emptyCell) {
     return true;
   }
 
   const [row, col] = emptyCell;
-  const numbers = shuffleArray(Array.from({ length: config.maxValue }, (_, i) => i + 1));
+  const numbers = shuffleArray(
+    Array.from({ length: config.maxValue }, (_, i) => i + 1),
+    randomInt,
+  );
   const rowValues = board[row];
   if (!rowValues) {
     return false;
@@ -58,7 +63,7 @@ function fillBoard(board: number[][], config: GridConfig): boolean {
   for (const num of numbers) {
     if (isSafe(board, row, col, num, config)) {
       rowValues[col] = num;
-      if (fillBoard(board, config)) {
+      if (fillBoard(board, config, randomInt)) {
         return true;
       }
       rowValues[col] = 0;
@@ -96,10 +101,10 @@ function isSafe(
   return validateMove(config, board, row, col, num);
 }
 
-function shuffleArray(array: number[]): number[] {
+function shuffleArray(array: number[], randomInt: RandomInt): number[] {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = crypto.randomInt(0, i + 1);
+    const j = randomInt(i + 1);
     const current = shuffled[i];
     const target = shuffled[j];
     if (current === undefined || target === undefined) {
@@ -116,26 +121,23 @@ async function removeNumbers(
   board: number[][],
   difficulty: number,
   config: GridConfig,
+  randomInt: RandomInt,
 ): Promise<number[][]> {
   const puzzle = board.map((row) => row.slice());
   const totalCells = config.size * config.size;
   const cluesCount = getCluesCount(difficulty, config);
   let cellsToRemove = totalCells - cluesCount;
 
-  // Add safety limits to prevent infinite loops
-  const maxAttempts = totalCells * 10; // Maximum attempts to remove a cell
+  const positions = shuffleArray(
+    Array.from({ length: totalCells }, (_, index) => index),
+    randomInt,
+  );
   let attempts = 0;
-  let consecutiveFailures = 0;
-  const maxConsecutiveFailures = totalCells; // Stop if we fail too many times in a row
-
-  while (
-    cellsToRemove > 0 &&
-    attempts < maxAttempts &&
-    consecutiveFailures < maxConsecutiveFailures
-  ) {
+  for (const position of positions) {
+    if (cellsToRemove === 0) break;
     attempts++;
-    const row = crypto.randomInt(0, config.size);
-    const col = crypto.randomInt(0, config.size);
+    const row = Math.floor(position / config.size);
+    const col = position % config.size;
     const puzzleRow = puzzle[row];
     if (!puzzleRow) {
       continue;
@@ -158,13 +160,11 @@ async function removeNumbers(
         `Removed number at (${row}, ${col}) - Unique solution preserved for ${config.size}×${config.size} grid`,
       );
       cellsToRemove--;
-      consecutiveFailures = 0; // Reset failure counter on success
     } else {
       logger.debug(
         `Restoring number at (${row}, ${col}) - Multiple solutions for ${config.size}×${config.size} grid`,
       );
       puzzleRow[col] = backup;
-      consecutiveFailures++;
     }
   }
 
@@ -172,7 +172,7 @@ async function removeNumbers(
   if (cellsToRemove > 0) {
     logger.warn(
       `Could not remove all desired cells for ${config.size}×${config.size} grid difficulty ${difficulty}. ` +
-        `Remaining cells to remove: ${cellsToRemove}, Attempts: ${attempts}, Consecutive failures: ${consecutiveFailures}`,
+        `Remaining cells to remove: ${cellsToRemove}, Attempts: ${attempts}`,
     );
   }
 
@@ -190,4 +190,18 @@ function getCluesCount(difficulty: number, config: GridConfig): number {
   const cluesCount = Math.round(config.maxClues - difficultyRatio * cluesRange);
 
   return Math.max(config.minClues, Math.min(config.maxClues, cluesCount));
+}
+
+// Seeded requests are reproducible; ordinary requests retain cryptographic randomness.
+type RandomInt = (limit: number) => number;
+function createRandomInt(seed?: string): RandomInt {
+  if (seed === undefined) return (limit) => crypto.randomInt(0, limit);
+  let state = 2166136261;
+  for (const character of seed) state = Math.imul(state ^ character.charCodeAt(0), 16777619);
+  return (limit) => {
+    state += 0x6d2b79f5;
+    let value = Math.imul(state ^ (state >>> 15), state | 1);
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+    return Math.floor((((value ^ (value >>> 14)) >>> 0) / 4294967296) * limit);
+  };
 }
