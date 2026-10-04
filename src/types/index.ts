@@ -68,6 +68,7 @@ export interface ProgressStats {
 }
 
 export interface GameState {
+  completionRecorded?: boolean;
   // Core game state
   puzzle: number[][] | null;
   solution: number[][] | null;
