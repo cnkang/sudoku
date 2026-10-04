@@ -27,7 +27,10 @@ export default defineConfig({
     singleQuote: true,
   },
   staged: {
-    '**/*.{js,jsx,ts,tsx}': ['vp fmt --write', 'vp lint --fix'],
+    '**/*.{js,jsx,ts,tsx}': [
+      'vp fmt --write --no-error-on-unmatched-pattern',
+      'vp lint --fix --no-error-on-unmatched-pattern',
+    ],
   },
   plugins: [react()] as PluginOption[],
   resolve: {
