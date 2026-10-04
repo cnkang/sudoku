@@ -72,7 +72,7 @@ export async function fetchWithCache(
   options: RequestInit = {},
   forceRefresh = false,
 ): Promise<unknown> {
-  const cacheKey = `${url}-${JSON.stringify(options)}`;
+  const cacheKey = createRequestKey(url, options);
 
   // Check client cache (when not force refreshing)
   if (!forceRefresh) {
@@ -85,17 +85,15 @@ export async function fetchWithCache(
   // Use request deduplication to prevent duplicate API calls within 5s window
   const deduplicationKey = createRequestKey(url, options);
 
-  return deduplicateRequest(deduplicationKey, async () => {
+  const performRequest = async () => {
+    const requestOptions = { ...options, headers: new Headers(options.headers) };
     // Add conditional request headers
     const etag = clientCache.getETag(cacheKey);
-    if (etag) {
-      options.headers = {
-        ...options.headers,
-        'If-None-Match': etag,
-      };
+    if (etag && !forceRefresh && (options.method ?? 'GET').toUpperCase() === 'GET') {
+      requestOptions.headers.set('If-None-Match', etag);
     }
 
-    const response = await fetch(url, options);
+    const response = await fetch(url, requestOptions);
 
     // 304 Not Modified - use cache
     const cachedData = clientCache.get(cacheKey);
@@ -114,5 +112,8 @@ export async function fetchWithCache(
     clientCache.set(cacheKey, data, responseETag ?? undefined);
 
     return data;
-  });
+  };
+  return forceRefresh || options.signal
+    ? performRequest()
+    : deduplicateRequest(deduplicationKey, performRequest);
 }

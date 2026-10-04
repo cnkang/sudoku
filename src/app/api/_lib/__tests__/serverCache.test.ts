@@ -37,16 +37,16 @@ describe('Server Cache System', () => {
       const key2 = getPuzzleCacheKey(5, 9, 'custom');
       const key3 = getPuzzleCacheKey(3, 4, 'default');
 
-      expect(key1).toBe('puzzle-9-5-default');
-      expect(key2).toBe('puzzle-9-5-custom');
-      expect(key3).toBe('puzzle-4-3-default');
+      expect(key1).toBe('puzzle-9-5-seed:default');
+      expect(key2).toBe('puzzle-9-5-seed:custom');
+      expect(key3).toBe('puzzle-4-3-seed:default');
       expect(key1).not.toBe(key2);
       expect(key1).not.toBe(key3);
     });
 
     it('should use default seed when not provided', () => {
       const key = getPuzzleCacheKey(5, 9);
-      expect(key).toBe('puzzle-9-5-default');
+      expect(key).toBe('puzzle-9-5-random');
     });
   });
 
@@ -215,12 +215,12 @@ describe('Server Cache System', () => {
       const { generateSudokuPuzzle } = await import('../../solveSudoku/sudokuGenerator');
 
       // First call - cache miss
-      const puzzle1 = await getOptimizedPuzzle(5, 9, 'default', false);
+      const puzzle1 = await getOptimizedPuzzle(5, 9, undefined, false);
       expect(generateSudokuPuzzle).toHaveBeenCalledTimes(1);
       expect(puzzle1.cached).toBe(false);
 
       // Second call - cache hit
-      const puzzle2 = await getOptimizedPuzzle(5, 9, 'default', false);
+      const puzzle2 = await getOptimizedPuzzle(5, 9, undefined, false);
       expect(generateSudokuPuzzle).toHaveBeenCalledTimes(1); // Should not call again
       expect(puzzle2.cached).toBe(true);
 
@@ -233,7 +233,7 @@ describe('Server Cache System', () => {
     it('should generate new puzzle on cache miss', async () => {
       const { generateSudokuPuzzle } = await import('../../solveSudoku/sudokuGenerator');
 
-      const puzzle = await getOptimizedPuzzle(5, 9, 'default', false);
+      const puzzle = await getOptimizedPuzzle(5, 9, undefined, false);
 
       expect(generateSudokuPuzzle).toHaveBeenCalledWith(5, 9);
       expect(puzzle).toBeDefined();
@@ -244,20 +244,20 @@ describe('Server Cache System', () => {
       const { generateSudokuPuzzle } = await import('../../solveSudoku/sudokuGenerator');
 
       // First call
-      await getOptimizedPuzzle(5, 9, 'default', false);
+      await getOptimizedPuzzle(5, 9, undefined, false);
       expect(generateSudokuPuzzle).toHaveBeenCalledTimes(1);
 
       // Force refresh - should generate new puzzle
-      await getOptimizedPuzzle(5, 9, 'default', true);
+      await getOptimizedPuzzle(5, 9, undefined, true);
       expect(generateSudokuPuzzle).toHaveBeenCalledTimes(2);
     });
 
     it('should cache puzzles for different grid sizes separately', async () => {
       const { generateSudokuPuzzle } = await import('../../solveSudoku/sudokuGenerator');
 
-      await getOptimizedPuzzle(5, 4, 'default', false);
-      await getOptimizedPuzzle(5, 6, 'default', false);
-      await getOptimizedPuzzle(5, 9, 'default', false);
+      await getOptimizedPuzzle(5, 4, undefined, false);
+      await getOptimizedPuzzle(5, 6, undefined, false);
+      await getOptimizedPuzzle(5, 9, undefined, false);
 
       expect(generateSudokuPuzzle).toHaveBeenCalledTimes(3);
       expect(generateSudokuPuzzle).toHaveBeenCalledWith(5, 4);
@@ -268,9 +268,9 @@ describe('Server Cache System', () => {
     it('should cache puzzles for different difficulties separately', async () => {
       const { generateSudokuPuzzle } = await import('../../solveSudoku/sudokuGenerator');
 
-      await getOptimizedPuzzle(3, 9, 'default', false);
-      await getOptimizedPuzzle(5, 9, 'default', false);
-      await getOptimizedPuzzle(7, 9, 'default', false);
+      await getOptimizedPuzzle(3, 9, undefined, false);
+      await getOptimizedPuzzle(5, 9, undefined, false);
+      await getOptimizedPuzzle(7, 9, undefined, false);
 
       expect(generateSudokuPuzzle).toHaveBeenCalledTimes(3);
     });

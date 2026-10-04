@@ -1,12 +1,11 @@
 /**
- * Server-side caching utilities using React.cache()
- * Implements server-cache-react pattern for request deduplication
+ * Bounded server puzzle cache and explicit in-flight request deduplication
  *
  * Requirements: Performance optimization, server-side efficiency
  * Validates: Requirements 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7
  */
 
-import { cache } from 'react';
+import { getConfig } from '@/utils/gridConfig';
 import type { SudokuPuzzle } from '@/types';
 import { generateSudokuPuzzle } from '../solveSudoku/sudokuGenerator';
 
@@ -62,30 +61,22 @@ class CacheMetricsTracker {
 export const cacheMetrics = new CacheMetricsTracker();
 
 /**
- * Cached puzzle generation with React.cache() for per-request deduplication
- * Multiple components requesting the same puzzle will share the result
- *
- * Rule: server-cache-react
+ * Puzzle generation. getOptimizedPuzzle shares only currently pending work.
  */
-export const getCachedPuzzle = cache(
-  async (difficulty: number, gridSize: GridSize): Promise<SudokuPuzzle> => {
-    return await generateSudokuPuzzle(difficulty, gridSize);
-  },
-);
+export const getCachedPuzzle = async (
+  difficulty: number,
+  gridSize: GridSize,
+  seed?: string,
+): Promise<SudokuPuzzle> =>
+  seed === undefined
+    ? generateSudokuPuzzle(difficulty, gridSize)
+    : generateSudokuPuzzle(difficulty, gridSize, seed);
 
-/**
- * Cached configuration lookup
- * Prevents redundant config reads within a single request
- */
-export const getCachedConfig = cache((gridSize: GridSize) => {
-  // Import dynamically to avoid circular dependencies
-  const { getConfig } = require('@/utils/gridConfig');
-  return getConfig(gridSize);
-});
+export const getCachedConfig = getConfig;
 
 /**
  * LRU cache for cross-request caching (server-cache-lru pattern)
- * Complements React.cache() for longer-lived data
+ * Stores completed results between requests
  * Requirements 7.2, 7.4, 7.6: LRU cache with TTL and eviction
  */
 class ServerLRUCache<K, V> {
@@ -158,12 +149,8 @@ export const puzzleLRUCache = new ServerLRUCache<string, SudokuPuzzle>(50, 30000
  * Helper to generate cache key from difficulty and gridSize
  * Requirement 7.1: Cache key generation
  */
-export function getPuzzleCacheKey(
-  difficulty: number,
-  gridSize: GridSize,
-  seed = 'default',
-): string {
-  return `puzzle-${gridSize}-${difficulty}-${seed}`;
+export function getPuzzleCacheKey(difficulty: number, gridSize: GridSize, seed?: string): string {
+  return `puzzle-${gridSize}-${difficulty}-${seed === undefined ? 'random' : `seed:${seed}`}`;
 }
 
 /**
@@ -183,17 +170,20 @@ export function resetCacheMetrics(): void {
 
 /**
  * Optimized puzzle fetcher with two-tier caching:
- * 1. React.cache() for per-request deduplication (Requirement 7.1)
- * 2. LRU cache for cross-request persistence (Requirement 7.2)
+ * 1. Explicit in-flight promises for concurrent work
+ * 2. LRU cache for completed results
  *
  * Requirements 7.3, 7.5: Check cache before computation, two-tier caching
  *
  * @returns Puzzle with cached flag indicating if it came from cache
  */
+const pendingPuzzles = new Map<string, Promise<SudokuPuzzle & { cached?: boolean }>>();
+const latestGeneration = new Map<string, symbol>();
+
 export async function getOptimizedPuzzle(
   difficulty: number,
   gridSize: GridSize,
-  seed = 'default',
+  seed?: string,
   forceRefresh = false,
 ): Promise<SudokuPuzzle & { cached?: boolean }> {
   const cacheKey = getPuzzleCacheKey(difficulty, gridSize, seed);
@@ -207,11 +197,21 @@ export async function getOptimizedPuzzle(
     }
   }
 
-  // Generate with React.cache() deduplication (per-request cache)
-  const puzzle = await getCachedPuzzle(difficulty, gridSize);
-
-  // Store in LRU cache for cross-request persistence
-  puzzleLRUCache.set(cacheKey, puzzle);
-
-  return { ...puzzle, cached: false };
+  const pendingKey = `${cacheKey}:${forceRefresh ? 'refresh' : 'normal'}`;
+  const existing = pendingPuzzles.get(pendingKey);
+  if (existing) return existing;
+  if (pendingPuzzles.size >= 50) throw new Error('Puzzle generation is busy. Please retry.');
+  const generation = Symbol(cacheKey);
+  latestGeneration.set(cacheKey, generation);
+  const pending = getCachedPuzzle(difficulty, gridSize, seed)
+    .then((puzzle) => {
+      if (latestGeneration.get(cacheKey) === generation) puzzleLRUCache.set(cacheKey, puzzle);
+      return { ...puzzle, cached: false };
+    })
+    .finally(() => {
+      if (pendingPuzzles.get(pendingKey) === pending) pendingPuzzles.delete(pendingKey);
+      if (latestGeneration.get(cacheKey) === generation) latestGeneration.delete(cacheKey);
+    });
+  pendingPuzzles.set(pendingKey, pending);
+  return pending;
 }

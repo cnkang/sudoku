@@ -42,12 +42,12 @@ class RequestDeduplicator {
     const promise = requestFn()
       .then((result) => {
         // Clean up after successful completion
-        this.pendingRequests.delete(key);
+        if (this.pendingRequests.get(key)?.promise === promise) this.pendingRequests.delete(key);
         return result;
       })
       .catch((error) => {
         // Clean up after error
-        this.pendingRequests.delete(key);
+        if (this.pendingRequests.get(key)?.promise === promise) this.pendingRequests.delete(key);
         throw error;
       });
 
@@ -138,7 +138,10 @@ export function cleanupExpiredRequests(): void {
  * @returns Unique key for the request
  */
 export function createRequestKey(url: string, options?: RequestInit): string {
-  const method = options?.method || 'GET';
+  const method = (options?.method || 'GET').toUpperCase();
   const body = options?.body ? JSON.stringify(options.body) : '';
-  return `${method}:${url}:${body}`;
+  const headers = [...new Headers(options?.headers).entries()].sort(([left], [right]) =>
+    left.localeCompare(right),
+  );
+  return `${method}:${url}:${body}:${JSON.stringify(headers)}`;
 }
