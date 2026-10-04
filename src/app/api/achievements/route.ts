@@ -201,7 +201,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export function GET(request: NextRequest) {
   if (process.env.NODE_ENV === 'production') return createLocalOnlyResponse(request);
   const rateLimit = enforceRateLimit(request, GET_RATE_LIMIT);
   if (rateLimit.limited) {

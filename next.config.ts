@@ -54,8 +54,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
   // PWA configuration
-  async rewrites() {
-    return [
+  rewrites() {
+    return Promise.resolve([
       {
         source: '/sw.js',
         destination: '/sw.js',
@@ -64,15 +64,15 @@ const nextConfig: NextConfig = {
         source: '/manifest.json',
         destination: '/manifest.json',
       },
-    ];
+    ]);
   },
-  async headers() {
+  headers() {
     // Generate CSP header (report-only mode initially for testing)
     const cspReportOnly = process.env.CSP_REPORT_ONLY === 'true';
     const cspHeader = generateCSPHeader(defaultCSPDirectives);
     const cspHeaderName = getCSPHeaderName(cspReportOnly);
 
-    return [
+    return Promise.resolve([
       {
         source: '/sw.js',
         headers: [
@@ -157,7 +157,7 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-    ];
+    ]);
   },
 };
 

@@ -380,20 +380,20 @@ export const preloadDecorativeComponents = () => {
 };
 
 // Bundle size optimization utilities
-export const getComponentBundleSize = async (componentName: string): Promise<number> => {
-  if (globalThis.window === undefined) return 0;
+export const getComponentBundleSize = (componentName: string): Promise<number> => {
+  if (globalThis.window === undefined) return Promise.resolve(0);
 
   try {
     const entries = performance.getEntriesByName(componentName);
     if (entries.length > 0) {
       const entry = entries[0] as PerformanceResourceTiming;
-      return entry.transferSize || 0;
+      return Promise.resolve(entry.transferSize || 0);
     }
   } catch (error) {
     const _error = error;
   }
 
-  return 0;
+  return Promise.resolve(0);
 };
 
 // React 19 optimization tracking for lazy components

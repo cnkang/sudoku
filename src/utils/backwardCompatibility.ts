@@ -316,8 +316,8 @@ export const LegacyDataMigrator = {
    * Migrates all legacy data to modern format
    */
   // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: migration logic is sequential
-  async migrateLegacyData(): Promise<void> {
-    if (globalThis.window === undefined) return;
+  migrateLegacyData(): Promise<void> {
+    if (globalThis.window === undefined) return Promise.resolve();
 
     try {
       // Migrate game state
@@ -369,6 +369,7 @@ export const LegacyDataMigrator = {
     } catch (error) {
       const _error = error;
     }
+    return Promise.resolve();
   },
 
   /**
