@@ -5,6 +5,57 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2026-10-04
+
+This release improves puzzle correctness, offline play, game-state reliability,
+accessibility, and production security across 4×4, 6×6, and 9×9 boards.
+
+### Fixed
+- Corrected DLX solution counting so puzzle generation reliably checks uniqueness;
+  preserved reproducible generation with explicit seeds.
+- Prevented stale puzzle requests from overwriting newer grid or difficulty
+  selections, and recorded completed games only once.
+- Hardened pause, reset, undo, and preference persistence during game transitions.
+- Restored offline puzzle POST handling, cached emitted app assets and the offline
+  fallback script, and provided unique fallback puzzles for every supported
+  difficulty with securely randomized digit permutations.
+- Preserved legacy pending progress locally during service-worker upgrades and
+  kept worker updates pending until accepted.
+- Unified keyboard navigation across board sizes, linked hints to grid inputs,
+  inherited system high-contrast preferences on first load, and moved timer
+  styling to a CSS module.
+- Coalesced concurrent puzzle generation and isolated forced refreshes from cached
+  results; scoped reset cooldowns to individual browser clients.
+- Applied request-specific CSP script nonces, blocked inline event handlers,
+  bounded streaming request bodies and rate-limit storage, and restricted trust
+  in forwarded client-address headers.
+- Redacted telemetry URLs, omitted production error stacks, disabled production
+  monitoring detail access, and handled background promise rejections.
+
+### Changed
+- Invalid puzzle parameters now return HTTP 400, and puzzle POST responses use
+  `Cache-Control: no-store`.
+- Production progress and achievement endpoints return HTTP 501 to explicitly
+  indicate that server synchronization is unavailable; records remain local.
+- Migrated staged checks to Vite+, fixed ignored-file handling and deployment
+  plugin types, and made the hoisted dependency layout explicit in `.npmrc`.
+- Updated runtime and development dependencies, including Next.js 16.3.6,
+  React 19.3.0, Vite 8.3.1, Vitest 4.1.11, and sharp 0.35.4.
+- Revised documentation to describe supported behavior, local storage, deployment
+  requirements, and the scope of accessibility and coverage validation.
+
+### Tests
+- Expanded solver, game-state, preference persistence, request-boundary, and
+  service-worker regression coverage; stabilized browser hydration waits.
+
+### Upgrade notes
+- Continue using Node.js 24.18.0 and pnpm 11.6.0, then install dependencies with
+  `pnpm install --frozen-lockfile` and rebuild.
+- Offline use requires downloading the app assets while online first. Offline
+  fallback variety is limited; progress and statistics do not sync across devices.
+- Self-hosted deployments should enable `TRUST_PROXY_HEADERS=true` only behind an
+  ingress that overwrites forwarding headers. Rate limits remain process-local.
+
 ## [3.0.0] - 2026-07-31
 
 A major release that ships the Apple Design System UI redesign, migrates the

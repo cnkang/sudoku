@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
       headers: buildSecurityHeaders(request, {
         'Cache-Control': 'no-store',
         // Add backward compatibility headers
-        'X-Sudoku-Version': '3.0.0',
+        'X-Sudoku-Version': '3.1.0',
         'X-Grid-Size': gridSize.toString(),
         'X-Backward-Compatible': 'true',
         // Add cache metrics headers
