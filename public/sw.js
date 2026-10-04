@@ -523,7 +523,10 @@ function generateOfflinePuzzle(searchParams) {
   // Digit permutations preserve the solution count and provide offline variety.
   const digits = Array.from({ length: size }, (_, index) => index + 1);
   for (let index = size - 1; index > 0; index--) {
-    const target = crypto.getRandomValues(new Uint32Array(1))[0] % (index + 1);
+    const limit = index + 1;
+    const mask = (1 << Math.ceil(Math.log2(limit))) - 1;
+    let target;
+    do { target = crypto.getRandomValues(new Uint8Array(1))[0] & mask; } while (target >= limit);
     [digits[index], digits[target]] = [digits[target], digits[index]];
   }
   const mapBoard = board => board.map(row => row.map(value => value === 0 ? 0 : digits[value - 1]));
