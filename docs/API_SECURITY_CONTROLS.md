@@ -32,22 +32,9 @@ Behavior:
 - Missing `origin` header is treated as same-origin-compatible.
 - Invalid or untrusted origins are rejected with `403`.
 
-## 2. CSRF Protection
+## 2. CSRF scope
 
-CSRF protection is applied to state-changing methods (`POST`, `PUT`, `DELETE`, `PATCH`).
-
-Implementation:
-- Functions in `src/app/api/_lib/csrf.ts`
-- Tokens are generated with cryptographic randomness.
-- Tokens are delivered using header + cookie.
-- Validation uses timing-safe comparison.
-- Tokens are short-lived (1 hour in current defaults).
-
-Typical route pattern:
-1. enforce rate limit
-2. validate origin
-3. enforce CSRF
-4. process business logic
+Routes enforce origin checks. The optional CSRF helper is used only by routes that import and call it; its existence does not imply token checks on every POST endpoint. Puzzle generation does not mutate an authenticated account. Progress and achievement persistence is local-only; their production API endpoints return 501.
 
 ## 3. Rate Limiting
 
@@ -55,10 +42,13 @@ Rate limits are enforced per endpoint and client identity.
 
 Implementation:
 - Core enforcement in `src/app/api/_lib/security.ts`
-- Client identity source order:
+- In production, forwarding headers are accepted only on Vercel or with `TRUST_PROXY_HEADERS=true` behind an ingress that overwrites them. Otherwise all requests use the `unknown` bucket.
+- Trusted client identity source order:
   - `x-forwarded-for`
   - `x-real-ip`
   - fallback `unknown`
+- Storage has a hard 10,000-entry capacity. Limits are process-local; use a trusted ingress or shared store for multi-instance enforcement.
+- Browser reset cooldowns additionally use an anonymous HTTP-only cookie.
 - Exceeded limits return `429` with `Retry-After`.
 
 Current endpoint limits (per minute):
@@ -81,6 +71,7 @@ Current limits:
 - `/api/notifications` `POST`: 64 KB
 
 Behavior:
+- Content-Length is checked first when present; streamed bytes are capped and reading stops at the limit.
 - Oversized payloads are rejected with `413 Payload Too Large`.
 
 ## 5. Recommended Endpoint Guard Order
