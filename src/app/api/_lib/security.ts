@@ -354,6 +354,46 @@ export function createOptionsResponse(request: NextRequest): NextResponse {
   });
 }
 
+export function createLocalOnlyResponse(request: NextRequest): NextResponse {
+  return createNoStoreJsonResponse(
+    request,
+    {
+      success: false,
+      error:
+        'Progress and achievements are stored on this device. Server synchronization is not available.',
+    },
+    501,
+  );
+}
+
+async function readBoundedBody(request: NextRequest, maxBytes: number): Promise<string | null> {
+  if (!request.body) return request.text();
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > maxBytes) {
+        await reader.cancel();
+        return null;
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new TextDecoder().decode(bytes);
+}
+
 export async function readJsonBodyWithLimit<T>(
   request: NextRequest,
   maxBytes: number,
@@ -368,34 +408,10 @@ export async function readJsonBodyWithLimit<T>(
     return { ok: false, response: createPayloadTooLargeResponse(request, maxBytes) };
   let rawBody = '';
   try {
-    if (request.body) {
-      const reader = request.body.getReader();
-      const chunks: Uint8Array[] = [];
-      let total = 0;
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          total += value.byteLength;
-          if (total > maxBytes) {
-            await reader.cancel();
-            return { ok: false, response: createPayloadTooLargeResponse(request, maxBytes) };
-          }
-          chunks.push(value);
-        }
-      } finally {
-        reader.releaseLock();
-      }
-      const bytes = new Uint8Array(total);
-      let offset = 0;
-      for (const chunk of chunks) {
-        bytes.set(chunk, offset);
-        offset += chunk.byteLength;
-      }
-      rawBody = new TextDecoder().decode(bytes);
-    } else {
-      rawBody = await request.text();
-    }
+    const body = await readBoundedBody(request, maxBytes);
+    if (body === null)
+      return { ok: false, response: createPayloadTooLargeResponse(request, maxBytes) };
+    rawBody = body;
   } catch {
     return { ok: false, response: createBadRequestResponse(request) };
   }
