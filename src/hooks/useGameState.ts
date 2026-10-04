@@ -222,8 +222,13 @@ const handleUserInteraction = (state: GameState, action: GameAction): GameState 
       };
 
     case 'UNDO': {
-      if (state.completionRecorded || state.isPaused || state.isLoading) return state;
-      if (state.history.length <= 1) return state;
+      if (
+        state.completionRecorded ||
+        state.isPaused ||
+        state.isLoading ||
+        state.history.length <= 1
+      )
+        return state;
       const newHistory = state.history.slice(0, -1);
       const previousState = newHistory.at(-1);
       if (!previousState) return state;
