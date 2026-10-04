@@ -158,7 +158,7 @@ class PWAManager {
     this.setupNetworkListeners();
 
     // Initial status update
-    this.updateStatus();
+    void this.updateStatus().catch((error) => logError('[PWA] Status update failed:', error));
   }
 
   /**
@@ -211,7 +211,7 @@ class PWAManager {
 
       logInfo('[PWA] Service Worker registered successfully');
       if (!isTestEnv) {
-        this.updateStatus();
+        void this.updateStatus().catch((error) => logError('[PWA] Status update failed:', error));
       }
     } catch (error) {
       logError('[PWA] Service Worker registration failed:', error);
@@ -250,7 +250,7 @@ class PWAManager {
       (event) => {
         event.preventDefault();
         this.installPromptEvent = event as BeforeInstallPromptEvent;
-        this.updateStatus();
+        void this.updateStatus().catch((error) => logError('[PWA] Status update failed:', error));
       },
       { passive: false },
     ); // Note: passive: false because we call preventDefault()
@@ -259,7 +259,7 @@ class PWAManager {
       'appinstalled',
       () => {
         this.installPromptEvent = null;
-        this.updateStatus();
+        void this.updateStatus().catch((error) => logError('[PWA] Status update failed:', error));
       },
       { passive: true },
     );
@@ -277,7 +277,7 @@ class PWAManager {
       'online',
       () => {
         logInfo('[PWA] Back online');
-        this.updateStatus();
+        void this.updateStatus().catch((error) => logError('[PWA] Status update failed:', error));
       },
       { passive: true },
     );
@@ -286,7 +286,7 @@ class PWAManager {
       'offline',
       () => {
         logInfo('[PWA] Gone offline');
-        this.updateStatus();
+        void this.updateStatus().catch((error) => logError('[PWA] Status update failed:', error));
       },
       { passive: true },
     );
@@ -308,7 +308,7 @@ class PWAManager {
     switch (data.type) {
       case 'CACHE_UPDATED':
         logInfo('[PWA] Cache updated');
-        this.updateStatus();
+        void this.updateStatus().catch((error) => logError('[PWA] Status update failed:', error));
         break;
       case 'OFFLINE_READY':
         logInfo('[PWA] App ready for offline use');

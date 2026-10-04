@@ -40,7 +40,7 @@ export function usePWA(): UsePWAReturn {
     const unsubscribe = pwaManager.onStatusChange(setStatus);
 
     // Get initial status
-    pwaManager.getStatus().then(setStatus);
+    void pwaManager.getStatus().then(setStatus);
 
     return unsubscribe;
   }, []);

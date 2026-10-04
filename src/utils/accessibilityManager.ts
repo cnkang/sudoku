@@ -122,7 +122,7 @@ class AccessibilityManager {
     this.announcementQueue.push(announcement);
 
     if (!this.isProcessingQueue) {
-      this.processAnnouncementQueue();
+      void this.processAnnouncementQueue();
     }
   }
 
@@ -160,7 +160,7 @@ class AccessibilityManager {
 
     // Continue processing queue after a brief pause
     setTimeout(() => {
-      this.processAnnouncementQueue();
+      void this.processAnnouncementQueue();
     }, 500);
   }
 
