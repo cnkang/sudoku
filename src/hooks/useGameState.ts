@@ -158,6 +158,15 @@ const isEditableInput = (state: GameState, row: number, col: number, value: numb
     state.puzzle?.[row]?.[col]
   );
 
+const matchesSolution = (state: GameState): boolean =>
+  state.solution !== null &&
+  state.userInput.length === state.solution.length &&
+  state.userInput.every(
+    (row, i) =>
+      row.length === state.solution?.[i]?.length &&
+      row.every((cell, j) => cell === state.solution?.[i]?.[j]),
+  );
+
 const handleUserInteraction = (state: GameState, action: GameAction): GameState | undefined => {
   switch (action.type) {
     case 'UPDATE_USER_INPUT': {
@@ -191,14 +200,7 @@ const handleUserInteraction = (state: GameState, action: GameAction): GameState 
     }
 
     case 'CHECK_ANSWER': {
-      const isSolvedCorrectly =
-        state.solution !== null &&
-        state.userInput.length === state.solution.length &&
-        state.userInput.every(
-          (row, i) =>
-            row.length === state.solution?.[i]?.length &&
-            row.every((cell, j) => cell === state.solution?.[i]?.[j]),
-        );
+      const isSolvedCorrectly = matchesSolution(state);
       return {
         ...state,
         isCorrect: isSolvedCorrectly,
