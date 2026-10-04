@@ -38,15 +38,16 @@ export function generateCSPHeader(directives: CSPDirectives, nonce?: string): st
     if (!styleSrc.includes("'unsafe-inline'")) styleSrc.push(`'nonce-${nonce}'`);
   }
 
+  const scriptElements = directives['script-src-elem']
+    ? [...directives['script-src-elem']]
+    : undefined;
+  if (nonce && scriptElements) scriptElements.push(`'nonce-${nonce}'`);
+
   // Build directive strings
   const cspDirectives: string[] = [
     `default-src ${directives['default-src'].join(' ')}`,
     `script-src ${scriptSrc.join(' ')}`,
-    ...(directives['script-src-elem']
-      ? [
-          `script-src-elem ${[...directives['script-src-elem'], ...(nonce ? [`'nonce-${nonce}'`] : [])].join(' ')}`,
-        ]
-      : []),
+    ...(scriptElements ? [`script-src-elem ${scriptElements.join(' ')}`] : []),
     ...(directives['script-src-attr']
       ? [`script-src-attr ${directives['script-src-attr'].join(' ')}`]
       : []),

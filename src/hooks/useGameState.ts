@@ -144,24 +144,26 @@ const handlePuzzleLifecycle = (state: GameState, action: GameAction): GameState 
   }
 };
 
+const isEditableInput = (state: GameState, row: number, col: number, value: number): boolean =>
+  !(
+    !Number.isInteger(value) ||
+    value < 0 ||
+    value > state.gridConfig.maxValue ||
+    !Number.isInteger(row) ||
+    !Number.isInteger(col) ||
+    row < 0 ||
+    col < 0 ||
+    row >= state.gridConfig.size ||
+    col >= state.gridConfig.size ||
+    state.puzzle?.[row]?.[col]
+  );
+
 const handleUserInteraction = (state: GameState, action: GameAction): GameState | undefined => {
   switch (action.type) {
     case 'UPDATE_USER_INPUT': {
       if (state.completionRecorded || state.isPaused || state.isLoading) return state;
       const { row, col, value } = action.payload;
-      if (
-        !Number.isInteger(value) ||
-        value < 0 ||
-        value > state.gridConfig.maxValue ||
-        !Number.isInteger(row) ||
-        !Number.isInteger(col) ||
-        row < 0 ||
-        col < 0 ||
-        row >= state.gridConfig.size ||
-        col >= state.gridConfig.size ||
-        state.puzzle?.[row]?.[col]
-      )
-        return state;
+      if (!isEditableInput(state, row, col, value)) return state;
       const newUserInput = state.userInput.map((r, i) =>
         i === row ? r.map((val, j) => (j === col ? value : val)) : r,
       );
