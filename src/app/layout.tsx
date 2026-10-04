@@ -1,3 +1,4 @@
+import { headers } from 'next/headers';
 import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import MonitoringInit from '@/components/MonitoringInit';
@@ -44,7 +45,7 @@ export const metadata: Metadata = {
   metadataBase,
   title: 'Multi-Size Sudoku Challenge - Educational Puzzle Game for Children',
   description:
-    'Educational Sudoku game with 4×4, 6×6, and 9×9 grids designed for children. Child-friendly interface with hints, celebrations, and WCAG AAA accessibility.',
+    'Educational Sudoku game with 4×4, 6×6, and 9×9 grids designed for children. Child-friendly interface with hints, celebrations, and accessibility settings.',
   keywords:
     'Sudoku, Children, Kids, Educational, Puzzle, Game, 4x4, 6x6, 9x9, Learning, Accessibility, Child-friendly',
   authors: [{ name: 'Kang Liu' }],
@@ -115,7 +116,7 @@ const structuredData = {
   name: 'Multi-Size Sudoku Challenge',
   alternateName: 'Sudoku Kids',
   description:
-    'Educational Sudoku puzzle game with 4×4, 6×6, and 9×9 grids designed for children with child-friendly interface and WCAG AAA accessibility',
+    'Educational Sudoku puzzle game with 4×4, 6×6, and 9×9 grids designed for children with child-friendly interface and accessibility settings',
   applicationCategory: 'EducationalApplication',
   operatingSystem: 'Web Browser',
   browserRequirements: 'Requires JavaScript. Modern browser recommended.',
@@ -140,27 +141,23 @@ const structuredData = {
   learningResourceType: 'Interactive game',
   interactivityType: 'active',
   isAccessibleForFree: true,
-  accessibilityFeature: [
-    'highContrast',
-    'largePrint',
-    'keyboardNavigation',
-    'screenReaderSupport',
-    'voiceNavigation',
-  ],
+  accessibilityFeature: ['highContrast', 'largePrint', 'keyboardNavigation', 'screenReaderSupport'],
   accessibilityHazard: 'none',
   accessibilityControl: ['fullKeyboardControl', 'fullMouseControl', 'fullTouchControl'],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const nonce = (await headers()).get('x-nonce') ?? undefined;
   return (
     <html lang="en">
       <head>
         <script
           type="application/ld+json"
+          nonce={nonce}
           // biome-ignore lint/security/noDangerouslySetInnerHtml: Structured data is static and safe
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(structuredData).replaceAll('<', String.raw`\u003c`),

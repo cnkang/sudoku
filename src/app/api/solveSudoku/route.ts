@@ -1,14 +1,16 @@
+import { randomUUID } from 'node:crypto';
 import { type NextRequest, NextResponse } from 'next/server';
 import {
   buildSecurityHeaders,
+  createBadRequestResponse,
   createForbiddenResponse,
   createRateLimitedResponse,
   enforceRateLimit,
   isSameOriginRequest,
 } from '@/app/api/_lib/security';
-import { getCacheMetrics, getOptimizedPuzzle, getPuzzleCacheKey } from '@/app/api/_lib/serverCache';
+import { getCacheMetrics, getOptimizedPuzzle } from '@/app/api/_lib/serverCache';
 import { BackwardCompatibility } from '@/utils/backwardCompatibility';
-import { createErrorResponse, ERROR_MESSAGES, ERROR_TYPES } from '@/utils/error-handling';
+import { ERROR_MESSAGES, ERROR_TYPES } from '@/utils/error-handling';
 import { VALIDATION_ERRORS } from '@/utils/errorMessages';
 import {
   sanitizeErrorForClient,
@@ -18,7 +20,6 @@ import {
 } from '@/utils/errorSanitization';
 import { getConfig } from '@/utils/gridConfig';
 import { validateDifficulty } from '@/utils/validation';
-import { puzzleCache } from './cache';
 
 const SOLVE_SUDOKU_RATE_LIMIT = {
   key: 'solve-sudoku:post',
@@ -36,7 +37,7 @@ function validateGridSize(gridSizeParam: string | null): 4 | 6 | 9 {
     return 9; // Default to 9x9 for backward compatibility
   }
 
-  const gridSize = Number.parseInt(gridSizeParam, 10);
+  const gridSize = /^(4|6|9)$/.test(gridSizeParam) ? Number(gridSizeParam) : NaN;
 
   if (![4, 6, 9].includes(gridSize)) {
     throw new Error(VALIDATION_ERRORS.INVALID_GRID_SIZE);
@@ -45,14 +46,14 @@ function validateGridSize(gridSizeParam: string | null): 4 | 6 | 9 {
   return gridSize as 4 | 6 | 9;
 }
 
-function validateSeed(seedParam: string | null): string {
+function validateSeed(seedParam: string | null): string | undefined {
   if (!seedParam) {
-    return 'default';
+    return undefined;
   }
 
   const seed = seedParam.trim();
   if (!seed) {
-    return 'default';
+    return undefined;
   }
 
   if (seed.length > MAX_SEED_LENGTH || !SAFE_SEED_PATTERN.test(seed)) {
@@ -82,6 +83,7 @@ export async function POST(request: NextRequest) {
     return createForbiddenResponse(request);
   }
 
+  let parametersValid = false;
   try {
     const { searchParams } = new URL(request.url);
 
@@ -95,26 +97,24 @@ export async function POST(request: NextRequest) {
     const seed = validateSeed(searchParams.get('seed'));
     const forceRefresh = searchParams.get('force') === 'true';
 
-    // Generate cache key for force refresh tracking
-    const cacheKey = getPuzzleCacheKey(difficulty, gridSize, seed);
-    const forceKey = `force-${gridSize}x${gridSize}-${difficulty}`;
-
-    // Check force refresh limit (10 seconds)
+    parametersValid = true;
+    const existingClient = request.cookies?.get('sudoku-client')?.value;
+    const clientId =
+      existingClient && /^[a-f0-9-]{36}$/i.test(existingClient) ? existingClient : undefined;
     if (forceRefresh) {
-      const lastForce = puzzleCache.get(forceKey);
-      if (lastForce) {
-        return NextResponse.json(
-          createErrorResponse(ERROR_MESSAGES.RATE_LIMITED, ERROR_TYPES.RATE_LIMIT_ERROR),
-          { status: 429 },
+      const refreshLimit = enforceRateLimit(request, {
+        key: `solve-sudoku:refresh:${clientId ?? 'legacy'}:${gridSize}:${difficulty}`,
+        windowMs: 10_000,
+        maxRequests: 1,
+      });
+      if (refreshLimit.limited)
+        return createRateLimitedResponse(
+          request,
+          refreshLimit.retryAfterSeconds,
+          ERROR_MESSAGES.RATE_LIMITED,
         );
-      }
-      puzzleCache.set(forceKey, Date.now(), 10000);
     }
 
-    // Use two-tier caching system (Requirements 7.3, 7.5)
-    // 1. Check per-request cache (React.cache)
-    // 2. Check cross-request cache (LRU)
-    // 3. Generate only on cache miss
     const puzzleResult = await getOptimizedPuzzle(difficulty, gridSize, seed, forceRefresh);
 
     // Extract cached flag
@@ -135,11 +135,10 @@ export async function POST(request: NextRequest) {
     // Apply backward compatibility formatting if needed
     const compatibleResponse = BackwardCompatibility.ensureBackwardCompatibleResponse(response);
 
-    return NextResponse.json(compatibleResponse, {
+    const responseWithPuzzle = NextResponse.json(compatibleResponse, {
       status: 200,
       headers: buildSecurityHeaders(request, {
-        'Cache-Control': 'public, max-age=30, s-maxage=30',
-        ETag: `"${cacheKey}-${Date.now()}"`,
+        'Cache-Control': 'no-store',
         // Add backward compatibility headers
         'X-Sudoku-Version': '3.0.0',
         'X-Grid-Size': gridSize.toString(),
@@ -148,7 +147,21 @@ export async function POST(request: NextRequest) {
         'X-Cache-Hit-Rate': metrics.hitRate.toFixed(2),
       }),
     });
+    if (!clientId)
+      responseWithPuzzle.cookies.set('sudoku-client', randomUUID(), {
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        maxAge: 31536000,
+      });
+    return responseWithPuzzle;
   } catch (error) {
+    if (!parametersValid)
+      return createBadRequestResponse(
+        request,
+        error instanceof Error ? error.message : 'Invalid puzzle parameters',
+      );
     // Log detailed error server-side (Requirement 12.4)
     const detailedLog = createDetailedErrorLog(
       error,

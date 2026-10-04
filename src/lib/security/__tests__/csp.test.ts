@@ -150,8 +150,8 @@ describe('CSP Utilities', () => {
       expect(defaultCSPDirectives['default-src']).toEqual(["'self'"]);
     });
 
-    it('should allow unsafe-inline in script-src for Next.js runtime bootstrap', () => {
-      expect(defaultCSPDirectives['script-src']).toContain("'unsafe-inline'");
+    it('should require nonces for inline runtime scripts', () => {
+      expect(defaultCSPDirectives['script-src']).not.toContain("'unsafe-inline'");
     });
 
     it('should define script-src-elem for runtime chunk loading', () => {

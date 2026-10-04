@@ -10,7 +10,12 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { generateNonce } from './lib/security/csp';
+import {
+  defaultCSPDirectives,
+  generateCSPHeader,
+  generateNonce,
+  getCSPHeaderName,
+} from './lib/security/csp';
 
 export function proxy(request: NextRequest): NextResponse {
   // Generate unique nonce for this request
@@ -19,6 +24,8 @@ export function proxy(request: NextRequest): NextResponse {
   // Clone the request headers and add the nonce
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-nonce', nonce);
+  const csp = generateCSPHeader(defaultCSPDirectives, nonce);
+  requestHeaders.set('Content-Security-Policy', csp);
 
   // Create response with modified headers
   const response = NextResponse.next({
@@ -26,6 +33,9 @@ export function proxy(request: NextRequest): NextResponse {
       headers: requestHeaders,
     },
   });
+
+  response.headers.set(getCSPHeaderName(process.env.CSP_REPORT_ONLY === 'true'), csp);
+  response.headers.set('Cache-Control', 'private, no-store');
 
   // Add nonce to response headers for debugging (optional, remove in production)
   if (process.env.NODE_ENV === 'development') {
@@ -46,6 +56,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public files (sw.js, manifest.json, etc.)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|sw.js|manifest.json|icons|screenshots).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|sw.js|offline.html|offline.js|manifest.json|icons|screenshots).*)',
   ],
 };

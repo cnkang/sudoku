@@ -53,6 +53,12 @@ function cleanupExpiredRateLimitEntries(now: number): void {
 }
 
 function getClientAddress(request: NextRequest): string {
+  if (
+    process.env.NODE_ENV === 'production' &&
+    process.env.TRUST_PROXY_HEADERS !== 'true' &&
+    process.env.VERCEL !== '1'
+  )
+    return 'unknown';
   const forwardedFor = getHeaderValue(request, 'x-forwarded-for');
   if (forwardedFor) {
     const firstAddress = forwardedFor.split(',')[0]?.trim();
@@ -71,7 +77,7 @@ function getClientAddress(request: NextRequest): string {
 
 export function enforceRateLimit(request: NextRequest, options: RateLimitOptions): RateLimitResult {
   const now = Date.now();
-  if (rateLimitStore.size > MAX_RATE_LIMIT_ENTRIES) {
+  if (rateLimitStore.size >= MAX_RATE_LIMIT_ENTRIES) {
     cleanupExpiredRateLimitEntries(now);
   }
 
@@ -88,6 +94,10 @@ export function enforceRateLimit(request: NextRequest, options: RateLimitOptions
   }
 
   entry.count += 1;
+  if (!rateLimitStore.has(storeKey) && rateLimitStore.size >= MAX_RATE_LIMIT_ENTRIES) {
+    const oldest = rateLimitStore.keys().next().value;
+    if (oldest !== undefined) rateLimitStore.delete(oldest);
+  }
   rateLimitStore.set(storeKey, entry);
 
   const limited = entry.count > options.maxRequests;
@@ -349,13 +359,43 @@ export async function readJsonBodyWithLimit<T>(
   maxBytes: number,
 ): Promise<{ ok: true; data: T } | { ok: false; response: NextResponse }> {
   const contentType = getHeaderValue(request, 'content-type');
-  if (contentType && !contentType.toLowerCase().includes('application/json')) {
+  if (contentType && contentType.split(';')[0]?.trim().toLowerCase() !== 'application/json') {
     return { ok: false, response: createUnsupportedMediaTypeResponse(request) };
   }
 
+  const declaredLength = Number(getHeaderValue(request, 'content-length'));
+  if (Number.isFinite(declaredLength) && declaredLength > maxBytes)
+    return { ok: false, response: createPayloadTooLargeResponse(request, maxBytes) };
   let rawBody = '';
   try {
-    rawBody = await request.text();
+    if (request.body) {
+      const reader = request.body.getReader();
+      const chunks: Uint8Array[] = [];
+      let total = 0;
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          total += value.byteLength;
+          if (total > maxBytes) {
+            await reader.cancel();
+            return { ok: false, response: createPayloadTooLargeResponse(request, maxBytes) };
+          }
+          chunks.push(value);
+        }
+      } finally {
+        reader.releaseLock();
+      }
+      const bytes = new Uint8Array(total);
+      let offset = 0;
+      for (const chunk of chunks) {
+        bytes.set(chunk, offset);
+        offset += chunk.byteLength;
+      }
+      rawBody = new TextDecoder().decode(bytes);
+    } else {
+      rawBody = await request.text();
+    }
   } catch {
     return { ok: false, response: createBadRequestResponse(request) };
   }

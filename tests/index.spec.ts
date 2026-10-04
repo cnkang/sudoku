@@ -1,4 +1,4 @@
-import type { NextRequest } from 'next/server';
+import { NextRequest } from 'next/server';
 import { describe, expect, it, vi } from 'vite-plus/test';
 import { POST } from '../src/app/api/solveSudoku/route';
 
@@ -24,13 +24,11 @@ describe('Sudoku Solver API', () => {
       ],
     };
 
-    const request = {
+    const request = new NextRequest('http://example.com/api/solveSudoku?difficulty=3', {
       method: 'POST',
-      url: 'http://example.com/api/solveSudoku?difficulty=3',
       headers: { 'Content-Type': 'application/json' },
-      json: async () => requestBody,
-      cookies: {},
-    } as unknown as NextRequest;
+      body: JSON.stringify(requestBody),
+    });
 
     const response = await POST(request);
     const data = await response.json();
