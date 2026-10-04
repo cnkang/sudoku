@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useMemo } from 'react';
 import { usePerformanceTracking } from '@/utils/performance-monitoring';
+import { GRID_CONFIGS, validateMove } from '@/utils/gridConfig';
 import styles from '../SudokuGrid.module.css';
 
 type AccessibilityOptions = {
@@ -52,7 +53,7 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
     getSubGridBorders,
     hasConflict,
     childHints = [],
-    useAriaInvalid = false,
+    useAriaInvalid = true,
   }) => {
     'use memo';
 
@@ -66,19 +67,10 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
       [accessibility, accessibilityDefaults],
     );
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally run once on mount
-    React.useEffect(() => {
-      const renderTime = performance.now();
-      trackRender(renderTime, true);
-    }, []);
-
     const handleCellChange = useCallback(
       (row: number, col: number, value: string) => {
-        const parsed = Number.parseInt(value, 10);
-        if (Number.isNaN(parsed)) {
-          onInputChange(row, col, 0);
-          return;
-        }
+        const parsed = value.trim() === '' ? 0 : Number(value);
+        if (!Number.isInteger(parsed)) return;
 
         if (parsed < 0 || parsed > gridSize) {
           return;
@@ -113,7 +105,11 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
         const isFixed = puzzleValue !== 0;
         const isHinted = hintCell?.row === row && hintCell?.col === col;
         const hasError =
-          !isFixed && userValue > 0 && (hasConflict ? hasConflict(row, col, userValue) : false);
+          !isFixed &&
+          userValue > 0 &&
+          (hasConflict
+            ? hasConflict(row, col, userValue)
+            : !validateMove(GRID_CONFIGS[gridSize], userInput, row, col, userValue));
         const cellClasses = getCellClassName(isFixed, isHinted, hasError);
         const subGridBorders = getSubGridBorders?.(row, col);
 
@@ -128,13 +124,43 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
             style={subGridBorders}
           >
             {isFixed ? (
-              <div className={styles.fixedNumber}>{puzzleValue}</div>
+              <div
+                className={styles.fixedNumber}
+                aria-label={`Row ${row + 1}, Column ${col + 1}, given ${puzzleValue}`}
+              >
+                {puzzleValue}
+              </div>
             ) : (
               <input
                 type="number"
+                inputMode="numeric"
+                autoComplete="off"
                 min="1"
                 max={String(maxValue)}
                 value={userValue || ''}
+                onKeyDown={(event) => {
+                  const offsets: Record<string, number> = {
+                    ArrowLeft: -1,
+                    ArrowRight: 1,
+                    ArrowUp: -gridSize,
+                    ArrowDown: gridSize,
+                  };
+                  const step = offsets[event.key];
+                  if (step === undefined) return;
+                  event.preventDefault();
+                  const table = event.currentTarget.closest('table');
+                  let position = row * gridSize + col;
+                  for (let attempt = 0; attempt < gridSize * gridSize; attempt++) {
+                    position = (position + step + gridSize * gridSize) % (gridSize * gridSize);
+                    const target = table?.querySelector<HTMLInputElement>(
+                      `td[data-row="${Math.floor(position / gridSize)}"][data-col="${position % gridSize}"] input`,
+                    );
+                    if (target && !target.disabled) {
+                      target.focus();
+                      break;
+                    }
+                  }
+                }}
                 onChange={(event) => handleCellChange(row, col, event.target.value)}
                 disabled={disabled}
                 className={styles.cellInput}
@@ -176,31 +202,36 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
     );
 
     return (
-      <div
-        className={`${styles.sudokuContainer} sudoku-container-query`}
-        data-grid-size={String(gridSize)}
-        data-child-mode={childMode}
-        data-high-contrast={accessibilitySettings.highContrast}
+      <React.Profiler
+        id={performanceLabel}
+        onRender={(_, _phase, duration) => trackRender(duration, false)}
       >
-        {gridSize === 9 && (
-          <p className={styles.scrollHint}>Swipe or scroll sideways to see all 9 columns.</p>
-        )}
-        <table
-          className={`${styles.sudokuGrid} ${tableClassName}`}
+        <div
+          className={`${styles.sudokuContainer} sudoku-container-query`}
           data-grid-size={String(gridSize)}
-          aria-label={ariaLabel}
+          data-child-mode={childMode}
+          data-high-contrast={accessibilitySettings.highContrast}
         >
-          <tbody>{renderGrid}</tbody>
-        </table>
+          {gridSize === 9 && (
+            <p className={styles.scrollHint}>Swipe or scroll sideways to see all 9 columns.</p>
+          )}
+          <table
+            className={`${styles.sudokuGrid} ${tableClassName}`}
+            data-grid-size={String(gridSize)}
+            aria-label={ariaLabel}
+          >
+            <tbody>{renderGrid}</tbody>
+          </table>
 
-        {childMode && childHints.length > 0 && (
-          <div className={styles.childFriendlyHints}>
-            {childHints.map((hint) => (
-              <p key={hint}>{hint}</p>
-            ))}
-          </div>
-        )}
-      </div>
+          {childMode && childHints.length > 0 && (
+            <div className={styles.childFriendlyHints}>
+              {childHints.map((hint) => (
+                <p key={hint}>{hint}</p>
+              ))}
+            </div>
+          )}
+        </div>
+      </React.Profiler>
     );
   },
 );
