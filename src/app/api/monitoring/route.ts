@@ -1,3 +1,4 @@
+import { monitoringMessage, monitoringUrl } from '@/utils/monitoringPrivacy';
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import {
@@ -100,7 +101,7 @@ function recordWebVitalPayload(
     value: payload.value,
     rating: payload.rating,
     id: payload.id,
-    url: payload.url ?? fallback.url,
+    url: monitoringUrl(payload.url ?? fallback.url),
     userAgent: payload.userAgent ?? fallback.userAgent,
   };
 
@@ -112,9 +113,7 @@ function recordWebVitalPayload(
     event.navigationType = payload.navigationType;
   }
 
-  if (typeof payload.timestamp === 'number') {
-    event.timestamp = payload.timestamp;
-  }
+  event.timestamp = Date.now();
 
   const result = recordMonitoringMetric(event);
 
@@ -133,19 +132,17 @@ function recordClientErrorPayload(
     stack?: string;
     timestamp?: number;
   } = {
-    message: payload.message,
+    message: monitoringMessage(payload.message),
     source: payload.source,
-    url: payload.url ?? fallback.url,
+    url: monitoringUrl(payload.url ?? fallback.url),
     userAgent: payload.userAgent ?? fallback.userAgent,
   };
 
-  if (payload.stack) {
+  if (process.env.NODE_ENV !== 'production' && payload.stack) {
     event.stack = payload.stack;
   }
 
-  if (typeof payload.timestamp === 'number') {
-    event.timestamp = payload.timestamp;
-  }
+  event.timestamp = Date.now();
 
   const result = recordMonitoringClientError(event);
 
@@ -173,6 +170,11 @@ export function OPTIONS(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  if (process.env.NODE_ENV === 'production')
+    return createForbiddenResponse(
+      request,
+      'Monitoring details are available only in development.',
+    );
   const rateLimit = enforceRateLimit(request, GET_RATE_LIMIT);
   if (rateLimit.limited) {
     return createRateLimitedResponse(request, rateLimit.retryAfterSeconds);

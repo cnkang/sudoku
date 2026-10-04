@@ -1,5 +1,6 @@
 'use client';
 
+import { monitoringMessage, monitoringUrl } from '@/utils/monitoringPrivacy';
 import { useEffect } from 'react';
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
@@ -45,8 +46,7 @@ const postMonitoringEvent = (payload: MonitoringEventPayload): void => {
 
   if (navigator.sendBeacon) {
     const blob = new Blob([body], { type: 'application/json' });
-    navigator.sendBeacon('/api/monitoring', blob);
-    return;
+    if (navigator.sendBeacon('/api/monitoring', blob)) return;
   }
 
   void fetch('/api/monitoring', {
@@ -55,7 +55,7 @@ const postMonitoringEvent = (payload: MonitoringEventPayload): void => {
     body,
     credentials: 'same-origin',
     keepalive: true,
-  });
+  }).catch(() => {});
 };
 
 const createMetricReporter = (reportedIds: Set<string>) => {
@@ -82,7 +82,7 @@ const createMetricReporter = (reportedIds: Set<string>) => {
       delta: metric.delta,
       navigationType: metric.navigationType,
       timestamp: Date.now(),
-      url: globalThis.location.href,
+      url: monitoringUrl(globalThis.location.href),
       userAgent: navigator.userAgent,
     });
   };
@@ -103,19 +103,29 @@ export default function MonitoringInit() {
     onINP(reportMetric);
     onTTFB(reportMetric);
 
+    const errorTimes = new Map<string, number>();
+    const shouldReportError = (message: string) => {
+      const now = Date.now();
+      if (now - (errorTimes.get(message) ?? 0) < 60_000) return false;
+      if (errorTimes.size >= MAX_DEDUPE_IDS) return false;
+      errorTimes.set(message, now);
+      return true;
+    };
     const handleError = (event: ErrorEvent) => {
       const message = event.message?.trim();
-      if (!message) {
+      if (!message || !shouldReportError(message)) {
         return;
       }
 
       postMonitoringEvent({
         kind: 'client-error',
-        message: truncate(message, MAX_MESSAGE_LENGTH),
+        message: truncate(monitoringMessage(message), MAX_MESSAGE_LENGTH),
         source: 'error',
-        ...(event.error?.stack ? { stack: truncate(event.error.stack, MAX_STACK_LENGTH) } : {}),
+        ...(process.env.NODE_ENV !== 'production' && event.error?.stack
+          ? { stack: truncate(event.error.stack, MAX_STACK_LENGTH) }
+          : {}),
         timestamp: Date.now(),
-        url: globalThis.location.href,
+        url: monitoringUrl(globalThis.location.href),
         userAgent: navigator.userAgent,
       });
     };
@@ -131,13 +141,14 @@ export default function MonitoringInit() {
         message = event.reason.trim();
       }
 
+      if (!shouldReportError(message)) return;
       postMonitoringEvent({
         kind: 'client-error',
-        message: truncate(message, MAX_MESSAGE_LENGTH),
+        message: truncate(monitoringMessage(message), MAX_MESSAGE_LENGTH),
         source: 'unhandledrejection',
-        ...(stack ? { stack } : {}),
+        ...(process.env.NODE_ENV !== 'production' && stack ? { stack } : {}),
         timestamp: Date.now(),
-        url: globalThis.location.href,
+        url: monitoringUrl(globalThis.location.href),
         userAgent: navigator.userAgent,
       });
     };
