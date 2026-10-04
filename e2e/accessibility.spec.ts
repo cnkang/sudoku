@@ -11,6 +11,8 @@ async function waitForAppReady(page: import('@playwright/test').Page) {
   await expect(page.locator('#difficulty-select:visible').first()).toBeVisible({
     timeout: 15000,
   });
+  await expect(page.locator('table[data-grid-size="9"]')).toBeVisible();
+  await expect(page.locator('#grid-option-4')).toHaveCount(1);
 }
 
 test.describe('Accessibility E2E', () => {

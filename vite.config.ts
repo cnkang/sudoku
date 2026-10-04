@@ -83,8 +83,8 @@ export default defineConfig({
       include: [
         'src/app/api/solveSudoku/{cache,dlxSolver,route,sudokuGenerator}.ts',
         'src/components/{DifficultySelector,GameControls,Timer,TouchOptimizedControls}.tsx',
-        'src/hooks/{useOptimisticSudoku,usePuzzleLoader}.ts',
-        'src/utils/{apiCache,error-handling,gridConfig,hints,stats,themes,validation}.ts',
+        'src/hooks/{useGameState,usePreferences,useOptimisticSudoku,usePuzzleLoader}.ts',
+        'src/utils/{apiCache,error-handling,gridConfig,hints,preferences,stats,themes,validation}.ts',
       ],
       skipFull: false,
     },
