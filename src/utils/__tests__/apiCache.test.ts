@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import { clientCache, fetchWithCache } from '../apiCache';
-import { clearPendingRequests } from '../requestDeduplication';
+import { clearPendingRequests, createRequestKey } from '../requestDeduplication';
 
 // Mock fetch
 globalThis.fetch = vi.fn();
@@ -51,7 +51,7 @@ describe('apiCache', () => {
   describe('fetchWithCache', () => {
     it('should return cached data when available', async () => {
       const testData = { cached: true };
-      clientCache.set('test-url-{}', testData);
+      clientCache.set(createRequestKey('test-url'), testData);
 
       const result = await fetchWithCache('test-url');
       expect(result).toEqual(testData);
@@ -68,12 +68,12 @@ describe('apiCache', () => {
 
       const result = await fetchWithCache('test-url');
 
-      expect(fetch).toHaveBeenCalledWith('test-url', {});
+      expect(fetch).toHaveBeenCalledWith('test-url', { headers: expect.any(Headers) });
       expect(result).toEqual({ data: 'new' });
     });
 
     it('should bypass cache with forceRefresh', async () => {
-      clientCache.set('test-url-{}', { cached: true });
+      clientCache.set(createRequestKey('test-url'), { cached: true });
 
       const mockResponse = {
         ok: true,
@@ -90,7 +90,7 @@ describe('apiCache', () => {
 
     it('should handle 304 Not Modified response', async () => {
       const cachedData = { cached: true };
-      clientCache.set('test-url-{}', cachedData, 'old-etag');
+      clientCache.set(createRequestKey('test-url'), cachedData, 'old-etag');
 
       const mockResponse = { status: 304, ok: false };
       vi.mocked(fetch).mockResolvedValue(mockResponse as Response);
@@ -100,8 +100,8 @@ describe('apiCache', () => {
       expect(result).toEqual(cachedData);
     });
 
-    it('should include If-None-Match header when cached ETag exists', async () => {
-      clientCache.set('etag-url-{}', { stale: true }, 'etag-123');
+    it('should bypass conditional headers on a forced refresh', async () => {
+      clientCache.set(createRequestKey('etag-url'), { stale: true }, 'etag-123');
 
       const mockResponse = {
         ok: true,
@@ -113,19 +113,13 @@ describe('apiCache', () => {
 
       await fetchWithCache('etag-url', {}, true);
 
-      expect(fetch).toHaveBeenCalledWith(
-        'etag-url',
-        expect.objectContaining({
-          headers: expect.objectContaining({
-            'If-None-Match': 'etag-123',
-          }),
-        }),
-      );
+      const options = vi.mocked(fetch).mock.calls[0]?.[1];
+      expect(new Headers(options?.headers).get('If-None-Match')).toBeNull();
     });
 
     it('should return cached data on 304 when force refresh is enabled', async () => {
       const cachedData = { cached: 'value' };
-      clientCache.set('revalidate-url-{}', cachedData, 'etag-123');
+      clientCache.set(createRequestKey('revalidate-url'), cachedData, 'etag-123');
 
       const mockResponse = { status: 304, ok: false };
       vi.mocked(fetch).mockResolvedValue(mockResponse as Response);
@@ -167,7 +161,7 @@ describe('apiCache', () => {
       expect(fetch).toHaveBeenCalledTimes(1);
     });
 
-    it('should deduplicate requests within 5-second window', async () => {
+    it('should keep forced requests independent of in-flight work', async () => {
       let callCount = 0;
       const mockResponse = () => ({
         ok: true,
@@ -190,8 +184,8 @@ describe('apiCache', () => {
       const [result1, result2] = await Promise.all([promise1, promise2]);
 
       // Both should get the same result due to deduplication
-      expect(result1).toEqual(result2);
-      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(result1).not.toEqual(result2);
+      expect(fetch).toHaveBeenCalledTimes(2);
     });
   });
 });
