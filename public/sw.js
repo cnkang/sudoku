@@ -108,7 +108,7 @@ globalThis.addEventListener('fetch', event => {
     } else if (url.pathname.startsWith('/api/')) {
       // Other APIs - network first with cache fallback
       return;
-    } else if (url.pathname.startsWith('/_next/static/')) {
+    } else if (url.pathname.startsWith('/_next/static/') || url.pathname === '/offline.js') {
       // Static assets - cache first strategy
       event.respondWith(handleStaticRequest(request));
     } else if (request.mode === 'navigate') {
