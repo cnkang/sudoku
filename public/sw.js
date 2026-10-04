@@ -727,14 +727,11 @@ async function getCacheStatus() {
   };
 
   try {
-    // Calculate cache sizes and puzzle count
-    for (const cacheName of cacheNames) {
-      const cache = await caches.open(cacheName);
+    // Only the puzzle cache contributes to the puzzle count.
+    if (cacheNames.includes(PUZZLE_CACHE_NAME)) {
+      const cache = await caches.open(PUZZLE_CACHE_NAME);
       const keys = await cache.keys();
-
-      if (cacheName === PUZZLE_CACHE_NAME) {
-        status.puzzleCount = keys.length;
-      }
+      status.puzzleCount = keys.length;
     }
   } catch (error) {
     swError('[SW] Failed to get cache status:', error);

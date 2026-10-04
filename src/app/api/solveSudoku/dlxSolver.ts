@@ -11,7 +11,7 @@ export function solveSudoku(
   return Promise.resolve().then(() => countSolutions(board, solutions, maxSolutions, config));
 }
 
-function countSolutions(
+export function countSolutions(
   board: number[][],
   solutions: number[][][],
   maxSolutions: number,

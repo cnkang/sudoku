@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handleSubscribe(request: NextRequest, body: unknown) {
+function handleSubscribe(request: NextRequest, body: unknown) {
   try {
     const subscription = PushSubscriptionSchema.parse(body);
 
@@ -210,7 +210,7 @@ async function handleSubscribe(request: NextRequest, body: unknown) {
   }
 }
 
-async function handleSendNotification(request: NextRequest, body: unknown) {
+function handleSendNotification(request: NextRequest, body: unknown) {
   try {
     const payload = NotificationPayloadSchema.parse(body);
 
@@ -289,7 +289,7 @@ async function handleSendNotification(request: NextRequest, body: unknown) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export function GET(request: NextRequest) {
   const rateLimit = enforceRateLimit(request, GET_RATE_LIMIT);
   if (rateLimit.limited) {
     return createRateLimitedResponse(request, rateLimit.retryAfterSeconds);

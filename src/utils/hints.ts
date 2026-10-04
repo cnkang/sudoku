@@ -42,7 +42,7 @@ const findMatchingCell = (
   for (let row = 0; row < gridSize; row++) {
     for (let col = 0; col < gridSize; col++) {
       // Skip the currently-shown hint so a repeated request advances to a new cell
-      if (exclude && exclude.row === row && exclude.col === col) {
+      if (exclude?.row === row && exclude.col === col) {
         continue;
       }
       const values = getCellValues(puzzle, userInput, solution, row, col);

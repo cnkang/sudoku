@@ -15,7 +15,7 @@ const HEALTH_RATE_LIMIT = {
  * Health check endpoint
  * Used in CI/CD to verify the application is running properly
  */
-export async function GET(request: NextRequest) {
+export function GET(request: NextRequest) {
   const rateLimit = enforceRateLimit(request, HEALTH_RATE_LIMIT);
   if (rateLimit.limited) {
     return createRateLimitedResponse(request, rateLimit.retryAfterSeconds);

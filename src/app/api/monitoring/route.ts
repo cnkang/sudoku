@@ -169,7 +169,7 @@ export function OPTIONS(request: NextRequest) {
   return createOptionsResponse(request);
 }
 
-export async function GET(request: NextRequest) {
+export function GET(request: NextRequest) {
   if (process.env.NODE_ENV === 'production')
     return createForbiddenResponse(
       request,

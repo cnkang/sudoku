@@ -109,7 +109,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
   // Fetch puzzle when difficulty changes (initial load)
   useEffect(() => {
     if (preferencesReady && !state.error && !state.puzzle && !state.isLoading) {
-      fetchPuzzle();
+      void fetchPuzzle();
     }
   }, [preferencesReady, state.error, state.puzzle, state.isLoading, fetchPuzzle]);
 

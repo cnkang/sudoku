@@ -344,19 +344,21 @@ export const withPerformanceTracking = <P extends object>(
 };
 
 // Bundle size monitoring
-export const getBundleSize = async (): Promise<number> => {
-  if (globalThis.window === undefined) return 0;
+export const getBundleSize = (): Promise<number> => {
+  if (globalThis.window === undefined) return Promise.resolve(0);
 
   try {
     const entries = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
-    return entries
-      .filter((entry) => /\.(?:js|css)(?:\?|$)/.test(entry.name))
-      .reduce((total, entry) => total + (entry.transferSize || 0), 0);
+    return Promise.resolve(
+      entries
+        .filter((entry) => /\.(?:js|css)(?:\?|$)/.test(entry.name))
+        .reduce((total, entry) => total + (entry.transferSize || 0), 0),
+    );
   } catch (error) {
     const _error = error;
   }
 
-  return 0;
+  return Promise.resolve(0);
 };
 
 // Export for global access

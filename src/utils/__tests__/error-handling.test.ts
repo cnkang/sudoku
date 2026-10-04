@@ -173,6 +173,38 @@ describe('error-handling utilities', () => {
   });
 
   describe('retryOperation', () => {
+    it('does not start another attempt before each exponential delay expires', async () => {
+      vi.useFakeTimers();
+      try {
+        const operation = vi
+          .fn()
+          .mockRejectedValueOnce(new Error('First failure'))
+          .mockRejectedValueOnce(new Error('Second failure'))
+          .mockResolvedValue('success');
+        const pending = retryOperation(operation, 2, 100);
+        await vi.advanceTimersByTimeAsync(99);
+        expect(operation).toHaveBeenCalledTimes(1);
+        await vi.advanceTimersByTimeAsync(1);
+        expect(operation).toHaveBeenCalledTimes(2);
+        await vi.advanceTimersByTimeAsync(199);
+        expect(operation).toHaveBeenCalledTimes(2);
+        await vi.advanceTimersByTimeAsync(1);
+        expect(await pending).toBe('success');
+        expect(operation).toHaveBeenCalledTimes(3);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it.each([-1, Number.NaN])(
+      'does not call the operation for invalid retry limit %s',
+      async (limit) => {
+        const operation = vi.fn().mockResolvedValue('success');
+        await expect(retryOperation(operation, limit)).rejects.toThrow(RangeError);
+        expect(operation).not.toHaveBeenCalled();
+      },
+    );
+
     it('should return result on first success', async () => {
       const operation = vi.fn().mockResolvedValue('success');
       const result = await retryOperation(operation);
