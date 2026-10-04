@@ -197,7 +197,8 @@ type RandomInt = (limit: number) => number;
 function createRandomInt(seed?: string): RandomInt {
   if (seed === undefined) return (limit) => crypto.randomInt(0, limit);
   let state = 2166136261;
-  for (const character of seed) state = Math.imul(state ^ character.charCodeAt(0), 16777619);
+  for (const character of seed)
+    state = Math.imul(state ^ (character.codePointAt(0) ?? 0), 16777619);
   return (limit) => {
     state += 0x6d2b79f5;
     let value = Math.imul(state ^ (state >>> 15), state | 1);

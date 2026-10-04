@@ -5,7 +5,6 @@
  * Validates: Requirements 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7
  */
 
-import { getConfig } from '@/utils/gridConfig';
 import type { SudokuPuzzle } from '@/types';
 import { generateSudokuPuzzle } from '../solveSudoku/sudokuGenerator';
 
@@ -72,7 +71,7 @@ export const getCachedPuzzle = async (
     ? generateSudokuPuzzle(difficulty, gridSize)
     : generateSudokuPuzzle(difficulty, gridSize, seed);
 
-export const getCachedConfig = getConfig;
+export { getConfig as getCachedConfig } from '@/utils/gridConfig';
 
 /**
  * LRU cache for cross-request caching (server-cache-lru pattern)
@@ -150,7 +149,8 @@ export const puzzleLRUCache = new ServerLRUCache<string, SudokuPuzzle>(50, 30000
  * Requirement 7.1: Cache key generation
  */
 export function getPuzzleCacheKey(difficulty: number, gridSize: GridSize, seed?: string): string {
-  return `puzzle-${gridSize}-${difficulty}-${seed === undefined ? 'random' : `seed:${seed}`}`;
+  const seedKey = seed === undefined ? 'random' : `seed:${seed}`;
+  return `puzzle-${gridSize}-${difficulty}-${seedKey}`;
 }
 
 /**

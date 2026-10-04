@@ -2,12 +2,21 @@ import type { GridConfig } from '@/types';
 import { GRID_CONFIGS } from '@/utils/gridConfig';
 
 /** Count solutions up to the requested limit, without changing the caller's board. */
-export async function solveSudoku(
+export function solveSudoku(
   board: number[][],
   solutions: number[][][] = [],
   maxSolutions = 2,
   config: GridConfig = GRID_CONFIGS[9],
 ): Promise<boolean> {
+  return Promise.resolve().then(() => countSolutions(board, solutions, maxSolutions, config));
+}
+
+function countSolutions(
+  board: number[][],
+  solutions: number[][][],
+  maxSolutions: number,
+  config: GridConfig,
+): boolean {
   const { size, boxRows, boxCols } = config;
   if (!Number.isInteger(maxSolutions) || maxSolutions < 1) return false;
   if (solutions.length >= maxSolutions) return true;
@@ -35,7 +44,7 @@ export async function solveSudoku(
     }
   }
 
-  const search = (): boolean => {
+  const findNextCell = () => {
     let bestRow = -1;
     let bestCol = -1;
     let candidates = 0;
@@ -55,6 +64,13 @@ export async function solveSudoku(
         }
       }
     }
+    return { bestRow, bestCol, candidates };
+  };
+  const search = (): boolean => {
+    const next = findNextCell();
+    if (next === false) return false;
+    const { bestRow, bestCol } = next;
+    let { candidates } = next;
     if (bestRow < 0) {
       solutions.push(cells.map((row) => [...row]));
       return solutions.length >= maxSolutions;

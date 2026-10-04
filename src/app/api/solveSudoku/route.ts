@@ -37,7 +37,7 @@ function validateGridSize(gridSizeParam: string | null): 4 | 6 | 9 {
     return 9; // Default to 9x9 for backward compatibility
   }
 
-  const gridSize = /^(4|6|9)$/.test(gridSizeParam) ? Number(gridSizeParam) : NaN;
+  const gridSize = /^[469]$/.test(gridSizeParam) ? Number(gridSizeParam) : Number.NaN;
 
   if (![4, 6, 9].includes(gridSize)) {
     throw new Error(VALIDATION_ERRORS.INVALID_GRID_SIZE);
