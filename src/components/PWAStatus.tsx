@@ -7,7 +7,6 @@
 
 import { useEffect, useState } from 'react';
 import { useOfflineStatus, usePWA } from '@/hooks/usePWA';
-import { secureRandomChance } from '@/utils/secureRandom';
 import styles from './PWAStatus.module.css';
 
 type PWAStatusProps = Readonly<{
@@ -39,17 +38,14 @@ export default function PWAStatus({
       setShowUpdatePrompt(true);
     };
 
-    // In a real implementation, you'd listen for the 'updatefound' event
-    // For now, we'll simulate it occasionally
-    const updateCheckInterval = setInterval(() => {
-      if (secureRandomChance(0.1)) {
-        // 10% chance every 30 seconds
-        handleUpdateAvailable();
-        clearInterval(updateCheckInterval);
-      }
-    }, 30000);
-
-    return () => clearInterval(updateCheckInterval);
+    globalThis.addEventListener('sw-update-available', handleUpdateAvailable);
+    void navigator.serviceWorker
+      .getRegistration()
+      .then((registration) => {
+        if (registration?.waiting) handleUpdateAvailable();
+      })
+      .catch(() => {});
+    return () => globalThis.removeEventListener('sw-update-available', handleUpdateAvailable);
   }, [status.serviceWorkerReady, showUpdateNotification]);
 
   const handleInstall = async () => {
@@ -62,9 +58,7 @@ export default function PWAStatus({
       await updateServiceWorker();
       setShowUpdatePrompt(false);
       // Reload the page to use the new service worker
-      setTimeout(() => {
-        globalThis.location.reload();
-      }, 1000);
+      globalThis.location.reload();
     } catch {
     } finally {
       setIsUpdating(false);

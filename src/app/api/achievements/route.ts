@@ -84,6 +84,16 @@ const ACHIEVEMENT_DEFINITIONS = {
 } as const;
 
 export async function POST(request: NextRequest) {
+  if (process.env.NODE_ENV === 'production')
+    return createNoStoreJsonResponse(
+      request,
+      {
+        success: false,
+        error:
+          'Progress and achievements are stored on this device. Server synchronization is not available.',
+      },
+      501,
+    );
   const rateLimit = enforceRateLimit(request, POST_RATE_LIMIT);
   if (rateLimit.limited) {
     return createRateLimitedResponse(request, rateLimit.retryAfterSeconds);
@@ -200,6 +210,16 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  if (process.env.NODE_ENV === 'production')
+    return createNoStoreJsonResponse(
+      request,
+      {
+        success: false,
+        error:
+          'Progress and achievements are stored on this device. Server synchronization is not available.',
+      },
+      501,
+    );
   const rateLimit = enforceRateLimit(request, GET_RATE_LIMIT);
   if (rateLimit.limited) {
     return createRateLimitedResponse(request, rateLimit.retryAfterSeconds);
