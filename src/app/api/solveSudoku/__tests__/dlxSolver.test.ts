@@ -143,6 +143,20 @@ describe('dlxSolver', () => {
     });
   });
 
+  it('rejects a locally consistent board whose remaining cell has no candidates', async () => {
+    const { solveSudoku } = await import('../dlxSolver');
+    const board = [
+      [1, 2, 3, 0],
+      [0, 0, 0, 4],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ];
+    const before = board.map((row) => [...row]);
+    const solutions: number[][][] = [];
+    expect(await solveSudoku(board, solutions, 2, config4x4)).toBe(false);
+    expect(solutions).toEqual([]);
+    expect(board).toEqual(before);
+  });
   it.each([0, -1, 1.5])('rejects an invalid solution limit %s', async (limit) => {
     const { solveSudoku } = await import('../dlxSolver');
     expect(
