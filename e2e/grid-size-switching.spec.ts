@@ -55,6 +55,8 @@ async function switchGridSize(page: Page, size: 4 | 6 | 9) {
 test.describe('Grid Size Switching Tests', () => {
   const waitForAppReady = async (page: Page) => {
     await page.waitForSelector('main', { timeout: 30000 });
+    await expect(page.locator('table[data-grid-size="9"]')).toBeVisible();
+    await expect(page.locator('input[name="grid-size"][value="9"]')).toHaveCount(1);
     await page.waitForSelector('text=Loading grid...', {
       state: 'hidden',
       timeout: 45000,
