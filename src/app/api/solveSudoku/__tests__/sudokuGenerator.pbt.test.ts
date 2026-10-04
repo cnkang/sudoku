@@ -68,13 +68,6 @@ const findEmptyCell = (board: number[][], size: number): [number, number] | null
 function countSolutions(board: number[][], config: TestConfig): number {
   const solutions: number[][][] = [];
 
-  const shouldStopAfterSolution = (board: number[][]) => {
-    if (solutions.length === 0) {
-      solutions.push(board.map((row) => row.slice()));
-    }
-    return solutions.length >= 2;
-  };
-
   const tryPlacement = (board: number[][], row: number, col: number, num: number): boolean => {
     if (!isValidPlacement(board, row, col, num, config)) {
       return false;
@@ -86,8 +79,7 @@ function countSolutions(board: number[][], config: TestConfig): number {
     }
 
     rowValues[col] = num;
-    const solved = solve(board);
-    const shouldStop = solved && shouldStopAfterSolution(board);
+    const shouldStop = solve(board);
     rowValues[col] = 0;
 
     return shouldStop;
@@ -106,7 +98,8 @@ function countSolutions(board: number[][], config: TestConfig): number {
   function solve(board: number[][]): boolean {
     const emptyCell = findEmptyCell(board, config.size);
     if (!emptyCell) {
-      return true;
+      solutions.push(board.map((row) => row.slice()));
+      return solutions.length >= 2;
     }
 
     const [row, col] = emptyCell;
@@ -126,7 +119,11 @@ const assertUniqueSolutionFor4x4 = async (): Promise<void> =>
         const config = getConfig(4);
         const adjustedDifficulty = Math.min(difficulty, config.difficultyLevels);
 
-        const { puzzle } = await generateSudokuPuzzle(adjustedDifficulty, 4);
+        const { puzzle } = await generateSudokuPuzzle(
+          adjustedDifficulty,
+          4,
+          `unique-${difficulty}`,
+        );
 
         // Count solutions using our simple solver
         const solutionCount = countSolutions(puzzle, config);

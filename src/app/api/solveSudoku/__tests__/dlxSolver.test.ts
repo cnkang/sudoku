@@ -143,6 +143,59 @@ describe('dlxSolver', () => {
     });
   });
 
+  it.each([0, -1, 1.5])('rejects an invalid solution limit %s', async (limit) => {
+    const { solveSudoku } = await import('../dlxSolver');
+    expect(
+      await solveSudoku(
+        Array.from({ length: 4 }, () => [0, 0, 0, 0]),
+        [],
+        limit,
+        config4x4,
+      ),
+    ).toBe(false);
+  });
+
+  it('stops at two solutions without changing an ambiguous input', async () => {
+    const { solveSudoku } = await import('../dlxSolver');
+    const board = Array.from({ length: 9 }, () => Array<number>(9).fill(0));
+    const solutions: number[][][] = [];
+    expect(await solveSudoku(board, solutions)).toBe(true);
+    expect(solutions).toHaveLength(2);
+    expect(board.flat().every((value) => value === 0)).toBe(true);
+    expect(await solveSudoku(board, solutions)).toBe(true);
+    expect(solutions).toHaveLength(2);
+  });
+
+  it.each(
+    [
+      [],
+      [[0]],
+      [
+        [0, 0, 0, 0],
+        [0, -1, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+      ],
+      [
+        [0, 0, 0, 0],
+        [0, 5, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+      ],
+      [
+        [0, 0, 0, 0],
+        [0, 1.5, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+      ],
+    ].map((board) => [board]),
+  )('rejects invalid board %j', async (board) => {
+    const { solveSudoku } = await import('../dlxSolver');
+    const solutions: number[][][] = [];
+    expect(await solveSudoku(board, solutions, 2, config4x4)).toBe(false);
+    expect(solutions).toHaveLength(0);
+  });
+
   describe('solveSudoku 9x9 with mocked fast-sudoku-solver', () => {
     afterEach(() => {
       vi.doUnmock('fast-sudoku-solver');
