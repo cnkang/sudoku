@@ -1,0 +1,18 @@
+.timer { font-size: 1.2rem; font-weight: 600; margin: 1rem 0; }
+.label { color: var(--theme-text, #374151); }
+.value { font-family: var(--font-mono, monospace); }
+.status { font-size: 0.9rem; font-style: italic; }
+@media (max-width: 768px) {
+  .timer { font-size: 1.1rem; margin: 0.75rem 0; text-align: center; }
+  .status { font-size: 0.8rem; }
+}
+@media (max-width: 480px) {
+  .timer { font-size: 1rem; margin: 0.5rem 0; }
+  .label { font-size: 0.875rem; }
+  .value { font-size: 1.125rem; }
+  .status { font-size: 0.75rem; display: block; margin-top: 0.25rem; }
+}
+@media (max-width: 768px) and (orientation: landscape) {
+  .timer { font-size: 0.9rem; margin: 0.25rem 0; }
+  .status { display: inline; margin-top: 0; }
+}
