@@ -72,6 +72,21 @@ describe('apiCache', () => {
       expect(result).toEqual({ data: 'new' });
     });
 
+    it('sends a cached ETag on an ordinary GET without changing caller headers', async () => {
+      const url = 'conditional-get';
+      const options = { headers: new Headers({ 'X-Client': 'test' }) };
+      clientCache.set(createRequestKey(url, options), false, 'known-version');
+      vi.mocked(fetch).mockResolvedValue(
+        new Response(JSON.stringify({ fresh: true }), {
+          headers: { 'Content-Type': 'application/json', ETag: 'next-version' },
+        }),
+      );
+      expect(await fetchWithCache(url, options)).toEqual({ fresh: true });
+      const sent = new Headers(vi.mocked(fetch).mock.calls[0]?.[1]?.headers);
+      expect(sent.get('If-None-Match')).toBe('known-version');
+      expect(sent.get('X-Client')).toBe('test');
+      expect(options.headers.has('If-None-Match')).toBe(false);
+    });
     it('should bypass cache with forceRefresh', async () => {
       clientCache.set(createRequestKey('test-url'), { cached: true });
 

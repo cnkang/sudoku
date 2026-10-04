@@ -311,4 +311,30 @@ describe('usePreferences', () => {
 
     expect(mockLoadUserPreferences).toHaveBeenCalledTimes(2);
   });
+  it('flushes the latest preferences on pagehide before the debounce expires and removes its listener', () => {
+    const { result: game, unmount: unmountGame } = renderHook(() => useGameState());
+    unmountGame();
+    const dispatch = vi.fn();
+    const { rerender, unmount } = renderHook(({ state }) => usePreferences(state, dispatch), {
+      initialProps: { state: game.current.state },
+    });
+    const latest = {
+      ...game.current.state,
+      gridConfig: GRID_CONFIGS[6],
+      difficulty: 7,
+      childMode: true,
+    };
+    rerender({ state: latest });
+    vi.clearAllMocks();
+    act(() => globalThis.dispatchEvent(new Event('pagehide')));
+    expect(mockSaveGridConfig).toHaveBeenCalledExactlyOnceWith(GRID_CONFIGS[6]);
+    expect(mockSaveDifficulty).toHaveBeenCalledExactlyOnceWith(7);
+    expect(mockSaveChildMode).toHaveBeenCalledExactlyOnceWith(true);
+    expect(mockSaveAccessibilitySettings).toHaveBeenCalledExactlyOnceWith(latest.accessibility);
+    expect(mockSaveProgressStats).toHaveBeenCalledExactlyOnceWith(latest.progress);
+    unmount();
+    vi.clearAllMocks();
+    act(() => globalThis.dispatchEvent(new Event('pagehide')));
+    expect(mockSaveDifficulty).not.toHaveBeenCalled();
+  });
 });

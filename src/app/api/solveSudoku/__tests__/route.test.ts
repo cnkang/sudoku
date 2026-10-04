@@ -125,6 +125,34 @@ describe('/api/solveSudoku', () => {
     expect(data.error).toBe(expectedError);
   };
 
+  it.each(['00000000-0000-4000-8000-000000000001', 'invalid-client'])(
+    'handles existing client cookie %s',
+    async (client) => {
+      const request = new NextRequest('http://localhost:3000/api/solveSudoku?difficulty=1', {
+        method: 'POST',
+      });
+      request.cookies.set('sudoku-client', client);
+      const response = await POST(request);
+      expect(response.status).toBe(200);
+      expect(response.cookies.get('sudoku-client')?.value === undefined).toBe(
+        client !== 'invalid-client',
+      );
+    },
+  );
+
+  it('sanitizes a non-Error failure while validating parameters', async () => {
+    const validation = await import('@/utils/validation');
+    const validator = vi.spyOn(validation, 'validateDifficulty').mockImplementationOnce(() => {
+      throw null;
+    });
+    try {
+      const response = await POST(createMockRequest('1'));
+      expect(response.status).toBe(400);
+      expect((await response.json()).error).toBe('Invalid puzzle parameters');
+    } finally {
+      validator.mockRestore();
+    }
+  });
   describe('Valid Requests', () => {
     it.each(['1', '5', '10'])(
       'should generate puzzle for valid difficulty %s',
