@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import type { GridConfig } from '@/types';
 import { getConfig, validateMove } from '@/utils/gridConfig';
-import { solveSudoku } from './dlxSolver';
+import { countSolutions } from './dlxSolver';
 import type { SudokuPuzzle } from './types';
 
 const logger = {
@@ -117,7 +117,7 @@ function shuffleArray(array: number[], randomInt: RandomInt): number[] {
 }
 
 // Removes numbers from a complete board to create a puzzle with appropriate difficulty for any grid size.
-async function removeNumbers(
+function removeNumbers(
   board: number[][],
   difficulty: number,
   config: GridConfig,
@@ -153,7 +153,7 @@ async function removeNumbers(
 
     const puzzleCopy = puzzle.map((r) => r.slice());
     const solutions: number[][][] = [];
-    await solveSudoku(puzzleCopy, solutions, 2, config);
+    countSolutions(puzzleCopy, solutions, 2, config);
 
     if (solutions.length === 1) {
       logger.debug(
@@ -177,7 +177,7 @@ async function removeNumbers(
   }
 
   logger.debug(`Final ${config.size}×${config.size} puzzle: ${JSON.stringify(puzzle)}`);
-  return puzzle;
+  return Promise.resolve(puzzle);
 }
 
 // Calculates the number of clues based on difficulty and grid configuration.

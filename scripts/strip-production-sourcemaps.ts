@@ -22,30 +22,29 @@ async function collectSourceMaps(dirPath: string, acc: string[]): Promise<void> 
     return;
   }
 
-  for (const entry of entries) {
-    const fullPath = path.join(dirPath, entry.name);
-    if (entry.isDirectory()) {
-      await collectSourceMaps(fullPath, acc);
-      continue;
-    }
-    if (entry.isFile() && entry.name.endsWith('.map')) {
-      acc.push(fullPath);
-    }
-  }
+  await Promise.all(
+    entries.map(async (entry) => {
+      const fullPath = path.join(dirPath, entry.name);
+      if (entry.isDirectory()) {
+        await collectSourceMaps(fullPath, acc);
+        return;
+      }
+      if (entry.isFile() && entry.name.endsWith('.map')) {
+        acc.push(fullPath);
+      }
+    }),
+  );
 }
 
 async function findAllSourceMaps(): Promise<string[]> {
   const files: string[] = [];
-  for (const target of targets) {
-    await collectSourceMaps(path.join(rootDir, target), files);
-  }
+  await Promise.all(targets.map((target) => collectSourceMaps(path.join(rootDir, target), files)));
+  files.sort();
   return files;
 }
 
 const sourceMapFiles = await findAllSourceMaps();
-for (const file of sourceMapFiles) {
-  await fs.unlink(file);
-}
+await Promise.all(sourceMapFiles.map((file) => fs.unlink(file)));
 
 const relative = (filePath: string) => path.relative(rootDir, filePath);
 if (sourceMapFiles.length > 0) {

@@ -111,22 +111,21 @@ export const retryOperation = async <T>(
   maxRetries = 3,
   baseDelay = 1000,
 ): Promise<T> => {
-  let lastError: unknown;
-
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+  const attemptOperation = async (attempt: number): Promise<T> => {
     try {
       return await operation();
     } catch (error) {
-      lastError = error;
-
-      if (attempt === maxRetries) {
-        break;
+      if (attempt >= maxRetries) {
+        throw error;
       }
 
       const delay = baseDelay * 2 ** attempt;
       await new Promise((resolve) => setTimeout(resolve, delay));
+      return attemptOperation(attempt + 1);
     }
-  }
+  };
 
-  throw lastError;
+  // Invalid limits must fail before starting the operation.
+  if (!(maxRetries >= 0)) throw new RangeError('maxRetries must be non-negative');
+  return attemptOperation(0);
 };
