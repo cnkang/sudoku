@@ -135,8 +135,11 @@ class PWAManager {
   private installPromptEvent: BeforeInstallPromptEvent | null = null;
   private readonly statusCallbacks: ((status: PWAStatus) => void)[] = [];
 
+  private initialization: Promise<void> | null = null;
+  private registrationPromise: Promise<void> | null = null;
   public initialize(): void {
-    void this.initializePWA();
+    if (!getWindow()) return;
+    this.initialization ??= this.initializePWA();
   }
 
   /**
@@ -162,6 +165,13 @@ class PWAManager {
    * Register the service worker
    */
   private async registerServiceWorker(): Promise<void> {
+    if (!isTestEnv && this.registrationPromise) return this.registrationPromise;
+    const pending = this.performRegistration();
+    this.registrationPromise = pending;
+    await pending;
+    if (!this.serviceWorkerRegistration) this.registrationPromise = null;
+  }
+  private async performRegistration(): Promise<void> {
     const navigatorRef = getNavigator();
     if (!navigatorRef?.serviceWorker) {
       logInfo('[PWA] Service Worker not supported');
@@ -175,6 +185,23 @@ class PWAManager {
       });
 
       this.serviceWorkerRegistration = registration;
+      navigatorRef.serviceWorker.addEventListener('controllerchange', () => {
+        this.updateStatus();
+      });
+      if (!isTestEnv)
+        void navigatorRef.serviceWorker.ready.then(async () => {
+          const cache = await getCaches()?.open('sudoku-static-v2');
+          const assets = performance
+            .getEntriesByType('resource')
+            .map((entry) => entry.name)
+            .filter(
+              (url) =>
+                new URL(url).origin === location.origin &&
+                new URL(url).pathname.startsWith('/_next/static/'),
+            );
+          await cache?.addAll([...new Set(assets)]).catch(() => {});
+          this.updateStatus();
+        });
 
       // Handle service worker updates
       registration.addEventListener('updatefound', () => {
@@ -245,7 +272,6 @@ class PWAManager {
       () => {
         logInfo('[PWA] Back online');
         this.updateStatus();
-        this.syncPendingData();
       },
       { passive: true },
     );
@@ -390,49 +416,33 @@ class PWAManager {
   /**
    * Cache progress data for offline sync
    */
-  public async cacheProgress(progressData: ProgressData): Promise<void> {
-    if (!this.serviceWorkerRegistration?.active) return;
-
-    this.serviceWorkerRegistration.active.postMessage({
-      type: 'CACHE_PROGRESS',
-      payload: progressData,
-    });
+  public async cacheProgress(data: ProgressData): Promise<void> {
+    await this.saveLocalEvent('CACHE_PROGRESS', data);
   }
-
-  /**
-   * Cache achievement data for offline sync
-   */
-  public async cacheAchievement(achievementData: AchievementData): Promise<void> {
-    if (!this.serviceWorkerRegistration?.active) return;
-
-    this.serviceWorkerRegistration.active.postMessage({
-      type: 'CACHE_ACHIEVEMENT',
-      payload: achievementData,
-    });
+  public async cacheAchievement(data: AchievementData): Promise<void> {
+    await this.saveLocalEvent('CACHE_ACHIEVEMENT', data);
   }
-
-  /**
-   * Sync pending data when back online
-   */
-  private async syncPendingData(): Promise<void> {
-    const navigatorRef = getNavigator();
-    if (!navigatorRef?.onLine || !this.serviceWorkerRegistration) return;
-
-    try {
-      // Trigger background sync if supported
-      const syncManager = (
-        this.serviceWorkerRegistration as ServiceWorkerRegistration & {
-          sync?: { register: (tag: string) => Promise<void> };
-        }
-      ).sync;
-
-      if (syncManager) {
-        await syncManager.register('progress-sync');
-        await syncManager.register('achievement-sync');
-      }
-    } catch (error) {
-      logError('[PWA] Background sync registration failed:', error);
-    }
+  private async saveLocalEvent(
+    type: string,
+    payload: ProgressData | AchievementData,
+  ): Promise<void> {
+    if (isTestEnv || !this.serviceWorkerRegistration?.active) await this.registerServiceWorker();
+    const worker = this.serviceWorkerRegistration?.active;
+    if (!worker) throw new Error('Offline storage is not ready');
+    await new Promise<void>((resolve, reject) => {
+      const channel = new MessageChannel();
+      const timeout = setTimeout(() => {
+        channel.port1.close();
+        reject(new Error('Offline storage did not respond'));
+      }, 5000);
+      channel.port1.onmessage = (event) => {
+        clearTimeout(timeout);
+        channel.port1.close();
+        if (event.data?.saved === true) resolve();
+        else reject(new Error('Could not save local progress'));
+      };
+      worker.postMessage({ type, payload }, [channel.port2]);
+    });
   }
 
   /**
@@ -495,20 +505,25 @@ class PWAManager {
    * Update service worker
    */
   public async updateServiceWorker(): Promise<void> {
-    if (!this.serviceWorkerRegistration) return;
-
-    try {
-      await this.serviceWorkerRegistration.update();
-
-      // Skip waiting for new service worker
-      if (this.serviceWorkerRegistration.waiting) {
-        this.serviceWorkerRegistration.waiting.postMessage({
-          type: 'SKIP_WAITING',
-        });
-      }
-    } catch (error) {
-      logError('[PWA] Service worker update failed:', error);
-    }
+    const registration = this.serviceWorkerRegistration;
+    const serviceWorker = getNavigator()?.serviceWorker;
+    if (!registration || !serviceWorker) return;
+    if (!registration.waiting) await registration.update();
+    const waiting = registration.waiting;
+    if (!waiting) return;
+    await new Promise<void>((resolve, reject) => {
+      const done = () => {
+        clearTimeout(timeout);
+        serviceWorker.removeEventListener('controllerchange', done);
+        resolve();
+      };
+      const timeout = setTimeout(() => {
+        serviceWorker.removeEventListener('controllerchange', done);
+        reject(new Error('The updated worker did not activate'));
+      }, 10_000);
+      serviceWorker.addEventListener('controllerchange', done);
+      waiting.postMessage({ type: 'SKIP_WAITING' });
+    });
   }
 
   /**
@@ -518,10 +533,11 @@ class PWAManager {
     // You can implement a toast notification or modal here
     logInfo('[PWA] New version available! Refresh to update.');
 
-    // Auto-update after a delay (optional)
-    setTimeout(() => {
-      this.updateServiceWorker();
-    }, 5000);
+    getWindow()?.dispatchEvent(
+      new CustomEvent('sw-update-available', {
+        detail: { registration: this.serviceWorkerRegistration },
+      }),
+    );
   }
 
   /**
@@ -568,7 +584,6 @@ class PWAManager {
 
 // Global PWA manager instance
 export const pwaManager = new PWAManager();
-pwaManager.initialize();
 
 // Utility functions
 export const isPWASupported = (): boolean => {

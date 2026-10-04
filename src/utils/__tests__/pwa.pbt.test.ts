@@ -13,7 +13,7 @@ const createMockServiceWorker = () => ({
   register: vi.fn(),
   ready: Promise.resolve({
     active: {
-      postMessage: vi.fn(),
+      postMessage: vi.fn((_data, ports) => ports?.[0]?.postMessage({ saved: true })),
     },
     sync: {
       register: vi.fn(),
@@ -292,7 +292,7 @@ describe('PWA Functionality Property Tests', () => {
           const mockServiceWorker = createMockServiceWorker();
           mockServiceWorker.register.mockResolvedValue({
             active: {
-              postMessage: vi.fn(),
+              postMessage: vi.fn((_data, ports) => ports?.[0]?.postMessage({ saved: true })),
             },
             sync: {
               register: vi.fn(),
@@ -335,7 +335,7 @@ describe('PWA Functionality Property Tests', () => {
           const mockServiceWorker = createMockServiceWorker();
           mockServiceWorker.register.mockResolvedValue({
             active: {
-              postMessage: vi.fn(),
+              postMessage: vi.fn((_data, ports) => ports?.[0]?.postMessage({ saved: true })),
             },
             sync: {
               register: vi.fn(),
@@ -520,7 +520,9 @@ describe('PWA Functionality Property Tests', () => {
             // Setup comprehensive mocks
             const mockServiceWorker = createMockServiceWorker();
             mockServiceWorker.register.mockResolvedValue({
-              active: { postMessage: vi.fn() },
+              active: {
+                postMessage: vi.fn((_data, ports) => ports?.[0]?.postMessage({ saved: true })),
+              },
               sync: { register: vi.fn() },
               showNotification: vi.fn(),
             });

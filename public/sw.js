@@ -1,14 +1,13 @@
 // Multi-Size Sudoku PWA Service Worker
 // Provides offline support, puzzle caching, and background sync
 
-const CACHE_NAME = 'sudoku-pwa-v1';
-const STATIC_CACHE_NAME = 'sudoku-static-v1';
-const PUZZLE_CACHE_NAME = 'sudoku-puzzles-v1';
-const RUNTIME_CACHE_NAME = 'sudoku-runtime-v1';
+const CACHE_NAME = 'sudoku-pwa-v2';
+const STATIC_CACHE_NAME = 'sudoku-static-v2';
+const PUZZLE_CACHE_NAME = 'sudoku-puzzles-v2';
+const RUNTIME_CACHE_NAME = 'sudoku-runtime-v2';
 const ALLOWED_PUZZLE_SIZES = new Set([4, 6, 9]);
 const DEFAULT_PUZZLE_SIZE = 9;
 const MIN_PUZZLE_DIFFICULTY = 1;
-const MAX_PUZZLE_DIFFICULTY = 5;
 const SW_MESSAGE_TYPES = new Set([
   'SKIP_WAITING',
   'CACHE_PROGRESS',
@@ -21,8 +20,7 @@ const STATIC_ASSETS = [
   '/',
   '/manifest.json',
   '/offline.html',
-  '/_next/static/css/',
-  '/_next/static/js/',
+  '/offline.js',
 ];
 
 const swLog = (..._args) => {};
@@ -37,15 +35,20 @@ globalThis.addEventListener('install', event => {
       // Cache static assets
       caches.open(STATIC_CACHE_NAME).then(cache => {
         swLog('[SW] Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
+        return cache.addAll(STATIC_ASSETS).then(async () => {
+          const shell = await cache.match('/');
+          const html = await shell.text();
+          const assets = [...html.matchAll(/(?:src|href)="([^"#]+)"/g)]
+            .map(match => match[1]).filter(path => path.startsWith('/_next/static/'));
+          await cache.addAll([...new Set(assets)]);
+        });
       }),
       // Initialize puzzle cache
       caches.open(PUZZLE_CACHE_NAME).then(cache => {
         swLog('[SW] Initializing puzzle cache');
         return cache.put('/puzzles/init', new Response('{}'));
       }),
-      // Skip waiting to activate immediately
-      globalThis.skipWaiting(),
+
     ])
   );
 });
@@ -57,10 +60,19 @@ globalThis.addEventListener('activate', event => {
   event.waitUntil(
     Promise.all([
       // Clean up old caches
-      caches.keys().then(cacheNames => {
+      caches.keys().then(async cacheNames => {
         const deletions = [];
+        // Preserve the previous worker's unsent local events before deleting its puzzle cache.
+        if (cacheNames.includes('sudoku-puzzles-v1')) {
+          const previous = await caches.open('sudoku-puzzles-v1');
+          for (const [path, type] of [['/progress/pending', 'progress'], ['/achievements/pending', 'achievement']]) {
+            const pending = await previous.match(path);
+            if (pending) { await storeLocalEvent(type, await pending.json()); await previous.delete(path); }
+          }
+        }
         for (const cacheName of cacheNames) {
           if (
+            cacheName.startsWith('sudoku-') && cacheName !== 'sudoku-local-progress-v1' &&
             cacheName !== CACHE_NAME &&
             cacheName !== STATIC_CACHE_NAME &&
             cacheName !== PUZZLE_CACHE_NAME &&
@@ -83,6 +95,11 @@ globalThis.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
 
+  if (url.origin !== globalThis.location.origin) return;
+  if (url.pathname === '/api/solveSudoku' && (request.method === 'POST' || request.method === 'GET')) {
+    event.respondWith(handlePuzzleRequest(request));
+    return;
+  }
   // Handle different types of requests
   if (request.method === 'GET') {
     if (url.pathname.startsWith('/api/solveSudoku')) {
@@ -90,11 +107,11 @@ globalThis.addEventListener('fetch', event => {
       event.respondWith(handlePuzzleRequest(request));
     } else if (url.pathname.startsWith('/api/')) {
       // Other APIs - network first with cache fallback
-      event.respondWith(handleApiRequest(request));
+      return;
     } else if (url.pathname.startsWith('/_next/static/')) {
       // Static assets - cache first strategy
       event.respondWith(handleStaticRequest(request));
-    } else {
+    } else if (request.mode === 'navigate') {
       // HTML pages - network first with cache fallback
       event.respondWith(handlePageRequest(request));
     }
@@ -104,6 +121,11 @@ globalThis.addEventListener('fetch', event => {
 // Handle puzzle generation requests
 async function handlePuzzleRequest(request) {
   const url = new URL(request.url);
+  const size = url.searchParams.get('gridSize') ?? url.searchParams.get('size') ?? '9';
+  const difficulty = url.searchParams.get('difficulty');
+  const maxima = { 4: 5, 6: 7, 9: 10 };
+  if (!/^(4|6|9)$/.test(size) || !/^\d+$/.test(difficulty ?? '') || Number(difficulty) < 1 || Number(difficulty) > maxima[size])
+    return new Response(JSON.stringify({ error: 'Invalid puzzle parameters' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   const cacheRequest = createPuzzleCacheRequest(url.searchParams);
 
   try {
@@ -126,9 +148,11 @@ async function handlePuzzleRequest(request) {
         },
       });
 
-      await cache.put(cacheRequest, responseWithMeta);
-      return networkResponse;
+      await cache.put(cacheRequest, responseWithMeta).catch(() => {});
+      const keys = await cache.keys();
+      await Promise.all(keys.slice(0, Math.max(0, keys.length - 50)).map(key => cache.delete(key)));
     }
+    return networkResponse;
   } catch {
     swLog('[SW] Network failed for puzzle request, trying cache');
   }
@@ -150,12 +174,13 @@ function createPuzzleCacheRequest(searchParams) {
   const cacheUrl = new URL('/__sw/puzzle-cache', globalThis.location.origin);
   cacheUrl.searchParams.set('size', String(normalizedParams.size));
   cacheUrl.searchParams.set('difficulty', String(normalizedParams.difficulty));
+  if (searchParams.has('seed')) cacheUrl.searchParams.set('seed', searchParams.get('seed'));
 
   return new Request(cacheUrl.toString(), { method: 'GET' });
 }
 
 function normalizePuzzleParams(searchParams) {
-  const parsedSize = Number.parseInt(searchParams.get('size') ?? '', 10);
+  const parsedSize = Number.parseInt(searchParams.get('gridSize') ?? searchParams.get('size') ?? '', 10);
   const parsedDifficulty = Number.parseInt(
     searchParams.get('difficulty') ?? '',
     10
@@ -166,45 +191,12 @@ function normalizePuzzleParams(searchParams) {
     : DEFAULT_PUZZLE_SIZE;
   const difficulty = Number.isFinite(parsedDifficulty)
     ? Math.min(
-        MAX_PUZZLE_DIFFICULTY,
+        ({ 4: 5, 6: 7, 9: 10 })[size],
         Math.max(MIN_PUZZLE_DIFFICULTY, parsedDifficulty)
       )
     : MIN_PUZZLE_DIFFICULTY;
 
   return { size, difficulty };
-}
-
-// Handle API requests
-async function handleApiRequest(request) {
-  try {
-    const networkResponse = await fetch(request);
-
-    if (networkResponse.ok) {
-      // Cache successful API responses
-      const cache = await caches.open(RUNTIME_CACHE_NAME);
-      await cache.put(request, networkResponse.clone());
-      return networkResponse;
-    }
-  } catch {
-    swLog('[SW] Network failed for API request, trying cache');
-  }
-
-  // Fallback to cache
-  const cache = await caches.open(RUNTIME_CACHE_NAME);
-  const cachedResponse = await cache.match(request);
-
-  if (cachedResponse) {
-    return cachedResponse;
-  }
-
-  // Return offline response
-  return new Response(
-    JSON.stringify({ error: 'Offline - please try again when connected' }),
-    {
-      status: 503,
-      headers: { 'Content-Type': 'application/json' },
-    }
-  );
 }
 
 // Handle static asset requests
@@ -220,8 +212,8 @@ async function handleStaticRequest(request) {
     const networkResponse = await fetch(request);
     if (networkResponse.ok) {
       await cache.put(request, networkResponse.clone());
-      return networkResponse;
     }
+    return networkResponse;
   } catch {
     swLog('[SW] Failed to fetch static asset:', request.url);
   }
@@ -239,8 +231,8 @@ async function handlePageRequest(request) {
       // Cache successful page responses
       const cache = await caches.open(RUNTIME_CACHE_NAME);
       await cache.put(request, networkResponse.clone());
-      return networkResponse;
     }
+    return networkResponse;
   } catch {
     swLog('[SW] Network failed for page request, trying cache');
   }
@@ -255,7 +247,7 @@ async function handlePageRequest(request) {
 
   // Fallback to offline page
   const offlineCache = await caches.open(STATIC_CACHE_NAME);
-  const offlineResponse = await offlineCache.match('/offline.html');
+  const offlineResponse = await offlineCache.match(new URL(request.url).pathname) ?? await offlineCache.match('/offline.html');
 
   if (offlineResponse) {
     return offlineResponse;
@@ -304,7 +296,7 @@ async function handlePageRequest(request) {
         <div class="emoji">🧩</div>
         <h1>You're Offline!</h1>
         <p>Don't worry! You can still play Sudoku. Some features might be limited until you're back online.</p>
-        <button onclick="globalThis.location.reload()">Try Again</button>
+        <a href="/">Try Again</a>
       </div>
     </body>
     </html>`,
@@ -317,78 +309,230 @@ async function handlePageRequest(request) {
 
 // Generate simple offline puzzles
 function generateOfflinePuzzle(searchParams) {
-  const sizeParam = searchParams.get('size');
-  const difficultyParam = searchParams.get('difficulty');
-  const size = Number.parseInt(sizeParam ?? '9', 10) || 9;
-  const difficulty = Number.parseInt(difficultyParam ?? '1', 10) || 1;
-
-  // Simple offline puzzle templates
+  const { size, difficulty } = normalizePuzzleParams(searchParams);
+  // Unique puzzles validated for each supported size and difficulty.
   const templates = {
     4: {
-      puzzle: [
-        [1, 0, 0, 4],
-        [0, 4, 1, 0],
-        [0, 1, 4, 0],
-        [4, 0, 0, 1],
-      ],
-      solution: [
-        [1, 2, 3, 4],
+      1: [
+        [0, 2, 3, 4],
         [3, 4, 1, 2],
-        [2, 1, 4, 3],
-        [4, 3, 2, 1],
+        [2, 3, 0, 1],
+        [0, 1, 0, 3],
+      ],
+      2: [
+        [0, 2, 0, 4],
+        [3, 0, 1, 2],
+        [2, 3, 4, 1],
+        [0, 1, 0, 3],
+      ],
+      3: [
+        [1, 0, 3, 0],
+        [3, 4, 1, 2],
+        [0, 3, 0, 1],
+        [0, 0, 2, 3],
+      ],
+      4: [
+        [1, 2, 3, 0],
+        [0, 4, 1, 0],
+        [2, 3, 4, 0],
+        [0, 0, 2, 0],
+      ],
+      5: [
+        [0, 2, 3, 0],
+        [0, 0, 0, 2],
+        [2, 3, 0, 1],
+        [0, 1, 0, 3],
       ],
     },
     6: {
-      puzzle: [
-        [1, 0, 0, 0, 5, 6],
-        [0, 5, 6, 1, 0, 0],
-        [0, 0, 1, 6, 0, 5],
-        [6, 0, 5, 0, 0, 0],
-        [0, 0, 4, 5, 6, 0],
-        [5, 6, 0, 0, 0, 4],
-      ],
-      solution: [
-        [1, 2, 3, 4, 5, 6],
+      1: [
+        [1, 2, 3, 4, 5, 0],
         [4, 5, 6, 1, 2, 3],
-        [2, 3, 1, 6, 4, 5],
-        [6, 1, 5, 3, 2, 4],
-        [3, 4, 2, 5, 6, 1],
-        [5, 6, 4, 2, 1, 3],
+        [2, 3, 4, 5, 6, 0],
+        [5, 6, 1, 2, 0, 4],
+        [0, 4, 0, 0, 1, 2],
+        [6, 0, 2, 0, 4, 5],
+      ],
+      2: [
+        [0, 2, 3, 4, 0, 0],
+        [4, 5, 6, 0, 2, 3],
+        [2, 3, 4, 5, 0, 1],
+        [5, 6, 1, 2, 0, 4],
+        [0, 4, 0, 6, 0, 2],
+        [6, 1, 2, 0, 4, 5],
+      ],
+      3: [
+        [1, 2, 3, 4, 5, 6],
+        [0, 5, 0, 0, 2, 0],
+        [0, 3, 4, 0, 6, 0],
+        [5, 6, 1, 2, 0, 4],
+        [3, 4, 5, 6, 1, 2],
+        [0, 0, 0, 3, 4, 5],
+      ],
+      4: [
+        [1, 2, 0, 4, 5, 0],
+        [4, 5, 0, 1, 2, 3],
+        [2, 0, 4, 5, 6, 0],
+        [0, 0, 0, 2, 3, 4],
+        [3, 4, 5, 6, 0, 2],
+        [0, 0, 2, 0, 4, 0],
+      ],
+      5: [
+        [0, 2, 3, 4, 5, 6],
+        [4, 5, 0, 0, 0, 3],
+        [0, 3, 4, 5, 0, 0],
+        [5, 6, 0, 2, 3, 4],
+        [0, 0, 0, 6, 1, 0],
+        [0, 1, 0, 0, 4, 5],
+      ],
+      6: [
+        [1, 0, 0, 4, 0, 6],
+        [0, 0, 6, 1, 2, 0],
+        [2, 3, 4, 5, 0, 0],
+        [0, 0, 1, 2, 3, 4],
+        [0, 0, 5, 6, 0, 0],
+        [6, 1, 0, 3, 0, 5],
+      ],
+      7: [
+        [1, 2, 3, 4, 0, 6],
+        [0, 5, 6, 0, 0, 0],
+        [0, 0, 4, 0, 6, 0],
+        [0, 0, 1, 2, 0, 0],
+        [0, 4, 5, 6, 1, 0],
+        [0, 0, 2, 0, 4, 5],
       ],
     },
     9: {
-      puzzle: [
-        [5, 3, 0, 0, 7, 0, 0, 0, 0],
-        [6, 0, 0, 1, 9, 5, 0, 0, 0],
-        [0, 9, 8, 0, 0, 0, 0, 6, 0],
-        [8, 0, 0, 0, 6, 0, 0, 0, 3],
-        [4, 0, 0, 8, 0, 3, 0, 0, 1],
-        [7, 0, 0, 0, 2, 0, 0, 0, 6],
-        [0, 6, 0, 0, 0, 0, 2, 8, 0],
-        [0, 0, 0, 4, 1, 9, 0, 0, 5],
-        [0, 0, 0, 0, 8, 0, 0, 7, 9],
+      1: [
+        [1, 2, 3, 0, 0, 6, 7, 0, 9],
+        [4, 5, 6, 0, 8, 9, 1, 2, 0],
+        [0, 8, 9, 0, 2, 3, 4, 5, 6],
+        [2, 0, 0, 5, 6, 0, 0, 9, 1],
+        [5, 6, 7, 8, 0, 1, 2, 3, 4],
+        [8, 9, 1, 2, 3, 0, 5, 6, 7],
+        [0, 4, 5, 6, 0, 8, 9, 1, 2],
+        [6, 7, 8, 9, 0, 2, 0, 0, 5],
+        [9, 1, 2, 3, 4, 5, 6, 0, 0],
       ],
-      solution: [
-        [5, 3, 4, 6, 7, 8, 9, 1, 2],
-        [6, 7, 2, 1, 9, 5, 3, 4, 8],
-        [1, 9, 8, 3, 4, 2, 5, 6, 7],
-        [8, 5, 9, 7, 6, 1, 4, 2, 3],
-        [4, 2, 6, 8, 5, 3, 7, 9, 1],
-        [7, 1, 3, 9, 2, 4, 8, 5, 6],
-        [9, 6, 1, 5, 3, 7, 2, 8, 4],
-        [2, 8, 7, 4, 1, 9, 6, 3, 5],
-        [3, 4, 5, 2, 8, 6, 1, 7, 9],
+      2: [
+        [1, 0, 3, 4, 0, 0, 0, 0, 9],
+        [4, 5, 6, 7, 8, 0, 0, 2, 3],
+        [7, 8, 0, 1, 2, 0, 0, 5, 6],
+        [2, 0, 4, 5, 6, 0, 0, 9, 0],
+        [5, 0, 7, 8, 0, 1, 0, 3, 0],
+        [8, 9, 1, 2, 0, 4, 5, 0, 0],
+        [0, 4, 5, 6, 7, 8, 0, 1, 2],
+        [6, 7, 8, 9, 1, 2, 3, 4, 5],
+        [9, 1, 2, 3, 4, 0, 6, 7, 8],
+      ],
+      3: [
+        [0, 0, 3, 4, 5, 6, 0, 0, 9],
+        [4, 5, 6, 0, 8, 9, 1, 0, 3],
+        [7, 8, 0, 1, 2, 3, 4, 5, 0],
+        [2, 0, 0, 5, 6, 7, 8, 9, 1],
+        [0, 6, 0, 8, 9, 1, 2, 3, 4],
+        [0, 9, 1, 2, 0, 4, 5, 0, 0],
+        [3, 4, 5, 6, 0, 8, 0, 0, 0],
+        [6, 7, 0, 9, 0, 0, 3, 0, 5],
+        [9, 0, 2, 3, 0, 0, 0, 7, 0],
+      ],
+      4: [
+        [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        [0, 5, 0, 7, 8, 0, 1, 2, 3],
+        [7, 8, 9, 0, 0, 0, 0, 5, 0],
+        [0, 0, 0, 5, 6, 0, 0, 0, 0],
+        [5, 0, 7, 8, 9, 0, 2, 0, 0],
+        [8, 0, 0, 2, 3, 4, 0, 6, 7],
+        [3, 0, 5, 6, 0, 8, 9, 1, 2],
+        [0, 0, 8, 9, 0, 2, 3, 0, 0],
+        [0, 1, 2, 0, 0, 5, 6, 7, 0],
+      ],
+      5: [
+        [0, 0, 3, 4, 5, 6, 0, 8, 9],
+        [0, 0, 0, 7, 0, 9, 1, 2, 3],
+        [7, 8, 9, 0, 0, 0, 0, 0, 6],
+        [2, 0, 0, 0, 0, 7, 0, 0, 1],
+        [5, 0, 7, 8, 9, 0, 2, 0, 4],
+        [0, 0, 1, 0, 3, 4, 0, 6, 0],
+        [0, 0, 5, 0, 7, 8, 0, 1, 2],
+        [6, 7, 0, 9, 0, 2, 0, 4, 0],
+        [0, 1, 0, 3, 4, 5, 0, 7, 8],
+      ],
+      6: [
+        [1, 2, 0, 0, 5, 6, 7, 0, 0],
+        [4, 0, 0, 7, 0, 0, 1, 2, 0],
+        [0, 8, 9, 0, 0, 0, 0, 0, 6],
+        [0, 3, 4, 0, 6, 0, 0, 9, 1],
+        [5, 6, 0, 0, 9, 1, 0, 3, 4],
+        [0, 9, 0, 2, 3, 4, 5, 6, 0],
+        [0, 0, 0, 0, 0, 8, 9, 1, 0],
+        [6, 0, 0, 9, 1, 0, 0, 0, 0],
+        [9, 0, 2, 0, 0, 5, 0, 7, 0],
+      ],
+      7: [
+        [0, 0, 0, 0, 5, 0, 7, 0, 9],
+        [4, 5, 0, 0, 0, 9, 0, 2, 0],
+        [7, 8, 9, 1, 0, 0, 0, 5, 6],
+        [2, 3, 0, 5, 6, 7, 8, 0, 1],
+        [5, 6, 0, 8, 9, 0, 2, 3, 0],
+        [0, 0, 0, 0, 0, 0, 5, 0, 7],
+        [0, 0, 0, 0, 7, 0, 9, 1, 2],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 0, 3, 0, 5, 0, 0, 0],
+      ],
+      8: [
+        [0, 0, 0, 0, 5, 6, 0, 0, 9],
+        [4, 0, 0, 7, 0, 0, 0, 0, 3],
+        [7, 8, 9, 0, 0, 3, 0, 0, 0],
+        [0, 0, 4, 0, 6, 0, 0, 0, 0],
+        [5, 0, 0, 8, 9, 0, 0, 3, 4],
+        [8, 0, 1, 0, 0, 4, 0, 0, 0],
+        [0, 4, 0, 6, 7, 0, 9, 0, 0],
+        [0, 0, 8, 0, 0, 2, 0, 4, 0],
+        [0, 0, 2, 0, 4, 0, 6, 7, 0],
+      ],
+      9: [
+        [1, 2, 3, 4, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 8, 0, 0, 0, 3],
+        [7, 0, 0, 0, 0, 0, 0, 0, 6],
+        [2, 0, 4, 5, 0, 0, 0, 0, 0],
+        [0, 6, 0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 2, 3, 4, 0, 6, 0],
+        [3, 0, 0, 0, 0, 0, 9, 0, 2],
+        [0, 7, 8, 0, 1, 0, 0, 0, 0],
+        [0, 0, 0, 3, 4, 5, 0, 0, 0],
+      ],
+      10: [
+        [1, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 6, 0, 0, 9, 1, 2, 0],
+        [0, 8, 0, 0, 0, 3, 4, 0, 0],
+        [2, 0, 0, 0, 0, 0, 0, 9, 0],
+        [0, 0, 0, 8, 0, 1, 0, 0, 0],
+        [0, 0, 0, 0, 3, 0, 0, 0, 7],
+        [3, 0, 5, 6, 7, 8, 0, 0, 0],
+        [0, 0, 8, 0, 0, 0, 0, 4, 0],
+        [0, 0, 0, 0, 0, 0, 6, 7, 0],
       ],
     },
   };
-
-  const template = templates[size] || templates[9];
+  const template = templates[size][difficulty];
+  const boxRows = size === 9 ? 3 : 2;
+  const boxCols = size / boxRows;
+  const solution = Array.from({ length: size }, (_, row) => Array.from({ length: size },
+    (_, col) => (row * boxCols + Math.floor(row / boxRows) + col) % size + 1));
+  // Digit permutations preserve the solution count and provide offline variety.
+  const digits = Array.from({ length: size }, (_, index) => index + 1);
+  for (let index = size - 1; index > 0; index--) {
+    const target = Math.floor(Math.random() * (index + 1));
+    [digits[index], digits[target]] = [digits[target], digits[index]];
+  }
+  const mapBoard = board => board.map(row => row.map(value => value === 0 ? 0 : digits[value - 1]));
 
   const response = {
-    puzzle: template.puzzle,
-    solution: template.solution,
+    puzzle: mapBoard(template),
+    solution: mapBoard(solution),
     difficulty: difficulty,
-    size: size,
+    gridSize: size,
     offline: true,
     message: 'Playing offline - limited puzzle variety available',
   };
@@ -402,73 +546,7 @@ function generateOfflinePuzzle(searchParams) {
   });
 }
 
-// Background sync for progress tracking
-globalThis.addEventListener('sync', event => {
-  swLog('[SW] Background sync triggered:', event.tag);
-
-  if (event.tag === 'progress-sync') {
-    event.waitUntil(syncProgress());
-  } else if (event.tag === 'achievement-sync') {
-    event.waitUntil(syncAchievements());
-  }
-});
-
-// Sync progress data when back online
-async function syncProgress() {
-  try {
-    // Get stored progress data
-    const cache = await caches.open(PUZZLE_CACHE_NAME);
-    const progressData = await cache.match('/progress/pending');
-
-    if (progressData) {
-      const data = await progressData.json();
-
-      // Send to server
-      const response = await fetch('/api/progress', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        // Clear pending data
-        await cache.delete('/progress/pending');
-        swLog('[SW] Progress synced successfully');
-      }
-    }
-  } catch (error) {
-    swError('[SW] Failed to sync progress:', error);
-  }
-}
-
-// Sync achievement data when back online
-async function syncAchievements() {
-  try {
-    // Get stored achievement data
-    const cache = await caches.open(PUZZLE_CACHE_NAME);
-    const achievementData = await cache.match('/achievements/pending');
-
-    if (achievementData) {
-      const data = await achievementData.json();
-
-      // Send to server
-      const response = await fetch('/api/achievements', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        // Clear pending data
-        await cache.delete('/achievements/pending');
-        swLog('[SW] Achievements synced successfully');
-      }
-    }
-  } catch (error) {
-    swError('[SW] Failed to sync achievements:', error);
-  }
-}
-
+// Progress is local-only. Never delete locally saved data on a demo server response.
 // Handle push notifications for achievements
 globalThis.addEventListener('push', event => {
   swLog('[SW] Push notification received');
@@ -478,20 +556,20 @@ globalThis.addEventListener('push', event => {
 
     const options = {
       body: data.body || 'Great job solving puzzles!',
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/badge-72x72.png',
+      icon: '/icons/icon-192x192.svg',
+      badge: '/icons/badge-72x72.svg',
       tag: data.tag || 'achievement',
       data: data.data || {},
       actions: [
         {
           action: 'play',
           title: 'Play Now',
-          icon: '/icons/play-action.png',
+          icon: '/icons/play-action.svg',
         },
         {
           action: 'dismiss',
           title: 'Later',
-          icon: '/icons/dismiss-action.png',
+          icon: '/icons/dismiss-action.svg',
         },
       ],
       vibrate: [200, 100, 200],
@@ -555,13 +633,13 @@ globalThis.addEventListener('message', event => {
 
   switch (event.data.type) {
     case 'SKIP_WAITING':
-      globalThis.skipWaiting();
+      event.waitUntil(globalThis.skipWaiting());
       break;
     case 'CACHE_PROGRESS':
-      cacheProgressData(event.data.payload);
+      event.waitUntil(cacheProgressData(event.data.payload).then(() => event.ports?.[0]?.postMessage({ saved: true })).catch(() => event.ports?.[0]?.postMessage({ saved: false })));
       break;
     case 'CACHE_ACHIEVEMENT':
-      cacheAchievementData(event.data.payload);
+      event.waitUntil(cacheAchievementData(event.data.payload).then(() => event.ports?.[0]?.postMessage({ saved: true })).catch(() => event.ports?.[0]?.postMessage({ saved: false })));
       break;
     case 'GET_CACHE_STATUS': {
       const replyPort = event.ports?.[0];
@@ -623,47 +701,17 @@ function isValidMessageData(data) {
   );
 }
 
-// Cache progress data for later sync
-async function cacheProgressData(progressData) {
-  try {
-    const cache = await caches.open(PUZZLE_CACHE_NAME);
-    await cache.put(
-      '/progress/pending',
-      new Response(JSON.stringify(progressData))
-    );
-
-    // Register for background sync
-    if (
-      'serviceWorker' in navigator &&
-      'sync' in globalThis.ServiceWorkerRegistration.prototype
-    ) {
-      await globalThis.registration.sync.register('progress-sync');
-    }
-  } catch (error) {
-    swError('[SW] Failed to cache progress data:', error);
-  }
+// Each local event has its own key, so concurrent completions cannot overwrite one another.
+async function storeLocalEvent(type, payload) {
+  if (!payload || typeof payload !== 'object') throw new Error('Invalid local event');
+  const cache = await caches.open('sudoku-local-progress-v1');
+  const id = crypto.randomUUID();
+  await cache.put(`/__local/${type}/${id}`, new Response(JSON.stringify({ id, type, payload }), {
+    headers: { 'Content-Type': 'application/json' },
+  }));
 }
-
-// Cache achievement data for later sync
-async function cacheAchievementData(achievementData) {
-  try {
-    const cache = await caches.open(PUZZLE_CACHE_NAME);
-    await cache.put(
-      '/achievements/pending',
-      new Response(JSON.stringify(achievementData))
-    );
-
-    // Register for background sync
-    if (
-      'serviceWorker' in navigator &&
-      'sync' in globalThis.ServiceWorkerRegistration.prototype
-    ) {
-      await globalThis.registration.sync.register('achievement-sync');
-    }
-  } catch (error) {
-    swError('[SW] Failed to cache achievement data:', error);
-  }
-}
+async function cacheProgressData(data) { await storeLocalEvent('progress', data); }
+async function cacheAchievementData(data) { await storeLocalEvent('achievement', data); }
 
 // Get cache status information
 async function getCacheStatus() {

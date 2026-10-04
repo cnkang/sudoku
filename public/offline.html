@@ -189,8 +189,8 @@
         </div>
 
         <div class="buttons">
-            <button onclick="goHome()">Play Offline</button>
-            <button class="secondary" onclick="tryReconnect()">Try Again</button>
+            <button id="play-button">Play Offline</button>
+            <button class="secondary" id="retry-button">Try Again</button>
         </div>
 
         <div class="status" id="status">
@@ -198,45 +198,7 @@
         </div>
     </div>
 
-    <script>
-        function goHome() {
-            globalThis.location.href = '/';
-        }
-
-        function tryReconnect() {
-            globalThis.location.reload();
-        }
-
-        // Check connection status
-        function updateConnectionStatus() {
-            const status = document.getElementById('connection-status');
-
-            if (navigator.onLine) {
-                status.textContent = 'Connection restored! Click "Try Again" to go online.';
-                status.parentElement.style.background = '#D4EDDA';
-                status.parentElement.style.borderColor = '#C3E6CB';
-                status.parentElement.style.color = '#155724';
-            } else {
-                status.textContent = 'Still offline. You can play with limited features.';
-            }
-        }
-
-        // Listen for connection changes
-        globalThis.addEventListener('online', updateConnectionStatus);
-        globalThis.addEventListener('offline', updateConnectionStatus);
-
-        // Initial status check
-        updateConnectionStatus();
-
-        // Auto-refresh when back online
-        globalThis.addEventListener('online', () => {
-            setTimeout(() => {
-                if (navigator.onLine) {
-                    globalThis.location.reload();
-                }
-            }, 2000);
-        });
-    </script>
+    <script src="/offline.js" defer></script>
 </body>
 
 </html>
