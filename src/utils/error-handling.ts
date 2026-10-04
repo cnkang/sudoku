@@ -127,5 +127,5 @@ export const retryOperation = async <T>(
 
   // Invalid limits must fail before starting the operation.
   if (!(maxRetries >= 0)) throw new RangeError('maxRetries must be non-negative');
-  return attemptOperation(0);
+  return await attemptOperation(0);
 };
