@@ -1,3 +1,4 @@
+import { GRID_CONFIGS } from '@/utils/gridConfig';
 import type { AccessibilitySettings, GridConfig, ProgressStats } from '@/types';
 
 /**
@@ -102,7 +103,7 @@ const normalizeDate = (value: unknown): Date | null => {
 };
 
 const normalizeNumber = (value: unknown, fallback: number) =>
-  typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+  typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : fallback;
 
 const normalizeAchievements = (value: unknown) =>
   Array.isArray(value) && value.every((item) => typeof item === 'string') ? value : [];
@@ -257,7 +258,7 @@ export function updateGridProgress(gridSize: string, stats: Partial<ProgressStat
  * Load child mode preference from localStorage
  */
 export function loadChildMode(): boolean {
-  return getStorageItem(STORAGE_KEYS.CHILD_MODE, false);
+  return getStorageItem<unknown>(STORAGE_KEYS.CHILD_MODE, false) === true;
 }
 
 /**
@@ -271,21 +272,28 @@ export function saveChildMode(childMode: boolean): void {
  * Load grid configuration from localStorage
  */
 export function loadGridConfig(): GridConfig | null {
-  return getStorageItem(STORAGE_KEYS.GRID_CONFIG, null);
+  const stored = getStorageItem<unknown>(STORAGE_KEYS.GRID_CONFIG, null);
+  if (!stored || typeof stored !== 'object' || !('size' in stored)) return null;
+  if ('version' in stored && stored.version !== 1) return null;
+  const size = stored.size;
+  return size === 4 || size === 6 || size === 9 ? GRID_CONFIGS[size] : null;
 }
 
 /**
  * Save grid configuration to localStorage
  */
 export function saveGridConfig(gridConfig: GridConfig): void {
-  setStorageItem(STORAGE_KEYS.GRID_CONFIG, gridConfig);
+  setStorageItem(STORAGE_KEYS.GRID_CONFIG, { version: 1, size: gridConfig.size });
 }
 
 /**
  * Load difficulty preference from localStorage
  */
 export function loadDifficulty(): number {
-  return getStorageItem(STORAGE_KEYS.DIFFICULTY, 1);
+  const value = getStorageItem<unknown>(STORAGE_KEYS.DIFFICULTY, 1);
+  return typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 10
+    ? value
+    : 1;
 }
 
 /**

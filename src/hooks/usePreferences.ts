@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GameAction, GameState } from '@/types';
 import { GRID_CONFIGS } from '@/utils/gridConfig';
 import {
@@ -17,6 +17,9 @@ import {
  */
 export function usePreferences(state: GameState, dispatch: React.Dispatch<GameAction>) {
   // Track if initial load has happened to prevent save loops
+  const [preferencesReady, setPreferencesReady] = useState(false);
+  const latestState = useRef(state);
+  latestState.current = state;
   const hasLoadedRef = useRef(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -66,6 +69,7 @@ export function usePreferences(state: GameState, dispatch: React.Dispatch<GameAc
     }
 
     hasLoadedRef.current = true;
+    setPreferencesReady(true);
   }, [dispatch]);
 
   /**
@@ -73,7 +77,7 @@ export function usePreferences(state: GameState, dispatch: React.Dispatch<GameAc
    * Replaces 5 separate useEffect calls with a single one.
    */
   useEffect(() => {
-    if (!hasLoadedRef.current) return;
+    if (!preferencesReady) return;
 
     if (saveTimerRef.current) {
       clearTimeout(saveTimerRef.current);
@@ -92,7 +96,28 @@ export function usePreferences(state: GameState, dispatch: React.Dispatch<GameAc
         clearTimeout(saveTimerRef.current);
       }
     };
-  }, [state.accessibility, state.progress, state.childMode, state.gridConfig, state.difficulty]);
+  }, [
+    preferencesReady,
+    state.accessibility,
+    state.progress,
+    state.childMode,
+    state.gridConfig,
+    state.difficulty,
+  ]);
+
+  useEffect(() => {
+    if (!preferencesReady) return;
+    const flush = () => {
+      const latest = latestState.current;
+      saveAccessibilitySettings(latest.accessibility);
+      saveProgressStats(latest.progress);
+      saveChildMode(latest.childMode);
+      saveGridConfig(latest.gridConfig);
+      saveDifficulty(latest.difficulty);
+    };
+    globalThis.addEventListener('pagehide', flush);
+    return () => globalThis.removeEventListener('pagehide', flush);
+  }, [preferencesReady]);
 
   /**
    * Restore preferences from localStorage
@@ -150,6 +175,7 @@ export function usePreferences(state: GameState, dispatch: React.Dispatch<GameAc
   }, [state.accessibility, state.progress, state.childMode, state.gridConfig, state.difficulty]);
 
   return {
+    preferencesReady,
     restorePreferences,
     savePreferences,
   };

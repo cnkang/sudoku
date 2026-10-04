@@ -116,12 +116,12 @@ const assertChildModeForGridChange = (
   const childModeAfterAdultGrid = result.current.state.childMode;
 
   if (!adultGrid.childFriendly.enableAnimations) {
-    expect(childModeAfterAdultGrid).toBe(initialChildMode);
+    expect(childModeAfterAdultGrid).toBe(false);
   }
 
   return (
     (childFriendlyGrid.childFriendly.enableAnimations ? childModeAfterChildGrid : true) &&
-    (adultGrid.childFriendly.enableAnimations ? true : childModeAfterAdultGrid === initialChildMode)
+    (adultGrid.childFriendly.enableAnimations ? true : childModeAfterAdultGrid === false)
   );
 };
 

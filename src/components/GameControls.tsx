@@ -84,28 +84,28 @@ const GameControls = React.memo(function GameControls({
   }> = [
     {
       onClick: onSubmit,
-      disabled: disabled,
+      disabled: disabled || isCorrect === true || isPaused,
       variant: 'primary',
       label: 'Check Solution',
       ariaLabel: 'Check your solution',
     },
     {
       onClick: onPauseResume,
-      disabled: disabled,
+      disabled: disabled || isCorrect === true,
       variant: 'secondary',
       label: isPaused ? 'Resume' : 'Pause',
       ariaLabel: isPaused ? 'Resume game' : 'Pause game',
     },
     {
       onClick: onUndo,
-      disabled: disabled || !canUndo,
+      disabled: disabled || isCorrect === true || isPaused || !canUndo,
       variant: 'warning',
       label: 'Undo',
       ariaLabel: 'Undo last move',
     },
     {
       onClick: onHint,
-      disabled: disabled,
+      disabled: disabled || isCorrect === true || isPaused,
       variant: 'info',
       label: `Hint (${hintsUsed})`,
       ariaLabel: 'Get a hint',

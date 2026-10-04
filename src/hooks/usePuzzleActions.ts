@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Dispatch } from 'react';
 import type { AccessibilitySettings, GameAction, GameState, GridSize, SudokuPuzzle } from '@/types';
 import type { VisualFeedbackHook } from '@/hooks/useVisualFeedback';
@@ -50,7 +50,6 @@ export function usePuzzleActions({
   dispatch,
   handleError,
   clearError,
-  savePreferences,
   trackTransition,
   visualFeedback,
   optimisticUpdateCell,
@@ -59,100 +58,69 @@ export function usePuzzleActions({
   now = Date.now,
   performanceNow = performance.now.bind(performance),
 }: PuzzleActionOptions): PuzzleActions {
-  const lastFetchTimeRef = useRef(0);
+  const lastFetchTimeRef = useRef<number | null>(null);
+  const requestRef = useRef<{ id: number; controller?: AbortController }>({ id: 0 });
+  const completedPuzzleRef = useRef<number[][] | null>(null);
+  useEffect(
+    () => () => {
+      requestRef.current.id++;
+      requestRef.current.controller?.abort();
+    },
+    [],
+  );
   const [performanceMetrics, setPerformanceMetrics] = useState<PerformanceMetrics>({
     gridTransitionTime: 0,
     puzzleLoadTime: 0,
   });
   const currentGridConfig = state.gridConfig;
 
-  const handleGridSizeChange = useCallback(
-    async (newSize: GridSize) => {
-      if (newSize === currentGridConfig.size) return;
-
-      const transitionStart = performanceNow();
-
-      try {
-        const newConfig = GRID_CONFIGS[newSize];
-        dispatch({ type: 'CHANGE_GRID_SIZE', payload: newConfig });
-
-        const targetDifficulty = Math.min(state.difficulty ?? 1, newConfig.difficultyLevels);
-        const url = `/api/solveSudoku?difficulty=${targetDifficulty}&gridSize=${newSize}`;
-
-        clearError();
-        savePreferences();
-        const data = await fetchPuzzleData(
-          url,
-          { method: 'POST', headers: { 'Content-Type': 'application/json' } },
-          true,
-        );
-        const puzzle = parsePuzzle(data);
-        dispatch({ type: 'SET_PUZZLE', payload: puzzle });
-
-        const transitionTime = performanceNow() - transitionStart;
-        trackTransition(transitionTime);
-        setPerformanceMetrics((previous) => ({
-          ...previous,
-          gridTransitionTime: transitionTime,
-        }));
-      } catch (error) {
-        dispatch({ type: 'SET_LOADING', payload: false });
-        handleError(error);
-      }
-    },
-    [
-      currentGridConfig.size,
-      state.difficulty,
-      dispatch,
-      clearError,
-      fetchPuzzleData,
-      savePreferences,
-      parsePuzzle,
-      performanceNow,
-      trackTransition,
-      handleError,
-    ],
-  );
-
-  const fetchPuzzle = useCallback(
-    async (difficulty?: number, forceRefresh = false, isGridSizeChange = false) => {
-      const currentTime = now();
-
-      if (!isGridSizeChange && !forceRefresh && currentTime - lastFetchTimeRef.current < 5_000)
-        return;
-
-      if (!isGridSizeChange && forceRefresh && currentTime - lastFetchTimeRef.current < 10_000) {
+  const loadPuzzle = useCallback(
+    async (difficulty: number, size: GridSize, force: boolean, changeSize: boolean) => {
+      if (force && lastFetchTimeRef.current !== null && now() - lastFetchTimeRef.current < 10_000) {
         handleError(new Error('Please wait 10 seconds before resetting'));
         return;
       }
-
-      const fetchStart = performanceNow();
-
+      requestRef.current.controller?.abort();
+      const controller = new AbortController();
+      const id = requestRef.current.id + 1;
+      requestRef.current = { id, controller };
+      const started = performanceNow();
+      const targetDifficulty = Math.min(
+        Math.max(difficulty, 1),
+        GRID_CONFIGS[size].difficultyLevels,
+      );
+      if (changeSize) dispatch({ type: 'CHANGE_GRID_SIZE', payload: GRID_CONFIGS[size] });
+      else if (targetDifficulty !== state.difficulty)
+        dispatch({ type: 'SET_DIFFICULTY', payload: targetDifficulty });
+      dispatch({ type: 'SET_LOADING', payload: true });
+      clearError();
       try {
-        dispatch({ type: 'SET_LOADING', payload: true });
-        clearError();
-
-        const targetDifficulty = difficulty ?? state.difficulty;
-        const gridSize = currentGridConfig.size;
-        const url = `/api/solveSudoku?difficulty=${targetDifficulty}&gridSize=${gridSize}${
-          forceRefresh || isGridSizeChange ? '&force=true' : ''
-        }`;
         const data = await fetchPuzzleData(
-          url,
-          { method: 'POST', headers: { 'Content-Type': 'application/json' } },
-          forceRefresh || isGridSizeChange,
+          `/api/solveSudoku?difficulty=${targetDifficulty}&gridSize=${size}${force ? '&force=true' : ''}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+          },
+          force || changeSize,
         );
+        if (requestRef.current.id !== id) return;
         const puzzle = parsePuzzle(data);
+        if (puzzle.puzzle.length !== size || puzzle.difficulty !== targetDifficulty)
+          throw new Error('The puzzle does not match the selected settings');
         dispatch({ type: 'SET_PUZZLE', payload: puzzle });
-        lastFetchTimeRef.current = currentTime;
-
-        const loadTime = performanceNow() - fetchStart;
-        setPerformanceMetrics((previous) => ({ ...previous, puzzleLoadTime: loadTime }));
-
-        if (state.childMode) {
+        lastFetchTimeRef.current = now();
+        const elapsed = performanceNow() - started;
+        setPerformanceMetrics((previous) => ({
+          ...previous,
+          puzzleLoadTime: elapsed,
+          ...(changeSize ? { gridTransitionTime: elapsed } : {}),
+        }));
+        if (changeSize) trackTransition(elapsed);
+        if (state.childMode)
           visualFeedback.triggerEncouragement("New puzzle ready! Let's solve it together! 🧩");
-        }
       } catch (error) {
+        if (requestRef.current.id !== id || controller.signal.aborted) return;
         dispatch({ type: 'SET_LOADING', payload: false });
         handleError(error);
       }
@@ -160,20 +128,40 @@ export function usePuzzleActions({
     [
       now,
       performanceNow,
-      dispatch,
-      clearError,
       state.difficulty,
       state.childMode,
-      currentGridConfig.size,
+      dispatch,
+      clearError,
       fetchPuzzleData,
       parsePuzzle,
+      trackTransition,
       visualFeedback,
       handleError,
     ],
   );
 
+  const fetchPuzzle = useCallback(
+    (difficulty?: number, forceRefresh = false, isGridSizeChange = false) =>
+      loadPuzzle(
+        difficulty ?? state.difficulty,
+        currentGridConfig.size,
+        forceRefresh,
+        isGridSizeChange,
+      ),
+    [loadPuzzle, state.difficulty, currentGridConfig.size],
+  );
+
+  const handleGridSizeChange = useCallback(
+    async (size: GridSize) => {
+      if (size === currentGridConfig.size) return;
+      await loadPuzzle(state.difficulty, size, false, true);
+    },
+    [loadPuzzle, state.difficulty, currentGridConfig.size],
+  );
+
   const handleInputChange = useCallback(
     (row: number, col: number, value: number) => {
+      if (state.isCorrect || state.isPaused || state.isLoading) return;
       if (!state.userInput) {
         handleError(new Error('Cannot update user input when puzzle is not loaded'));
         return;
@@ -193,6 +181,9 @@ export function usePuzzleActions({
       }
     },
     [
+      state.isCorrect,
+      state.isPaused,
+      state.isLoading,
       state.userInput,
       state.showHint,
       state.childMode,
@@ -204,6 +195,13 @@ export function usePuzzleActions({
   );
 
   const checkAnswer = useCallback(() => {
+    if (
+      state.isCorrect ||
+      state.isPaused ||
+      state.isLoading ||
+      completedPuzzleRef.current === state.puzzle
+    )
+      return;
     if (!state.userInput || !state.solution) {
       handleError(new Error('Cannot check answer when puzzle is not loaded'));
       return;
@@ -211,25 +209,32 @@ export function usePuzzleActions({
 
     try {
       dispatch({ type: 'CHECK_ANSWER' });
-      const isCorrect = state.userInput.every((row, rowIndex) =>
-        row.every((cell, columnIndex) => cell === state.solution?.[rowIndex]?.[columnIndex]),
-      );
+      const isCorrect =
+        state.userInput.length === state.solution.length &&
+        state.userInput.every(
+          (row, rowIndex) =>
+            row.length === state.solution?.[rowIndex]?.length &&
+            row.every((cell, columnIndex) => cell === state.solution?.[rowIndex]?.[columnIndex]),
+        );
 
       if (isCorrect) {
+        completedPuzzleRef.current = state.puzzle;
+        updateStats(state.difficulty, state.time, true);
         const gridSizeKey = `${currentGridConfig.size}x${currentGridConfig.size}`;
         dispatch({
           type: 'COMPLETE_PUZZLE',
           payload: { gridSize: gridSizeKey, time: state.time, hintsUsed: state.hintsUsed },
         });
         if (state.childMode) visualFeedback.triggerCelebration('confetti');
-        savePreferences();
       }
-
-      updateStats(state.difficulty, state.time, isCorrect);
     } catch (error) {
       handleError(error);
     }
   }, [
+    state.isCorrect,
+    state.isPaused,
+    state.isLoading,
+    state.puzzle,
     state.userInput,
     state.solution,
     state.time,
@@ -239,12 +244,19 @@ export function usePuzzleActions({
     currentGridConfig.size,
     dispatch,
     visualFeedback,
-    savePreferences,
     handleError,
   ]);
 
   const getGameHint = useCallback(() => {
-    if (!state.puzzle || !state.solution || !state.userInput) return;
+    if (
+      state.isCorrect ||
+      state.isPaused ||
+      state.isLoading ||
+      !state.puzzle ||
+      !state.solution ||
+      !state.userInput
+    )
+      return;
 
     // Exclude the currently-shown hint so a repeated request advances to a new
     // cell. If the user already followed the previous hint, that cell is no
@@ -272,6 +284,9 @@ export function usePuzzleActions({
       visualFeedback.triggerEncouragement("Here's a helpful hint! You've got this! 💡");
     }
   }, [
+    state.isCorrect,
+    state.isPaused,
+    state.isLoading,
     state.puzzle,
     state.solution,
     state.userInput,
@@ -283,18 +298,16 @@ export function usePuzzleActions({
   ]);
 
   const resetGame = useCallback(() => {
-    dispatch({ type: 'RESET_AND_FETCH' });
     void fetchPuzzle(undefined, true);
-  }, [dispatch, fetchPuzzle]);
+  }, [fetchPuzzle]);
 
   const pauseResumeGame = useCallback(() => dispatch({ type: 'PAUSE_RESUME' }), [dispatch]);
   const undoMove = useCallback(() => dispatch({ type: 'UNDO' }), [dispatch]);
   const handleAccessibilityChange = useCallback(
     (settings: Partial<AccessibilitySettings>) => {
       dispatch({ type: 'UPDATE_ACCESSIBILITY', payload: settings });
-      savePreferences();
     },
-    [dispatch, savePreferences],
+    [dispatch],
   );
 
   return {

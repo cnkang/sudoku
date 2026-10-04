@@ -327,7 +327,7 @@ describe('Property 11: Preference persistence', () => {
 
   it('should preserve difficulty settings', () => {
     fc.assert(
-      fc.property(fc.nat(20), (difficulty) => {
+      fc.property(fc.integer({ min: 1, max: 10 }), (difficulty) => {
         // Save difficulty
         saveDifficulty(difficulty);
 
@@ -352,7 +352,7 @@ describe('Property 11: Preference persistence', () => {
         }),
         fc.boolean(),
         gridConfigArbitrary,
-        fc.nat(20),
+        fc.integer({ min: 1, max: 10 }),
         (accessibility, progress, childMode, gridConfig, difficulty) => {
           const preferences = {
             accessibility,
@@ -576,7 +576,7 @@ describe('Property 11: Preference persistence', () => {
             }),
             fc.record({
               operation: fc.constant('difficulty'),
-              data: fc.nat(20).map((n) => n + 1), // Generate 1-21 instead of 0-20
+              data: fc.integer({ min: 1, max: 10 }), // Supported difficulty range
             }),
           ),
           { minLength: 5, maxLength: 20 },
@@ -595,5 +595,49 @@ describe('Property 11: Preference persistence', () => {
       ),
       { numRuns: 50 },
     );
+  });
+});
+
+// Verify recovery boundaries as well as valid round trips.
+describe('preference recovery', () => {
+  it.each([null, 'nine', { size: 12 }, { size: 9, version: 2 }])(
+    'rejects unsupported grid data %j',
+    (stored) => {
+      localStorageMock.setItem('sudoku-grid-config', JSON.stringify(stored));
+      expect(loadGridConfig()).toBeNull();
+    },
+  );
+  it('restores canonical grid settings from a legacy partial object', () => {
+    localStorageMock.setItem('sudoku-grid-config', JSON.stringify({ size: 6, minClues: -100 }));
+    expect(loadGridConfig()).toBe(GRID_CONFIGS[6]);
+  });
+  it.each([0, -1, 11, 1.5, '5', null])('rejects invalid difficulty %j', (value) => {
+    localStorageMock.setItem('sudoku-difficulty', JSON.stringify(value));
+    expect(loadDifficulty()).toBe(1);
+  });
+  it('recovers invalid progress, dates and boolean settings', () => {
+    localStorageMock.setItem(
+      'sudoku-progress-stats',
+      JSON.stringify({
+        '4x4': {
+          totalTime: -10,
+          hintsUsed: 'many',
+          achievements: ['first', 3],
+          lastPlayed: 'invalid-date',
+        },
+        '6x6': 'broken',
+        '9x9': { lastPlayed: { arbitrary: true } },
+      }),
+    );
+    const progress = loadProgressStats();
+    expect(progress['4x4']?.totalTime).toBe(0);
+    expect(progress['4x4']?.hintsUsed).toBe(0);
+    expect(progress['4x4']?.achievements).toEqual([]);
+    expect(progress['4x4']?.lastPlayed).toBeNull();
+    expect(progress['9x9']?.lastPlayed).toBeNull();
+    localStorageMock.setItem('sudoku-child-mode', JSON.stringify('true'));
+    expect(loadChildMode()).toBe(false);
+    localStorageMock.setItem('sudoku-accessibility-settings', 'null');
+    expect(loadAccessibilitySettings().highContrast).toBe(false);
   });
 });

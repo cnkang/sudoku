@@ -1,4 +1,4 @@
-import { useCallback, useOptimistic } from 'react';
+import { startTransition, useCallback, useOptimistic } from 'react';
 
 interface SudokuState {
   userInput: number[][];
@@ -19,7 +19,7 @@ export const useOptimisticSudoku = (initialUserInput: number[][]) => {
 
   const updateCell = useCallback(
     (row: number, col: number, value: number) => {
-      addOptimisticUpdate({ row, col, value });
+      startTransition(() => addOptimisticUpdate({ row, col, value }));
     },
     [addOptimisticUpdate],
   );

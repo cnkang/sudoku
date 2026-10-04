@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
-import type { SudokuPuzzle } from '../../types';
+import { GRID_CONFIGS } from '@/utils/gridConfig';
+import type { GameAction, SudokuPuzzle } from '../../types';
 import { useGameState } from '../useGameState';
 import { useOptimisticSudoku } from '../useOptimisticSudoku';
 import { usePuzzleLoader } from '../usePuzzleLoader';
@@ -555,6 +556,116 @@ describe('useGameState', () => {
       });
 
       expect(result.current.state.showHint).toBeNull();
+    });
+  });
+
+  describe('completed-game and accessibility invariants', () => {
+    it('records completion once and protects a completed board', () => {
+      const board = [
+        [1, 2, 3, 4],
+        [3, 4, 1, 2],
+        [2, 1, 4, 3],
+        [4, 3, 2, 1],
+      ];
+      act(() => result.current.dispatch({ type: 'SET_GRID_CONFIG', payload: GRID_CONFIGS[4] }));
+      act(() =>
+        result.current.dispatch({
+          type: 'SET_PUZZLE',
+          payload: { puzzle: board, solution: board, difficulty: 1 },
+        }),
+      );
+      const complete: GameAction = {
+        type: 'COMPLETE_PUZZLE',
+        payload: { gridSize: '4x4', time: 10, hintsUsed: 0 },
+      };
+      act(() => {
+        result.current.dispatch(complete);
+        result.current.dispatch(complete);
+      });
+      const completed = result.current.state;
+      expect(completed.progress['4x4']?.puzzlesCompleted).toBe(1);
+      act(() => {
+        result.current.dispatch({
+          type: 'UPDATE_USER_INPUT',
+          payload: { row: 0, col: 0, value: 2 },
+        });
+        result.current.dispatch({ type: 'UNDO' });
+        result.current.dispatch({ type: 'PAUSE_RESUME' });
+      });
+      expect(result.current.state).toBe(completed);
+      act(() =>
+        result.current.dispatch({
+          type: 'ADD_ACHIEVEMENT',
+          payload: { gridSize: '4x4', achievement: 'first' },
+        }),
+      );
+      act(() =>
+        result.current.dispatch({
+          type: 'ADD_ACHIEVEMENT',
+          payload: { gridSize: '4x4', achievement: 'first' },
+        }),
+      );
+      expect(result.current.state.progress['4x4']?.achievements).toEqual(['first']);
+    });
+
+    it.each([
+      ['TOGGLE_HIGH_CONTRAST', 'highContrast'],
+      ['TOGGLE_REDUCED_MOTION', 'reducedMotion'],
+      ['TOGGLE_SCREEN_READER_MODE', 'screenReaderMode'],
+      ['TOGGLE_VOICE_INPUT', 'voiceInput'],
+      ['TOGGLE_ADAPTIVE_TOUCH_TARGETS', 'adaptiveTouchTargets'],
+    ] as const)('toggles %s without changing the board', (type, field) => {
+      const initial = result.current.state.accessibility[field];
+      act(() => result.current.dispatch({ type }));
+      expect(result.current.state.accessibility[field]).toBe(!initial);
+      act(() => result.current.dispatch({ type }));
+      expect(result.current.state.accessibility[field]).toBe(initial);
+    });
+
+    it('rejects invalid, fixed, paused and loading cell changes', () => {
+      const puzzle = [
+        [1, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+      ];
+      act(() => result.current.dispatch({ type: 'SET_GRID_CONFIG', payload: GRID_CONFIGS[4] }));
+      act(() =>
+        result.current.dispatch({
+          type: 'SET_PUZZLE',
+          payload: { puzzle, solution: puzzle, difficulty: 1 },
+        }),
+      );
+      const before = result.current.state.userInput;
+      for (const [row, col, value] of [
+        [0, 0, 2],
+        [-1, 0, 2],
+        [0, 5, 2],
+        [0, 1, 5],
+        [0, 1, 1.5],
+      ]) {
+        act(() =>
+          result.current.dispatch({ type: 'UPDATE_USER_INPUT', payload: { row, col, value } }),
+        );
+      }
+      expect(result.current.state.userInput).toBe(before);
+      act(() => result.current.dispatch({ type: 'PAUSE_RESUME' }));
+      act(() =>
+        result.current.dispatch({
+          type: 'UPDATE_USER_INPUT',
+          payload: { row: 0, col: 1, value: 2 },
+        }),
+      );
+      expect(result.current.state.userInput).toBe(before);
+      act(() => result.current.dispatch({ type: 'PAUSE_RESUME' }));
+      act(() => result.current.dispatch({ type: 'SET_LOADING', payload: true }));
+      act(() =>
+        result.current.dispatch({
+          type: 'UPDATE_USER_INPUT',
+          payload: { row: 0, col: 1, value: 2 },
+        }),
+      );
+      expect(result.current.state.userInput).toBe(before);
     });
   });
 

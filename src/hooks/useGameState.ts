@@ -1,5 +1,11 @@
 import { useCallback, useReducer } from 'react';
-import type { AccessibilitySettings, GameAction, GameState, ProgressStats } from '../types';
+import type {
+  AccessibilitySettings,
+  GameAction,
+  GameState,
+  GridSize,
+  ProgressStats,
+} from '../types';
 import { GRID_CONFIGS } from '../utils/gridConfig';
 import { normalizeDifficulty } from '../utils/validation';
 import { usePreferences } from './usePreferences';
@@ -42,6 +48,7 @@ const createDefaultProgressStats = (): ProgressStats => ({
 });
 
 const initialState: GameState = {
+  completionRecorded: false,
   // Core game state
   puzzle: null,
   solution: null,
@@ -84,6 +91,8 @@ const handlePuzzleLifecycle = (state: GameState, action: GameAction): GameState 
       const initialUserInput = puzzle.map((row) => row.map((val) => (val === 0 ? 0 : val)));
       return {
         ...state,
+        completionRecorded: false,
+        difficulty: action.payload.difficulty,
         puzzle,
         solution,
         userInput: initialUserInput,
@@ -138,7 +147,21 @@ const handlePuzzleLifecycle = (state: GameState, action: GameAction): GameState 
 const handleUserInteraction = (state: GameState, action: GameAction): GameState | undefined => {
   switch (action.type) {
     case 'UPDATE_USER_INPUT': {
+      if (state.completionRecorded || state.isPaused || state.isLoading) return state;
       const { row, col, value } = action.payload;
+      if (
+        !Number.isInteger(value) ||
+        value < 0 ||
+        value > state.gridConfig.maxValue ||
+        !Number.isInteger(row) ||
+        !Number.isInteger(col) ||
+        row < 0 ||
+        col < 0 ||
+        row >= state.gridConfig.size ||
+        col >= state.gridConfig.size ||
+        state.puzzle?.[row]?.[col]
+      )
+        return state;
       const newUserInput = state.userInput.map((r, i) =>
         i === row ? r.map((val, j) => (j === col ? value : val)) : r,
       );
@@ -150,6 +173,7 @@ const handleUserInteraction = (state: GameState, action: GameAction): GameState 
       const normalizedDifficulty = normalizeDifficulty(action.payload, state.gridConfig);
       return {
         ...state,
+        completionRecorded: false,
         difficulty: normalizedDifficulty,
         timerActive: false,
         isPaused: false,
@@ -167,8 +191,11 @@ const handleUserInteraction = (state: GameState, action: GameAction): GameState 
     case 'CHECK_ANSWER': {
       const isSolvedCorrectly =
         state.solution !== null &&
-        state.userInput.every((row, i) =>
-          row.every((cell, j) => cell === state.solution?.[i]?.[j]),
+        state.userInput.length === state.solution.length &&
+        state.userInput.every(
+          (row, i) =>
+            row.length === state.solution?.[i]?.length &&
+            row.every((cell, j) => cell === state.solution?.[i]?.[j]),
         );
       return {
         ...state,
@@ -179,17 +206,19 @@ const handleUserInteraction = (state: GameState, action: GameAction): GameState 
     }
 
     case 'TICK':
-      return state.timerActive && !state.isPaused
+      return state.timerActive && !state.isPaused && !state.isLoading
         ? { ...state, time: state.time + (action.payload ?? 1) }
         : state;
 
     case 'PAUSE_RESUME':
+      if (state.completionRecorded) return state;
       return {
         ...state,
         isPaused: !state.isPaused,
       };
 
     case 'UNDO': {
+      if (state.completionRecorded || state.isPaused || state.isLoading) return state;
       if (state.history.length <= 1) return state;
       const newHistory = state.history.slice(0, -1);
       const previousState = newHistory.at(-1);
@@ -223,7 +252,7 @@ const handleGridSupport = (state: GameState, action: GameAction): GameState | un
       return {
         ...initialState,
         gridConfig: newGridConfig,
-        childMode: newGridConfig.childFriendly.enableAnimations ? true : state.childMode,
+        childMode: newGridConfig.childFriendly.enableAnimations,
         accessibility: state.accessibility,
         progress: state.progress,
         difficulty: Math.min(state.difficulty, newGridConfig.difficultyLevels),
@@ -325,6 +354,7 @@ const handleProgressUpdates = (state: GameState, action: GameAction): GameState 
     }
 
     case 'COMPLETE_PUZZLE': {
+      if (state.completionRecorded) return state;
       const { gridSize, time, hintsUsed } = action.payload;
       const currentStats = getProgressStats(state.progress, gridSize);
       const newPuzzlesCompleted = currentStats.puzzlesCompleted + 1;
@@ -336,6 +366,8 @@ const handleProgressUpdates = (state: GameState, action: GameAction): GameState 
 
       return {
         ...state,
+        completionRecorded: true,
+        timerActive: false,
         progress: {
           ...state.progress,
           [gridSize]: {
@@ -387,11 +419,15 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
   );
 };
 
-export const useGameState = () => {
-  const [state, dispatch] = useReducer(gameReducer, initialState);
+export const useGameState = (gridSize: GridSize = 9, childMode = false) => {
+  const [state, dispatch] = useReducer(gameReducer, {
+    ...initialState,
+    gridConfig: GRID_CONFIGS[gridSize],
+    childMode: childMode || GRID_CONFIGS[gridSize].childFriendly.enableAnimations,
+  });
 
   // Integrate preferences persistence
-  const { restorePreferences } = usePreferences(state, dispatch);
+  const { restorePreferences, savePreferences, preferencesReady } = usePreferences(state, dispatch);
 
   const handleError = useCallback((err: unknown) => {
     if (err instanceof Error) {
@@ -411,5 +447,7 @@ export const useGameState = () => {
     handleError,
     clearError,
     restorePreferences,
+    savePreferences,
+    preferencesReady,
   };
 };
