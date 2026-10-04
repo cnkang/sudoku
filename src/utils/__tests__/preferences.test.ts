@@ -49,9 +49,40 @@ describe('preferences', () => {
 
   afterEach(() => {
     localStorageMock.clear();
+    vi.unstubAllGlobals();
   });
 
   describe('accessibility settings', () => {
+    it('inherits the system high contrast preference when no choice is saved', () => {
+      vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: true }));
+
+      expect(loadUserPreferences().accessibility?.highContrast).toBe(true);
+    });
+
+    it('inherits the system preference even when storage is blocked', () => {
+      vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: true }));
+      localStorageMock.getItem.mockImplementation(() => {
+        throw new Error('Storage is blocked');
+      });
+
+      expect(loadAccessibilitySettings().highContrast).toBe(true);
+    });
+
+    it.each([true, false])('preserves the saved theme high contrast choice %s', (enabled) => {
+      vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: !enabled }));
+      localStorageMock.setItem('sudoku-high-contrast-mode', String(enabled));
+
+      expect(loadAccessibilitySettings().highContrast).toBe(enabled);
+    });
+
+    it.each([true, false])('prioritizes the saved game high contrast choice %s', (enabled) => {
+      vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: !enabled }));
+      localStorageMock.setItem('sudoku-high-contrast-mode', String(!enabled));
+      saveAccessibilitySettings({ ...loadAccessibilitySettings(), highContrast: enabled });
+
+      expect(loadAccessibilitySettings().highContrast).toBe(enabled);
+    });
+
     it('should save and load accessibility settings', () => {
       const settings: AccessibilitySettings = {
         highContrast: true,
