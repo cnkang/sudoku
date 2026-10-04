@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
+import { VALIDATION_ERRORS } from '@/utils/errorMessages';
+import { validateDifficulty } from '@/utils/validation';
 import { POST } from '../route';
 
 // Mock the sudoku generator
@@ -166,8 +168,8 @@ describe('/api/solveSudoku', () => {
       const response = await POST(mockRequest);
       const data = await response.json();
 
-      expect(response.status).toBe(500);
-      expect(data.error).toBe(GENERIC_CLIENT_ERROR);
+      expect(response.status).toBe(400);
+      expect(data.error).toBe(VALIDATION_ERRORS.INVALID_GRID_SIZE);
     });
   });
 
@@ -177,13 +179,19 @@ describe('/api/solveSudoku', () => {
         method: 'POST',
       });
 
-      await assertErrorResponse(request, 500, GENERIC_CLIENT_ERROR);
+      await assertErrorResponse(request, 400, VALIDATION_ERRORS.DIFFICULTY_REQUIRED);
     });
 
     it.each(['', 'abc', '-1', '5.5', '5!', '0', '11'])(
       'should reject invalid difficulty "%s"',
       async (difficulty) => {
-        await assertErrorResponse(createMockRequest(difficulty), 500, GENERIC_CLIENT_ERROR);
+        let message = '';
+        try {
+          validateDifficulty(difficulty);
+        } catch (error) {
+          message = (error as Error).message;
+        }
+        await assertErrorResponse(createMockRequest(difficulty), 400, message);
       },
     );
   });
@@ -433,14 +441,24 @@ describe('/api/solveSudoku', () => {
     it.each([' 5 ', '999999', '1e1'])(
       'should reject edge-case difficulty "%s"',
       async (difficulty) => {
-        await assertErrorResponse(createMockRequest(difficulty), 500, GENERIC_CLIENT_ERROR);
+        let message = '';
+        try {
+          validateDifficulty(difficulty);
+        } catch (error) {
+          message = (error as Error).message;
+        }
+        await assertErrorResponse(createMockRequest(difficulty), 400, message);
       },
     );
 
     it.each(['difficulty=5&seed=bad*seed', `difficulty=5&seed=${'a'.repeat(65)}`])(
       'should reject invalid seed query "%s"',
       async (query) => {
-        await assertErrorResponse(createRequestFromQuery(query), 500, GENERIC_CLIENT_ERROR);
+        await assertErrorResponse(
+          createRequestFromQuery(query),
+          400,
+          VALIDATION_ERRORS.INVALID_SEED_FORMAT,
+        );
       },
     );
 

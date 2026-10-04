@@ -29,13 +29,13 @@ export interface CSPDirectives {
  * Generate CSP header value from directives
  */
 export function generateCSPHeader(directives: CSPDirectives, nonce?: string): string {
-  // Add nonce to script-src and style-src if provided
+  // Scripts require a request nonce; dynamic style attributes remain supported.
   const scriptSrc = [...directives['script-src']];
   const styleSrc = [...directives['style-src']];
 
   if (nonce) {
     scriptSrc.push(`'nonce-${nonce}'`);
-    styleSrc.push(`'nonce-${nonce}'`);
+    if (!styleSrc.includes("'unsafe-inline'")) styleSrc.push(`'nonce-${nonce}'`);
   }
 
   // Build directive strings
@@ -43,7 +43,9 @@ export function generateCSPHeader(directives: CSPDirectives, nonce?: string): st
     `default-src ${directives['default-src'].join(' ')}`,
     `script-src ${scriptSrc.join(' ')}`,
     ...(directives['script-src-elem']
-      ? [`script-src-elem ${directives['script-src-elem'].join(' ')}`]
+      ? [
+          `script-src-elem ${[...directives['script-src-elem'], ...(nonce ? [`'nonce-${nonce}'`] : [])].join(' ')}`,
+        ]
       : []),
     ...(directives['script-src-attr']
       ? [`script-src-attr ${directives['script-src-attr'].join(' ')}`]
@@ -72,15 +74,14 @@ export const defaultCSPDirectives: CSPDirectives = {
   'default-src': ["'self'"],
   'script-src': [
     "'self'",
-    // Next.js injects inline bootstrap/runtime scripts.
-    "'unsafe-inline'",
+
     // Turbopack dev client needs eval in development.
     ...(process.env.NODE_ENV === 'development' ? ["'unsafe-eval'"] : []),
   ],
   // Keep element/attribute policies explicit to avoid browser defaults that can
   // unexpectedly block Next.js runtime chunks.
-  'script-src-elem': ["'self'", "'unsafe-inline'"],
-  'script-src-attr': ["'unsafe-inline'"],
+  'script-src-elem': ["'self'"],
+  'script-src-attr': ["'none'"],
   'style-src': [
     "'self'",
     "'unsafe-inline'", // Required for CSS-in-JS and CSS Modules
@@ -103,7 +104,7 @@ export const defaultCSPDirectives: CSPDirectives = {
   'base-uri': ["'self'"], // Restrict base tag
   'form-action': ["'self'"], // Forms can only submit to same origin
   'frame-ancestors': ["'none'"], // Cannot be embedded in iframes
-  'upgrade-insecure-requests': true, // Upgrade HTTP to HTTPS
+  'upgrade-insecure-requests': process.env.NODE_ENV !== 'development', // Upgrade HTTP to HTTPS
 };
 
 /**
