@@ -200,8 +200,26 @@ function setStorageItem<T>(key: string, value: T): void {
  * Load accessibility settings from localStorage
  */
 export function loadAccessibilitySettings(): AccessibilitySettings {
-  const stored = getStorageItem(STORAGE_KEYS.ACCESSIBILITY, defaultAccessibilitySettings);
-  return isAccessibilitySettings(stored) ? stored : { ...defaultAccessibilitySettings };
+  const stored = getStorageItem<unknown>(STORAGE_KEYS.ACCESSIBILITY, null);
+  if (isAccessibilitySettings(stored)) return stored;
+
+  // With no game preference, preserve the theme choice or the system default.
+  let themePreference: string | null | undefined;
+  try {
+    themePreference = getLocalStorage()?.getItem('sudoku-high-contrast-mode');
+  } catch {
+    // A blocked storage API should not prevent using the system preference.
+  }
+  let highContrast = false;
+  try {
+    highContrast =
+      themePreference === 'true' || themePreference === 'false'
+        ? themePreference === 'true'
+        : (globalThis.matchMedia?.('(prefers-contrast: high)').matches ?? false);
+  } catch {
+    // Media queries can be unavailable in restricted environments.
+  }
+  return { ...defaultAccessibilitySettings, highContrast };
 }
 
 /**
