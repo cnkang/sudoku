@@ -55,6 +55,8 @@ export interface ReactOptimizationMetric {
   memoizationHits: number;
   memoizationMisses: number;
   isOptimized: boolean;
+  transitionCount?: number;
+  transitionTime?: number;
 }
 
 // Performance observer for Core Web Vitals
@@ -64,7 +66,8 @@ class PerformanceMonitor {
   private observers: PerformanceObserver[] = [];
 
   constructor() {
-    this.initializeObservers();
+    // MonitoringInit and web-vitals own production browser measurements.
+    if (process.env.NODE_ENV === 'test') this.initializeObservers();
   }
 
   private initializeObservers(): void {
@@ -187,7 +190,7 @@ class PerformanceMonitor {
     // Send to analytics service in production
     if (process.env.NODE_ENV === 'production') {
       // Example: Send to Google Analytics 4
-      if (gtag !== undefined) {
+      if (typeof gtag === 'function') {
         gtag('event', metric.name, {
           event_category: 'Web Vitals',
           value: Math.round(metric.value),
@@ -229,6 +232,21 @@ class PerformanceMonitor {
     // Log React Compiler effectiveness
   }
 
+  public trackTransition(componentName: string, duration: number): void {
+    if (!Number.isFinite(duration) || duration < 0) return;
+    const metric = this.reactMetrics.get(componentName) ?? {
+      componentName,
+      renderCount: 0,
+      renderTime: 0,
+      memoizationHits: 0,
+      memoizationMisses: 0,
+      isOptimized: false,
+    };
+    metric.transitionCount = (metric.transitionCount ?? 0) + 1;
+    metric.transitionTime = (metric.transitionTime ?? 0) + duration;
+    this.reactMetrics.set(componentName, metric);
+  }
+
   // Get current metrics
   public getMetrics(): Map<string, PerformanceMetric> {
     return new Map(this.metrics);
@@ -244,7 +262,9 @@ class PerformanceMonitor {
     const fid = this.metrics.get('FID');
     const cls = this.metrics.get('CLS');
 
-    return lcp?.rating !== 'poor' && fid?.rating !== 'poor' && cls?.rating !== 'poor';
+    return Boolean(
+      lcp && fid && cls && lcp.rating !== 'poor' && fid.rating !== 'poor' && cls.rating !== 'poor',
+    );
   }
 
   // Cleanup observers
@@ -275,7 +295,8 @@ export const usePerformanceTracking = (componentName: string) => {
       trackRender: (renderTime: number, wasOptimized: boolean = false) => {
         monitor.trackReactOptimization(componentNameRef.current, renderTime, wasOptimized);
       },
-      trackTransition: (_transitionTime: number) => {},
+      trackTransition: (duration: number) =>
+        monitor.trackTransition(componentNameRef.current, duration),
       getMetrics: () => monitor.getReactMetrics().get(componentNameRef.current),
     }),
     [monitor],
@@ -315,9 +336,7 @@ export const withPerformanceTracking = <P extends object>(
     React.useEffect(() => {
       const endTime = performance.now();
       const renderTime = endTime - startTime;
-      // Assume React Compiler optimization if render time is below threshold
-      const wasOptimized = renderTime < 16; // 60fps threshold
-      trackRender(renderTime, wasOptimized);
+      trackRender(renderTime, false);
     }, []);
 
     return React.createElement(Component, props);
@@ -329,11 +348,10 @@ export const getBundleSize = async (): Promise<number> => {
   if (globalThis.window === undefined) return 0;
 
   try {
-    const entries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
-    const entry = entries[0];
-    if (entry) {
-      return entry.transferSize || 0;
-    }
+    const entries = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
+    return entries
+      .filter((entry) => /\.(?:js|css)(?:\?|$)/.test(entry.name))
+      .reduce((total, entry) => total + (entry.transferSize || 0), 0);
   } catch (error) {
     const _error = error;
   }
