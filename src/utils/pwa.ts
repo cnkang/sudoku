@@ -186,22 +186,9 @@ class PWAManager {
 
       this.serviceWorkerRegistration = registration;
       navigatorRef.serviceWorker.addEventListener('controllerchange', () => {
-        this.updateStatus();
+        void this.updateStatus().catch((error) => logError('[PWA] Status update failed:', error));
       });
-      if (!isTestEnv)
-        void navigatorRef.serviceWorker.ready.then(async () => {
-          const cache = await getCaches()?.open('sudoku-static-v2');
-          const assets = performance
-            .getEntriesByType('resource')
-            .map((entry) => entry.name)
-            .filter(
-              (url) =>
-                new URL(url).origin === location.origin &&
-                new URL(url).pathname.startsWith('/_next/static/'),
-            );
-          await cache?.addAll([...new Set(assets)]).catch(() => {});
-          this.updateStatus();
-        });
+      if (!isTestEnv) void this.prepareOfflineAssets(navigatorRef.serviceWorker);
 
       // Handle service worker updates
       registration.addEventListener('updatefound', () => {
@@ -228,6 +215,25 @@ class PWAManager {
       }
     } catch (error) {
       logError('[PWA] Service Worker registration failed:', error);
+    }
+  }
+
+  private async prepareOfflineAssets(serviceWorker: ServiceWorkerContainer): Promise<void> {
+    try {
+      await serviceWorker.ready;
+      const cache = await getCaches()?.open('sudoku-static-v2');
+      const assets = performance
+        .getEntriesByType('resource')
+        .map((entry) => entry.name)
+        .filter(
+          (url) =>
+            new URL(url).origin === location.origin &&
+            new URL(url).pathname.startsWith('/_next/static/'),
+        );
+      await cache?.addAll([...new Set(assets)]);
+      await this.updateStatus();
+    } catch (error) {
+      logError('[PWA] Offline asset preparation failed:', error);
     }
   }
 

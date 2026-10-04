@@ -65,10 +65,10 @@ globalThis.addEventListener('activate', event => {
         // Preserve the previous worker's unsent local events before deleting its puzzle cache.
         if (cacheNames.includes('sudoku-puzzles-v1')) {
           const previous = await caches.open('sudoku-puzzles-v1');
-          for (const [path, type] of [['/progress/pending', 'progress'], ['/achievements/pending', 'achievement']]) {
+          await Promise.all([['/progress/pending', 'progress'], ['/achievements/pending', 'achievement']].map(async ([path, type]) => {
             const pending = await previous.match(path);
             if (pending) { await storeLocalEvent(type, await pending.json()); await previous.delete(path); }
-          }
+          }));
         }
         for (const cacheName of cacheNames) {
           if (
@@ -124,7 +124,7 @@ async function handlePuzzleRequest(request) {
   const size = url.searchParams.get('gridSize') ?? url.searchParams.get('size') ?? '9';
   const difficulty = url.searchParams.get('difficulty');
   const maxima = { 4: 5, 6: 7, 9: 10 };
-  if (!/^(4|6|9)$/.test(size) || !/^\d+$/.test(difficulty ?? '') || Number(difficulty) < 1 || Number(difficulty) > maxima[size])
+  if (!/^[469]$/.test(size) || !/^\d+$/.test(difficulty ?? '') || Number(difficulty) < 1 || Number(difficulty) > maxima[size])
     return new Response(JSON.stringify({ error: 'Invalid puzzle parameters' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   const cacheRequest = createPuzzleCacheRequest(url.searchParams);
 
@@ -523,7 +523,7 @@ function generateOfflinePuzzle(searchParams) {
   // Digit permutations preserve the solution count and provide offline variety.
   const digits = Array.from({ length: size }, (_, index) => index + 1);
   for (let index = size - 1; index > 0; index--) {
-    const target = Math.floor(Math.random() * (index + 1));
+    const target = crypto.getRandomValues(new Uint32Array(1))[0] % (index + 1);
     [digits[index], digits[target]] = [digits[target], digits[index]];
   }
   const mapBoard = board => board.map(row => row.map(value => value === 0 ? 0 : digits[value - 1]));
