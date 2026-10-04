@@ -196,11 +196,14 @@ describe('error-handling utilities', () => {
       }
     });
 
-    it('does not call the operation when the retry limit is negative', async () => {
-      const operation = vi.fn().mockResolvedValue('success');
-      await expect(retryOperation(operation, -1)).rejects.toThrow(RangeError);
-      expect(operation).not.toHaveBeenCalled();
-    });
+    it.each([-1, Number.NaN])(
+      'does not call the operation for invalid retry limit %s',
+      async (limit) => {
+        const operation = vi.fn().mockResolvedValue('success');
+        await expect(retryOperation(operation, limit)).rejects.toThrow(RangeError);
+        expect(operation).not.toHaveBeenCalled();
+      },
+    );
 
     it('should return result on first success', async () => {
       const operation = vi.fn().mockResolvedValue('success');

@@ -39,7 +39,7 @@ async function collectSourceMaps(dirPath: string, acc: string[]): Promise<void> 
 async function findAllSourceMaps(): Promise<string[]> {
   const files: string[] = [];
   await Promise.all(targets.map((target) => collectSourceMaps(path.join(rootDir, target), files)));
-  files.sort();
+  files.sort((left, right) => left.localeCompare(right));
   return files;
 }
 

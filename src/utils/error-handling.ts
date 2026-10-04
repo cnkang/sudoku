@@ -126,6 +126,7 @@ export const retryOperation = async <T>(
   };
 
   // Invalid limits must fail before starting the operation.
-  if (!(maxRetries >= 0)) throw new RangeError('maxRetries must be non-negative');
+  if (maxRetries < 0 || Number.isNaN(maxRetries))
+    throw new RangeError('maxRetries must be non-negative');
   return await attemptOperation(0);
 };
