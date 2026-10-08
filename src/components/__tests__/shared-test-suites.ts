@@ -1,6 +1,6 @@
 import { fireEvent, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vite-plus/test';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 /**
  * Shared test suites to reduce duplicate test code

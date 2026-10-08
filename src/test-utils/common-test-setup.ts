@@ -2,7 +2,7 @@
  * Centralized test setup utilities to reduce duplication across test files
  */
 import { vi } from 'vite-plus/test';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 /**
  * Standard test setup that should be called in beforeEach
