@@ -24,8 +24,15 @@ updates:
           - '*'
         update-types:
           - 'minor'
-    # Ignore Playwright auto-updates (manual version control)
+    # Vite Plus owns the Vitest runner version. Upgrade this coupled set with
+    # the target Vite Plus migrator, then align coverage/UI (see README.md).
+    # A Dependabot group alone cannot make upstream latest versions compatible.
     ignore:
+      - dependency-name: 'vite-plus'
+      - dependency-name: 'vite'
+      - dependency-name: 'vitest'
+      - dependency-name: '@vitest/*'
+      # Ignore Playwright major/minor auto-updates (manual version control).
       - dependency-name: '@playwright/test'
         update-types:
           - 'version-update:semver-major'
