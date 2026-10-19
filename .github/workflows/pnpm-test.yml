@@ -37,6 +37,10 @@ jobs:
         if: matrix.job == 'quality'
         run: pnpm quality
 
+      - name: Check toolchain versions
+        if: matrix.job != 'quality'
+        run: pnpm check:toolchain
+
       - name: Build
         if: matrix.job == 'build'
         run: pnpm build

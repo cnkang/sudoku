@@ -38,6 +38,24 @@ pnpm start
 pnpm test:e2e
 ```
 
+## Updating the test toolchain
+
+`vp test` uses the Vitest runner bundled with Vite Plus. Keep `vite-plus` pinned
+exactly, alias `vite` to `npm:@voidzero-dev/vite-plus-core@<vite-plus-version>`,
+and pin `vitest`, `@vitest/coverage-v8`, and `@vitest/ui` to that runner's
+exact version. These packages are excluded from independent Dependabot updates;
+grouping their latest releases does not guarantee compatible versions.
+
+For upgrades, follow the [Vite Plus upgrade guide](https://www.viteplus.dev/guide/upgrade-project)
+and run the target version's migrator before updating project dependencies
+(`pnpm dlx vite-plus@<target-version> migrate`). Check the bundled runner with
+`pnpm exec vp toolchain vitest`, then update coverage and UI to that exact version.
+Review any migration changes and regenerate `pnpm-lock.yaml` with `pnpm install`.
+Run `pnpm check:toolchain`, `pnpm quality`, `pnpm test:coverage`, and `pnpm build`
+before merging. CI checks the declared and installed versions against Vite Plus's
+own runner dependency before running build or tests, and verifies that the project
+and Vite Plus resolve the same runner instance; local quality checks do too.
+
 ## Runtime and security
 
 Puzzle generation runs in the Node runtime. A bounded in-flight map shares concurrent work, and a 50-entry LRU keeps completed puzzles for 30 seconds. Optional `seed` values reproduce puzzles. Forced refresh bypasses completed results. Cache hit rates and latency depend on workload; no fixed improvement percentage is guaranteed.
