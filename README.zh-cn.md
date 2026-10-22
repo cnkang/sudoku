@@ -134,14 +134,14 @@
 
 ## 环境要求
 
-- Node.js `24.18.0` LTS（见 `.nvmrc`）
-- `pnpm 11.6.0+`
+- Node.js `24.22.1` LTS（见 `.nvmrc`）
+- `pnpm 12.15.0+`
 
 ## 安装
 
 ```bash
 corepack enable
-corepack use pnpm@11.6.0
+corepack use pnpm@12.15.0
 pnpm install
 ```
 

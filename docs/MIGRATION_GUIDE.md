@@ -13,9 +13,9 @@ This migration guide targets:
 ## Upgrading to 3.0.0
 
 ### Toolchain
-- **Node.js**: now requires 24.18.0 LTS (see `.nvmrc` / `.node-version`).
+- **Node.js**: now requires 24.22.1 LTS (see `.nvmrc` / `.node-version`).
   Use `nvm use` or ensure your runtime matches; older Node versions are no longer supported.
-- **pnpm**: now requires pnpm 11.6.0+. Run `corepack use pnpm@11.6.0`.
+- **pnpm**: now requires pnpm 12.15.0+. Run `corepack use pnpm@12.15.0`.
 - **pnpm configuration**: settings moved from the ignored `package.json` `pnpm`
   field and the unread `.pnpmrc` into `pnpm-workspace.yaml` (the pnpm 11 home for
   settings). `node_modules` now uses a hoisted layout (`nodeLinker: hoisted`).
@@ -81,8 +81,8 @@ Action:
 
 ## Suggested Upgrade Checklist
 
-1. Switch Node to 24.18.0: `nvm use` (or ensure your runtime matches `.nvmrc`).
-2. Switch pnpm to 11.6.0: `corepack use pnpm@11.6.0`.
+1. Switch Node to 24.22.1: `nvm use` (or ensure your runtime matches `.nvmrc`).
+2. Switch pnpm to 12.15.0: `corepack use pnpm@12.15.0`.
 3. Pull latest dependencies and install with lockfile:
    - `pnpm install --frozen-lockfile`
 4. Run static and type checks:
