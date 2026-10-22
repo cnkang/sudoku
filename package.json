@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev --turbo",
     "dev:debug": "next dev --turbo --inspect",
-    "build": "next build --turbo && pnpm type-check && pnpm strip:sourcemaps",
+    "build": "next build --turbo && node node_modules/typescript-next/bin/tsc --noEmit && node --experimental-strip-types scripts/strip-production-sourcemaps.ts",
     "strip:sourcemaps": "node --experimental-strip-types scripts/strip-production-sourcemaps.ts",
     "start": "next start",
     "lint": "vp lint",
