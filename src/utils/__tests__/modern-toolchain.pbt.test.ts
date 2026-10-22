@@ -194,7 +194,7 @@ describe('Modern Toolchain Performance Properties', () => {
     );
   });
 
-  it('Property 21: Modern development tool efficiency - pnpm 11.6.0+ should provide package management efficiency', () => {
+  it('Property 21: Modern development tool efficiency - pnpm 12.15.0+ should provide package management efficiency', () => {
     fc.assert(
       fc.property(
         fc.record({
