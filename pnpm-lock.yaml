@@ -175,8 +175,8 @@ importers:
   .:
     dependencies:
       fast-sudoku-solver:
-        specifier: 3.0.4
-        version: 3.0.4
+        specifier: 4.0.0
+        version: 4.0.0
       next:
         specifier: 16.4.2
         version: 16.4.2(@playwright/test@1.62.1)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -1439,8 +1439,8 @@ packages:
     resolution: {integrity: sha512-iK2f+YrcmoeGqk6fA0ea2bptcu/itMIm4NfEozq6N25+aG6h7s5HZbB/k1aV7b5w5sFLMCbbtRUsTVR+BgC3xw==}
     engines: {node: '>=12.17.0'}
 
-  fast-sudoku-solver@3.0.4:
-    resolution: {integrity: sha512-b+dF4KUbgvcOvpKPjw2tAA8gem97R1GHvn/KNqaXJMtcid9yGyBa1GZBy89FFVQZ+n3N1O4AV3onTNVY9QrDXA==}
+  fast-sudoku-solver@4.0.0:
+    resolution: {integrity: sha512-469jm/JFnzDWFXQ9cmsdBVVy01LOozRvx7xqN3Hd2Fu+seFnOrBfjJY1VLG/NTHSzAxlzMTqUimj4TSn/bJcKg==}
 
   fdir@6.5.0:
     resolution: {integrity: sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg==}
@@ -2620,7 +2620,7 @@ snapshots:
     dependencies:
       pure-rand: 8.4.2
 
-  fast-sudoku-solver@3.0.4: {}
+  fast-sudoku-solver@4.0.0: {}
 
   fdir@6.5.0(picomatch@4.0.7):
     optionalDependencies:
