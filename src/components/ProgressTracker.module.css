@@ -603,11 +603,20 @@
 @media (prefers-reduced-motion: reduce) {
   .statIcon,
   .achievementIcon,
+  .celebrationIcon,
   .confettiPiece,
   .celebrationSparkle,
   .sparkle,
+  .bounce,
+  .glow,
+  .pulse,
   .firework {
     animation: none;
+  }
+
+  .statItem,
+  .achievementItem {
+    transition: none;
   }
 
   .progressBarFill::after {
@@ -620,7 +629,7 @@
 }
 
 /* High Contrast Mode */
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   .progressTracker {
     background: white;
     border: 2px solid black;

@@ -59,6 +59,12 @@ describe('preferences', () => {
       expect(loadUserPreferences().accessibility?.highContrast).toBe(true);
     });
 
+    it('defaults high contrast to off when matchMedia is unavailable', () => {
+      vi.stubGlobal('matchMedia', undefined);
+
+      expect(loadAccessibilitySettings().highContrast).toBe(false);
+    });
+
     it('inherits the system preference even when storage is blocked', () => {
       vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: true }));
       localStorageMock.getItem.mockImplementation(() => {

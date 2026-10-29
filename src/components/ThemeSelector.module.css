@@ -265,7 +265,7 @@
 }
 
 /* High contrast mode adjustments */
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   .themeCard {
     border-width: 3px;
   }

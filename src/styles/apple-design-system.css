@@ -254,7 +254,7 @@
 }
 
 /* --- High Contrast Mode (WCAG AAA Enhanced) --- */
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   :root {
     --color-bg-primary: #ffffff;
     --color-bg-secondary: #f0f0f0;
@@ -457,15 +457,6 @@
     --ease-spring-stiff: linear;
     --ease-spring-gentle: linear;
   }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
 }
 
 /* ===== 7. GLASS / TRANSLUCENT MATERIALS ===== */
@@ -511,7 +502,7 @@
   }
 }
 
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   .glass,
   .glass-strong,
   .glass-subtle {

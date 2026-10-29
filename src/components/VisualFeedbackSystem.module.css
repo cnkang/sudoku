@@ -43,7 +43,11 @@
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   box-shadow: var(--feedback-shadow, 0 4px 12px rgba(0, 0, 0, 0.1));
   min-height: 44px;
   min-width: 44px;
@@ -551,12 +555,21 @@
     display: none;
   }
 
+  .sparkleEffect {
+    animation: none;
+  }
+
   .contrastToggle {
     transition: none;
   }
 
   .contrastToggle:hover {
     transform: none;
+  }
+
+  .contrastToggle:active {
+    transform: none;
+    transition: none;
   }
 }
 

@@ -2,7 +2,6 @@ import { LazyCornerDecoration, LazyGeometricMesh } from '../components/LazyGridC
 import ModernSudokuApp from '../components/ModernSudokuApp';
 import styles from './page.module.css';
 import '../styles/modern-responsive.css';
-import '../styles/modern-layouts.css';
 import '../styles/asymmetric-layout.css';
 
 /**

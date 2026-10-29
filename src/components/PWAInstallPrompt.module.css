@@ -125,7 +125,10 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -179,7 +182,9 @@
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
   min-height: 44px; /* Accessibility: minimum touch target */
 }
 
@@ -215,7 +220,7 @@
 }
 
 /* High contrast mode support */
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   .prompt {
     border: 2px solid #0077be;
   }
@@ -233,7 +238,8 @@
 @media (prefers-reduced-motion: reduce) {
   .overlay,
   .prompt,
-  .icon {
+  .icon,
+  .spinner {
     animation: none;
   }
 

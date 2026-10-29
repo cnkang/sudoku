@@ -238,7 +238,7 @@ describe('useTheme', () => {
 
       const { unmount } = renderHook(() => useTheme());
 
-      expect(mockMatchMedia).toHaveBeenCalledWith('(prefers-contrast: high)');
+      expect(mockMatchMedia).toHaveBeenCalledWith('(prefers-contrast: more)');
       expect(mockAddEventListener).toHaveBeenCalledWith('change', expect.any(Function), {
         passive: true,
       });
