@@ -79,7 +79,7 @@ function detectSystemHighContrast(): boolean {
   if (globalThis.window === undefined) return false;
 
   try {
-    return globalThis.matchMedia('(prefers-contrast: high)').matches;
+    return globalThis.matchMedia('(prefers-contrast: more)').matches;
   } catch {
     return false;
   }
@@ -154,7 +154,7 @@ export function useTheme(): ThemeContextValue {
     }
 
     try {
-      const mediaQuery = globalThis.matchMedia('(prefers-contrast: high)');
+      const mediaQuery = globalThis.matchMedia('(prefers-contrast: more)');
 
       const handleChange = (e: MediaQueryListEvent) => {
         // Only update if user hasn't explicitly set a preference

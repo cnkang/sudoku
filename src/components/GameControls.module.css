@@ -207,7 +207,7 @@
 .modernFlexButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: none !important;
+  transform: none;
 }
 
 .modernTransition {
@@ -367,7 +367,7 @@
 }
 
 /* --- High Contrast Mode --- */
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   .btn {
     border: 2px solid currentColor;
     font-weight: 700;

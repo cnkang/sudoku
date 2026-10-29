@@ -281,25 +281,10 @@
 }
 
 /* ============================================
-   REDUCED MOTION
-   ============================================ */
-
-@media (prefers-reduced-motion: reduce) {
-  .asymmetric-card,
-  .diagonal-flow > * {
-    transform: none !important;
-  }
-  
-  .diagonal-divider {
-    transform: none;
-  }
-}
-
-/* ============================================
    HIGH CONTRAST MODE
    ============================================ */
 
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   .diagonal-grid-overlay {
     display: none;
   }

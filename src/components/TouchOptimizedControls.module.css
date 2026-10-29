@@ -563,7 +563,7 @@
 }
 
 /* --- High Contrast Mode --- */
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   .magicWandButton {
     background: var(--color-bg-primary);
     color: var(--color-fg-primary);
@@ -584,6 +584,19 @@
 
   .sparkle {
     filter: none;
+  }
+}
+
+/* --- Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+  .magicWandButton:active:not(:disabled),
+  .magicWandButton.animating,
+  .encouragementButton:active:not(:disabled),
+  .celebrationButton:active:not(:disabled),
+  .celebrationButton.celebrating {
+    animation: none;
+    transition: none;
+    transform: none;
   }
 }
 

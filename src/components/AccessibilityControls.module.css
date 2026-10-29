@@ -110,7 +110,9 @@
   background: var(--color-surface, #ffffff);
   color: var(--color-text, #1a1a1a);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
   min-height: 44px;
 }
 
@@ -171,7 +173,7 @@
   height: 26px;
   background: #ccc;
   border-radius: 26px;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
   flex-shrink: 0;
 }
 
@@ -184,7 +186,7 @@
   background: white;
   top: 3px;
   left: 3px;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -448,7 +450,9 @@
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   min-height: 44px;
   background: var(--color-surface, #ffffff);
   color: var(--color-text, #1a1a1a);
@@ -639,6 +643,14 @@
   .themeSelector:hover {
     border-color: var(--color-primary, #003d7a);
     box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quickButton:active,
+  .quickButton:active:not(:disabled) {
+    transform: none;
+    transition: none;
   }
 }
 

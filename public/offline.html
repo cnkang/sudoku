@@ -122,7 +122,9 @@
             font-size: 1rem;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition:
+                background-color 0.2s ease,
+                transform 0.2s ease;
             min-width: 120px;
         }
 
@@ -154,6 +156,16 @@
             border-radius: 8px;
             color: #856404;
             font-size: 0.9rem;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .emoji {
+                animation: none;
+            }
+
+            button {
+                transition: none;
+            }
         }
 
         @media (max-width: 480px) {

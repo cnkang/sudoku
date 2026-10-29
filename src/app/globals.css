@@ -158,7 +158,7 @@ textarea {
    HIGH CONTRAST MODE SUPPORT
    ========================================================================== */
 
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   :root {
     --color-border-default: currentColor;
     --color-border-strong: currentColor;

@@ -50,7 +50,7 @@
   }
 }
 
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   .gameArea {
     background: var(--color-bg-elevated);
     backdrop-filter: none;

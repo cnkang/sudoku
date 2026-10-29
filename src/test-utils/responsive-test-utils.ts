@@ -81,7 +81,7 @@ export const MEDIA_QUERIES = {
   PORTRAIT: '(orientation: portrait)',
   TOUCH: '(hover: none) and (pointer: coarse)',
   DARK_MODE: '(prefers-color-scheme: dark)',
-  HIGH_CONTRAST: '(prefers-contrast: high)',
+  HIGH_CONTRAST: '(prefers-contrast: more)',
   REDUCED_MOTION: '(prefers-reduced-motion: reduce)',
 } as const;
 

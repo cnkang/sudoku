@@ -215,7 +215,7 @@ export function loadAccessibilitySettings(): AccessibilitySettings {
     highContrast =
       themePreference === 'true' || themePreference === 'false'
         ? themePreference === 'true'
-        : (globalThis.matchMedia?.('(prefers-contrast: high)').matches ?? false);
+        : (globalThis.matchMedia?.('(prefers-contrast: more)').matches ?? false);
   } catch {
     // Media queries can be unavailable in restricted environments.
   }
