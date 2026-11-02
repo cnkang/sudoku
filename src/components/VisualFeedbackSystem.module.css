@@ -20,12 +20,6 @@
   --feedback-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 
-/* Reduced Motion Support */
-.reducedMotion * {
-  animation: none !important;
-  transition: none !important;
-}
-
 /* High Contrast Toggle Button */
 .contrastToggle {
   position: fixed;
@@ -737,4 +731,11 @@
   .patternLegend {
     display: none;
   }
+}
+
+/* Class-based reduced motion. Kept last so it wins over component rules
+   with the same specificity, without !important. */
+.feedbackSystem.reducedMotion * {
+  animation: none;
+  transition: none;
 }
