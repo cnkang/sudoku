@@ -170,6 +170,9 @@ textarea {
    REDUCED MOTION — Cross-fade only, no transforms
    ========================================================================== */
 
+/* The !important flags are intentional: this global reset must override
+   component-level animations and transitions for reduced-motion users.
+   SonarCloud css:S9423 is marked as Won't Fix for these declarations. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -177,7 +180,6 @@ textarea {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }
 
