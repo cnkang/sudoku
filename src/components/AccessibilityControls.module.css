@@ -36,9 +36,24 @@
   color: #000000;
 }
 
-.highContrast * {
-  color: #000000 !important;
-  border-color: #000000 !important;
+/* High contrast mode: explicit targets keep specificity above the
+   .childMode overrides without !important. */
+.accessibilityControls.highContrast .title,
+.accessibilityControls.highContrast .label,
+.accessibilityControls.highContrast .toggleLabel,
+.accessibilityControls.highContrast .description,
+.accessibilityControls.highContrast .infoSectionSummary,
+.accessibilityControls.highContrast .infoTitle,
+.accessibilityControls.highContrast .patternExample,
+.accessibilityControls.highContrast .infoText {
+  color: #000000;
+}
+
+.accessibilityControls.highContrast .controlGroup,
+.accessibilityControls.highContrast .quickActions,
+.accessibilityControls.highContrast .infoSectionDetails,
+.accessibilityControls.highContrast .patternSample {
+  border-color: #000000;
 }
 
 /* Disabled State */
