@@ -155,6 +155,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta name="color-scheme" content="light dark" />
         <script
           type="application/ld+json"
           nonce={nonce}

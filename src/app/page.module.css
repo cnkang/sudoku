@@ -2,7 +2,11 @@
 .page {
   min-height: 100vh;
   min-height: 100dvh; /* Modern dynamic viewport height */
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(
+    135deg,
+    var(--page-gradient-start, #667eea) 0%,
+    var(--page-gradient-end, #764ba2) 100%
+  );
   display: grid;
   justify-items: center;
   align-items: start;
@@ -26,7 +30,8 @@
 }
 
 .main {
-  background: var(--card-background);
+  background: var(--card-background, var(--color-bg-elevated, #ffffff));
+  color: var(--foreground, var(--color-fg-primary, #0f172a));
   border-radius: clamp(0.5rem, 2vw, 1rem);
   box-shadow: var(--shadow-lg);
   padding: clamp(1rem, 4vw, 2rem);
@@ -169,18 +174,6 @@
     padding: 0.5rem;
     gap: 1rem;
     border-radius: 0.5rem;
-  }
-}
-
-/* Dark Mode with Modern CSS */
-@media (prefers-color-scheme: dark) {
-  .page {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  }
-
-  .main {
-    background: var(--card-background, #334155);
-    color: var(--foreground, #f1f5f9);
   }
 }
 

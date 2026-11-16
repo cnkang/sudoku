@@ -30,10 +30,10 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: var(--color-surface, #ffffff);
-  border: 2px solid var(--color-primary, #003d7a);
+  background: var(--color-surface, var(--color-bg-elevated, #ffffff));
+  border: 2px solid var(--color-primary, var(--color-brand-primary, #003d7a));
   border-radius: var(--feedback-border-radius, 12px);
-  color: var(--color-primary, #003d7a);
+  color: var(--color-text, var(--color-fg-primary, #003d7a));
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -49,8 +49,8 @@
 }
 
 .contrastToggle:hover {
-  background: var(--color-primary, #003d7a);
-  color: var(--color-text-on-primary, #ffffff);
+  background: var(--color-primary, var(--color-brand-primary, #003d7a));
+  color: var(--color-text-on-primary, var(--color-brand-primary-fg, #ffffff));
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 61, 122, 0.2);
 }
@@ -577,19 +577,6 @@
 }
 
 /* Dark Mode Support (if theme supports it) */
-@media (prefers-color-scheme: dark) {
-  .feedbackSystem:not(.highContrast) .contrastToggle {
-    background: var(--color-surface-secondary, #1f2937);
-    border-color: var(--color-primary, #60a5fa);
-    color: var(--color-text, #f9fafb);
-  }
-
-  .feedbackSystem:not(.highContrast) .contrastToggle:hover {
-    background: var(--color-primary, #60a5fa);
-    color: var(--color-text-on-primary, #1f2937);
-  }
-}
-
 /* Container Query Support */
 @supports (container-type: inline-size) {
   .feedbackSystem {

@@ -7,6 +7,21 @@
 /* ===== 1. COLOR TOKENS — Semantic, High-Contrast, Mode-Aware ===== */
 
 :root {
+  color-scheme: light dark;
+  --page-gradient-start: #667eea;
+  --page-gradient-end: #764ba2;
+  --color-pwa-status-background: rgba(255, 255, 255, 0.8);
+  --color-pwa-status-border: rgba(255, 255, 255, 0.2);
+  --color-pwa-option-background: #ffffff;
+  --color-pwa-option-border: #e2e8f0;
+  --color-pwa-option-selected-start: rgba(59, 130, 246, 0.05);
+  --color-pwa-option-selected-end: rgba(59, 130, 246, 0.1);
+  --color-pwa-preview-cell: #ffffff;
+  --color-pwa-child-feature-start: #fef3c7;
+  --color-pwa-child-feature-end: #fde68a;
+  --color-pwa-child-feature-text: #92400e;
+  --color-bg-glass-subtle: rgba(255, 255, 255, 0.5);
+  --color-glass-border-subtle: rgba(255, 255, 255, 0.3);
   --color-bg-primary: #ffffff;
   --color-bg-secondary: #f8fafc;
   --color-bg-tertiary: #f1f5f9;
@@ -149,6 +164,7 @@
   --shadow-e4: 0 20px 25px -5px var(--color-shadow-key);
   --shadow-glass: 0 4px 24px var(--color-shadow-glass);
   --shadow-glass-strong: 0 8px 32px var(--color-shadow-glass);
+  --shadow-game-area: var(--shadow-e3);
   --focus-ring: 0 0 0 3px var(--color-focus-ring);
   --focus-ring-inset: inset 0 0 0 2px var(--color-focus-ring);
   --spring-damping-default: 1;
@@ -236,6 +252,7 @@
     --color-shadow-ambient: rgba(0, 0, 0, 0.3);
     --color-shadow-key: rgba(0, 0, 0, 0.4);
     --color-shadow-glass: rgba(0, 0, 0, 0.5);
+    --shadow-game-area: var(--shadow-glass);
 
     --color-glass-border: rgba(255, 255, 255, 0.12);
     --color-glass-border-strong: rgba(255, 255, 255, 0.24);
@@ -250,6 +267,88 @@
     --color-cell-border-thick: #60a5fa;
     --color-cell-fixed-text: #60a5fa;
     --color-cell-input-text: #f8fafc;
+    --page-gradient-start: #1e293b;
+    --page-gradient-end: #0f172a;
+    --color-pwa-status-background: rgba(30, 41, 59, 0.8);
+    --color-pwa-status-border: rgba(148, 163, 184, 0.2);
+    --color-pwa-option-background: #334155;
+    --color-pwa-option-border: #475569;
+    --color-pwa-option-selected-start: rgba(59, 130, 246, 0.2);
+    --color-pwa-option-selected-end: rgba(59, 130, 246, 0.3);
+    --color-pwa-preview-cell: #475569;
+    --color-pwa-child-feature-start: #451a03;
+    --color-pwa-child-feature-end: #78350f;
+    --color-pwa-child-feature-text: #fbbf24;
+    --color-bg-glass-subtle: rgba(15, 23, 42, 0.5);
+    --color-glass-border-subtle: rgba(255, 255, 255, 0.12);
+  }
+}
+
+@supports (color: light-dark(white, black)) {
+  :root {
+    --color-bg-primary: light-dark(#ffffff, #0f172a);
+    --color-bg-secondary: light-dark(#f8fafc, #1e293b);
+    --color-bg-tertiary: light-dark(#f1f5f9, #334155);
+    --color-bg-elevated: light-dark(#ffffff, #1e293b);
+    --color-bg-glass: light-dark(rgba(255, 255, 255, 0.72), rgba(15, 23, 42, 0.72));
+    --color-bg-glass-strong: light-dark(rgba(255, 255, 255, 0.85), rgba(15, 23, 42, 0.85));
+    --color-fg-primary: light-dark(#0f172a, #f8fafc);
+    --color-fg-secondary: light-dark(#334155, #cbd5e1);
+    --color-fg-tertiary: light-dark(#64748b, #94a3b8);
+    --color-fg-inverse: light-dark(#ffffff, #0f172a);
+    --color-brand-primary: light-dark(#1e3a8a, #60a5fa);
+    --color-brand-primary-hover: light-dark(#1e40af, #93c5fd);
+    --color-brand-primary-active: light-dark(#172554, #3b82f6);
+    --color-brand-primary-fg: light-dark(#ffffff, #0f172a);
+    --color-brand-secondary: light-dark(#0f766e, #5eead4);
+    --color-brand-secondary-hover: light-dark(#115e59, #2dd4bf);
+    --color-brand-secondary-fg: light-dark(#ffffff, #0f172a);
+    --color-success: light-dark(#166534, #4ade80);
+    --color-success-bg: light-dark(#dcfce7, #064e3b);
+    --color-success-fg: light-dark(#ffffff, #0f172a);
+    --color-warning: light-dark(#ca8a04, #fbbf24);
+    --color-warning-bg: light-dark(#fef3c7, #78350f);
+    --color-warning-fg: light-dark(#000000, #0f172a);
+    --color-error: light-dark(#dc2626, #f87171);
+    --color-error-bg: light-dark(#fee2e2, #7f1d1d);
+    --color-error-fg: light-dark(#ffffff, #0f172a);
+    --color-info: light-dark(#1e40af, #60a5fa);
+    --color-info-bg: light-dark(#dbeafe, #1e3a5f);
+    --color-info-fg: light-dark(#ffffff, #0f172a);
+    --color-border-subtle: light-dark(#e2e8f0, #334155);
+    --color-border-default: light-dark(#cbd5e1, #475569);
+    --color-border-strong: light-dark(#94a3b8, #64748b);
+    --color-focus-ring: light-dark(#1e3a8a, #60a5fa);
+    --color-focus-ring-offset: light-dark(#ffffff, #0f172a);
+    --color-shadow-ambient: light-dark(rgba(15, 23, 42, 0.08), rgba(0, 0, 0, 0.3));
+    --color-shadow-key: light-dark(rgba(15, 23, 42, 0.12), rgba(0, 0, 0, 0.4));
+    --color-shadow-glass: light-dark(rgba(15, 23, 42, 0.15), rgba(0, 0, 0, 0.5));
+    --color-glass-border: light-dark(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.12));
+    --color-glass-border-strong: light-dark(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.24));
+    --color-cell-bg: light-dark(#ffffff, #1e293b);
+    --color-cell-bg-filled: light-dark(#f0f4f8, #334155);
+    --color-cell-bg-selected: light-dark(#dbeafe, #1e3a5f);
+    --color-cell-bg-hint: light-dark(#ecfdf5, #052e16);
+    --color-cell-bg-error: light-dark(#fff7ed, #431407);
+    --color-cell-bg-success: light-dark(#dcfce7, #052e16);
+    --color-cell-border: light-dark(#cbd5e1, #475569);
+    --color-cell-border-thick: light-dark(#1e3a8a, #60a5fa);
+    --color-cell-fixed-text: light-dark(#1e3a8a, #60a5fa);
+    --color-cell-input-text: light-dark(#0f172a, #f8fafc);
+    --page-gradient-start: light-dark(#667eea, #1e293b);
+    --page-gradient-end: light-dark(#764ba2, #0f172a);
+    --color-pwa-status-background: light-dark(rgba(255, 255, 255, 0.8), rgba(30, 41, 59, 0.8));
+    --color-pwa-status-border: light-dark(rgba(255, 255, 255, 0.2), rgba(148, 163, 184, 0.2));
+    --color-pwa-option-background: light-dark(#ffffff, #334155);
+    --color-pwa-option-border: light-dark(#e2e8f0, #475569);
+    --color-pwa-option-selected-start: light-dark(rgba(59, 130, 246, 0.05), rgba(59, 130, 246, 0.2));
+    --color-pwa-option-selected-end: light-dark(rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.3));
+    --color-pwa-preview-cell: light-dark(#ffffff, #475569);
+    --color-pwa-child-feature-start: light-dark(#fef3c7, #451a03);
+    --color-pwa-child-feature-end: light-dark(#fde68a, #78350f);
+    --color-pwa-child-feature-text: light-dark(#92400e, #fbbf24);
+    --color-bg-glass-subtle: light-dark(rgba(255, 255, 255, 0.5), rgba(15, 23, 42, 0.5));
+    --color-glass-border-subtle: light-dark(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.12));
   }
 }
 
@@ -480,26 +579,11 @@
 }
 
 .glass-subtle {
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--color-bg-glass-subtle);
   backdrop-filter: blur(10px) saturate(150%);
   -webkit-backdrop-filter: blur(10px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--color-glass-border-subtle);
   border-radius: var(--radius-lg);
-}
-
-@media (prefers-color-scheme: dark) {
-  .glass {
-    background: var(--color-bg-glass);
-    border-color: var(--color-glass-border);
-  }
-  .glass-strong {
-    background: var(--color-bg-glass-strong);
-    border-color: var(--color-glass-border-strong);
-  }
-  .glass-subtle {
-    background: rgba(15, 23, 42, 0.5);
-    border-color: rgba(255, 255, 255, 0.12);
-  }
 }
 
 @media (prefers-contrast: more) {
