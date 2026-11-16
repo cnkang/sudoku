@@ -545,13 +545,6 @@
   }
 }
 
-/* --- Dark Mode Adjustments --- */
-@media (prefers-color-scheme: dark) {
-  .childMode {
-    background: linear-gradient(135deg, var(--color-bg-glass) 0%, var(--color-bg-glass-strong) 100%);
-  }
-}
-
 /* --- Reduced Transparency --- */
 @media (prefers-reduced-transparency: reduce) {
   .childMode {

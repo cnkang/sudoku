@@ -90,19 +90,6 @@
   }
 }
 
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-  .difficultySelect {
-    background-color: var(--color-bg-elevated);
-    border-color: var(--color-border-default);
-    color: var(--color-fg-primary);
-  }
-
-  .difficultySelect:disabled {
-    background-color: var(--color-bg-tertiary);
-  }
-}
-
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .difficultySelect {

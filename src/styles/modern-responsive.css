@@ -318,8 +318,12 @@
   padding: var(--space-3) var(--space-4);
   border-radius: var(--child-border-radius);
   border: 2px solid transparent;
-  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-  color: #ffffff;
+  background: linear-gradient(
+    135deg,
+    var(--color-brand-primary, #1e3a8a) 0%,
+    var(--color-brand-primary-hover, #1e40af) 100%
+  );
+  color: var(--color-brand-primary-fg, #ffffff);
   font-weight: 600;
   font-size: var(--text-base);
   cursor: pointer;
@@ -831,7 +835,7 @@
 
 /* Modern Focus Management */
 .modern-focus-ring:focus-visible {
-  outline: 3px solid #3b82f6;
+  outline: 3px solid var(--color-focus-ring, #3b82f6);
   outline-offset: 2px;
   border-radius: var(--child-border-radius);
 }
@@ -902,16 +906,6 @@
 }
 
 /* Dark Mode Support with Modern CSS */
-@media (prefers-color-scheme: dark) {
-  .modern-flex-button {
-    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-  }
-
-  .modern-focus-ring:focus-visible {
-    outline-color: #60a5fa;
-  }
-}
-
 /* Landscape Orientation Optimizations with Modern CSS */
 @media (max-width: 768px) and (orientation: landscape) {
   .modern-grid-layout {

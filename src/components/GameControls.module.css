@@ -337,35 +337,6 @@
   }
 }
 
-/* --- Dark Mode --- */
-@media (prefers-color-scheme: dark) {
-  .btnPrimary {
-    background-color: var(--color-brand-primary);
-  }
-
-  .btnPrimary:hover:not(:disabled) {
-    background-color: var(--color-brand-primary-hover);
-  }
-
-  .btnSecondary {
-    background-color: var(--color-fg-secondary);
-  }
-
-  .btnSecondary:hover:not(:disabled) {
-    background-color: var(--color-fg-primary);
-  }
-
-  .resultMessage.success {
-    background-color: var(--color-success-bg);
-    color: var(--color-success);
-  }
-
-  .resultMessage.error {
-    background-color: var(--color-error-bg);
-    color: var(--color-error);
-  }
-}
-
 /* --- High Contrast Mode --- */
 @media (prefers-contrast: more) {
   .btn {

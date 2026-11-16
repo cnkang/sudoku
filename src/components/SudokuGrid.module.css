@@ -57,7 +57,7 @@
 /* --- Grid Table --- */
 .sudokuGrid {
   border-collapse: collapse;
-  background-color: var(--color-bg-elevated, #ffffff);
+  background-color: var(--color-bg-primary, #ffffff);
   box-shadow: var(--shadow-e2);
   border-radius: var(--radius-card);
   overflow: hidden;
@@ -145,7 +145,7 @@
 
 /* Editable cell hover */
 .editableCell:hover:not(.disabled):not(.highContrastCell):not(.selectedCell):not(.errorCell):not(.hintedCell):not(.successCell) {
-  background-color: var(--color-hover, #f0f8ff);
+  background-color: var(--color-hover, var(--color-bg-tertiary, #f0f8ff));
 }
 
 /* Selected cell */
@@ -225,7 +225,10 @@
   height: 100%;
   font-size: var(--text-mono-xl);
   font-weight: 700;
-  color: var(--color-fixed-text, var(--color-brand-primary, #1e3a8a));
+  color: var(
+    --color-fixed-text,
+    var(--color-cell-fixed-text, var(--color-brand-primary, #1e3a8a))
+  );
   user-select: none;
   line-height: 1;
 }
@@ -239,7 +242,10 @@
   text-align: center;
   font-size: var(--text-mono-lg);
   font-weight: 600;
-  color: var(--color-input-text, var(--color-fg-primary, #0f172a));
+  color: var(
+    --color-input-text,
+    var(--color-cell-input-text, var(--color-fg-primary, #0f172a))
+  );
   background: transparent;
   cursor: pointer;
   -webkit-user-select: none;
@@ -255,7 +261,7 @@
 
 /* Focus visible - keyboard only */
 .cellInput:focus-visible {
-  background-color: var(--color-focus-bg, #dbeafe);
+  background-color: var(--color-focus-bg, var(--color-cell-bg-selected, #dbeafe));
   outline: 3px solid var(--color-focus-ring, #1e3a8a);
   outline-offset: -3px;
   z-index: 2;
@@ -408,56 +414,6 @@
 /* --- Smooth Transitions --- */
 .sudokuGrid:hover .sudokuCell {
   transition: background-color 0.1s ease;
-}
-
-/* --- Dark Mode --- */
-@media (prefers-color-scheme: dark) {
-  .sudokuGrid {
-    background-color: var(--color-bg-primary, #1e293b);
-    border-color: var(--color-border-default, #94a3b8);
-  }
-
-  .sudokuCell {
-    background-color: var(--color-bg-primary, #1e293b);
-    border-color: var(--color-border-default, #475569);
-  }
-
-  .editableCell:hover:not(.disabled):not(.highContrastCell):not(.selectedCell):not(.errorCell):not(.hintedCell):not(.successCell) {
-    background-color: var(--color-hover, #334155);
-  }
-
-  .selectedCell {
-    background-color: var(--color-cell-bg-selected, #1e3a5f);
-    box-shadow: inset 0 0 0 2px var(--color-brand-primary, #60a5fa);
-  }
-
-  .errorCell {
-    background-color: var(--color-cell-bg-error, #431407);
-    box-shadow: inset 0 0 0 2px var(--color-error, #fb923c);
-  }
-
-  .hintedCell {
-    background-color: var(--color-cell-bg-hint, #052e16);
-    box-shadow: inset 0 0 0 2px var(--color-success, #34d399);
-  }
-
-  .successCell {
-    background-color: var(--color-cell-bg-success, #052e16);
-    box-shadow: inset 0 0 0 2px var(--color-success, #4ade80);
-  }
-
-  .fixedNumber {
-    color: var(--color-fg-inverse, #f1f5f9);
-  }
-
-  .cellInput {
-    color: var(--color-brand-primary-fg, #60a5fa);
-  }
-
-  .cellInput:focus-visible {
-    background-color: var(--color-cell-bg-selected, #1e3a5f);
-    outline-color: var(--color-brand-primary, #60a5fa);
-  }
 }
 
 /* --- High Contrast Mode --- */
