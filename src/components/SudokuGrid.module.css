@@ -223,6 +223,8 @@
   justify-content: center;
   width: 100%;
   height: 100%;
+  font-family: var(--font-mono, monospace);
+  font-variant-numeric: tabular-nums;
   font-size: var(--text-mono-xl);
   font-weight: 700;
   color: var(
@@ -240,6 +242,8 @@
   border: none;
   outline: none;
   text-align: center;
+  font-family: var(--font-mono, monospace);
+  font-variant-numeric: tabular-nums;
   font-size: var(--text-mono-lg);
   font-weight: 600;
   color: var(

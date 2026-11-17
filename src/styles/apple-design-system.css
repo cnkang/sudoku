@@ -8,8 +8,16 @@
 
 :root {
   color-scheme: light dark;
-  --page-gradient-start: #667eea;
-  --page-gradient-end: #764ba2;
+  /* Ink & paper palette: a deep desk field behind the puzzle sheet. */
+  --page-gradient-start: #1e3a8a;
+  --page-gradient-end: #0f172a;
+  /* Decorative accents mapped to the brand family (legacy token names kept). */
+  --color-cream: #f8fafc;
+  --color-coral: #0f766e;
+  --color-teal: #0f766e;
+  --gradient-sunset: linear-gradient(135deg, #1e3a8a 0%, #0f766e 100%);
+  --gradient-ocean: linear-gradient(135deg, #0f766e 0%, #0f172a 100%);
+  --shadow-md: var(--shadow-e2);
   --color-pwa-status-background: rgba(255, 255, 255, 0.8);
   --color-pwa-status-border: rgba(255, 255, 255, 0.2);
   --color-pwa-option-background: #ffffff;
@@ -100,8 +108,11 @@
   --space-gap-md: var(--space-4);
   --space-gap-lg: var(--space-6);
   --space-gap-xl: var(--space-8);
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', Consolas, monospace;
+  /* Inter arrives from layout.tsx as --font-body; use it for the UI voice.
+     Puzzle digits inherit the JetBrains Mono variable set on <body>;
+     the ui-monospace stack is the standalone fallback. */
+  --font-sans: var(--font-body, Inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: var(--font-mono-face, 'JetBrains Mono'), ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', Consolas, monospace;
   --font-display: var(--font-sans);
   --text-base-size: 1rem;        /* 16px default, scales with user preference */
   --text-base-line-height: 1.5;
@@ -267,8 +278,13 @@
     --color-cell-border-thick: #60a5fa;
     --color-cell-fixed-text: #60a5fa;
     --color-cell-input-text: #f8fafc;
-    --page-gradient-start: #1e293b;
-    --page-gradient-end: #0f172a;
+    --page-gradient-start: #0b1220;
+    --page-gradient-end: #020617;
+    --color-cream: #0f172a;
+    --color-coral: #5eead4;
+    --color-teal: #5eead4;
+    --gradient-sunset: linear-gradient(135deg, #1e3a8a 0%, #115e59 100%);
+    --gradient-ocean: linear-gradient(135deg, #115e59 0%, #020617 100%);
     --color-pwa-status-background: rgba(30, 41, 59, 0.8);
     --color-pwa-status-border: rgba(148, 163, 184, 0.2);
     --color-pwa-option-background: #334155;
@@ -335,8 +351,11 @@
     --color-cell-border-thick: light-dark(#1e3a8a, #60a5fa);
     --color-cell-fixed-text: light-dark(#1e3a8a, #60a5fa);
     --color-cell-input-text: light-dark(#0f172a, #f8fafc);
-    --page-gradient-start: light-dark(#667eea, #1e293b);
-    --page-gradient-end: light-dark(#764ba2, #0f172a);
+    --page-gradient-start: light-dark(#1e3a8a, #0b1220);
+    --page-gradient-end: light-dark(#0f172a, #020617);
+    --color-cream: light-dark(#f8fafc, #0f172a);
+    --color-coral: light-dark(#0f766e, #5eead4);
+    --color-teal: light-dark(#0f766e, #5eead4);
     --color-pwa-status-background: light-dark(rgba(255, 255, 255, 0.8), rgba(30, 41, 59, 0.8));
     --color-pwa-status-border: light-dark(rgba(255, 255, 255, 0.2), rgba(148, 163, 184, 0.2));
     --color-pwa-option-background: light-dark(#ffffff, #334155);

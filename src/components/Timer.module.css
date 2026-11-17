@@ -1,6 +1,6 @@
 .timer { font-size: 1.2rem; font-weight: 600; margin: 1rem 0; }
 .label { color: var(--theme-text, #374151); }
-.value { font-family: var(--font-mono, monospace); }
+.value { font-family: var(--font-mono, monospace); font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
 .status { font-size: 0.9rem; font-style: italic; }
 @media (max-width: 768px) {
   .timer { font-size: 1.1rem; margin: 0.75rem 0; text-align: center; }
