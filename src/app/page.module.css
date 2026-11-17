@@ -2,11 +2,18 @@
 .page {
   min-height: 100vh;
   min-height: 100dvh; /* Modern dynamic viewport height */
-  background: linear-gradient(
-    135deg,
-    var(--page-gradient-start, #667eea) 0%,
-    var(--page-gradient-end, #764ba2) 100%
-  );
+  /* Faint 48px graph-paper grid over the ink field — the board's motif. */
+  background-color: var(--page-gradient-end, #0f172a);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(
+      135deg,
+      var(--page-gradient-start, #1e3a8a) 0%,
+      var(--page-gradient-end, #0f172a) 100%
+    );
+  background-size: 48px 48px, 48px 48px, 100% 100%;
+  background-position: center center;
   display: grid;
   justify-items: center;
   align-items: start;

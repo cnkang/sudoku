@@ -26,21 +26,25 @@
 .difficultySelect {
   width: 100%;
   padding: var(--space-3) var(--space-4);
-  border: 2px solid var(--color-border-default);
-  border-radius: var(--radius-lg);
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-xl);
   font-size: var(--text-base);
+  font-weight: 600;
   font-family: inherit;
-  background-color: var(--color-bg-elevated);
+  background-color: var(--color-bg-secondary);
+  box-shadow: var(--shadow-e1);
   color: var(--color-fg-primary);
   cursor: pointer;
   transition: border-color var(--duration-fast) var(--ease-out),
-    box-shadow var(--duration-fast) var(--ease-out);
+    box-shadow var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out);
   min-height: 44px;
   -webkit-tap-highlight-color: transparent;
 }
 
 .difficultySelect:hover:not(:disabled) {
-  border-color: var(--color-border-strong);
+  border-color: var(--color-brand-primary);
+  background-color: var(--color-bg-elevated);
 }
 
 .difficultySelect:focus-visible {
