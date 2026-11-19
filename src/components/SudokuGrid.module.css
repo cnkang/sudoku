@@ -297,20 +297,8 @@
   font-weight: 700;
 }
 
-/* High contrast cell */
-.highContrastCell {
-  border-color: #000000;
-}
-
 .highContrastCell.errorCell {
-  background-color: #ffff00;
-  color: #000000;
   animation: none;
-}
-
-.highContrastCell .fixedNumber,
-.highContrastCell .cellInput {
-  color: #000000;
 }
 
 /* Child mode cell */
@@ -429,27 +417,6 @@
 /* --- Smooth Transitions --- */
 .sudokuGrid:hover .sudokuCell {
   transition: background-color 0.1s ease;
-}
-
-/* --- High Contrast Mode --- */
-@media (prefers-contrast: more) {
-  .sudokuContainer {
-    background: #000;
-  }
-
-  .sudokuGrid {
-    background: #fff;
-    border: 3px solid #000;
-  }
-
-  .sudokuCell {
-    border-color: #000;
-  }
-
-  .fixedNumber,
-  .cellInput {
-    color: #000;
-  }
 }
 
 /* --- Print Styles --- */

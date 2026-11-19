@@ -695,7 +695,22 @@ function accessibleOnDark(hex: string, background: string, minimum: number): str
  * modes. Semantic status tokens stay owned by the design system.
  */
 function generateDesignSystemOverrides(theme: ThemeConfig): Record<string, string> {
-  if (theme.id === 'high-contrast') return {};
+  if (theme.category === 'high-contrast') {
+    return {
+      '--color-brand-primary': 'light-dark(#000000, #ffffff)',
+      '--color-brand-primary-hover': 'light-dark(#1a1a1a, #e0e0e0)',
+      '--color-brand-primary-active': 'light-dark(#333333, #cccccc)',
+      '--color-brand-primary-fg': 'light-dark(#ffffff, #000000)',
+      '--color-brand-secondary': 'light-dark(#000000, #ffffff)',
+      '--color-brand-secondary-fg': 'light-dark(#ffffff, #000000)',
+      '--color-cell-fixed-text': 'light-dark(#000000, #ffffff)',
+      '--color-cell-border-thick': 'light-dark(#000000, #ffffff)',
+      '--color-cell-bg-selected': 'light-dark(#e0e0e0, #333333)',
+      '--color-focus-ring': 'light-dark(#000000, #ffffff)',
+      '--page-gradient-start': 'light-dark(#ffffff, #000000)',
+      '--page-gradient-end': 'light-dark(#ffffff, #000000)',
+    };
+  }
   const { colors: c } = theme;
   const brandDark = accessibleOnDark(c.primary, DARK_SURFACE, 4.5);
   const secondaryDark = accessibleOnDark(c.secondary, DARK_SURFACE, 4.5);

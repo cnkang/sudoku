@@ -89,16 +89,15 @@ function detectSystemHighContrast(): boolean {
  * Custom hook for theme management
  */
 export function useTheme(): ThemeContextValue {
-  const [currentThemeId, setCurrentThemeId] = useState<string>(() => {
-    const stored = getStoredTheme();
-    return stored || getDefaultTheme().id;
-  });
+  const [currentThemeId, setCurrentThemeId] = useState(() => getDefaultTheme().id);
+  const [isHighContrastMode, setIsHighContrastMode] = useState(false);
 
-  const [isHighContrastMode, setIsHighContrastMode] = useState<boolean>(() => {
-    const stored = getStoredHighContrast();
-    const systemPreference = detectSystemHighContrast();
-    return stored || systemPreference;
-  });
+  // Keep the server and the first client render in sync before reading browser preferences.
+  useEffect(() => {
+    const stored = getStoredTheme();
+    if (stored) setCurrentThemeId(stored);
+    setIsHighContrastMode(getStoredHighContrast() || detectSystemHighContrast());
+  }, []);
 
   const availableThemes = getAllThemes();
 

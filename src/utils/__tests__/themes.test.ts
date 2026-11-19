@@ -308,6 +308,27 @@ describe('Theme Utilities', () => {
       expect(mockDocument.body.className).toContain('theme-ocean');
     });
 
+    it('replaces palette accents when switching to a high-contrast theme', () => {
+      for (const theme of [
+        THEMES['high-contrast'],
+        AccessibilityManager.generateHighContrastVariant(THEMES.forest),
+      ]) {
+        applyThemeToDocument(THEMES.forest);
+        applyThemeToDocument(theme);
+
+        for (const token of [
+          '--color-brand-primary',
+          '--color-cell-fixed-text',
+          '--color-focus-ring',
+        ]) {
+          const calls = mockRoot.style.setProperty.mock.calls.filter(
+            ([name]: [string]) => name === token,
+          );
+          expect(calls.at(-1)).toEqual([token, 'light-dark(#000000, #ffffff)']);
+        }
+      }
+    });
+
     it('should replace existing theme class', () => {
       mockDocument.body.className = 'existing-class theme-forest other-class';
 

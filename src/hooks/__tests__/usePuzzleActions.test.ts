@@ -131,4 +131,22 @@ describe('usePuzzleActions', () => {
     expect(dispatch).toHaveBeenNthCalledWith(1, { type: 'PAUSE_RESUME' });
     expect(dispatch).toHaveBeenNthCalledWith(2, { type: 'UNDO' });
   });
+
+  it('enforces the child-mode hint budget while leaving adult hints available', () => {
+    const state = createState({
+      puzzle: puzzle.puzzle,
+      solution: puzzle.solution,
+      userInput: puzzle.puzzle,
+      hintsUsed: 3,
+    });
+    const child = setup({ ...state, childMode: true });
+    const adult = setup(state);
+
+    expect(child.result.current.hintsRemaining).toBe(0);
+    act(() => child.result.current.getGameHint());
+    expect(child.dispatch).not.toHaveBeenCalled();
+
+    act(() => adult.result.current.getGameHint());
+    expect(adult.dispatch).toHaveBeenCalledWith({ type: 'USE_HINT' });
+  });
 });

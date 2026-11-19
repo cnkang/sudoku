@@ -8,21 +8,22 @@ const emptyGrid = (size = 9): number[][] =>
 const puzzle = emptyGrid();
 puzzle[0][2] = 3;
 
-const renderGrid = (overrides: Partial<React.ComponentProps<typeof SharedSudokuGrid>> = {}) =>
-  render(
-    <SharedSudokuGrid
-      gridSize={9}
-      maxValue={9}
-      ariaLabel="test grid"
-      performanceLabel="TestGrid"
-      tableClassName="test-grid"
-      puzzle={puzzle}
-      userInput={puzzle.map((row) => [...row])}
-      onInputChange={vi.fn()}
-      accessibilityDefaults={{ highContrast: false, reducedMotion: false, largeText: false }}
-      {...overrides}
-    />,
-  );
+const createGrid = (overrides: Partial<React.ComponentProps<typeof SharedSudokuGrid>> = {}) => (
+  <SharedSudokuGrid
+    gridSize={9}
+    maxValue={9}
+    ariaLabel="test grid"
+    performanceLabel="TestGrid"
+    tableClassName="test-grid"
+    puzzle={puzzle}
+    userInput={puzzle.map((row) => [...row])}
+    onInputChange={vi.fn()}
+    accessibilityDefaults={{ highContrast: false, reducedMotion: false, largeText: false }}
+    {...overrides}
+  />
+);
+const renderGrid = (overrides?: Partial<React.ComponentProps<typeof SharedSudokuGrid>>) =>
+  render(createGrid(overrides));
 
 describe('SharedSudokuGrid interactions', () => {
   beforeEach(() => {
@@ -72,5 +73,19 @@ describe('SharedSudokuGrid interactions', () => {
     fireEvent.click(pad.querySelector('[aria-label="Erase"]') as HTMLElement);
     // Focus auto-advanced to the next empty cell, so erase targets that cell.
     expect(onInputChange).toHaveBeenCalledWith(0, 1, 0);
+  });
+
+  it('clears the number-pad target when a same-size puzzle replaces the current one', () => {
+    const { rerender } = renderGrid({ childMode: true });
+    fireEvent.focus(screen.getByRole('textbox', { name: 'Row 1, Column 1' }));
+    expect(screen.getByRole('group', { name: 'Number pad' })).toBeInTheDocument();
+
+    const newPuzzle = emptyGrid();
+    newPuzzle[0][0] = 3;
+    rerender(createGrid({ childMode: true, puzzle: newPuzzle, userInput: newPuzzle }));
+    expect(screen.queryByRole('group', { name: 'Number pad' })).not.toBeInTheDocument();
+
+    fireEvent.focus(screen.getByRole('textbox', { name: 'Row 1, Column 2' }));
+    expect(screen.getByRole('group', { name: 'Number pad' })).toBeInTheDocument();
   });
 });

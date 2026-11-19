@@ -88,6 +88,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
     handleInputChange,
     checkAnswer,
     getGameHint,
+    hintsRemaining,
     resetGame,
     pauseResumeGame,
     undoMove,
@@ -311,7 +312,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
                     onEncourage={() =>
                       visualFeedback.triggerEncouragement('Keep trying! You can do it! 💪')
                     }
-                    hintsRemaining={Math.max(0, 3 - state.hintsUsed)}
+                    hintsRemaining={hintsRemaining ?? 0}
                     showMagicWand={true}
                     disabled={isGameDisabled || state.isLoading}
                     childMode={state.childMode}
@@ -334,7 +335,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
                   isLoading={state.isLoading}
                   canUndo={state.history.length > 1}
                   hintsUsed={state.hintsUsed}
-                  hintsRemaining={state.childMode ? Math.max(0, 3 - state.hintsUsed) : null}
+                  hintsRemaining={hintsRemaining}
                   confirmReset={true}
                   reducedMotion={state.accessibility.reducedMotion}
                 />

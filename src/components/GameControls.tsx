@@ -123,7 +123,7 @@ const GameControls = React.memo(function GameControls({
     },
     {
       onClick: onHint,
-      disabled: disabled || isCorrect === true || isPaused,
+      disabled: disabled || isCorrect === true || isPaused || hintsRemaining === 0,
       variant: 'info',
       label: hintLabel,
       ariaLabel: 'Get a hint',
