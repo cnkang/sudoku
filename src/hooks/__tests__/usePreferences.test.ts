@@ -129,7 +129,7 @@ describe('usePreferences', () => {
     expect(mockSaveAccessibilitySettings).toHaveBeenCalled();
   });
 
-  it('should save progress stats when they change', () => {
+  it('keeps progress snapshots out of preference saves', () => {
     const { result: gameStateResult } = renderHook(() => useGameState());
     const mockDispatch = vi.fn();
 
@@ -151,7 +151,7 @@ describe('usePreferences', () => {
       vi.advanceTimersByTime(350);
     });
 
-    expect(mockSaveProgressStats).toHaveBeenCalled();
+    expect(mockSaveProgressStats).not.toHaveBeenCalled();
   });
 
   it('should save child mode when it changes', () => {
@@ -331,7 +331,7 @@ describe('usePreferences', () => {
     expect(mockSaveDifficulty).toHaveBeenCalledExactlyOnceWith(7);
     expect(mockSaveChildMode).toHaveBeenCalledExactlyOnceWith(true);
     expect(mockSaveAccessibilitySettings).toHaveBeenCalledExactlyOnceWith(latest.accessibility);
-    expect(mockSaveProgressStats).toHaveBeenCalledExactlyOnceWith(latest.progress);
+    expect(mockSaveProgressStats).not.toHaveBeenCalled();
     unmount();
     vi.clearAllMocks();
     act(() => globalThis.dispatchEvent(new Event('pagehide')));

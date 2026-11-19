@@ -11,6 +11,26 @@ const STORAGE_KEYS = {
   GRID_CONFIG: 'sudoku-grid-config',
   DIFFICULTY: 'sudoku-difficulty',
 } as const;
+const COMPLETION_PREFIX = 'sudoku-progress-completion:';
+type PuzzleCompletion = { gridSize: string; time: number; hintsUsed: number; playedAt: Date };
+
+export function applyPuzzleCompletion(
+  stats: ProgressStats,
+  { time, hintsUsed, playedAt }: PuzzleCompletion,
+): ProgressStats {
+  const puzzlesCompleted = stats.puzzlesCompleted + 1;
+  const totalTime = stats.totalTime + time;
+  return {
+    ...stats,
+    puzzlesCompleted,
+    totalTime,
+    averageTime: totalTime / puzzlesCompleted,
+    bestTime: stats.puzzlesCompleted === 0 ? time : Math.min(stats.bestTime, time),
+    hintsUsed: stats.hintsUsed + hintsUsed,
+    streakCount: stats.streakCount + 1,
+    lastPlayed: !stats.lastPlayed || playedAt > stats.lastPlayed ? playedAt : stats.lastPlayed,
+  };
+}
 
 /**
  * User preferences interface
@@ -82,13 +102,11 @@ const isAccessibilitySettings = (value: unknown): value is AccessibilitySettings
 };
 
 const getLocalStorage = (): Storage | undefined => {
-  if (globalThis.window !== undefined && globalThis.localStorage) {
+  try {
     return globalThis.localStorage;
+  } catch {
+    return undefined;
   }
-  if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
-    return (globalThis as { localStorage?: Storage }).localStorage;
-  }
-  return undefined;
 };
 
 const normalizeDate = (value: unknown): Date | null => {
@@ -232,6 +250,23 @@ export function saveAccessibilitySettings(settings: AccessibilitySettings): void
 /**
  * Load progress statistics from localStorage
  */
+function readCompletionKeys(storage = getLocalStorage()): string[] {
+  if (!storage) return [];
+  return Array.from({ length: storage.length }, (_, index) => storage.key(index)).filter(
+    (key): key is string => key?.startsWith(COMPLETION_PREFIX) ?? false,
+  );
+}
+
+export function recordPuzzleCompletion(completion: PuzzleCompletion): void {
+  // Independent keys make completions durable without a cross-tab read/modify/write.
+  try {
+    const id = Array.from(crypto.getRandomValues(new Uint32Array(4))).join('-');
+    setStorageItem(`${COMPLETION_PREFIX}${id}`, completion);
+  } catch {
+    // Unavailable browser storage cannot prevent the player from completing a puzzle.
+  }
+}
+
 export function loadProgressStats(): Record<string, ProgressStats> {
   const defaultProgress = {
     '4x4': createDefaultProgressStats(),
@@ -244,18 +279,50 @@ export function loadProgressStats(): Record<string, ProgressStats> {
     stored && typeof stored === 'object' ? (stored as Record<string, unknown>) : {};
 
   // Ensure all grid sizes have progress data
-  return {
+  const progress: Record<string, ProgressStats> = {
     '4x4': normalizeProgressStats(storedProgress['4x4']),
     '6x6': normalizeProgressStats(storedProgress['6x6']),
     '9x9': normalizeProgressStats(storedProgress['9x9']),
   };
+
+  try {
+    const storage = getLocalStorage();
+    const keys = readCompletionKeys(storage);
+    const included = new Set(
+      Array.isArray(storedProgress.includedCompletions) ? storedProgress.includedCompletions : [],
+    );
+    for (const key of keys) {
+      if (included.has(key)) continue;
+      try {
+        const value = JSON.parse(storage?.getItem(key) ?? 'null');
+        const playedAt = normalizeDate(value?.playedAt);
+        if (!playedAt || !Object.hasOwn(progress, value?.gridSize)) continue;
+        const gridSize = value.gridSize as string;
+        progress[gridSize] = applyPuzzleCompletion(progress[gridSize]!, {
+          gridSize,
+          time: normalizeNumber(value.time, 0),
+          hintsUsed: normalizeNumber(value.hintsUsed, 0),
+          playedAt,
+        });
+      } catch {
+        // Ignore a corrupt individual completion without losing the other results.
+      }
+    }
+  } catch {
+    // Storage is unavailable. Preserve the progress already loaded.
+  }
+  return progress;
 }
 
 /**
  * Save progress statistics to localStorage
  */
 export function saveProgressStats(progress: Record<string, ProgressStats>): void {
-  setStorageItem(STORAGE_KEYS.PROGRESS, progress);
+  const includedCompletions = readCompletionKeys();
+  setStorageItem(
+    STORAGE_KEYS.PROGRESS,
+    includedCompletions.length ? { ...progress, includedCompletions } : progress,
+  );
 }
 
 /**
@@ -365,7 +432,7 @@ export function clearAllPreferences(): void {
     return;
   }
 
-  Object.values(STORAGE_KEYS).forEach((key) => {
+  [...Object.values(STORAGE_KEYS), ...readCompletionKeys(storage)].forEach((key) => {
     try {
       storage.removeItem(key);
     } catch {
@@ -385,7 +452,7 @@ export function getStorageInfo(): { available: boolean; usage?: number } {
 
   try {
     let totalSize = 0;
-    Object.values(STORAGE_KEYS).forEach((key) => {
+    [...Object.values(STORAGE_KEYS), ...readCompletionKeys(storage)].forEach((key) => {
       const item = storage.getItem(key);
       if (item) {
         totalSize += item.length;

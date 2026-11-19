@@ -7,7 +7,6 @@ import {
   saveChildMode,
   saveDifficulty,
   saveGridConfig,
-  saveProgressStats,
 } from '@/utils/preferences';
 
 /**
@@ -85,7 +84,6 @@ export function usePreferences(state: GameState, dispatch: React.Dispatch<GameAc
 
     saveTimerRef.current = setTimeout(() => {
       saveAccessibilitySettings(state.accessibility);
-      saveProgressStats(state.progress);
       saveChildMode(state.childMode);
       saveGridConfig(state.gridConfig);
       saveDifficulty(state.difficulty);
@@ -96,21 +94,13 @@ export function usePreferences(state: GameState, dispatch: React.Dispatch<GameAc
         clearTimeout(saveTimerRef.current);
       }
     };
-  }, [
-    preferencesReady,
-    state.accessibility,
-    state.progress,
-    state.childMode,
-    state.gridConfig,
-    state.difficulty,
-  ]);
+  }, [preferencesReady, state.accessibility, state.childMode, state.gridConfig, state.difficulty]);
 
   useEffect(() => {
     if (!preferencesReady) return;
     const flush = () => {
       const latest = latestState.current;
       saveAccessibilitySettings(latest.accessibility);
-      saveProgressStats(latest.progress);
       saveChildMode(latest.childMode);
       saveGridConfig(latest.gridConfig);
       saveDifficulty(latest.difficulty);
@@ -168,11 +158,10 @@ export function usePreferences(state: GameState, dispatch: React.Dispatch<GameAc
    */
   const savePreferences = useCallback(() => {
     saveAccessibilitySettings(state.accessibility);
-    saveProgressStats(state.progress);
     saveChildMode(state.childMode);
     saveGridConfig(state.gridConfig);
     saveDifficulty(state.difficulty);
-  }, [state.accessibility, state.progress, state.childMode, state.gridConfig, state.difficulty]);
+  }, [state.accessibility, state.childMode, state.gridConfig, state.difficulty]);
 
   return {
     preferencesReady,

@@ -7,6 +7,7 @@ import type {
   ProgressStats,
 } from '../types';
 import { GRID_CONFIGS } from '../utils/gridConfig';
+import { applyPuzzleCompletion } from '../utils/preferences';
 import { normalizeDifficulty } from '../utils/validation';
 import { usePreferences } from './usePreferences';
 
@@ -87,11 +88,16 @@ const getProgressStats = (progress: Record<string, ProgressStats>, gridSize: str
 const handlePuzzleLifecycle = (state: GameState, action: GameAction): GameState | undefined => {
   switch (action.type) {
     case 'SET_PUZZLE': {
-      const { puzzle, solution } = action.payload;
+      const { puzzle, solution, gridConfig = state.gridConfig } = action.payload;
       const initialUserInput = puzzle.map((row) => row.map((val) => (val === 0 ? 0 : val)));
       return {
         ...state,
         completionRecorded: false,
+        gridConfig,
+        childMode:
+          gridConfig.size === state.gridConfig.size
+            ? state.childMode
+            : gridConfig.childFriendly.enableAnimations,
         difficulty: action.payload.difficulty,
         puzzle,
         solution,
@@ -364,14 +370,8 @@ const handleProgressUpdates = (state: GameState, action: GameAction): GameState 
 
     case 'COMPLETE_PUZZLE': {
       if (state.completionRecorded) return state;
-      const { gridSize, time, hintsUsed } = action.payload;
+      const { gridSize, time, hintsUsed, playedAt = new Date() } = action.payload;
       const currentStats = getProgressStats(state.progress, gridSize);
-      const newPuzzlesCompleted = currentStats.puzzlesCompleted + 1;
-      const newTotalTime = currentStats.totalTime + time;
-      const newAverageTime = newTotalTime / newPuzzlesCompleted;
-      const newBestTime =
-        currentStats.bestTime === 0 ? time : Math.min(currentStats.bestTime, time);
-      const newStreakCount = currentStats.streakCount + 1;
 
       return {
         ...state,
@@ -379,16 +379,7 @@ const handleProgressUpdates = (state: GameState, action: GameAction): GameState 
         timerActive: false,
         progress: {
           ...state.progress,
-          [gridSize]: {
-            ...currentStats,
-            puzzlesCompleted: newPuzzlesCompleted,
-            totalTime: newTotalTime,
-            averageTime: newAverageTime,
-            bestTime: newBestTime,
-            hintsUsed: currentStats.hintsUsed + hintsUsed,
-            streakCount: newStreakCount,
-            lastPlayed: new Date(),
-          },
+          [gridSize]: applyPuzzleCompletion(currentStats, { gridSize, time, hintsUsed, playedAt }),
         },
       };
     }
