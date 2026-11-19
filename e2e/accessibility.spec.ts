@@ -12,6 +12,11 @@ async function waitForAppReady(page: import('@playwright/test').Page) {
     timeout: 15000,
   });
   await expect(page.locator('table[data-grid-size="9"]')).toBeVisible();
+  const board = await page.locator('table[data-grid-size="9"]').boundingBox();
+  expect(
+    board?.width,
+    'the board must have real layout width, not a clipped 0-width parent',
+  ).toBeGreaterThan(280);
   await expect(page.locator('#grid-option-4')).toHaveCount(1);
 }
 
