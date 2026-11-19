@@ -80,7 +80,7 @@
 }
 
 .btnDanger:hover:not(:disabled) {
-  background-color: #b91c1c;
+  background-color: #7f1d1d;
   transform: translateY(-1px);
   box-shadow: var(--shadow-e2);
 }
@@ -102,7 +102,7 @@
 }
 
 .btnWarning:hover:not(:disabled) {
-  background-color: #a16207;
+  background-color: #451a03;
   transform: translateY(-1px);
   box-shadow: var(--shadow-e2);
 }
@@ -124,7 +124,7 @@
 }
 
 .btnInfo:hover:not(:disabled) {
-  background-color: #1d4ed8;
+  background-color: #1e3a8a;
   transform: translateY(-1px);
   box-shadow: var(--shadow-e2);
 }

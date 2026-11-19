@@ -12,8 +12,15 @@
   justify-content: center;
   z-index: 1000;
   padding: 1rem;
-  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   animation: fadeIn 0.3s ease-out;
+}
+
+/* @supports shields the standard declaration from the CSS optimizer. */
+@supports (backdrop-filter: blur(1px)) {
+  .overlay {
+    backdrop-filter: blur(4px);
+  }
 }
 
 @keyframes fadeIn {

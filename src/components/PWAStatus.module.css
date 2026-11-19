@@ -14,10 +14,10 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: #fff3cd;
-  border: 1px solid #ffeaa7;
+  background: var(--color-warning-bg, #fef3c7);
+  border: 1px solid var(--color-warning, #713f12);
   border-radius: 8px;
-  color: #856404;
+  color: var(--color-warning, #713f12);
   font-size: 0.875rem;
   font-weight: 500;
   animation: slideIn 0.3s ease-out;
@@ -39,8 +39,8 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: #0077be;
-  color: white;
+  background: var(--color-brand-primary, #1e3a8a);
+  color: var(--color-brand-primary-fg, #ffffff);
   border: none;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -55,9 +55,9 @@
 }
 
 .installButton:hover:not(:disabled) {
-  background: #005a9e;
+  background: var(--color-brand-primary-hover, #1e40af);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 119, 190, 0.3);
+  box-shadow: var(--shadow-e2);
 }
 
 .installButton:active:not(:disabled) {
@@ -76,11 +76,11 @@
 
 /* Update Notification */
 .updateNotification {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--color-bg-elevated, #ffffff);
+  border: 1px solid var(--color-border-default, #cbd5e1);
   border-radius: 12px;
   padding: 1rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-e3);
   animation: slideIn 0.3s ease-out;
   max-width: 320px;
 }
@@ -103,7 +103,7 @@
 }
 
 .updateText strong {
-  color: #0077be;
+  color: var(--color-brand-primary, #1e3a8a);
   font-size: 0.875rem;
   font-weight: 600;
   display: block;
@@ -111,7 +111,7 @@
 }
 
 .updateText p {
-  color: #666;
+  color: var(--color-fg-secondary, #334155);
   font-size: 0.8125rem;
   line-height: 1.4;
   margin: 0;
@@ -129,8 +129,8 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: #0077be;
-  color: white;
+  background: var(--color-brand-primary, #1e3a8a);
+  color: var(--color-brand-primary-fg, #ffffff);
   border: none;
   border-radius: 6px;
   font-size: 0.8125rem;
@@ -141,7 +141,7 @@
 }
 
 .updateButton:hover:not(:disabled) {
-  background: #005a9e;
+  background: var(--color-brand-primary-hover, #1e40af);
 }
 
 .updateButton:disabled {
@@ -152,8 +152,8 @@
 .dismissButton {
   padding: 0.5rem 0.75rem;
   background: transparent;
-  color: #666;
-  border: 1px solid #e5e7eb;
+  color: var(--color-fg-secondary, #334155);
+  border: 1px solid var(--color-border-default, #cbd5e1);
   border-radius: 6px;
   font-size: 0.8125rem;
   font-weight: 500;
@@ -165,8 +165,8 @@
 }
 
 .dismissButton:hover:not(:disabled) {
-  background: #f9fafb;
-  border-color: #d1d5db;
+  background: var(--color-bg-secondary, #f8fafc);
+  border-color: var(--color-border-strong, #64748b);
 }
 
 .dismissButton:disabled {
@@ -209,10 +209,10 @@
 .debugInfo {
   margin-top: 1rem;
   padding: 0.75rem;
-  background: #f3f4f6;
+  background: var(--color-bg-tertiary, #f1f5f9);
   border-radius: 8px;
   font-size: 0.75rem;
-  color: #374151;
+  color: var(--color-fg-secondary, #334155);
 }
 
 .debugInfo details {

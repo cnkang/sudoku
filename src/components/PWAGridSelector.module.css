@@ -31,8 +31,15 @@
   min-height: 3rem;
   background: var(--color-pwa-status-background, rgba(255, 255, 255, 0.8));
   border-radius: 0.75rem;
-  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--color-pwa-status-border, rgba(255, 255, 255, 0.2));
+}
+
+/* @supports shields the standard declaration from the CSS optimizer. */
+@supports (backdrop-filter: blur(1px)) {
+  .pwaStatus {
+    backdrop-filter: blur(10px);
+  }
 }
 
 .statusLeft,

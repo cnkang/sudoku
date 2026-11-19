@@ -35,9 +35,14 @@ export const Grid6x6 = memo<Grid6x6Props>(
   }) => {
     const getSubGridBorders = useCallback(
       (row: number, col: number) => ({
-        borderRight: col === 2 || col === 5 ? '3px solid #1f2937' : '1px solid #d1d5db',
+        borderRight:
+          col === 2 || col === 5
+            ? '3px solid var(--color-cell-border-thick, #1e3a8a)'
+            : '1px solid var(--color-cell-border, #cbd5e1)',
         borderBottom:
-          row === 1 || row === 3 || row === 5 ? '3px solid #1f2937' : '1px solid #d1d5db',
+          row === 1 || row === 3 || row === 5
+            ? '3px solid var(--color-cell-border-thick, #1e3a8a)'
+            : '1px solid var(--color-cell-border, #cbd5e1)',
       }),
       [],
     );

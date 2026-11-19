@@ -3,7 +3,7 @@
  * Implements Requirements 1.2, 2.1, 2.2 for child-friendly 4x4 Sudoku
  */
 
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import type { GridConfig } from '@/types';
 import SharedSudokuGrid from './SharedSudokuGrid';
 
@@ -33,6 +33,19 @@ export const Grid4x4 = memo<Grid4x4Props>(
     childMode = true,
     accessibility = {},
   }) => {
+    const getSubGridBorders = useCallback(
+      (row: number, col: number) => ({
+        borderRight:
+          col === 1 || col === 3
+            ? '3px solid var(--color-cell-border-thick, #1e3a8a)'
+            : '1px solid var(--color-cell-border, #cbd5e1)',
+        borderBottom:
+          row === 1 || row === 3
+            ? '3px solid var(--color-cell-border-thick, #1e3a8a)'
+            : '1px solid var(--color-cell-border, #cbd5e1)',
+      }),
+      [],
+    );
     return (
       <SharedSudokuGrid
         gridSize={4}
@@ -52,6 +65,7 @@ export const Grid4x4 = memo<Grid4x4Props>(
           reducedMotion: false,
           largeText: true,
         }}
+        getSubGridBorders={getSubGridBorders}
         childHints={[
           '🌟 Use numbers 1, 2, 3, and 4!',
           '🎯 Each row, column, and 2×2 box needs all four numbers!',
