@@ -73,9 +73,13 @@ export const Grid9x9 = memo<Grid9x9Props>(
     const getSubGridBorders = useCallback(
       (row: number, col: number) => ({
         borderRight:
-          col === 2 || col === 5 || col === 8 ? '3px solid #1f2937' : '1px solid #d1d5db',
+          col === 2 || col === 5 || col === 8
+            ? '3px solid var(--color-cell-border-thick, #1e3a8a)'
+            : '1px solid var(--color-cell-border, #cbd5e1)',
         borderBottom:
-          row === 2 || row === 5 || row === 8 ? '3px solid #1f2937' : '1px solid #d1d5db',
+          row === 2 || row === 5 || row === 8
+            ? '3px solid var(--color-cell-border-thick, #1e3a8a)'
+            : '1px solid var(--color-cell-border, #cbd5e1)',
       }),
       [],
     );

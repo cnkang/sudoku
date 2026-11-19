@@ -1,5 +1,9 @@
 .timer { font-size: 1.2rem; font-weight: 600; margin: 1rem 0; }
-.label { color: var(--theme-text, #374151); }
+/* State colors come from mode-aware design tokens (AAA in light and dark). */
+.idle { color: var(--color-fg-tertiary, #64748b); }
+.active { color: var(--color-success, #166534); }
+.paused { color: var(--color-warning, #ca8a04); }
+.label { color: var(--color-fg-secondary, #334155); }
 .value { font-family: var(--font-mono, monospace); font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
 .status { font-size: 0.9rem; font-style: italic; }
 @media (max-width: 768px) {

@@ -12,14 +12,14 @@ const formatTime = (seconds: number): string => {
 
 const Timer: React.FC<TimerProps> = memo(({ time, isActive, isPaused }) => {
   'use memo';
-  let timerColor = '#6b7280';
+  let stateClass = styles.idle;
   if (isPaused) {
-    timerColor = '#92400e';
+    stateClass = styles.paused;
   } else if (isActive) {
-    timerColor = '#047857';
+    stateClass = styles.active;
   }
   return (
-    <div className={`timer ${styles.timer}`} style={{ color: timerColor }}>
+    <div className={`timer ${styles.timer} ${stateClass}`}>
       <span className={`timer-label ${styles.label}`}>Time: </span>
       <span className={`timer-value ${styles.value}`}>{formatTime(time)}</span>
       {isPaused && <span className={`timer-status ${styles.status}`}> (Paused)</span>}

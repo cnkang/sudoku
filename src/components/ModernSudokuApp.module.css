@@ -27,7 +27,6 @@
 .gameArea {
   width: 100%;
   background: var(--color-bg-glass);
-  backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--color-glass-border);
   border-radius: var(--radius-card);
@@ -40,6 +39,14 @@
   container-name: game-area;
   position: relative;
   z-index: 1;
+}
+
+/* See apple-design-system.css: @supports keeps the standard declaration
+   alive through the CSS optimizer; -webkit- above covers legacy Safari. */
+@supports (backdrop-filter: blur(1px)) {
+  .gameArea {
+    backdrop-filter: blur(20px) saturate(180%);
+  }
 }
 
 @media (prefers-contrast: more) {

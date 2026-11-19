@@ -21,11 +21,17 @@
   gap: var(--space-6);
   padding: var(--space-6);
   background: linear-gradient(135deg, var(--color-bg-glass) 0%, var(--color-bg-glass-strong) 100%);
-  backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: var(--radius-3xl);
   box-shadow: var(--shadow-glass);
   border: 1px solid var(--color-glass-border);
+}
+
+/* @supports shields the standard declaration from the CSS optimizer. */
+@supports (backdrop-filter: blur(1px)) {
+  .childMode {
+    backdrop-filter: blur(20px) saturate(180%);
+  }
 }
 
 /* --- Extra Large Touch Targets for Accessibility --- */
