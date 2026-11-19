@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import type { GameControlsProps } from '@/types';
 import { useSpring, SPRING_PRESETS } from '@/hooks/useSpring';
 import styles from './GameControls.module.css';
@@ -26,6 +26,9 @@ const GameControls = React.memo(function GameControls({
   const [isResetCooldown, setIsResetCooldown] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const resetButtonRef = useRef<HTMLButtonElement>(null);
+  const cancelResetRef = useRef<HTMLButtonElement>(null);
+  const resetDescriptionId = useId();
 
   const spring0 = useSpring(0, { config: SPRING_PRESETS.stiff, reducedMotion });
   const spring1 = useSpring(0, { config: SPRING_PRESETS.stiff, reducedMotion });
@@ -92,6 +95,15 @@ const GameControls = React.memo(function GameControls({
     }
     handleReset();
   }, [confirmReset, canUndo, handleReset]);
+
+  useEffect(() => {
+    if (showResetConfirm) cancelResetRef.current?.focus();
+  }, [showResetConfirm]);
+
+  const cancelReset = () => {
+    setShowResetConfirm(false);
+    resetButtonRef.current?.focus();
+  };
 
   const buttons: Array<{
     onClick: () => void;
@@ -160,6 +172,7 @@ const GameControls = React.memo(function GameControls({
         {buttons.map((btn, index) => (
           <button
             key={btn.ariaLabel}
+            ref={btn.variant === 'danger' ? resetButtonRef : undefined}
             type="button"
             onClick={createPressHandler(index, btn.onClick)}
             disabled={btn.disabled}
@@ -178,8 +191,16 @@ const GameControls = React.memo(function GameControls({
       </div>
 
       {showResetConfirm && (
-        <div className={styles.resetConfirm} role="alertdialog" aria-label="Start a new puzzle?">
-          <span>Discard current progress and start a new puzzle?</span>
+        <div
+          className={styles.resetConfirm}
+          role="alertdialog"
+          aria-label="Start a new puzzle?"
+          aria-describedby={resetDescriptionId}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') cancelReset();
+          }}
+        >
+          <span id={resetDescriptionId}>Discard current progress and start a new puzzle?</span>
           <button
             type="button"
             className={styles.resetConfirmYes}
@@ -191,9 +212,10 @@ const GameControls = React.memo(function GameControls({
             New puzzle
           </button>
           <button
+            ref={cancelResetRef}
             type="button"
             className={styles.resetConfirmNo}
-            onClick={() => setShowResetConfirm(false)}
+            onClick={cancelReset}
           >
             Cancel
           </button>
