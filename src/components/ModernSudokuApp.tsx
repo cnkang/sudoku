@@ -182,8 +182,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
                 data-testid="header-contrast-toggle"
                 onClick={toggleHighContrast}
               >
-                <span aria-hidden="true">{isHighContrastMode ? '🌙' : '☀️'}</span>
-                Contrast
+                <span aria-hidden="true">{isHighContrastMode ? '🌙' : '☀️'}</span> Contrast
               </button>
             </header>
 
@@ -268,10 +267,10 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
 
               {/* Pause overlay: hide the board while paused */}
               {state.isPaused && (
-                <div className={styles.pauseOverlay} role="status" data-testid="pause-overlay">
-                  <span aria-hidden="true">⏸</span> Paused
+                <output className={styles.pauseOverlay} data-testid="pause-overlay">
+                  <span aria-hidden="true">⏸</span> Paused{' '}
                   <span className={styles.pauseOverlayHint}>Resume to keep playing</span>
-                </div>
+                </output>
               )}
 
               {/* Hint Display */}
@@ -289,9 +288,9 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
           ) : (
             <div className={styles.gridContainer} aria-busy="true">
               <div className={styles.skeletonBoard} aria-hidden="true" />
-              <span className={styles.srOnly} role="status">
+              <output className={styles.srOnly}>
                 {state.childMode ? 'Creating your puzzle...' : 'Generating puzzle...'}
-              </span>
+              </output>
             </div>
           )}
 

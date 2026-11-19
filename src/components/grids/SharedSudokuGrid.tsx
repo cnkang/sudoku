@@ -367,7 +367,7 @@ const NumberPad = memo<NumberPadProps>(({ gridSize, selectedCell, disabled, onKe
   if (!selectedCell) return null;
 
   return (
-    <div className={styles.numberPad} role="group" aria-label="Number pad">
+    <fieldset className={styles.numberPad} aria-label="Number pad">
       {Array.from({ length: gridSize }, (_, i) => i + 1).map((num) => (
         <button
           key={num}
@@ -389,7 +389,7 @@ const NumberPad = memo<NumberPadProps>(({ gridSize, selectedCell, disabled, onKe
       >
         ⌫
       </button>
-    </div>
+    </fieldset>
   );
 });
 

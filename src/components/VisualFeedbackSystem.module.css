@@ -499,6 +499,11 @@
     animation: none;
   }
 
+  .success,
+  .gentleErrorPattern {
+    animation: none;
+  }
+
   .contrastToggle {
     transition: none;
   }

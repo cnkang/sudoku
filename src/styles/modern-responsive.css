@@ -857,6 +857,10 @@
 
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
+  :root {
+    --child-animation-duration: 0ms;
+  }
+
   .modern-transition {
     transition: none;
   }

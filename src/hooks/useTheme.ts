@@ -53,7 +53,9 @@ function getStoredHighContrast(): boolean | null {
 
   try {
     const stored = globalThis.localStorage.getItem(HIGH_CONTRAST_STORAGE_KEY);
-    return stored === 'true' ? true : stored === 'false' ? false : null;
+    if (stored === 'true') return true;
+    if (stored === 'false') return false;
+    return null;
   } catch {
     return null;
   }
