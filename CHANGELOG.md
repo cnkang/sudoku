@@ -30,8 +30,7 @@ actual game surfaces, and completion and reset behave as players expect.
   the board digits, grid lines and primary buttons in both light and dark mode.
 - Reset is labelled New Puzzle; adult mode shows a plain Hint label while child
   mode shows the number of hints remaining.
-- Contrast and responsive quality gates were repaired and now validate semantic
-  token pairs in both color schemes.
+- The contrast gate now validates semantic token pairs in both color schemes.
 
 ### Fixed
 - Restored missing design tokens, corrected WCAG contrast values that were
@@ -48,14 +47,32 @@ actual game surfaces, and completion and reset behave as players expect.
 - Fixed the mobile and landscape title collapse and removed the always-visible
   horizontal-scroll hint on desktop.
 - Kept grid-size selection visible and keyboard-focusable for all users.
+- Preserved saved completions when another tab closes and kept records from
+  multiple tabs without overwriting one another.
+- Kept the current board, entries, and undo history when loading a new grid size
+  or difficulty fails.
+- Made all three grid sizes available offline after the initial online load.
+- Made New Puzzle deal a different board offline when a previous board is cached.
+- Preserved successful network responses when the service worker cannot read or
+  write its cache, including when browser storage is full.
+- Accepted same-origin requests on self-hosted production aliases by checking
+  the incoming host and port.
+- Made Large Text enlarge both given and editable digits.
+- Kept the app’s contrast setting in sync with OS changes until the player makes
+  an explicit choice.
+- Moved keyboard focus to Cancel when the New Puzzle confirmation opens and
+  restored focus when it is dismissed.
+- Made `pnpm test:responsive` report the responsive test result directly. Run
+  `pnpm test:coverage` for the full coverage gate.
 
 ### Tests
 - Added grid interaction tests for selection highlights, auto-advance and the
   touch number pad, plus control tests for the new-puzzle confirmation and hint
   labels.
 - Expanded the contrast validator to 26 token pairs per color mode.
-- All 1097 unit and property tests, 27 responsive tests and 16 Chromium end-to-end
-  tests pass.
+- Added regression coverage for simultaneous-tab progress, failed puzzle loads,
+  offline grid switching and refresh, cache failures, self-hosted origins, and
+  the accessibility settings.
 
 ### Upgrade notes
 - Use Node.js 24.22.1 and pnpm 12.15.0 to install dependencies and build the app.
