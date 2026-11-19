@@ -137,10 +137,11 @@
   line-height: 1.5;
 }
 
-/* Grid Options Container */
+/* Grid Options Container — three cards, three columns; stack on narrow
+   containers so no card is left orphaned in a two-column row. */
 .gridOptions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.875rem;
   margin-bottom: 1rem;
 }
@@ -441,7 +442,7 @@
     }
 
     .gridOptions {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: 1fr;
       gap: 0.5rem;
       margin-bottom: 0.5rem;
     }

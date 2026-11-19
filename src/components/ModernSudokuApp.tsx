@@ -134,43 +134,64 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
       <div className={`${styles.modernApp} ${state.childMode ? styles.childMode : ''}`}>
         {/* Main Game Area */}
         <section className={styles.gameArea} aria-label="Game area">
-          {/* Game Header */}
-          <header className={styles.gameHeader}>
-            <h1 className={styles.title}>{state.childMode ? 'Sudoku Fun!' : 'Sudoku Challenge'}</h1>
-            <p className={styles.subtitle}>
-              {state.childMode
-                ? `Playing ${currentGridConfig.size}×${currentGridConfig.size} - Have fun learning!`
-                : `${currentGridConfig.size}×${currentGridConfig.size} Grid - Test your logic`}
-            </p>
-          </header>
-
-          {/* Error Display */}
-          {state.error && (
-            <div
-              className={`${styles.errorMessage} ${state.childMode ? styles.childError : ''}`}
-              role="alert"
-              aria-live="assertive"
-            >
-              <span>
-                {state.childMode ? 'Oops! ' : ''}
-                {state.error}
-              </span>
+          <div className={styles.headerBlock}>
+            {/* Game Header */}
+            <header className={styles.gameHeader}>
+              <div className={styles.headerText}>
+                <h1 className={styles.title}>
+                  {state.childMode ? 'Sudoku Fun!' : 'Sudoku Challenge'}
+                </h1>
+                <p className={styles.subtitle}>
+                  {state.childMode
+                    ? `Playing ${currentGridConfig.size}×${currentGridConfig.size} - Have fun learning!`
+                    : `${currentGridConfig.size}×${currentGridConfig.size} Grid - Test your logic`}
+                </p>
+              </div>
               <button
                 type="button"
+                className={styles.headerContrastToggle}
+                aria-pressed={isHighContrastMode}
+                aria-label={`${isHighContrastMode ? 'Disable' : 'Enable'} high contrast mode`}
+                data-testid="header-contrast-toggle"
                 onClick={() => {
-                  clearError();
-                  if (!state.puzzle) void fetchPuzzle();
+                  handleAccessibilityChange({
+                    highContrast: !state.accessibility.highContrast,
+                  });
                 }}
-                className={styles.errorDismiss}
-                aria-label={state.puzzle ? 'Dismiss error' : 'Retry loading puzzle'}
               >
-                ×
+                <span aria-hidden="true">{isHighContrastMode ? '🌙' : '☀️'}</span>
+                Contrast
               </button>
-            </div>
-          )}
+            </header>
 
-          {/* Game Controls */}
-          <div className={styles.controlsSection}>
+            {/* Error Display */}
+            {state.error && (
+              <div
+                className={`${styles.errorMessage} ${state.childMode ? styles.childError : ''}`}
+                role="alert"
+                aria-live="assertive"
+              >
+                <span>
+                  {state.childMode ? 'Oops! ' : ''}
+                  {state.error}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearError();
+                    if (!state.puzzle) void fetchPuzzle();
+                  }}
+                  className={styles.errorDismiss}
+                  aria-label={state.puzzle ? 'Dismiss error' : 'Retry loading puzzle'}
+                >
+                  ×
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Difficulty (rail item on desktop) */}
+          <div className={styles.railDifficulty}>
             <Suspense
               fallback={
                 <output
@@ -190,7 +211,10 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
                 isLoading={state.isLoading}
               />
             </Suspense>
+          </div>
 
+          {/* Timer (rail item on desktop) */}
+          <div className={styles.railTimer}>
             {state.puzzle && (
               <Timer time={state.time} isActive={state.timerActive} isPaused={state.isPaused} />
             )}
@@ -200,18 +224,28 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
           {/* Sudoku Grid */}
           {state.puzzle ? (
             <div className={styles.gridContainer}>
-              <Suspense fallback={<div className={styles.gridLoading}>Loading puzzle...</div>}>
-                <LazyGridRouter
-                  gridConfig={currentGridConfig}
-                  puzzle={state.puzzle}
-                  userInput={optimisticUserInput}
-                  onInputChange={handleInputChange}
-                  disabled={isGameDisabled || state.isLoading}
-                  hintCell={state.showHint}
-                  childMode={state.childMode}
-                  accessibility={state.accessibility}
-                />
-              </Suspense>
+              <div inert={state.isPaused || undefined} aria-hidden={state.isPaused || undefined}>
+                <Suspense fallback={<div className={styles.gridLoading}>Loading puzzle...</div>}>
+                  <LazyGridRouter
+                    gridConfig={currentGridConfig}
+                    puzzle={state.puzzle}
+                    userInput={optimisticUserInput}
+                    onInputChange={handleInputChange}
+                    disabled={isGameDisabled || state.isLoading}
+                    hintCell={state.showHint}
+                    childMode={state.childMode}
+                    accessibility={state.accessibility}
+                  />
+                </Suspense>
+              </div>
+
+              {/* Pause overlay: hide the board while paused */}
+              {state.isPaused && (
+                <div className={styles.pauseOverlay} role="status" data-testid="pause-overlay">
+                  <span aria-hidden="true">⏸</span> Paused
+                  <span className={styles.pauseOverlayHint}>Resume to keep playing</span>
+                </div>
+              )}
 
               {/* Hint Display */}
               {state.showHint && (
@@ -227,9 +261,10 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
             </div>
           ) : (
             <div className={styles.gridContainer} aria-busy="true">
-              <div className={styles.gridLoading}>
+              <div className={styles.skeletonBoard} aria-hidden="true" />
+              <span className={styles.srOnly} role="status">
                 {state.childMode ? 'Creating your puzzle...' : 'Generating puzzle...'}
-              </div>
+              </span>
             </div>
           )}
 
@@ -283,65 +318,75 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
         {enablePWA && (
           <section className={styles.pwaSection} aria-label="PWA and grid size settings">
             <PWAStatus />
-            <Suspense
-              fallback={
-                <output
-                  className={styles.controlSkeleton}
-                  aria-busy="true"
-                  aria-label="Loading PWA grid selector"
-                />
-              }
-            >
-              <LazyPWAGridSelector
-                currentSize={currentGridConfig.size}
-                onSizeChange={handleGridSizeChange}
-                childMode={state.childMode}
-                showDescriptions={state.childMode}
-                disabled={isGridSelectorDisabled}
-                offlineMode={enableOfflineMode && status.isOffline}
-                onInstallPrompt={installApp}
-                notificationPermission={notificationPermission}
-              />
-            </Suspense>
+            <details className={styles.sectionDrawer}>
+              <summary>Grid Size</summary>
+              <div className={styles.sectionDrawerBody}>
+                <Suspense
+                  fallback={
+                    <output
+                      className={styles.controlSkeleton}
+                      aria-busy="true"
+                      aria-label="Loading PWA grid selector"
+                    />
+                  }
+                >
+                  <LazyPWAGridSelector
+                    currentSize={currentGridConfig.size}
+                    onSizeChange={handleGridSizeChange}
+                    childMode={state.childMode}
+                    showDescriptions={state.childMode}
+                    disabled={isGridSelectorDisabled}
+                    offlineMode={enableOfflineMode && status.isOffline}
+                    onInstallPrompt={installApp}
+                    notificationPermission={notificationPermission}
+                  />
+                </Suspense>
+              </div>
+            </details>
           </section>
         )}
 
         {/* Accessibility Controls */}
         <section className={styles.accessibilitySection} aria-label="Accessibility settings">
-          <Suspense
-            fallback={
-              <output
-                className={styles.controlSkeleton}
-                aria-busy="true"
-                aria-label="Loading accessibility controls"
-              />
-            }
-          >
-            <LazyAccessibilityControls
-              currentTheme={currentTheme}
-              availableThemes={availableThemes}
-              highContrast={isHighContrastMode}
-              reducedMotion={state.accessibility.reducedMotion}
-              largeText={state.accessibility.largeText}
-              onThemeChange={setTheme}
-              onHighContrastToggle={() => {
-                handleAccessibilityChange({
-                  highContrast: !state.accessibility.highContrast,
-                });
-              }}
-              onReducedMotionToggle={() =>
-                handleAccessibilityChange({
-                  reducedMotion: !state.accessibility.reducedMotion,
-                })
-              }
-              onLargeTextToggle={() =>
-                handleAccessibilityChange({
-                  largeText: !state.accessibility.largeText,
-                })
-              }
-              childMode={state.childMode}
-            />
-          </Suspense>
+          <details className={styles.sectionDrawer}>
+            <summary>Accessibility &amp; Theme</summary>
+            <div className={styles.sectionDrawerBody}>
+              <Suspense
+                fallback={
+                  <output
+                    className={styles.controlSkeleton}
+                    aria-busy="true"
+                    aria-label="Loading accessibility controls"
+                  />
+                }
+              >
+                <LazyAccessibilityControls
+                  currentTheme={currentTheme}
+                  availableThemes={availableThemes}
+                  highContrast={isHighContrastMode}
+                  reducedMotion={state.accessibility.reducedMotion}
+                  largeText={state.accessibility.largeText}
+                  onThemeChange={setTheme}
+                  onHighContrastToggle={() => {
+                    handleAccessibilityChange({
+                      highContrast: !state.accessibility.highContrast,
+                    });
+                  }}
+                  onReducedMotionToggle={() =>
+                    handleAccessibilityChange({
+                      reducedMotion: !state.accessibility.reducedMotion,
+                    })
+                  }
+                  onLargeTextToggle={() =>
+                    handleAccessibilityChange({
+                      largeText: !state.accessibility.largeText,
+                    })
+                  }
+                  childMode={state.childMode}
+                />
+              </Suspense>
+            </div>
+          </details>
         </section>
 
         {/* Visual Feedback System */}
