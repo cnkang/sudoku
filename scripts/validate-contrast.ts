@@ -1,32 +1,36 @@
 #!/usr/bin/env tsx
 /**
- * WCAG AAA Contrast Ratio Validator
+ * WCAG Contrast Ratio Validator
  *
- * Validates that all color combinations in the design system meet
- * WCAG AAA contrast requirements (7:1 minimum).
+ * Validates that the color combinations documented in the Apple design system
+ * meet their intended WCAG levels in BOTH light and dark mode:
+ * - Body/UI text on primary surfaces: AAA (7:1)
+ * - Tertiary text and semantic text on tinted backgrounds: AA (4.5:1)
+ * - Non-text UI boundaries (focus ring, strong border): 3:1 (WCAG 1.4.11)
  *
  * This script:
- * 1. Parses the design-system.css file to extract color values
- * 2. Calculates contrast ratios for all foreground/background pairs
- * 3. Validates against WCAG AAA standard (7:1)
- * 4. Fails the build if any combination doesn't meet the standard
+ * 1. Parses apple-design-system.css (light :root and dark-mode :root)
+ * 2. Calculates contrast ratios for the documented foreground/background pairs
+ * 3. Fails if any combination misses its required level
  *
  * Usage:
- *   pnpm tsx scripts/validate-contrast.ts
- *   node --loader tsx scripts/validate-contrast.ts
+ *   pnpm test:contrast
  */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-// WCAG AAA contrast ratio requirement
+// WCAG contrast ratio requirements
 const WCAG_AAA_RATIO = 7;
+const WCAG_AA_RATIO = 4.5;
+const WCAG_NON_TEXT_RATIO = 3;
 
 interface ColorPair {
   foreground: string;
   background: string;
   foregroundName: string;
   backgroundName: string;
+  requiredRatio: number;
 }
 
 interface ValidationResult {
@@ -39,6 +43,7 @@ interface ValidationResult {
 type ColorPairDefinition = {
   foregroundName: string;
   backgroundName: string;
+  requiredRatio?: number;
 };
 
 /**
@@ -75,7 +80,6 @@ function getRelativeLuminance(rgb: { r: number; g: number; b: number }): number 
   const rsRGB = rgb.r / 255;
   const gsRGB = rgb.g / 255;
   const bsRGB = rgb.b / 255;
-
   const r = rsRGB <= 0.03928 ? rsRGB / 12.92 : ((rsRGB + 0.055) / 1.055) ** 2.4;
   const g = gsRGB <= 0.03928 ? gsRGB / 12.92 : ((gsRGB + 0.055) / 1.055) ** 2.4;
   const b = bsRGB <= 0.03928 ? bsRGB / 12.92 : ((bsRGB + 0.055) / 1.055) ** 2.4;
@@ -97,7 +101,6 @@ function getContrastRatio(color1: string, color2: string): number {
 
   const lum1 = getRelativeLuminance(rgb1);
   const lum2 = getRelativeLuminance(rgb2);
-
   const lighter = Math.max(lum1, lum2);
   const darker = Math.min(lum1, lum2);
 
@@ -108,42 +111,57 @@ function getContrastRatio(color1: string, color2: string): number {
  * Determine WCAG level based on contrast ratio
  */
 function getWCAGLevel(ratio: number): 'AAA' | 'AA' | 'FAIL' {
-  if (ratio >= 7) return 'AAA';
-  if (ratio >= 4.5) return 'AA';
+  if (ratio >= WCAG_AAA_RATIO) return 'AAA';
+  if (ratio >= WCAG_AA_RATIO) return 'AA';
   return 'FAIL';
 }
 
 /**
- * Parse CSS file to extract color values
- * Only extracts colors from the main :root section (light mode)
+ * Extract --color-* hex declarations from a CSS block.
+ * Only hex values are considered; light-dark() and rgba() tokens are skipped.
  */
-function parseColorsFromCSS(cssContent: string): Map<string, string> {
+function extractColorDeclarations(block: string): Map<string, string> {
   const colors = new Map<string, string>();
-
-  // Find the main :root block (before any media queries)
-  const rootStart = cssContent.indexOf(':root {');
-  if (rootStart === -1) {
-    throw new Error('Could not find :root section in CSS');
-  }
-
-  // Find the end of the first :root block (before @media)
-  const mediaQueryStart = cssContent.indexOf('@media', rootStart);
-  const rootEnd = mediaQueryStart === -1 ? cssContent.length : mediaQueryStart;
-  const rootContent = cssContent.substring(rootStart, rootEnd);
-
-  // Match CSS custom property declarations: --color-name: #HEXVALUE;
-  const colorRegex = /--color-([a-z-]+):\s*(#[0-9A-Fa-f]{3,6})/g;
-
-  for (const match of rootContent.matchAll(colorRegex)) {
+  const colorRegex = /--color-([a-z-]+):\s*(#[0-9A-Fa-f]{3,6})\b/g;
+  for (const match of block.matchAll(colorRegex)) {
     const colorName = match[1];
     const colorValue = match[2];
-    // Only store the first occurrence of each color
     if (colorName && colorValue && !colors.has(colorName)) {
       colors.set(colorName, colorValue);
     }
   }
-
   return colors;
+}
+
+/**
+ * Parse the light-mode :root block (before any media queries).
+ */
+function parseColorsFromCSS(cssContent: string): Map<string, string> {
+  const rootStart = cssContent.indexOf(':root {');
+  if (rootStart === -1) {
+    throw new Error('Could not find :root section in CSS');
+  }
+  const mediaQueryStart = cssContent.indexOf('@media', rootStart);
+  const rootEnd = mediaQueryStart === -1 ? cssContent.length : mediaQueryStart;
+  return extractColorDeclarations(cssContent.substring(rootStart, rootEnd));
+}
+
+/**
+ * Parse the dark-mode :root block inside @media (prefers-color-scheme: dark).
+ */
+function parseDarkColorsFromCSS(cssContent: string): Map<string, string> {
+  const darkStart = cssContent.indexOf('@media (prefers-color-scheme: dark)');
+  if (darkStart === -1) {
+    throw new Error('Could not find dark-mode section in CSS');
+  }
+  const rootStart = cssContent.indexOf(':root {', darkStart);
+  if (rootStart === -1) {
+    throw new Error('Could not find dark-mode :root block in CSS');
+  }
+  // The dark block ends at the next top-level at-rule (@supports / @media).
+  const nextAtRule = cssContent.slice(rootStart).search(/\n@(supports|media)/);
+  const rootEnd = nextAtRule === -1 ? cssContent.length : rootStart + nextAtRule;
+  return extractColorDeclarations(cssContent.substring(rootStart, rootEnd));
 }
 
 function addPairIfPresent(
@@ -151,6 +169,7 @@ function addPairIfPresent(
   colors: Map<string, string>,
   foregroundName: string,
   backgroundName: string,
+  requiredRatio: number = WCAG_AAA_RATIO,
 ): void {
   const foreground = colors.get(foregroundName);
   const background = colors.get(backgroundName);
@@ -164,20 +183,8 @@ function addPairIfPresent(
     background,
     foregroundName,
     backgroundName,
+    requiredRatio,
   });
-}
-
-function addCrossProductPairs(
-  pairs: ColorPair[],
-  colors: Map<string, string>,
-  foregrounds: string[],
-  backgrounds: string[],
-): void {
-  for (const backgroundName of backgrounds) {
-    for (const foregroundName of foregrounds) {
-      addPairIfPresent(pairs, colors, foregroundName, backgroundName);
-    }
-  }
 }
 
 function addDefinedPairs(
@@ -185,33 +192,64 @@ function addDefinedPairs(
   colors: Map<string, string>,
   definitions: ColorPairDefinition[],
 ): void {
-  for (const { foregroundName, backgroundName } of definitions) {
-    addPairIfPresent(pairs, colors, foregroundName, backgroundName);
+  for (const { foregroundName, backgroundName, requiredRatio } of definitions) {
+    addPairIfPresent(pairs, colors, foregroundName, backgroundName, requiredRatio);
   }
 }
 
 /**
- * Define color combinations to test
- * These represent actual usage patterns in the application
+ * Documented usage patterns of the Apple design system tokens.
+ * Names omit the shared --color- prefix.
  */
 function getColorCombinationsToTest(colors: Map<string, string>): ColorPair[] {
   const pairs: ColorPair[] = [];
-  const backgrounds = ['cream', 'cream-dark'];
-  const primaryForegrounds = ['coral', 'amber', 'teal', 'indigo', 'charcoal', 'slate'];
-  const accentForegrounds = ['hot-pink', 'electric', 'lime'];
-  const semanticPairs: ColorPairDefinition[] = [
-    { foregroundName: 'teal', backgroundName: 'cream' }, // success
-    { foregroundName: 'amber', backgroundName: 'cream' }, // warning
-    { foregroundName: 'coral', backgroundName: 'cream' }, // error
-    { foregroundName: 'indigo', backgroundName: 'cream' }, // hint
+  const definitions: ColorPairDefinition[] = [
+    // Primary text on surfaces — AAA
+    { foregroundName: 'fg-primary', backgroundName: 'bg-primary' },
+    { foregroundName: 'fg-primary', backgroundName: 'bg-secondary' },
+    { foregroundName: 'fg-primary', backgroundName: 'bg-elevated' },
+    { foregroundName: 'fg-secondary', backgroundName: 'bg-primary' },
+    { foregroundName: 'fg-secondary', backgroundName: 'bg-secondary' },
+    // Tertiary text is documented as hints-only — AA
+    { foregroundName: 'fg-tertiary', backgroundName: 'bg-primary', requiredRatio: WCAG_AA_RATIO },
+    // Brand actions — AAA on surface, AA for label-on-fill minimum
+    { foregroundName: 'brand-primary', backgroundName: 'bg-primary' },
+    { foregroundName: 'brand-primary-fg', backgroundName: 'brand-primary' },
+    { foregroundName: 'brand-secondary', backgroundName: 'bg-primary' },
+    {
+      foregroundName: 'brand-secondary-fg',
+      backgroundName: 'brand-secondary',
+      requiredRatio: WCAG_AA_RATIO,
+    },
+    // Semantic text on surfaces — AAA; on tinted badges / as badge fill — AA
+    { foregroundName: 'success', backgroundName: 'bg-primary' },
+    { foregroundName: 'success', backgroundName: 'success-bg', requiredRatio: WCAG_AA_RATIO },
+    { foregroundName: 'success-fg', backgroundName: 'success', requiredRatio: WCAG_AA_RATIO },
+    { foregroundName: 'warning', backgroundName: 'bg-primary' },
+    { foregroundName: 'warning', backgroundName: 'warning-bg', requiredRatio: WCAG_AA_RATIO },
+    { foregroundName: 'warning-fg', backgroundName: 'warning', requiredRatio: WCAG_AA_RATIO },
+    { foregroundName: 'error', backgroundName: 'bg-primary' },
+    { foregroundName: 'error', backgroundName: 'error-bg', requiredRatio: WCAG_AA_RATIO },
+    { foregroundName: 'error-fg', backgroundName: 'error', requiredRatio: WCAG_AA_RATIO },
+    { foregroundName: 'info', backgroundName: 'bg-primary' },
+    { foregroundName: 'info', backgroundName: 'info-bg', requiredRatio: WCAG_AA_RATIO },
+    { foregroundName: 'info-fg', backgroundName: 'info', requiredRatio: WCAG_AA_RATIO },
+    // Grid digits — AAA
+    { foregroundName: 'cell-fixed-text', backgroundName: 'cell-bg' },
+    { foregroundName: 'cell-input-text', backgroundName: 'cell-bg' },
+    // Non-text UI boundaries — WCAG 1.4.11 (3:1)
+    {
+      foregroundName: 'focus-ring',
+      backgroundName: 'bg-primary',
+      requiredRatio: WCAG_NON_TEXT_RATIO,
+    },
+    {
+      foregroundName: 'border-strong',
+      backgroundName: 'bg-primary',
+      requiredRatio: WCAG_NON_TEXT_RATIO,
+    },
   ];
-  const darkTextForegrounds = ['charcoal', 'slate'];
-
-  addCrossProductPairs(pairs, colors, primaryForegrounds, backgrounds);
-  addCrossProductPairs(pairs, colors, accentForegrounds, backgrounds);
-  addDefinedPairs(pairs, colors, semanticPairs);
-  addCrossProductPairs(pairs, colors, darkTextForegrounds, backgrounds);
-
+  addDefinedPairs(pairs, colors, definitions);
   return pairs;
 }
 
@@ -226,7 +264,7 @@ function validateContrast(pairs: ColorPair[]): ValidationResult[] {
     return {
       pair,
       ratio,
-      passes: ratio >= WCAG_AAA_RATIO,
+      passes: ratio >= pair.requiredRatio,
       wcagLevel,
     };
   });
@@ -235,18 +273,18 @@ function validateContrast(pairs: ColorPair[]): ValidationResult[] {
 /**
  * Format validation results for console output
  */
-function formatResults(results: ValidationResult[]): string {
+function formatResults(results: ValidationResult[], mode: string): string {
   const passed = results.filter((r) => r.passes);
   const failed = results.filter((r) => !r.passes);
 
   let output = '\n';
   output += '═══════════════════════════════════════════════════════════\n';
-  output += '  WCAG AAA Contrast Ratio Validation Report\n';
+  output += `  WCAG Contrast Validation — ${mode} mode\n`;
   output += '═══════════════════════════════════════════════════════════\n\n';
 
   output += `Total combinations tested: ${results.length}\n`;
-  output += `✓ Passed (≥7:1): ${passed.length}\n`;
-  output += `✗ Failed (<7:1): ${failed.length}\n\n`;
+  output += `✓ Passed: ${passed.length}\n`;
+  output += `✗ Failed: ${failed.length}\n\n`;
 
   if (failed.length > 0) {
     output += '───────────────────────────────────────────────────────────\n';
@@ -258,7 +296,7 @@ function formatResults(results: ValidationResult[]): string {
       output += `  Foreground: ${result.pair.foreground}\n`;
       output += `  Background: ${result.pair.background}\n`;
       output += `  Ratio: ${result.ratio.toFixed(2)}:1 (${result.wcagLevel})\n`;
-      output += `  Required: ${WCAG_AAA_RATIO}:1 (AAA)\n\n`;
+      output += `  Required: ${result.pair.requiredRatio}:1\n\n`;
     }
   }
 
@@ -268,7 +306,7 @@ function formatResults(results: ValidationResult[]): string {
     output += '───────────────────────────────────────────────────────────\n\n';
 
     for (const result of passed) {
-      output += `✓ ${result.pair.foregroundName} on ${result.pair.backgroundName}: ${result.ratio.toFixed(2)}:1\n`;
+      output += `✓ ${result.pair.foregroundName} on ${result.pair.backgroundName}: ${result.ratio.toFixed(2)}:1 (needs ${result.pair.requiredRatio}:1)\n`;
     }
     output += '\n';
   }
@@ -283,25 +321,19 @@ function formatResults(results: ValidationResult[]): string {
  */
 function main(): void {
   try {
-    // Read design system CSS file
-    const cssPath = join(process.cwd(), 'src', 'styles', 'design-system.css');
+    const cssPath = join(process.cwd(), 'src', 'styles', 'apple-design-system.css');
     const cssContent = readFileSync(cssPath, 'utf-8');
 
-    // Parse colors
-    const colors = parseColorsFromCSS(cssContent);
+    const lightColors = parseColorsFromCSS(cssContent);
+    const darkColors = parseDarkColorsFromCSS(cssContent);
 
-    // Get color combinations to test
-    const pairs = getColorCombinationsToTest(colors);
+    const lightResults = validateContrast(getColorCombinationsToTest(lightColors));
+    const darkResults = validateContrast(getColorCombinationsToTest(darkColors));
 
-    // Validate contrast ratios
-    const results = validateContrast(pairs);
+    process.stdout.write(formatResults(lightResults, 'light'));
+    process.stdout.write(formatResults(darkResults, 'dark'));
 
-    // Output results
-    const report = formatResults(results);
-    process.stdout.write(report);
-
-    // Exit with error if any combinations failed
-    const failedCount = results.filter((r) => !r.passes).length;
+    const failedCount = [...lightResults, ...darkResults].filter((r) => !r.passes).length;
     if (failedCount > 0) {
       process.exit(1);
     }
@@ -320,6 +352,7 @@ export {
   getContrastRatio,
   getWCAGLevel,
   parseColorsFromCSS,
+  parseDarkColorsFromCSS,
   getColorCombinationsToTest,
   validateContrast,
 };
