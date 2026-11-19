@@ -630,6 +630,23 @@ export function getHighContrastThemes(): ThemeConfig[] {
 }
 
 /**
+ * Mode-aware tokens owned by the Apple design system (light-dark() / media
+ * queries). Theme palettes are static values; letting them override these
+ * would freeze error/success/border colors in light mode and break dark mode.
+ * Theme accents reach components through the --color-primary / --color-surface
+ * namespace instead.
+ */
+const DESIGN_SYSTEM_OWNED_VARS = new Set([
+  '--color-cell-border',
+  '--color-cell-border-thick',
+  '--color-success',
+  '--color-warning',
+  '--color-error',
+  '--color-info',
+  '--color-hover',
+]);
+
+/**
  * Apply theme CSS variables to document
  */
 export function applyThemeToDocument(theme: ThemeConfig): void {
@@ -637,8 +654,9 @@ export function applyThemeToDocument(theme: ThemeConfig): void {
 
   const root = document.documentElement;
 
-  // Apply CSS custom properties
+  // Apply CSS custom properties (except design-system-owned mode-aware tokens)
   Object.entries(theme.cssVariables).forEach(([property, value]) => {
+    if (DESIGN_SYSTEM_OWNED_VARS.has(property)) return;
     root.style.setProperty(property, value);
   });
 
