@@ -377,6 +377,37 @@ describe('GameControls', () => {
     });
   });
 
+  describe('Reset confirmation and hint labels', () => {
+    it('confirms before starting a new puzzle when progress exists', () => {
+      render(<GameControls {...mockProps} confirmReset={true} canUndo={true} />);
+      const reset = screen.getByRole('button', { name: /start a new puzzle/i });
+      expect(reset).toHaveTextContent('New Puzzle');
+
+      fireEvent.click(reset);
+      expect(mockProps.onReset).not.toHaveBeenCalled();
+      expect(screen.getByRole('alertdialog', { name: /start a new puzzle/i })).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: 'New puzzle' }));
+      expect(mockProps.onReset).toHaveBeenCalledTimes(1);
+    });
+
+    it('cancels the new-puzzle confirmation', () => {
+      render(<GameControls {...mockProps} confirmReset={true} canUndo={true} />);
+      fireEvent.click(screen.getByRole('button', { name: /start a new puzzle/i }));
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+      expect(mockProps.onReset).not.toHaveBeenCalled();
+    });
+
+    it('shows remaining hints for children and a plain label for adults', () => {
+      const { rerender } = render(<GameControls {...mockProps} hintsRemaining={2} hintsUsed={1} />);
+      expect(screen.getByRole('button', { name: /get a hint/i })).toHaveTextContent('Hint (2)');
+
+      rerender(<GameControls {...mockProps} hintsRemaining={null} hintsUsed={1} />);
+      expect(screen.getByRole('button', { name: /get a hint/i })).toHaveTextContent('Hint');
+    });
+  });
+
   describe('Undo Button States', () => {
     it('should enable undo button when canUndo is true', () => {
       render(<GameControls {...mockProps} canUndo={true} />);
