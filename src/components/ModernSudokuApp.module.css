@@ -258,6 +258,15 @@
   position: relative;
 }
 
+/* The board wrapper must be a full-width flex item: an unstyled centered flex
+   item has an indefinite width, so the grid's width:100% and 100cqw cell sizing
+   collapse to zero and the board disappears. */
+.gridBoardWrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
 .gridLoading {
   display: flex;
   align-items: center;

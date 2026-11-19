@@ -252,7 +252,11 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
           {/* Sudoku Grid */}
           {state.puzzle ? (
             <div className={styles.gridContainer}>
-              <div inert={state.isPaused || undefined} aria-hidden={state.isPaused || undefined}>
+              <div
+                className={styles.gridBoardWrapper}
+                inert={state.isPaused || undefined}
+                aria-hidden={state.isPaused || undefined}
+              >
                 <Suspense fallback={<div className={styles.gridLoading}>Loading puzzle...</div>}>
                   <LazyGridRouter
                     gridConfig={currentGridConfig}
