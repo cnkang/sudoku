@@ -48,14 +48,14 @@ function storeTheme(themeId: string): void {
 /**
  * Get stored high contrast preference
  */
-function getStoredHighContrast(): boolean {
-  if (globalThis.window === undefined) return false;
+function getStoredHighContrast(): boolean | null {
+  if (globalThis.window === undefined) return null;
 
   try {
     const stored = globalThis.localStorage.getItem(HIGH_CONTRAST_STORAGE_KEY);
-    return stored === 'true';
+    return stored === 'true' ? true : stored === 'false' ? false : null;
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -90,13 +90,16 @@ function detectSystemHighContrast(): boolean {
  */
 export function useTheme(): ThemeContextValue {
   const [currentThemeId, setCurrentThemeId] = useState(() => getDefaultTheme().id);
-  const [isHighContrastMode, setIsHighContrastMode] = useState(false);
+  const [contrastPreference, setContrastPreference] = useState<boolean | null>(null);
+  const [systemHighContrast, setSystemHighContrast] = useState(false);
+  const isHighContrastMode = contrastPreference ?? systemHighContrast;
 
   // Keep the server and the first client render in sync before reading browser preferences.
   useEffect(() => {
     const stored = getStoredTheme();
     if (stored) setCurrentThemeId(stored);
-    setIsHighContrastMode(getStoredHighContrast() || detectSystemHighContrast());
+    setContrastPreference(getStoredHighContrast());
+    setSystemHighContrast(detectSystemHighContrast());
   }, []);
 
   const availableThemes = getAllThemes();
@@ -131,7 +134,7 @@ export function useTheme(): ThemeContextValue {
   // Toggle high contrast function
   const toggleHighContrast = useCallback(() => {
     const newValue = !isHighContrastMode;
-    setIsHighContrastMode(newValue);
+    setContrastPreference(newValue);
     storeHighContrast(newValue);
   }, [isHighContrastMode]);
 
@@ -155,13 +158,7 @@ export function useTheme(): ThemeContextValue {
     try {
       const mediaQuery = globalThis.matchMedia('(prefers-contrast: more)');
 
-      const handleChange = (e: MediaQueryListEvent) => {
-        // Only update if user hasn't explicitly set a preference
-        const storedPreference = getStoredHighContrast();
-        if (storedPreference === null) {
-          setIsHighContrastMode(e.matches);
-        }
-      };
+      const handleChange = (event: MediaQueryListEvent) => setSystemHighContrast(event.matches);
 
       // Using passive: true for better performance (Requirement 8.1)
       mediaQuery.addEventListener('change', handleChange, { passive: true });

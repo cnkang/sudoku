@@ -393,10 +393,14 @@ describe('GameControls', () => {
 
     it('cancels the new-puzzle confirmation', () => {
       render(<GameControls {...mockProps} confirmReset={true} canUndo={true} />);
-      fireEvent.click(screen.getByRole('button', { name: /start a new puzzle/i }));
-      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+      const trigger = screen.getByRole('button', { name: /start a new puzzle/i });
+      fireEvent.click(trigger);
+      const cancel = screen.getByRole('button', { name: 'Cancel' });
+      expect(cancel).toHaveFocus();
+      fireEvent.click(cancel);
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
       expect(mockProps.onReset).not.toHaveBeenCalled();
+      expect(trigger).toHaveFocus();
     });
 
     it('shows remaining hints for children and a plain label for adults', () => {

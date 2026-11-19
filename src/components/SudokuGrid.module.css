@@ -292,8 +292,9 @@
 }
 
 /* Large text accessibility option */
-.largeText {
-  font-size: var(--text-mono-xl);
+.largeText .fixedNumber,
+.largeText .cellInput {
+  font-size: min(var(--text-mono-xl), var(--cell-effective));
   font-weight: 700;
 }
 

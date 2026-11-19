@@ -6,7 +6,7 @@
 'use client';
 
 import type React from 'react';
-import { Profiler, Suspense, useContext, useEffect, useRef, useState } from 'react';
+import { Profiler, Suspense, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { useGameTimer } from '@/hooks/useGameTimer';
 import { useOptimisticSudoku } from '@/hooks/useOptimisticSudoku';
@@ -54,10 +54,15 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
     useGameState(initialGridSize, initialChildMode);
   const { trackRender, trackTransition } = usePerformanceTracking('ModernSudokuApp');
   const { status } = usePWA();
+  const isHighContrastMode = themeContext?.isHighContrastMode ?? false;
+  const accessibility = useMemo(
+    () => ({ ...state.accessibility, highContrast: isHighContrastMode }),
+    [state.accessibility, isHighContrastMode],
+  );
 
   const visualFeedback = useVisualFeedback({
     childMode: state.childMode,
-    highContrast: state.accessibility.highContrast,
+    highContrast: isHighContrastMode,
     reducedMotion: state.accessibility.reducedMotion,
     enableHapticFeedback: true,
     enableSoundEffects: false,
@@ -69,15 +74,6 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
   );
 
   const [renderTime, setRenderTime] = useState(0);
-
-  useEffect(() => {
-    if (
-      preferencesReady &&
-      themeContext &&
-      themeContext.isHighContrastMode !== state.accessibility.highContrast
-    )
-      themeContext.toggleHighContrast();
-  }, [preferencesReady, themeContext, state.accessibility.highContrast]);
 
   // Memoized grid configuration
   const currentGridConfig = state.gridConfig;
@@ -148,7 +144,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
 
   if (!themeContext) return null;
 
-  const { currentTheme, availableThemes, setTheme, isHighContrastMode } = themeContext;
+  const { currentTheme, availableThemes, setTheme, toggleHighContrast } = themeContext;
 
   const isGameDisabled = state.isPaused || state.isCorrect === true;
   const isTransitioningOrLoading = state.isLoading;
@@ -184,11 +180,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
                 aria-pressed={isHighContrastMode}
                 aria-label={`${isHighContrastMode ? 'Disable' : 'Enable'} high contrast mode`}
                 data-testid="header-contrast-toggle"
-                onClick={() => {
-                  handleAccessibilityChange({
-                    highContrast: !state.accessibility.highContrast,
-                  });
-                }}
+                onClick={toggleHighContrast}
               >
                 <span aria-hidden="true">{isHighContrastMode ? '🌙' : '☀️'}</span>
                 Contrast
@@ -269,7 +261,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
                     disabled={isGameDisabled || state.isLoading}
                     hintCell={state.showHint}
                     childMode={state.childMode}
-                    accessibility={state.accessibility}
+                    accessibility={accessibility}
                   />
                 </Suspense>
               </div>
@@ -320,7 +312,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
                     childMode={state.childMode}
                     gridConfig={currentGridConfig}
                     reducedMotion={state.accessibility.reducedMotion}
-                    highContrast={state.accessibility.highContrast}
+                    highContrast={isHighContrastMode}
                   />
                 </Suspense>
               )}
@@ -397,11 +389,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
                   reducedMotion={state.accessibility.reducedMotion}
                   largeText={state.accessibility.largeText}
                   onThemeChange={setTheme}
-                  onHighContrastToggle={() => {
-                    handleAccessibilityChange({
-                      highContrast: !state.accessibility.highContrast,
-                    });
-                  }}
+                  onHighContrastToggle={toggleHighContrast}
                   onReducedMotionToggle={() =>
                     handleAccessibilityChange({
                       reducedMotion: !state.accessibility.reducedMotion,
@@ -424,7 +412,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
           <LazyVisualFeedbackSystem
             theme={currentTheme}
             childMode={state.childMode}
-            highContrast={state.accessibility.highContrast}
+            highContrast={isHighContrastMode}
             reducedMotion={state.accessibility.reducedMotion}
           >
             {(triggers) => {

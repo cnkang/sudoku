@@ -107,6 +107,33 @@ test.describe('Accessibility E2E', () => {
     expect(hydrationErrors).toEqual([]);
   });
 
+  test('updates the board contrast when the system setting changes', async ({ page }) => {
+    await page.emulateMedia({ contrast: 'no-preference' });
+    await waitForAppReady(page);
+    const contrastToggle = page.getByRole('button', { name: /high contrast mode/i });
+    await expect(contrastToggle).toHaveAttribute('aria-pressed', 'false');
+    await page.emulateMedia({ contrast: 'more' });
+    await expect(contrastToggle).toHaveAttribute('aria-pressed', 'true');
+    await contrastToggle.click();
+    await page.reload();
+    await expect(contrastToggle).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  test('enlarges given and editable board digits', async ({ page }) => {
+    await waitForAppReady(page);
+    const given = page.locator('table [aria-label*="given"]').first();
+    const editable = page.locator('table input').first();
+    const fontSize = (element: typeof given) =>
+      element.evaluate((node) => Number.parseFloat(getComputedStyle(node).fontSize));
+    const [givenBefore, editableBefore] = await Promise.all([fontSize(given), fontSize(editable)]);
+
+    await page.getByText('Accessibility & Theme', { exact: true }).click();
+    await page.getByText('Large Text', { exact: true }).click();
+
+    await expect.poll(() => fontSize(given)).toBeGreaterThan(givenBefore);
+    await expect.poll(() => fontSize(editable)).toBeGreaterThan(editableBefore);
+  });
+
   test('should respect reduced-motion preference', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await waitForAppReady(page);
