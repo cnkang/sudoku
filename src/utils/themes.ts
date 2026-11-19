@@ -646,6 +646,75 @@ const DESIGN_SYSTEM_OWNED_VARS = new Set([
   '--color-hover',
 ]);
 
+/* -------------------------------------------------------------------------- */
+/* Theme → design-system accents (mode-aware)                                  */
+/* -------------------------------------------------------------------------- */
+
+const DARK_SURFACE = '#0f172a';
+
+/** Mix a hex color toward white (amount 0..1). */
+function lighten(hex: string, amount: number): string {
+  const clean = hex.replace('#', '');
+  const channels = [0, 2, 4].map((offset) => Number.parseInt(clean.slice(offset, offset + 2), 16));
+  return `#${channels
+    .map((channel) =>
+      Math.round(channel + (255 - channel) * amount)
+        .toString(16)
+        .padStart(2, '0'),
+    )
+    .join('')}`;
+}
+
+/** Mix a hex color toward a dark surface (amount 0..1). */
+function darken(hex: string, amount: number, toward = DARK_SURFACE): string {
+  const clean = hex.replace('#', '');
+  const target = toward.replace('#', '');
+  return `#${[0, 2, 4]
+    .map((offset) => {
+      const value = Number.parseInt(clean.slice(offset, offset + 2), 16);
+      const destination = Number.parseInt(target.slice(offset, offset + 2), 16);
+      return Math.round(value + (destination - value) * amount)
+        .toString(16)
+        .padStart(2, '0');
+    })
+    .join('')}`;
+}
+
+/** Lighten until the color clears the contrast floor on a dark surface. */
+function accessibleOnDark(hex: string, background: string, minimum: number): string {
+  for (let amount = 0.1; amount <= 0.95; amount += 0.05) {
+    const candidate = lighten(hex, amount);
+    if (calculateContrastRatio(candidate, background) >= minimum) return candidate;
+  }
+  return '#f8fafc';
+}
+
+/**
+ * Emit design-system accent tokens as light-dark() pairs so a theme restyles
+ * the actual game UI (board digits, grid lines, primary buttons) in BOTH
+ * modes. Semantic status tokens stay owned by the design system.
+ */
+function generateDesignSystemOverrides(theme: ThemeConfig): Record<string, string> {
+  if (theme.id === 'high-contrast') return {};
+  const { colors: c } = theme;
+  const brandDark = accessibleOnDark(c.primary, DARK_SURFACE, 4.5);
+  const secondaryDark = accessibleOnDark(c.secondary, DARK_SURFACE, 4.5);
+  return {
+    '--color-brand-primary': `light-dark(${c.primary}, ${brandDark})`,
+    '--color-brand-primary-hover': `light-dark(${c.primaryHover}, ${lighten(brandDark, 0.1)})`,
+    '--color-brand-primary-active': `light-dark(${c.primaryActive}, ${lighten(brandDark, 0.2)})`,
+    '--color-brand-primary-fg': `light-dark(${c.textOnPrimary}, ${DARK_SURFACE})`,
+    '--color-brand-secondary': `light-dark(${c.secondary}, ${secondaryDark})`,
+    '--color-brand-secondary-fg': `light-dark(${c.textOnSecondary}, ${DARK_SURFACE})`,
+    '--color-cell-fixed-text': `light-dark(${c.primary}, ${accessibleOnDark(c.primary, '#1e293b', 7)})`,
+    '--color-cell-border-thick': `light-dark(${c.cellBorderThick}, ${lighten(c.cellBorderThick, 0.45)})`,
+    '--color-cell-bg-selected': `light-dark(${c.cellBackgroundSelected}, ${darken(c.cellBackgroundSelected, 0.75)})`,
+    '--color-focus-ring': `light-dark(${c.focus}, ${accessibleOnDark(c.focus, DARK_SURFACE, 3)})`,
+    '--page-gradient-start': `light-dark(${c.backgroundSecondary}, #0b1220)`,
+    '--page-gradient-end': `light-dark(${c.background}, #020617)`,
+  };
+}
+
 /**
  * Apply theme CSS variables to document
  */
@@ -657,6 +726,12 @@ export function applyThemeToDocument(theme: ThemeConfig): void {
   // Apply CSS custom properties (except design-system-owned mode-aware tokens)
   Object.entries(theme.cssVariables).forEach(([property, value]) => {
     if (DESIGN_SYSTEM_OWNED_VARS.has(property)) return;
+    root.style.setProperty(property, value);
+  });
+
+  // Theme accents on design-system tokens (mode-aware light-dark() pairs).
+  // These are the tokens the board and primary buttons actually consume.
+  Object.entries(generateDesignSystemOverrides(theme)).forEach(([property, value]) => {
     root.style.setProperty(property, value);
   });
 

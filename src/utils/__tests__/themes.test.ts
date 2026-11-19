@@ -282,6 +282,16 @@ describe('Theme Utilities', () => {
         theme.colors.background,
       );
 
+      // Theme accents reach the design-system tokens as mode-aware pairs
+      expect(mockRoot.style.setProperty).toHaveBeenCalledWith(
+        '--color-brand-primary',
+        expect.stringContaining(`light-dark(${theme.colors.primary},`),
+      );
+      expect(mockRoot.style.setProperty).toHaveBeenCalledWith(
+        '--color-cell-fixed-text',
+        expect.stringContaining(`light-dark(${theme.colors.primary},`),
+      );
+
       // Check accessibility properties
       expect(mockRoot.style.setProperty).toHaveBeenCalledWith(
         '--focus-indicator-width',
