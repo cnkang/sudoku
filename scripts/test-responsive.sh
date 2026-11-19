@@ -7,8 +7,8 @@ echo "=========================================="
 # 运行所有响应式测试
 echo "📱 Running mobile and responsive component tests..."
 pnpm exec vitest run --reporter=verbose \
-  "src/components/__tests__/*.responsive.test.tsx" \
-  "src/app/__tests__/*.responsive.test.tsx"
+  src/components/__tests__/*.responsive.test.tsx \
+  src/app/__tests__/*.responsive.test.tsx
 
 # 检查测试结果
 if [[ $? -eq 0 ]]; then
@@ -21,9 +21,8 @@ fi
 echo ""
 echo "🎯 Running coverage for responsive components..."
 pnpm exec vitest run --coverage \
-  "src/components/__tests__/SudokuGrid.responsive.test.tsx" \
-  "src/components/__tests__/GameControls.responsive.test.tsx" \
-  "src/app/__tests__/page.responsive.test.tsx"
+  src/components/__tests__/GameControls.responsive.test.tsx \
+  src/app/__tests__/page.responsive.test.tsx
 
 echo ""
 echo "📊 Test Summary:"
