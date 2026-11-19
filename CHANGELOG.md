@@ -54,11 +54,12 @@ actual game surfaces, and completion and reset behave as players expect.
   touch number pad, plus control tests for the new-puzzle confirmation and hint
   labels.
 - Expanded the contrast validator to 26 token pairs per color mode.
-- All 1094 unit and property tests, 27 responsive tests and 15 Chromium end-to-end
+- All 1097 unit and property tests, 27 responsive tests and 16 Chromium end-to-end
   tests pass.
 
 ### Upgrade notes
-- No runtime or API contract changes. The app version header now reports 3.2.0.
+- Use Node.js 24.22.1 and pnpm 12.15.0 to install dependencies and build the app.
+- The API contract is unchanged. The app version header now reports 3.2.0.
 - Existing progress and preferences remain in local browser storage; no migration
   is needed.
 

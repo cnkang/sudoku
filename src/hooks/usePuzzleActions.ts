@@ -38,6 +38,7 @@ export interface PuzzleActions {
   handleInputChange: (row: number, col: number, value: number) => void;
   checkAnswer: (inputOverride?: number[][]) => void;
   getGameHint: () => void;
+  hintsRemaining: number | null;
   resetGame: () => void;
   pauseResumeGame: () => void;
   undoMove: () => void;
@@ -251,8 +252,10 @@ export function usePuzzleActions({
     ],
   );
 
+  const hintsRemaining = state.childMode ? Math.max(0, 3 - state.hintsUsed) : null;
   const getGameHint = useCallback(() => {
     if (
+      hintsRemaining === 0 ||
       state.isCorrect ||
       state.isPaused ||
       state.isLoading ||
@@ -288,6 +291,7 @@ export function usePuzzleActions({
       visualFeedback.triggerEncouragement("Here's a helpful hint! You've got this! 💡");
     }
   }, [
+    hintsRemaining,
     state.isCorrect,
     state.isPaused,
     state.isLoading,
@@ -320,6 +324,7 @@ export function usePuzzleActions({
     handleInputChange,
     checkAnswer,
     getGameHint,
+    hintsRemaining,
     resetGame,
     pauseResumeGame,
     undoMove,

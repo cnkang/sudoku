@@ -90,6 +90,23 @@ test.describe('Accessibility E2E', () => {
     expect(hasVisibleOutline || hasVisibleShadow || isMovedIntoViewport).toBe(true);
   });
 
+  test('keeps Sudoku digits legible in dark high contrast', async ({ page }) => {
+    const hydrationErrors: string[] = [];
+    page.on('pageerror', (error) => {
+      if (/hydration/i.test(error.message)) hydrationErrors.push(error.message);
+    });
+    await page.emulateMedia({ colorScheme: 'dark', contrast: 'more' });
+    await waitForAppReady(page);
+
+    const board = page.locator('table[data-grid-size="9"]');
+    const given = board.locator('[aria-label*="given"]').first();
+    const input = board.getByRole('textbox').first();
+    await expect(given).toHaveCSS('color', 'rgb(255, 255, 255)');
+    await expect(input).toHaveCSS('color', 'rgb(255, 255, 255)');
+    await expect(given.locator('..')).toHaveCSS('background-color', 'rgb(0, 0, 0)');
+    expect(hydrationErrors).toEqual([]);
+  });
+
   test('should respect reduced-motion preference', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await waitForAppReady(page);

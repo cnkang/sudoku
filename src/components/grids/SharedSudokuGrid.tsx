@@ -76,14 +76,14 @@ const SharedSudokuGrid = memo<SharedSudokuGridProps>(
       [accessibility, accessibilityDefaults],
     );
 
-    const [selectedCellInternal, setSelectedCellInternal] = useState<Cell | null>(null);
-    const selectedCell = selectedCellProp ?? selectedCellInternal;
+    const [selection, setSelection] = useState<{ puzzle: number[][]; cell: Cell } | null>(null);
+    const selectedCell = selectedCellProp ?? (selection?.puzzle === puzzle ? selection.cell : null);
     const setSelectedCell = useCallback(
       (cell: Cell | null) => {
         if (onSelectionChange) onSelectionChange(cell);
-        else setSelectedCellInternal(cell);
+        else setSelection(cell ? { puzzle, cell } : null);
       },
-      [onSelectionChange],
+      [onSelectionChange, puzzle],
     );
 
     // Coarse-pointer detection is client-only (SSR-safe).

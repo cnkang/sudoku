@@ -403,8 +403,12 @@ describe('GameControls', () => {
       const { rerender } = render(<GameControls {...mockProps} hintsRemaining={2} hintsUsed={1} />);
       expect(screen.getByRole('button', { name: /get a hint/i })).toHaveTextContent('Hint (2)');
 
+      rerender(<GameControls {...mockProps} hintsRemaining={0} hintsUsed={3} />);
+      expect(screen.getByRole('button', { name: /get a hint/i })).toBeDisabled();
+
       rerender(<GameControls {...mockProps} hintsRemaining={null} hintsUsed={1} />);
       expect(screen.getByRole('button', { name: /get a hint/i })).toHaveTextContent('Hint');
+      expect(screen.getByRole('button', { name: /get a hint/i })).toBeEnabled();
     });
   });
 
