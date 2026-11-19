@@ -154,6 +154,26 @@ describe('/api/solveSudoku', () => {
     }
   });
   describe('Valid Requests', () => {
+    it('uses the incoming host when Next supplies an internal request hostname', async () => {
+      const request = createMockRequest('1');
+      Object.defineProperty(request, 'headers', {
+        value: new Headers({ host: 'sudoku.example:8443', origin: 'http://sudoku.example:8443' }),
+      });
+      const response = await POST(request);
+      expect(response.status).toBe(200);
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBe(
+        'http://sudoku.example:8443',
+      );
+    });
+
+    it('rejects an origin on a different port from the incoming host', async () => {
+      const request = createMockRequest('1');
+      Object.defineProperty(request, 'headers', {
+        value: new Headers({ host: 'sudoku.example:8443', origin: 'http://sudoku.example' }),
+      });
+      expect((await POST(request)).status).toBe(403);
+    });
+
     it.each(['1', '5', '10'])(
       'should generate puzzle for valid difficulty %s',
       async (difficulty) => {
