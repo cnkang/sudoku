@@ -153,6 +153,16 @@
   background-color: var(--color-hover, var(--color-bg-tertiary, #f0f8ff));
 }
 
+/* Related row/column/box — subtle tint, never overrides error/hint/selection */
+.relatedCell {
+  background-color: var(--color-cell-bg-related, rgba(59, 130, 246, 0.06));
+}
+
+/* All cells sharing the selected digit */
+.sameValueCell {
+  background-color: var(--color-cell-bg-same-value, rgba(59, 130, 246, 0.14));
+}
+
 /* Selected cell */
 .selectedCell {
   background-color: var(--color-cell-bg-selected, #dbeafe);
@@ -476,6 +486,49 @@
   .successCell {
     animation: none;
   }
+}
+
+/* --- Number pad for touch/child mode --- */
+.numberPad {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2, 0.5rem);
+  margin-top: var(--space-3, 0.75rem);
+}
+
+.numberPadKey {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--color-border-default, #cbd5e1);
+  border-radius: var(--radius-lg, 0.5rem);
+  background: var(--color-bg-elevated, #ffffff);
+  color: var(--color-fg-primary, #0f172a);
+  font-size: var(--text-lg, 1.125rem);
+  font-weight: 600;
+  font-family: var(--font-mono, monospace);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast, 150ms) var(--ease-out, ease),
+    transform var(--duration-fast, 150ms) var(--ease-out, ease);
+}
+
+.numberPadKey:hover:not(:disabled) {
+  background: var(--color-bg-tertiary, #f1f5f9);
+}
+
+.numberPadKey:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.numberPadKey:focus-visible {
+  outline: 3px solid var(--color-focus-ring, #1e3a8a);
+  outline-offset: 2px;
+}
+
+.numberPadErase {
+  flex-basis: 100%;
+  font-size: var(--text-base, 1rem);
 }
 
 /* --- Child-friendly hints under the board --- */
