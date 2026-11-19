@@ -172,6 +172,8 @@ export interface GameControlsProps {
   isLoading?: boolean;
   canUndo?: boolean;
   hintsUsed?: number;
+  hintsRemaining?: number | null;
+  confirmReset?: boolean;
   reducedMotion?: boolean;
 }
 

@@ -6,7 +6,7 @@
 'use client';
 
 import type React from 'react';
-import { Profiler, Suspense, useContext, useEffect, useState } from 'react';
+import { Profiler, Suspense, useContext, useEffect, useRef, useState } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { useGameTimer } from '@/hooks/useGameTimer';
 import { useOptimisticSudoku } from '@/hooks/useOptimisticSudoku';
@@ -112,6 +112,36 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
   }, [preferencesReady, state.error, state.puzzle, state.isLoading, fetchPuzzle]);
 
   useGameTimer(state.timerActive, state.isPaused, dispatch);
+
+  // Auto-complete: celebrate and record as soon as the last cell is filled
+  // correctly, without waiting for the player to press "Check Solution".
+  const autoCheckedPuzzleRef = useRef<number[][] | null>(null);
+  useEffect(() => {
+    if (
+      !state.puzzle ||
+      !state.solution ||
+      state.isPaused ||
+      state.isCorrect === true ||
+      autoCheckedPuzzleRef.current === state.puzzle
+    )
+      return;
+    if (
+      optimisticUserInput.length === state.solution.length &&
+      optimisticUserInput.every((row, ri) =>
+        row.every((cell, ci) => cell === state.solution?.[ri]?.[ci]),
+      )
+    ) {
+      autoCheckedPuzzleRef.current = state.puzzle;
+      checkAnswer(optimisticUserInput);
+    }
+  }, [
+    optimisticUserInput,
+    state.puzzle,
+    state.solution,
+    state.isPaused,
+    state.isCorrect,
+    checkAnswer,
+  ]);
 
   if (!themeContext) return null;
 
@@ -300,6 +330,8 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
                   isLoading={state.isLoading}
                   canUndo={state.history.length > 1}
                   hintsUsed={state.hintsUsed}
+                  hintsRemaining={state.childMode ? Math.max(0, 3 - state.hintsUsed) : null}
+                  confirmReset={true}
                   reducedMotion={state.accessibility.reducedMotion}
                 />
               </Suspense>
