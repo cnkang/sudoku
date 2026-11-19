@@ -5,6 +5,63 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2026-11-19
+
+This release polishes the game UI across layout, interaction, theming and
+accessibility. The board now stays visible on every viewport, themes restyle the
+actual game surfaces, and completion and reset behave as players expect.
+
+### Added
+- Contextual cell highlights: the selected cell's row, column and box are tinted,
+  and every cell sharing the selected digit is highlighted.
+- Keyboard auto-advance to the next empty cell after a valid entry, plus a
+  touch number pad with an erase key for coarse-pointer devices and child mode.
+- Automatic completion detection: a correct full solution is celebrated and
+  recorded once without pressing Check Solution.
+- An inline confirmation before New Puzzle discards progress, and a board-width
+  assertion in the browser suite to catch collapsed-layout regressions.
+
+### Changed
+- Flattened nested cards, fitted the board to the viewport, and added a desktop
+  side rail for difficulty and timer controls.
+- Deduplicated install and high-contrast controls; child-mode copy now matches
+  the features that actually ship.
+- Theme palettes now emit mode-aware accent tokens, so switching themes restyles
+  the board digits, grid lines and primary buttons in both light and dark mode.
+- Reset is labelled New Puzzle; adult mode shows a plain Hint label while child
+  mode shows the number of hints remaining.
+- Contrast and responsive quality gates were repaired and now validate semantic
+  token pairs in both color schemes.
+
+### Fixed
+- Restored missing design tokens, corrected WCAG contrast values that were
+  documented as AAA but rendered below AA, and made the glass blur survive the
+  CSS optimizer's prefix handling.
+- Stopped static theme palettes from freezing mode-aware design tokens, and
+  aligned the light-dark() and dark-mode token values.
+- Made grid, timer, settings and PWA surfaces mode-aware instead of leaving
+  light-mode islands in dark mode.
+- Restored a visible board after the pause wrapper caused the grid's container
+  width and cell sizing to collapse to zero.
+- Replaced hardcoded 3×3 box borders in every grid size with mode-aware tokens
+  and added the missing 2×2 box borders for beginner boards.
+- Fixed the mobile and landscape title collapse and removed the always-visible
+  horizontal-scroll hint on desktop.
+- Kept grid-size selection visible and keyboard-focusable for all users.
+
+### Tests
+- Added grid interaction tests for selection highlights, auto-advance and the
+  touch number pad, plus control tests for the new-puzzle confirmation and hint
+  labels.
+- Expanded the contrast validator to 26 token pairs per color mode.
+- All 1094 unit and property tests, 27 responsive tests and 15 Chromium end-to-end
+  tests pass.
+
+### Upgrade notes
+- No runtime or API contract changes. The app version header now reports 3.2.0.
+- Existing progress and preferences remain in local browser storage; no migration
+  is needed.
+
 ## [3.1.0] - 2026-10-04
 
 This release improves puzzle correctness, offline play, game-state reliability,
