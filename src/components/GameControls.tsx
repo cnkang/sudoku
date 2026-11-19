@@ -17,11 +17,14 @@ const GameControls = React.memo(function GameControls({
   isLoading = false,
   canUndo = false,
   hintsUsed = 0,
+  hintsRemaining,
+  confirmReset = false,
   reducedMotion = false,
 }: GameControlsProps) {
   'use memo';
 
   const [isResetCooldown, setIsResetCooldown] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const spring0 = useSpring(0, { config: SPRING_PRESETS.stiff, reducedMotion });
@@ -68,12 +71,27 @@ const GameControls = React.memo(function GameControls({
     };
   }, []);
 
-  let resetLabel = 'Reset Game';
+  let resetLabel = confirmReset ? 'New Puzzle' : 'Reset Game';
   if (isLoading) {
     resetLabel = 'Loading...';
   } else if (isResetCooldown) {
     resetLabel = 'Wait...';
   }
+
+  const hintLabel =
+    hintsRemaining === null
+      ? 'Hint'
+      : hintsRemaining !== undefined
+        ? `Hint (${hintsRemaining})`
+        : `Hint (${hintsUsed})`;
+
+  const requestReset = useCallback(() => {
+    if (confirmReset && canUndo) {
+      setShowResetConfirm(true);
+      return;
+    }
+    handleReset();
+  }, [confirmReset, canUndo, handleReset]);
 
   const buttons: Array<{
     onClick: () => void;
@@ -107,15 +125,15 @@ const GameControls = React.memo(function GameControls({
       onClick: onHint,
       disabled: disabled || isCorrect === true || isPaused,
       variant: 'info',
-      label: `Hint (${hintsUsed})`,
+      label: hintLabel,
       ariaLabel: 'Get a hint',
     },
     {
-      onClick: handleReset,
+      onClick: requestReset,
       disabled: isLoading || isResetCooldown,
       variant: 'danger',
       label: resetLabel,
-      ariaLabel: 'Reset the game',
+      ariaLabel: confirmReset ? 'Start a new puzzle' : 'Reset the game',
     },
   ];
 
@@ -158,6 +176,29 @@ const GameControls = React.memo(function GameControls({
           </button>
         ))}
       </div>
+
+      {showResetConfirm && (
+        <div className={styles.resetConfirm} role="alertdialog" aria-label="Start a new puzzle?">
+          <span>Discard current progress and start a new puzzle?</span>
+          <button
+            type="button"
+            className={styles.resetConfirmYes}
+            onClick={() => {
+              setShowResetConfirm(false);
+              handleReset();
+            }}
+          >
+            New puzzle
+          </button>
+          <button
+            type="button"
+            className={styles.resetConfirmNo}
+            onClick={() => setShowResetConfirm(false)}
+          >
+            Cancel
+          </button>
+        </div>
+      )}
 
       {isCorrect !== null && (
         <div

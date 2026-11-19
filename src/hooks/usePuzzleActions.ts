@@ -36,7 +36,7 @@ export interface PuzzleActions {
   ) => Promise<void>;
   handleGridSizeChange: (newSize: GridSize) => Promise<void>;
   handleInputChange: (row: number, col: number, value: number) => void;
-  checkAnswer: () => void;
+  checkAnswer: (inputOverride?: number[][]) => void;
   getGameHint: () => void;
   resetGame: () => void;
   pauseResumeGame: () => void;
@@ -194,58 +194,62 @@ export function usePuzzleActions({
     ],
   );
 
-  const checkAnswer = useCallback(() => {
-    if (
-      state.isCorrect ||
-      state.isPaused ||
-      state.isLoading ||
-      completedPuzzleRef.current === state.puzzle
-    )
-      return;
-    if (!state.userInput || !state.solution) {
-      handleError(new Error('Cannot check answer when puzzle is not loaded'));
-      return;
-    }
-
-    try {
-      dispatch({ type: 'CHECK_ANSWER' });
-      const isCorrect =
-        state.userInput.length === state.solution.length &&
-        state.userInput.every(
-          (row, rowIndex) =>
-            row.length === state.solution?.[rowIndex]?.length &&
-            row.every((cell, columnIndex) => cell === state.solution?.[rowIndex]?.[columnIndex]),
-        );
-
-      if (isCorrect) {
-        completedPuzzleRef.current = state.puzzle;
-        updateStats(state.difficulty, state.time, true);
-        const gridSizeKey = `${currentGridConfig.size}x${currentGridConfig.size}`;
-        dispatch({
-          type: 'COMPLETE_PUZZLE',
-          payload: { gridSize: gridSizeKey, time: state.time, hintsUsed: state.hintsUsed },
-        });
-        if (state.childMode) visualFeedback.triggerCelebration('confetti');
+  const checkAnswer = useCallback(
+    (inputOverride?: number[][]) => {
+      const input = inputOverride ?? state.userInput;
+      if (
+        state.isCorrect ||
+        state.isPaused ||
+        state.isLoading ||
+        completedPuzzleRef.current === state.puzzle
+      )
+        return;
+      if (!input || !state.solution) {
+        handleError(new Error('Cannot check answer when puzzle is not loaded'));
+        return;
       }
-    } catch (error) {
-      handleError(error);
-    }
-  }, [
-    state.isCorrect,
-    state.isPaused,
-    state.isLoading,
-    state.puzzle,
-    state.userInput,
-    state.solution,
-    state.time,
-    state.hintsUsed,
-    state.difficulty,
-    state.childMode,
-    currentGridConfig.size,
-    dispatch,
-    visualFeedback,
-    handleError,
-  ]);
+
+      try {
+        dispatch({ type: 'CHECK_ANSWER' });
+        const isCorrect =
+          input.length === state.solution.length &&
+          input.every(
+            (row, rowIndex) =>
+              row.length === state.solution?.[rowIndex]?.length &&
+              row.every((cell, columnIndex) => cell === state.solution?.[rowIndex]?.[columnIndex]),
+          );
+
+        if (isCorrect) {
+          completedPuzzleRef.current = state.puzzle;
+          updateStats(state.difficulty, state.time, true);
+          const gridSizeKey = `${currentGridConfig.size}x${currentGridConfig.size}`;
+          dispatch({
+            type: 'COMPLETE_PUZZLE',
+            payload: { gridSize: gridSizeKey, time: state.time, hintsUsed: state.hintsUsed },
+          });
+          visualFeedback.triggerCelebration(state.childMode ? 'confetti' : 'stars');
+        }
+      } catch (error) {
+        handleError(error);
+      }
+    },
+    [
+      state.isCorrect,
+      state.isPaused,
+      state.isLoading,
+      state.puzzle,
+      state.userInput,
+      state.solution,
+      state.time,
+      state.hintsUsed,
+      state.difficulty,
+      state.childMode,
+      currentGridConfig.size,
+      dispatch,
+      visualFeedback,
+      handleError,
+    ],
+  );
 
   const getGameHint = useCallback(() => {
     if (
