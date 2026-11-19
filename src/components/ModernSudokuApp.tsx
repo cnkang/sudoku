@@ -348,29 +348,24 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
         {enablePWA && (
           <section className={styles.pwaSection} aria-label="PWA and grid size settings">
             <PWAStatus />
-            <details className={styles.sectionDrawer}>
-              <summary>Grid Size</summary>
-              <div className={styles.sectionDrawerBody}>
-                <Suspense
-                  fallback={
-                    <output
-                      className={styles.controlSkeleton}
-                      aria-busy="true"
-                      aria-label="Loading PWA grid selector"
-                    />
-                  }
-                >
-                  <LazyPWAGridSelector
-                    currentSize={currentGridConfig.size}
-                    onSizeChange={handleGridSizeChange}
-                    childMode={state.childMode}
-                    showDescriptions={state.childMode}
-                    disabled={isGridSelectorDisabled}
-                    offlineMode={enableOfflineMode && status.isOffline}
-                  />
-                </Suspense>
-              </div>
-            </details>
+            <Suspense
+              fallback={
+                <output
+                  className={styles.controlSkeleton}
+                  aria-busy="true"
+                  aria-label="Loading PWA grid selector"
+                />
+              }
+            >
+              <LazyPWAGridSelector
+                currentSize={currentGridConfig.size}
+                onSizeChange={handleGridSizeChange}
+                childMode={state.childMode}
+                showDescriptions={state.childMode}
+                disabled={isGridSelectorDisabled}
+                offlineMode={enableOfflineMode && status.isOffline}
+              />
+            </Suspense>
           </section>
         )}
 
