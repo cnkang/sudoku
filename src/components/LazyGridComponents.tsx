@@ -14,8 +14,12 @@ import type {
 import type { AccessibilityControlsProps } from './AccessibilityControls';
 import AccessibilityControlsComponent from './AccessibilityControls';
 import DifficultySelectorComponent from './DifficultySelector';
+import { Grid4x4 } from './grids/Grid4x4';
+import { Grid6x6 } from './grids/Grid6x6';
+import { Grid9x9 } from './grids/Grid9x9';
 import PWAGridSelectorComponent from './PWAGridSelector';
 import ThemeProviderComponent from './ThemeProvider';
+import TouchOptimizedControlsComponent from './TouchOptimizedControls';
 import type { VisualFeedbackSystemProps } from './VisualFeedbackSystem';
 
 // Loading fallback component with modern CSS
@@ -73,19 +77,6 @@ const GridLoadingFallback = memo(() => (
 
 GridLoadingFallback.displayName = 'GridLoadingFallback';
 
-// Lazy load grid size specific components
-const Grid4x4Component = lazy(() =>
-  import('./grids/Grid4x4').then((module) => ({ default: module.Grid4x4 })),
-);
-
-const Grid6x6Component = lazy(() =>
-  import('./grids/Grid6x6').then((module) => ({ default: module.Grid6x6 })),
-);
-
-const Grid9x9Component = lazy(() =>
-  import('./grids/Grid9x9').then((module) => ({ default: module.Grid9x9 })),
-);
-
 // Lazy load non-critical PWA components
 const PWAInstallPromptComponent = lazy(() =>
   import('./PWAInstallPrompt').then((module) => ({ default: module.default })),
@@ -106,12 +97,6 @@ const ThemeSelectorComponent = lazy(() =>
 // Lazy load game control components (Requirements 4.3, 18.7)
 const GameControlsComponent = lazy(() =>
   import('./GameControls').then((module) => ({ default: module.default })),
-);
-
-const TouchOptimizedControlsComponent = lazy(() =>
-  import('./TouchOptimizedControls').then((module) => ({
-    default: module.default,
-  })),
 );
 
 // Lazy load decorative components
@@ -155,20 +140,20 @@ type ThemeProviderProps = {
 
 import type { TouchOptimizedControlsProps } from './TouchOptimizedControls';
 
-// Grid size router with code splitting
+// Keep the board variants and child controls in the app shell for offline play.
 export const LazyGridRouter = memo<LazyGridProps>(({ gridConfig, ...props }) => {
   'use memo'; // React Compiler directive
 
   const GridComponent = React.useMemo<React.ComponentType<LazyGridProps>>(() => {
     switch (gridConfig.size) {
       case 4:
-        return Grid4x4Component as unknown as React.ComponentType<LazyGridProps>;
+        return Grid4x4 as unknown as React.ComponentType<LazyGridProps>;
       case 6:
-        return Grid6x6Component as unknown as React.ComponentType<LazyGridProps>;
+        return Grid6x6 as unknown as React.ComponentType<LazyGridProps>;
       case 9:
-        return Grid9x9Component as unknown as React.ComponentType<LazyGridProps>;
+        return Grid9x9 as unknown as React.ComponentType<LazyGridProps>;
       default:
-        return Grid9x9Component as unknown as React.ComponentType<LazyGridProps>; // Fallback to 9x9
+        return Grid9x9 as unknown as React.ComponentType<LazyGridProps>; // Fallback to 9x9
     }
   }, [gridConfig.size]);
 

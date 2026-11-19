@@ -132,41 +132,19 @@ async function handlePuzzleRequest(request) {
     // Try network first for fresh puzzles
     const networkResponse = await fetch(request);
 
-    if (networkResponse.ok) {
-      // Cache successful puzzle responses
-      const cache = await caches.open(PUZZLE_CACHE_NAME);
-      const responseClone = networkResponse.clone();
-
-      // Store with expiration metadata
-      const responseWithMeta = new Response(responseClone.body, {
-        status: responseClone.status,
-        statusText: responseClone.statusText,
-        headers: {
-          ...Object.fromEntries(responseClone.headers.entries()),
-          'sw-cached-at': Date.now().toString(),
-          'sw-cache-key': cacheRequest.url,
-        },
-      });
-
-      await cache.put(cacheRequest, responseWithMeta).catch(() => {});
-      const keys = await cache.keys();
-      await Promise.all(keys.slice(0, Math.max(0, keys.length - 50)).map(key => cache.delete(key)));
-    }
+    if (networkResponse.ok) await cacheResponse(PUZZLE_CACHE_NAME, cacheRequest, networkResponse, 50);
     return networkResponse;
   } catch {
     swLog('[SW] Network failed for puzzle request, trying cache');
   }
 
-  // Fallback to cache
-  const cache = await caches.open(PUZZLE_CACHE_NAME);
-  const cachedResponse = await cache.match(cacheRequest);
+  const cachedResponse = await readCachedResponse(PUZZLE_CACHE_NAME, cacheRequest);
+  if (cachedResponse && url.searchParams.get('force') !== 'true') return cachedResponse;
 
-  if (cachedResponse) {
-    return cachedResponse;
-  }
-
-  // Generate offline puzzle if no cache available
-  return generateOfflinePuzzle(url.searchParams);
+  const previous = await cachedResponse?.json().catch(() => null);
+  const offlineResponse = generateOfflinePuzzle(url.searchParams, previous?.puzzle);
+  await cacheResponse(PUZZLE_CACHE_NAME, cacheRequest, offlineResponse, 50);
+  return offlineResponse;
 }
 
 function createPuzzleCacheRequest(searchParams) {
@@ -199,11 +177,32 @@ function normalizePuzzleParams(searchParams) {
   return { size, difficulty };
 }
 
+async function readCachedResponse(cacheName, request) {
+  try {
+    const cache = await caches.open(cacheName);
+    return await cache.match(request);
+  } catch (error) {
+    swLog('[SW] Cache read failed:', cacheName, error);
+    return undefined;
+  }
+}
+
+async function cacheResponse(cacheName, request, response, limit) {
+  try {
+    const cache = await caches.open(cacheName);
+    await cache.put(request, response.clone());
+    if (limit !== undefined) {
+      const keys = await cache.keys();
+      await Promise.all(keys.slice(0, Math.max(0, keys.length - limit)).map(key => cache.delete(key)));
+    }
+  } catch (error) {
+    swLog('[SW] Cache write failed:', cacheName, error);
+  }
+}
+
 // Handle static asset requests
 async function handleStaticRequest(request) {
-  const cache = await caches.open(STATIC_CACHE_NAME);
-  const cachedResponse = await cache.match(request);
-
+  const cachedResponse = await readCachedResponse(STATIC_CACHE_NAME, request);
   if (cachedResponse) {
     return cachedResponse;
   }
@@ -211,7 +210,7 @@ async function handleStaticRequest(request) {
   try {
     const networkResponse = await fetch(request);
     if (networkResponse.ok) {
-      await cache.put(request, networkResponse.clone());
+      await cacheResponse(STATIC_CACHE_NAME, request, networkResponse);
     }
     return networkResponse;
   } catch {
@@ -229,8 +228,7 @@ async function handlePageRequest(request) {
 
     if (networkResponse.ok) {
       // Cache successful page responses
-      const cache = await caches.open(RUNTIME_CACHE_NAME);
-      await cache.put(request, networkResponse.clone());
+      await cacheResponse(RUNTIME_CACHE_NAME, request, networkResponse);
     }
     return networkResponse;
   } catch {
@@ -238,16 +236,14 @@ async function handlePageRequest(request) {
   }
 
   // Try cache first
-  const cache = await caches.open(RUNTIME_CACHE_NAME);
-  const cachedResponse = await cache.match(request);
+  const cachedResponse = await readCachedResponse(RUNTIME_CACHE_NAME, request);
 
   if (cachedResponse) {
     return cachedResponse;
   }
 
   // Fallback to offline page
-  const offlineCache = await caches.open(STATIC_CACHE_NAME);
-  const offlineResponse = await offlineCache.match(new URL(request.url).pathname) ?? await offlineCache.match('/offline.html');
+  const offlineResponse = await readCachedResponse(STATIC_CACHE_NAME, new URL(request.url).pathname) ?? await readCachedResponse(STATIC_CACHE_NAME, '/offline.html');
 
   if (offlineResponse) {
     return offlineResponse;
@@ -308,7 +304,7 @@ async function handlePageRequest(request) {
 }
 
 // Generate simple offline puzzles
-function generateOfflinePuzzle(searchParams) {
+function generateOfflinePuzzle(searchParams, previousPuzzle) {
   const { size, difficulty } = normalizePuzzleParams(searchParams);
   // Unique puzzles validated for each supported size and difficulty.
   const templates = {
@@ -530,9 +526,16 @@ function generateOfflinePuzzle(searchParams) {
     [digits[index], digits[target]] = [digits[target], digits[index]];
   }
   const mapBoard = board => board.map(row => row.map(value => value === 0 ? 0 : digits[value - 1]));
+  let puzzle = mapBoard(template);
+  if (previousPuzzle && JSON.stringify(previousPuzzle) === JSON.stringify(puzzle)) {
+    const firstClue = template.flat().find(value => value !== 0) - 1;
+    const otherDigit = (firstClue + 1) % size;
+    [digits[firstClue], digits[otherDigit]] = [digits[otherDigit], digits[firstClue]];
+    puzzle = mapBoard(template);
+  }
 
   const response = {
-    puzzle: mapBoard(template),
+    puzzle,
     solution: mapBoard(solution),
     difficulty: difficulty,
     gridSize: size,
