@@ -81,12 +81,12 @@ const GameControls = React.memo(function GameControls({
     resetLabel = 'Wait...';
   }
 
-  const hintLabel =
-    hintsRemaining === null
-      ? 'Hint'
-      : hintsRemaining !== undefined
-        ? `Hint (${hintsRemaining})`
-        : `Hint (${hintsUsed})`;
+  let hintLabel = `Hint (${hintsUsed})`;
+  if (hintsRemaining === null) {
+    hintLabel = 'Hint';
+  } else if (hintsRemaining !== undefined) {
+    hintLabel = `Hint (${hintsRemaining})`;
+  }
 
   const requestReset = useCallback(() => {
     if (confirmReset && canUndo) {
@@ -100,10 +100,21 @@ const GameControls = React.memo(function GameControls({
     if (showResetConfirm) cancelResetRef.current?.focus();
   }, [showResetConfirm]);
 
-  const cancelReset = () => {
+  const cancelReset = useCallback(() => {
     setShowResetConfirm(false);
     resetButtonRef.current?.focus();
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!showResetConfirm) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') cancelReset();
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showResetConfirm, cancelReset]);
 
   const buttons: Array<{
     onClick: () => void;
@@ -196,9 +207,6 @@ const GameControls = React.memo(function GameControls({
           role="alertdialog"
           aria-label="Start a new puzzle?"
           aria-describedby={resetDescriptionId}
-          onKeyDown={(event) => {
-            if (event.key === 'Escape') cancelReset();
-          }}
         >
           <span id={resetDescriptionId}>Discard current progress and start a new puzzle?</span>
           <button

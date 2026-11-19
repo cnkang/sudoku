@@ -167,19 +167,22 @@ textarea {
 }
 
 /* ==========================================================================
-   REDUCED MOTION — Cross-fade only, no transforms
+   REDUCED MOTION — Token-driven, cross-fade only
    ========================================================================== */
 
-/* The !important flags are intentional: this global reset must override
-   component-level animations and transitions for reduced-motion users.
-   SonarCloud css:S9423 is marked as Won't Fix for these declarations. */
+/*
+ * Motion is cancelled through the design tokens in apple-design-system.css
+ * (durations and spring responses collapse to 0ms) and through the
+ * `prefers-reduced-motion` rules in each component stylesheet. That keeps the
+ * guarantee without a blanket `* { ... !important }` reset fighting every
+ * component's specificity.
+ *
+ * New motion must consume a duration token or ship its own reduced-motion
+ * override so this guarantee keeps holding.
+ */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  .skip-to-content {
+    transition: none;
   }
 }
 

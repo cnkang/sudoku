@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-test('opens a new grid size after an offline reload', async ({ browserName, context, page }) => {
-  test.skip(browserName !== 'chromium', 'Uses Chromium offline emulation');
+// Chromium-only: relies on Chromium's offline emulation and service worker control.
+// The Firefox and WebKit projects ignore this spec in playwright.config.ts.
+test('opens a new grid size after an offline reload', async ({ context, page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   await expect(page.locator('table[data-grid-size="9"]')).toBeVisible({ timeout: 15000 });

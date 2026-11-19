@@ -68,10 +68,12 @@ export default defineConfig({
         },
         {
           name: 'firefox',
+          testIgnore: ['**/offline.spec.ts'],
           use: { ...devices['Desktop Firefox'] },
         },
         {
           name: 'webkit',
+          testIgnore: ['**/offline.spec.ts'],
           use: { ...devices['Desktop Safari'] },
         },
         {
