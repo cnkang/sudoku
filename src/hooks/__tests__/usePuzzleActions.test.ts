@@ -103,6 +103,21 @@ describe('usePuzzleActions', () => {
     expect(fetchPuzzleData).not.toHaveBeenCalled();
   });
 
+  it('leaves the current puzzle and settings in place when a replacement fails', async () => {
+    const { result, dispatch, fetchPuzzleData } = setup(createState({ puzzle: puzzle.puzzle }));
+    fetchPuzzleData.mockRejectedValue(new Error('offline'));
+
+    await act(() => result.current.handleGridSizeChange(4));
+    await act(() => result.current.fetchPuzzle(2));
+
+    expect(dispatch.mock.calls.map(([action]) => action.type)).toEqual([
+      'SET_LOADING',
+      'SET_LOADING',
+      'SET_LOADING',
+      'SET_LOADING',
+    ]);
+  });
+
   it('updates a cell and clears a hint on the same cell', () => {
     const state = createState({
       userInput: puzzle.puzzle,

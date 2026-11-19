@@ -5,6 +5,7 @@ import type { VisualFeedbackHook } from '@/hooks/useVisualFeedback';
 import { fetchWithCache } from '@/utils/apiCache';
 import { GRID_CONFIGS } from '@/utils/gridConfig';
 import { getHint } from '@/utils/hints';
+import { recordPuzzleCompletion } from '@/utils/preferences';
 import { updateStats } from '@/utils/stats';
 import { parseSudokuPuzzle } from '@/utils/sudokuPuzzleSchema';
 
@@ -90,9 +91,6 @@ export function usePuzzleActions({
         Math.max(difficulty, 1),
         GRID_CONFIGS[size].difficultyLevels,
       );
-      if (changeSize) dispatch({ type: 'CHANGE_GRID_SIZE', payload: GRID_CONFIGS[size] });
-      else if (targetDifficulty !== state.difficulty)
-        dispatch({ type: 'SET_DIFFICULTY', payload: targetDifficulty });
       dispatch({ type: 'SET_LOADING', payload: true });
       clearError();
       try {
@@ -109,7 +107,10 @@ export function usePuzzleActions({
         const puzzle = parsePuzzle(data);
         if (puzzle.puzzle.length !== size || puzzle.difficulty !== targetDifficulty)
           throw new Error('The puzzle does not match the selected settings');
-        dispatch({ type: 'SET_PUZZLE', payload: puzzle });
+        dispatch({
+          type: 'SET_PUZZLE',
+          payload: changeSize ? { ...puzzle, gridConfig: GRID_CONFIGS[size] } : puzzle,
+        });
         lastFetchTimeRef.current = now();
         const elapsed = performanceNow() - started;
         setPerformanceMetrics((previous) => ({
@@ -224,9 +225,16 @@ export function usePuzzleActions({
           completedPuzzleRef.current = state.puzzle;
           updateStats(state.difficulty, state.time, true);
           const gridSizeKey = `${currentGridConfig.size}x${currentGridConfig.size}`;
+          const completion = {
+            gridSize: gridSizeKey,
+            time: state.time,
+            hintsUsed: state.hintsUsed,
+            playedAt: new Date(),
+          };
+          recordPuzzleCompletion(completion);
           dispatch({
             type: 'COMPLETE_PUZZLE',
-            payload: { gridSize: gridSizeKey, time: state.time, hintsUsed: state.hintsUsed },
+            payload: completion,
           });
           visualFeedback.triggerCelebration(state.childMode ? 'confetti' : 'stars');
         }

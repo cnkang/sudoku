@@ -121,6 +121,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
     if (
       !state.puzzle ||
       !state.solution ||
+      state.isLoading ||
       state.isPaused ||
       state.isCorrect === true ||
       autoCheckedPuzzleRef.current === state.puzzle
@@ -139,6 +140,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
     optimisticUserInput,
     state.puzzle,
     state.solution,
+    state.isLoading,
     state.isPaused,
     state.isCorrect,
     checkAnswer,

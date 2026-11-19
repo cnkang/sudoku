@@ -98,7 +98,7 @@ export interface GameState {
 }
 
 export type GameAction =
-  | { type: 'SET_PUZZLE'; payload: SudokuPuzzle }
+  | { type: 'SET_PUZZLE'; payload: SudokuPuzzle & { gridConfig?: GridConfig } }
   | { type: 'SET_ERROR'; payload: string }
   | {
       type: 'UPDATE_USER_INPUT';
@@ -139,7 +139,7 @@ export type GameAction =
     }
   | {
       type: 'COMPLETE_PUZZLE';
-      payload: { gridSize: string; time: number; hintsUsed: number };
+      payload: { gridSize: string; time: number; hintsUsed: number; playedAt?: Date };
     }
   | {
       type: 'ADD_ACHIEVEMENT';

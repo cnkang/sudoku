@@ -10,6 +10,7 @@ import {
   loadGridConfig,
   loadProgressStats,
   loadUserPreferences,
+  recordPuzzleCompletion,
   saveAccessibilitySettings,
   saveChildMode,
   saveDifficulty,
@@ -23,6 +24,10 @@ describe('preferences', () => {
   const createLocalStorageMock = () => {
     let store: Record<string, string> = {};
     return {
+      get length() {
+        return Object.keys(store).length;
+      },
+      key: (index: number) => Object.keys(store)[index] ?? null,
       getItem: vi.fn((key: string) => store[key] || null),
       setItem: vi.fn((key: string, value: string) => {
         store[key] = value;
@@ -50,6 +55,32 @@ describe('preferences', () => {
   afterEach(() => {
     localStorageMock.clear();
     vi.unstubAllGlobals();
+  });
+
+  it('adds independent completions to legacy totals and clears them with progress', () => {
+    const legacy = loadProgressStats();
+    legacy['9x9'] = { ...legacy['9x9']!, puzzlesCompleted: 1, totalTime: 120, bestTime: 120 };
+    saveProgressStats(legacy);
+
+    const latest = new Date('2026-11-19T08:00:00Z');
+    recordPuzzleCompletion({ gridSize: '9x9', time: 40, hintsUsed: 2, playedAt: latest });
+    recordPuzzleCompletion({ gridSize: '9x9', time: 80, hintsUsed: 1, playedAt: new Date(0) });
+    recordPuzzleCompletion({ gridSize: '4x4', time: 20, hintsUsed: 0, playedAt: latest });
+
+    const progress = loadProgressStats();
+    expect(progress['9x9']).toMatchObject({
+      puzzlesCompleted: 3,
+      totalTime: 240,
+      averageTime: 80,
+      bestTime: 40,
+      hintsUsed: 3,
+      lastPlayed: latest,
+    });
+    expect(progress['4x4']?.puzzlesCompleted).toBe(1);
+    saveProgressStats(progress);
+    expect(loadProgressStats()).toEqual(progress);
+    clearAllPreferences();
+    expect(loadProgressStats()['9x9']?.puzzlesCompleted).toBe(0);
   });
 
   describe('accessibility settings', () => {
