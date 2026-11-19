@@ -1,6 +1,6 @@
 /* ==========================================================================
    GAME CONTROLS — Apple Design System
-   Fluid spring-animated buttons, accessible, responsive
+   One filled primary action; sibling actions stay quiet (tonal/ghost).
    ========================================================================== */
 
 .gameControls {
@@ -10,7 +10,7 @@
 
 .controlButtons {
   display: flex;
-  gap: var(--space-4);
+  gap: var(--space-3);
   flex-wrap: wrap;
   justify-content: center;
   margin-bottom: var(--space-4);
@@ -18,126 +18,161 @@
 
 /* --- Base Button --- */
 .btn {
-  padding: var(--space-3) var(--space-6);
-  border: none;
+  padding: var(--space-3) var(--space-5);
+  border: 1px solid transparent;
   border-radius: var(--radius-xl);
   font-size: var(--text-base);
   font-weight: 600;
   cursor: pointer;
-  transition: transform var(--duration-fast) var(--ease-spring-stiff),
+  transition: transform var(--duration-fast) var(--ease-out),
     background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
     box-shadow var(--duration-fast) var(--ease-out);
-  min-width: 140px;
+  min-width: 120px;
   min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Press feedback on every pointer type (replaces the old JS spring). */
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+  transition-duration: 100ms;
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.btn:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* --- Modern Flex Classes (kept for component class composition) --- */
+.modernFlexControls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.modernFlexRow {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.modernFlexButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
 }
 
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.modernTransition {
+  transition: transform var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
 }
 
-/* --- Button Variants --- */
+.modernHoverLift:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-e2);
+}
 
-.btnPrimary {
+.modernFocusRing:focus-visible {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.modernFocusRing:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* --- Button Variants (compound selectors win over .modernFlexButton) --- */
+
+/* Primary: the single filled call to action. */
+.btn.btnPrimary {
   background-color: var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
   color: var(--color-brand-primary-fg);
 }
 
-.btnPrimary:hover:not(:disabled) {
+.btn.btnPrimary:hover:not(:disabled) {
   background-color: var(--color-brand-primary-hover);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-e2);
+  border-color: var(--color-brand-primary-hover);
 }
 
-.btnPrimary:focus-visible {
-  outline: 3px solid var(--color-focus-ring);
-  outline-offset: 2px;
+/* Secondary (Pause): quiet tonal surface. */
+.btn.btnSecondary {
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--color-border-default);
+  color: var(--color-fg-primary);
 }
 
-.btnSecondary {
-  background-color: var(--color-fg-secondary);
-  color: var(--color-fg-inverse);
+.btn.btnSecondary:hover:not(:disabled) {
+  background-color: var(--color-border-subtle);
+  border-color: var(--color-border-strong);
 }
 
-.btnSecondary:hover:not(:disabled) {
-  background-color: var(--color-fg-primary);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-e2);
+/* Undo: ghost neutral. */
+.btn.btnWarning {
+  background-color: transparent;
+  border-color: var(--color-border-default);
+  color: var(--color-fg-secondary);
 }
 
-.btnSecondary:focus-visible {
-  outline: 3px solid var(--color-focus-ring);
-  outline-offset: 2px;
+.btn.btnWarning:hover:not(:disabled) {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-fg-primary);
 }
 
-.btnDanger {
+/* Hint: tonal brand tint. */
+.btn.btnInfo {
+  background-color: var(--color-info-bg);
+  border-color: transparent;
+  color: var(--color-info);
+}
+
+.btn.btnInfo:hover:not(:disabled) {
+  border-color: var(--color-info);
+}
+
+/* New Puzzle / Reset: quiet danger; fills only when armed (confirm step). */
+.btn.btnDanger {
+  background-color: transparent;
+  border-color: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.btn.btnDanger:hover:not(:disabled) {
+  background-color: var(--color-error-bg);
+  border-color: var(--color-error);
+}
+
+.btn.btnDanger.btnArmed {
   background-color: var(--color-error);
+  border-color: var(--color-error);
   color: var(--color-error-fg);
 }
 
-.btnDanger:hover:not(:disabled) {
-  background-color: #7f1d1d;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-e2);
-}
-
-.btnDanger:disabled {
-  background-color: var(--color-fg-tertiary);
-  cursor: not-allowed;
-  transform: none;
-}
-
-.btnDanger:focus-visible {
-  outline: 3px solid var(--color-focus-ring);
-  outline-offset: 2px;
-}
-
-.btnWarning {
-  background-color: var(--color-warning);
-  color: var(--color-warning-fg);
-}
-
-.btnWarning:hover:not(:disabled) {
-  background-color: #451a03;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-e2);
-}
-
-.btnWarning:disabled {
-  background-color: var(--color-fg-tertiary);
-  cursor: not-allowed;
-  transform: none;
-}
-
-.btnWarning:focus-visible {
-  outline: 3px solid var(--color-focus-ring);
-  outline-offset: 2px;
-}
-
-.btnInfo {
-  background-color: var(--color-info);
-  color: var(--color-info-fg);
-}
-
-.btnInfo:hover:not(:disabled) {
-  background-color: #1e3a8a;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-e2);
-}
-
-.btnInfo:disabled {
-  background-color: var(--color-fg-tertiary);
-  cursor: not-allowed;
-  transform: none;
-}
-
-.btnInfo:focus-visible {
-  outline: 3px solid var(--color-focus-ring);
-  outline-offset: 2px;
+.btn.btnDanger.btnArmed:hover:not(:disabled) {
+  background-color: var(--color-error);
+  border-color: var(--color-error);
+  filter: brightness(0.92);
 }
 
 /* --- Result Message --- */
@@ -169,67 +204,6 @@
   }
 }
 
-/* --- Modern Flex Classes (for CSS-in-JS compatibility) --- */
-.modernFlexControls {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.modernFlexRow {
-  display: flex;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-  justify-content: center;
-  width: 100%;
-}
-
-.modernFlexButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-5);
-  border: none;
-  border-radius: var(--radius-xl);
-  font-size: var(--text-base);
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform var(--duration-fast) var(--ease-spring-stiff),
-    background-color var(--duration-fast) var(--ease-out),
-    box-shadow var(--duration-fast) var(--ease-out);
-  min-height: 44px;
-  min-width: 120px;
-  white-space: nowrap;
-}
-
-.modernFlexButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.modernTransition {
-  transition: transform var(--duration-fast) var(--ease-spring-stiff),
-    background-color var(--duration-fast) var(--ease-out),
-    box-shadow var(--duration-fast) var(--ease-out);
-}
-
-.modernHoverLift:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-e2);
-}
-
-.modernFocusRing:focus-visible {
-  outline: 3px solid var(--color-focus-ring);
-  outline-offset: 2px;
-}
-
-.modernFocusRing:focus:not(:focus-visible) {
-  outline: none;
-}
-
 /* --- Touch Device Optimizations --- */
 @media (hover: none) and (pointer: coarse) {
   .btn,
@@ -242,40 +216,46 @@
   .modernFlexButton:hover {
     transform: none;
   }
+}
 
-  .btn:active:not(:disabled),
-  .modernFlexButton:active:not(:disabled) {
-    transform: scale(0.98);
+/* --- Desktop side rail: stack actions full-width --- */
+@container game-area (min-width: 880px) {
+  .gameControls {
+    margin: 0;
+  }
+
+  .controlButtons,
+  .modernFlexRow {
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+  }
+
+  .btn,
+  .modernFlexButton {
+    width: 100%;
+    min-width: 0;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-sm);
   }
 }
 
 /* --- Responsive --- */
 @media (max-width: 768px) {
-  .controlButtons {
+  .controlButtons,
+  .modernFlexRow {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--space-3);
     max-width: 400px;
-    margin: 0 auto;
+    margin: 0 auto var(--space-4);
   }
 
-  .btn {
-    width: 100%;
-    min-width: auto;
-    padding: var(--space-3) var(--space-4);
-    font-size: var(--text-sm);
-  }
-
-  .modernFlexRow {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-2);
-  }
-
+  .btn,
   .modernFlexButton {
     width: 100%;
     min-width: auto;
-    padding: var(--space-3) var(--space-3);
+    padding: var(--space-3) var(--space-4);
     font-size: var(--text-sm);
   }
 }
@@ -285,31 +265,27 @@
     margin: var(--space-block-md) 0;
   }
 
-  .controlButtons {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    width: 100%;
-  }
-
-  .btn {
-    width: 100%;
-    padding: var(--space-4);
-    font-size: var(--text-sm);
-    min-height: 48px;
-  }
-
+  /* Two compact columns; the primary action spans the full row. */
+  .controlButtons,
   .modernFlexRow {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: var(--space-2);
+    width: 100%;
+    max-width: none;
   }
 
+  .controlButtons > :first-child,
+  .modernFlexRow > :first-child {
+    grid-column: 1 / -1;
+  }
+
+  .btn,
   .modernFlexButton {
     width: 100%;
     padding: var(--space-3);
     font-size: var(--text-sm);
-    min-height: 44px;
+    min-height: 48px;
   }
 
   .resultMessage {
@@ -320,20 +296,23 @@
 }
 
 @media (max-width: 768px) and (orientation: landscape) {
-  .controlButtons {
+  .controlButtons,
+  .modernFlexRow {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: var(--space-2);
     max-width: 600px;
   }
 
-  .btn {
-    padding: var(--space-2) var(--space-2);
-    font-size: var(--text-xs);
+  .controlButtons > :first-child,
+  .modernFlexRow > :first-child {
+    grid-column: auto;
   }
 
-  .modernFlexRow {
-    grid-template-columns: repeat(5, 1fr);
+  .btn,
+  .modernFlexButton {
+    padding: var(--space-2) var(--space-2);
+    font-size: var(--text-xs);
   }
 }
 
@@ -344,11 +323,11 @@
     font-weight: 700;
   }
 
-  .btnPrimary,
-  .btnSecondary,
-  .btnDanger,
-  .btnWarning,
-  .btnInfo {
+  .btn.btnPrimary,
+  .btn.btnSecondary,
+  .btn.btnDanger,
+  .btn.btnWarning,
+  .btn.btnInfo {
     background-color: var(--color-bg-primary);
     color: var(--color-fg-primary);
   }
@@ -369,20 +348,20 @@
     transition: none;
   }
 
+  .btn:active:not(:disabled) {
+    transform: none;
+  }
+
   .modernTransition {
     transition: none;
   }
 
+  .modernHoverLift:hover:not(:disabled) {
+    transform: none;
+  }
+
   .resultMessage {
     animation: crossFadeIn var(--duration-normal) var(--ease-out);
-  }
-}
-
-/* --- Reduced Transparency --- */
-@media (prefers-reduced-transparency: reduce) {
-  /* Buttons don't use transparency, but ensure solid backgrounds */
-  .btn {
-    backdrop-filter: none;
   }
 }
 
