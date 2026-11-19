@@ -164,9 +164,9 @@ describe('PWAGridSelector', () => {
       render(<PWAGridSelector {...defaultProps} childMode={true} />);
 
       expect(screen.getByText('Colorful themes')).toBeInTheDocument();
-      expect(screen.getByText('Fun sounds')).toBeInTheDocument();
-      expect(screen.getByText('Earn rewards')).toBeInTheDocument();
-      expect(screen.getByText('Track progress')).toBeInTheDocument();
+      expect(screen.getByText('Gentle animations')).toBeInTheDocument();
+      expect(screen.getByText('Big, easy buttons')).toBeInTheDocument();
+      expect(screen.getByText('Hints when stuck')).toBeInTheDocument();
     });
 
     it('applies child-friendly styling classes', () => {

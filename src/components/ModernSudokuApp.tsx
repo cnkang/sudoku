@@ -53,9 +53,7 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
   const { state, dispatch, handleError, clearError, savePreferences, preferencesReady } =
     useGameState(initialGridSize, initialChildMode);
   const { trackRender, trackTransition } = usePerformanceTracking('ModernSudokuApp');
-  const { status, installApp } = usePWA();
-  const notificationPermission =
-    typeof Notification === 'undefined' ? 'default' : Notification.permission;
+  const { status } = usePWA();
 
   const visualFeedback = useVisualFeedback({
     childMode: state.childMode,
@@ -337,8 +335,6 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
                     showDescriptions={state.childMode}
                     disabled={isGridSelectorDisabled}
                     offlineMode={enableOfflineMode && status.isOffline}
-                    onInstallPrompt={installApp}
-                    notificationPermission={notificationPermission}
                   />
                 </Suspense>
               </div>
@@ -396,11 +392,6 @@ const ModernSudokuAppInner: React.FC<ModernSudokuAppProps> = ({
             childMode={state.childMode}
             highContrast={state.accessibility.highContrast}
             reducedMotion={state.accessibility.reducedMotion}
-            onHighContrastToggle={() => {
-              handleAccessibilityChange({
-                highContrast: !state.accessibility.highContrast,
-              });
-            }}
           >
             {(triggers) => {
               visualFeedback.setFeedbackTriggers(triggers);

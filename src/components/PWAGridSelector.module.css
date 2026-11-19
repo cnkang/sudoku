@@ -54,12 +54,6 @@
   justify-content: flex-start;
 }
 
-.statusRight {
-  flex: 0 0 auto;
-  min-width: 8.75rem;
-  justify-content: flex-end;
-}
-
 .statusPlaceholder {
   display: block;
   width: 100%;
@@ -73,38 +67,6 @@
   font-size: 0.875rem;
   color: #059669;
   font-weight: 600;
-}
-
-.installButton {
-  padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-  min-height: 44px; /* WCAG AAA touch target */
-}
-
-.installPlaceholder {
-  display: inline-block;
-  min-height: 44px;
-  min-width: 8.75rem;
-  visibility: hidden;
-}
-
-.installButton:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-.installButton:focus {
-  outline: 3px solid #93c5fd;
-  outline-offset: 2px;
 }
 
 .installedIndicator {
@@ -274,7 +236,7 @@
 .difficulty {
   font-weight: 600;
   color: #1e293b;
-  color: color-mix(in srgb, var(--option-color, #3b82f6) 20%, #0f172a 80%);
+  color: color-mix(in srgb, var(--option-color, #3b82f6) 25%, var(--color-fg-primary, #0f172a) 75%);
 }
 
 .clueRange {
@@ -315,8 +277,8 @@
   width: 1.75rem;
   height: 1.75rem;
   background: #f8fafc;
-  color: color-mix(in srgb, var(--option-color, #3b82f6) 20%, #0f172a 80%);
-  border: 2px solid color-mix(in srgb, var(--option-color, #3b82f6) 20%, #0f172a 80%);
+  color: color-mix(in srgb, var(--option-color, #3b82f6) 25%, var(--color-fg-primary, #0f172a) 75%);
+  border: 2px solid color-mix(in srgb, var(--option-color, #3b82f6) 25%, var(--color-fg-primary, #0f172a) 75%);
   border-radius: 50%;
   display: flex;
   align-items: center;

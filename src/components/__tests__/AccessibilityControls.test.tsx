@@ -170,12 +170,6 @@ describe('AccessibilityControls', () => {
       expect(screen.queryByText(/Visual Helpers/i)).not.toBeInTheDocument();
     });
 
-    it('should show forest and space buttons in child mode', () => {
-      render(<AccessibilityControls {...defaultProps} childMode={true} />);
-      expect(screen.getByLabelText(/forest theme/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/space theme/i)).toBeInTheDocument();
-    });
-
     it('should not show forest and space buttons when childMode is false', () => {
       render(<AccessibilityControls {...defaultProps} childMode={false} />);
       expect(screen.queryByLabelText(/forest theme/i)).not.toBeInTheDocument();
@@ -243,34 +237,6 @@ describe('AccessibilityControls', () => {
       fireEvent.click(checkbox);
       expect(defaultProps.onLargeTextToggle).toHaveBeenCalled();
     });
-
-    it('should call onThemeChange with high-contrast when quick button clicked', () => {
-      render(<AccessibilityControls {...defaultProps} />);
-      const button = screen.getByLabelText(/Switch to high contrast theme/i);
-      fireEvent.click(button);
-      expect(defaultProps.onThemeChange).toHaveBeenCalledWith('high-contrast');
-    });
-
-    it('should call onThemeChange with ocean when ocean button clicked', () => {
-      render(<AccessibilityControls {...defaultProps} />);
-      const button = screen.getByLabelText(/Switch to ocean theme/i);
-      fireEvent.click(button);
-      expect(defaultProps.onThemeChange).toHaveBeenCalledWith('ocean');
-    });
-
-    it('should call onThemeChange with forest when forest button clicked', () => {
-      render(<AccessibilityControls {...defaultProps} childMode={true} />);
-      const button = screen.getByLabelText(/Switch to forest theme/i);
-      fireEvent.click(button);
-      expect(defaultProps.onThemeChange).toHaveBeenCalledWith('forest');
-    });
-
-    it('should call onThemeChange with space when space button clicked', () => {
-      render(<AccessibilityControls {...defaultProps} childMode={true} />);
-      const button = screen.getByLabelText(/Switch to space theme/i);
-      fireEvent.click(button);
-      expect(defaultProps.onThemeChange).toHaveBeenCalledWith('space');
-    });
   });
 
   describe('Disabled states', () => {
@@ -286,36 +252,6 @@ describe('AccessibilityControls', () => {
       for (const cb of checkboxes) {
         expect(cb).toBeDisabled();
       }
-    });
-
-    it('should disable quick action buttons when disabled is true', () => {
-      render(<AccessibilityControls {...defaultProps} disabled={true} />);
-      const highContrastBtn = screen.getByLabelText(/Switch to high contrast theme/i);
-      const oceanBtn = screen.getByLabelText(/Switch to ocean theme/i);
-      expect(highContrastBtn).toBeDisabled();
-      expect(oceanBtn).toBeDisabled();
-    });
-
-    it('should disable high contrast quick button when already on that theme', () => {
-      render(
-        <AccessibilityControls
-          {...defaultProps}
-          currentTheme={createMockTheme('high-contrast', 'high-contrast')}
-        />,
-      );
-      const button = screen.getByLabelText(/Switch to high contrast theme/i);
-      expect(button).toBeDisabled();
-    });
-
-    it('should disable ocean quick button when already on ocean theme', () => {
-      render(
-        <AccessibilityControls
-          {...defaultProps}
-          currentTheme={createMockTheme('ocean', 'child-friendly')}
-        />,
-      );
-      const button = screen.getByLabelText(/Switch to ocean theme/i);
-      expect(button).toBeDisabled();
     });
   });
 
