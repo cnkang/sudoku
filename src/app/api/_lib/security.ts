@@ -24,12 +24,12 @@ const rateLimitStore = new Map<string, RateLimitEntry>();
 
 function getHeaderValue(request: Pick<NextRequest, 'headers'>, headerName: string): string | null {
   const { headers } = request;
-  if (headers instanceof Headers) {
+  if (headers && typeof headers.get === 'function') {
     return headers.get(headerName);
   }
 
   if (headers && typeof headers === 'object') {
-    const record = headers as Record<string, unknown>;
+    const record = headers as unknown as Record<string, unknown>;
     const directValue = record[headerName];
     if (typeof directValue === 'string') {
       return directValue;
@@ -136,6 +136,16 @@ const ALLOWED_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'] as const;
  */
 const ALLOWED_HEADERS = ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'] as const;
 
+function getRequestOrigin(request: NextRequest): string {
+  const url = new URL(request.nextUrl?.origin ?? request.url);
+  // A self-hosted Next server can put its bind hostname in nextUrl.
+  const host = getHeaderValue(request, 'host');
+  if (host && /^(?:[a-z\d.-]+|\[[a-f\d:.]+\])(?::\d+)?$/i.test(host)) {
+    return new URL(`${url.protocol}//${host}`).origin;
+  }
+  return url.origin;
+}
+
 /**
  * Validates that the request origin is either same-origin or in the allowed origins list
  *
@@ -153,7 +163,7 @@ export function isSameOriginRequest(request: NextRequest): boolean {
   }
 
   try {
-    const requestOrigin = request.nextUrl?.origin ?? new URL(request.url).origin;
+    const requestOrigin = getRequestOrigin(request);
     const originUrl = new URL(origin).origin;
 
     // Check if it's same-origin
@@ -187,7 +197,7 @@ export function buildCorsHeaders(request: NextRequest, additionalHeaders?: Heade
   // Only add CORS headers if there's an origin header (cross-origin request)
   if (origin) {
     try {
-      const requestOrigin = request.nextUrl?.origin ?? new URL(request.url).origin;
+      const requestOrigin = getRequestOrigin(request);
       const originUrl = new URL(origin).origin;
 
       // Check if origin is allowed (same-origin or in allowed list)
