@@ -20,60 +20,6 @@
   --feedback-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 
-/* High Contrast Toggle Button */
-.contrastToggle {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: var(--color-bg-elevated, #ffffff);
-  border: 2px solid var(--color-brand-primary, #1e3a8a);
-  border-radius: var(--feedback-border-radius, 12px);
-  color: var(--color-fg-primary, #0f172a);
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease,
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-  box-shadow: var(--feedback-shadow, 0 4px 12px rgba(0, 0, 0, 0.1));
-  min-height: 44px;
-  min-width: 44px;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.contrastToggle:hover {
-  background: var(--color-brand-primary, #1e3a8a);
-  color: var(--color-brand-primary-fg, #ffffff);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-e2);
-}
-
-.contrastToggle:active {
-  transform: translateY(0);
-  transition: transform 0.1s;
-}
-
-.contrastToggle.active {
-  background: var(--color-brand-primary-active, #172554);
-  color: var(--color-brand-primary-fg, #ffffff);
-}
-
-.contrastIcon {
-  font-size: 1.2rem;
-  line-height: 1;
-}
-
-.contrastText {
-  font-weight: var(--feedback-text-weight, 600);
-}
-
 /* Feedback Message Container */
 .feedbackMessage {
   position: fixed;
@@ -442,13 +388,6 @@
 
 /* Mobile Optimizations */
 @media (max-width: 768px) {
-  .contrastToggle {
-    top: 0.5rem;
-    right: 0.5rem;
-    padding: 0.5rem 0.625rem;
-    font-size: 0.8rem;
-  }
-
   .feedbackMessage {
     max-width: 95vw;
     padding: 1.25rem;
@@ -595,11 +534,6 @@
     .feedbackMessage {
       padding: 1rem;
       font-size: 1rem;
-    }
-
-    .contrastToggle {
-      padding: 0.5rem;
-      font-size: 0.8rem;
     }
   }
 }

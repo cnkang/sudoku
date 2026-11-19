@@ -34,33 +34,6 @@ describe('VisualFeedbackSystem', () => {
     expect(screen.getByTestId('visual-feedback-system')).toBeInTheDocument();
   });
 
-  it('renders high contrast toggle when callback provided', () => {
-    const mockToggle = vi.fn();
-    render(
-      <VisualFeedbackSystem theme={mockTheme} onHighContrastToggle={mockToggle}>
-        {() => <div>Test content</div>}
-      </VisualFeedbackSystem>,
-    );
-
-    const toggle = screen.getByTestId('high-contrast-toggle');
-    expect(toggle).toBeInTheDocument();
-    expect(toggle).toHaveAttribute('aria-label', 'Enable high contrast mode');
-  });
-
-  it('toggles high contrast mode', () => {
-    const mockToggle = vi.fn();
-    render(
-      <VisualFeedbackSystem theme={mockTheme} onHighContrastToggle={mockToggle}>
-        {() => <div>Test content</div>}
-      </VisualFeedbackSystem>,
-    );
-
-    const toggle = screen.getByTestId('high-contrast-toggle');
-    fireEvent.click(toggle);
-
-    expect(mockToggle).toHaveBeenCalledTimes(1);
-  });
-
   it('shows success feedback with pattern-based cues', async () => {
     render(
       <VisualFeedbackSystem theme={mockTheme} childMode>
@@ -325,36 +298,5 @@ describe('VisualFeedbackSystem', () => {
       },
       { timeout: 2000 },
     );
-  });
-
-  it('applies correct ARIA attributes for accessibility', () => {
-    const mockToggle = vi.fn();
-    render(
-      <VisualFeedbackSystem
-        theme={mockTheme}
-        highContrast={false}
-        onHighContrastToggle={mockToggle}
-      >
-        {() => <div>Test content</div>}
-      </VisualFeedbackSystem>,
-    );
-
-    const toggle = screen.getByTestId('high-contrast-toggle');
-    expect(toggle).toHaveAttribute('aria-label', 'Enable high contrast mode');
-    // HTML button elements have implicit button role, so we don't need to test for explicit role
-    expect(toggle.tagName).toBe('BUTTON');
-  });
-
-  it('updates high contrast toggle label when active', () => {
-    const mockToggle = vi.fn();
-    render(
-      <VisualFeedbackSystem theme={mockTheme} highContrast={true} onHighContrastToggle={mockToggle}>
-        {() => <div>Test content</div>}
-      </VisualFeedbackSystem>,
-    );
-
-    const toggle = screen.getByTestId('high-contrast-toggle');
-    expect(toggle).toHaveAttribute('aria-label', 'Disable high contrast mode');
-    expect(toggle.className).toContain('active');
   });
 });

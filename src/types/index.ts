@@ -183,8 +183,6 @@ export interface PWAGridSelectorProps {
   disabled?: boolean;
   // PWA features
   offlineMode?: boolean;
-  onInstallPrompt?: () => void;
-  notificationPermission?: NotificationPermission;
 }
 
 export interface TouchOptimizedControlsProps {

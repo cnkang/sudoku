@@ -16,8 +16,6 @@ interface PWAGridSelectorProps {
   disabled?: boolean;
   // PWA features
   offlineMode?: boolean;
-  onInstallPrompt?: () => void;
-  notificationPermission?: NotificationPermission;
 }
 
 interface GridOption {
@@ -29,11 +27,6 @@ interface GridOption {
   icon: string;
   color: string;
   difficulty: string;
-}
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
 }
 
 const isNavigatorStandalone = (navigatorRef: Navigator): boolean => {
@@ -51,7 +44,7 @@ const GRID_OPTIONS: GridOption[] = [
     description: 'Perfect for beginners and young learners',
     childDescription: 'Great for starting your Sudoku journey! 🌟',
     icon: '4×4',
-    color: '#0077BE',
+    color: 'var(--color-brand-primary)',
     difficulty: 'Beginner',
   },
   {
@@ -61,7 +54,7 @@ const GRID_OPTIONS: GridOption[] = [
     description: 'Intermediate challenge with more complexity',
     childDescription: 'Ready for more fun? Try this bigger puzzle! 🎯',
     icon: '6×6',
-    color: '#FF6B35',
+    color: 'var(--color-brand-primary)',
     difficulty: 'Intermediate',
   },
   {
@@ -71,7 +64,7 @@ const GRID_OPTIONS: GridOption[] = [
     description: 'Classic Sudoku experience for experts',
     childDescription: 'The ultimate Sudoku challenge awaits! 🏆',
     icon: '9×9',
-    color: '#32CD32',
+    color: 'var(--color-brand-primary)',
     difficulty: 'Expert',
   },
 ];
@@ -83,27 +76,14 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
   showDescriptions = true,
   disabled = false,
   offlineMode = false,
-  onInstallPrompt,
-  notificationPermission: _notificationPermission = 'default',
 }) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstallable, setIsInstallable] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
 
-  // PWA installation detection
+  // PWA installation detection (the install action lives in PWAStatus only)
   useEffect(() => {
-    const handleBeforeInstallPrompt: EventListener = (event) => {
-      event.preventDefault();
-      const promptEvent = event as BeforeInstallPromptEvent;
-      setDeferredPrompt(promptEvent);
-      setIsInstallable(true);
-    };
-
     const handleAppInstalled = () => {
       setIsInstalled(true);
-      setIsInstallable(false);
-      setDeferredPrompt(null);
     };
 
     // Check if already installed
@@ -111,31 +91,12 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
     const isInWebAppiOS = isNavigatorStandalone(globalThis.navigator);
     setIsInstalled(isStandalone || isInWebAppiOS);
 
-    globalThis.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     globalThis.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
-      globalThis.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       globalThis.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
-
-  const handleInstallClick = useCallback(async () => {
-    if (!deferredPrompt) {
-      onInstallPrompt?.();
-      return;
-    }
-
-    try {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-
-      if (outcome === 'accepted') {
-        setIsInstallable(false);
-        setDeferredPrompt(null);
-      }
-    } catch {}
-  }, [deferredPrompt, onInstallPrompt]);
 
   const handleSizeChange = useCallback(
     async (newSize: 4 | 6 | 9) => {
@@ -185,24 +146,11 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
   return (
     <div className={styles.gridSelector} data-testid="pwa-grid-selector">
       {/* Only reserve status space when there is useful PWA information to show. */}
-      {(offlineMode || isInstalled || isInstallable) && (
+      {(offlineMode || isInstalled) && (
         <div className={styles.pwaStatus}>
           <div className={styles.statusLeft} aria-live="polite">
             {statusIndicator}
           </div>
-
-          {isInstallable && !isInstalled && (
-            <div className={styles.statusRight}>
-              <button
-                type="button"
-                onClick={handleInstallClick}
-                className={styles.installButton}
-                aria-label="Install Sudoku app for offline play"
-              >
-                📲 Install App
-              </button>
-            </div>
-          )}
         </div>
       )}
 
@@ -326,16 +274,16 @@ const PWAGridSelector: React.FC<PWAGridSelectorProps> = ({
               <span>Colorful themes</span>
             </div>
             <div className={styles.feature}>
-              <span className={styles.featureIcon}>🎵</span>
-              <span>Fun sounds</span>
+              <span className={styles.featureIcon}>✨</span>
+              <span>Gentle animations</span>
             </div>
             <div className={styles.feature}>
-              <span className={styles.featureIcon}>⭐</span>
-              <span>Earn rewards</span>
+              <span className={styles.featureIcon}>🎯</span>
+              <span>Big, easy buttons</span>
             </div>
             <div className={styles.feature}>
-              <span className={styles.featureIcon}>🏆</span>
-              <span>Track progress</span>
+              <span className={styles.featureIcon}>💡</span>
+              <span>Hints when stuck</span>
             </div>
           </div>
         </div>

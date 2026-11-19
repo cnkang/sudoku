@@ -12,7 +12,6 @@ export type VisualFeedbackProps = Readonly<{
   childMode?: boolean;
   highContrast?: boolean;
   reducedMotion?: boolean;
-  onHighContrastToggle?: () => void;
 }>;
 
 export type VisualFeedbackSystemProps = Readonly<
@@ -29,7 +28,6 @@ function VisualFeedbackSystem({
   childMode = true,
   highContrast = false,
   reducedMotion = false,
-  onHighContrastToggle,
   children,
 }: VisualFeedbackSystemProps) {
   const { feedback, triggers } = useFeedbackController({
@@ -51,20 +49,6 @@ function VisualFeedbackSystem({
 
   return (
     <div className={containerClassName} data-testid="visual-feedback-system">
-      {onHighContrastToggle && (
-        <button
-          type="button"
-          onClick={onHighContrastToggle}
-          className={`${styles.contrastToggle} ${highContrast ? styles.active : ''}`}
-          aria-label={`${highContrast ? 'Disable' : 'Enable'} high contrast mode`}
-          data-testid="high-contrast-toggle"
-        >
-          <span className={styles.contrastIcon} aria-hidden="true">
-            {highContrast ? '🌙' : '☀️'}
-          </span>
-          <span className={styles.contrastText}>{highContrast ? 'Normal' : 'High Contrast'}</span>
-        </button>
-      )}
       {children(triggers)}
       <FeedbackDisplay feedback={feedback} childMode={childMode} reducedMotion={reducedMotion} />
     </div>

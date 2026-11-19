@@ -180,53 +180,6 @@ function AccessibilityControls({
           </details>
         </section>
       )}
-
-      {/* Quick Access Buttons */}
-      <div className={styles.quickActions}>
-        <button
-          type="button"
-          onClick={() => onThemeChange('high-contrast')}
-          disabled={disabled || currentTheme.id === 'high-contrast'}
-          className={`${styles.quickButton} ${styles.contrastButton}`}
-          aria-label="Switch to high contrast theme"
-        >
-          {childMode ? '🌙 Clear View' : 'High Contrast'}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => onThemeChange('ocean')}
-          disabled={disabled || currentTheme.id === 'ocean'}
-          className={`${styles.quickButton} ${styles.oceanButton}`}
-          aria-label="Switch to ocean theme"
-        >
-          {childMode ? '🌊 Ocean' : 'Ocean Theme'}
-        </button>
-
-        {childMode && (
-          <>
-            <button
-              type="button"
-              onClick={() => onThemeChange('forest')}
-              disabled={disabled || currentTheme.id === 'forest'}
-              className={`${styles.quickButton} ${styles.forestButton}`}
-              aria-label="Switch to forest theme"
-            >
-              🌲 Forest
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onThemeChange('space')}
-              disabled={disabled || currentTheme.id === 'space'}
-              className={`${styles.quickButton} ${styles.spaceButton}`}
-              aria-label="Switch to space theme"
-            >
-              🚀 Space
-            </button>
-          </>
-        )}
-      </div>
     </div>
   );
 }
