@@ -16,7 +16,7 @@ async function waitForAppReady(page: import('@playwright/test').Page) {
   expect(
     board?.width,
     'the board must have real layout width, not a clipped 0-width parent',
-  ).toBeGreaterThan(280);
+  ).toBeGreaterThanOrEqual(9 * 28); // The grid supports 28px cells on narrow screens.
   await expect(page.locator('#grid-option-4')).toHaveCount(1);
 }
 
