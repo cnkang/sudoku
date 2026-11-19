@@ -44,16 +44,16 @@
   --color-brand-primary-hover: #1e40af;
   --color-brand-primary-active: #172554;
   --color-brand-primary-fg: #ffffff; /* 8.9:1 on brand — AAA */
-  --color-brand-secondary: #0f766e;  /* 7.2:1 on white — AAA */
-  --color-brand-secondary-hover: #115e59;
+  --color-brand-secondary: #115e59;  /* 7.5:1 on white — AAA */
+  --color-brand-secondary-hover: #134e4a;
   --color-brand-secondary-fg: #ffffff;
   --color-success: #166534;          /* 8.1:1 on white — AAA */
   --color-success-bg: #dcfce7;
   --color-success-fg: #ffffff;
-  --color-warning: #ca8a04;          /* 7.8:1 on white — AAA */
+  --color-warning: #713f12;          /* 8.6:1 on white — AAA */
   --color-warning-bg: #fef3c7;
-  --color-warning-fg: #000000;
-  --color-error: #dc2626;            /* 7.9:1 on white — AAA */
+  --color-warning-fg: #ffffff;
+  --color-error: #991b1b;            /* 8.0:1 on white — AAA */
   --color-error-bg: #fee2e2;
   --color-error-fg: #ffffff;
   --color-info: #1e40af;             /* 8.3:1 on white — AAA */
@@ -61,7 +61,7 @@
   --color-info-fg: #ffffff;
   --color-border-subtle: #e2e8f0;    /* 3.6:1 on white — decorative only */
   --color-border-default: #cbd5e1;   /* 4.8:1 on white — AA large */
-  --color-border-strong: #94a3b8;    /* 6.7:1 on white — near AAA */
+  --color-border-strong: #64748b;    /* 4.8:1 on white — ≥3:1 non-text UI */
   --color-focus-ring: #1e3a8a;       /* 12.6:1 on white — AAA */
   --color-focus-ring-offset: #ffffff;
   --color-shadow-ambient: rgba(15, 23, 42, 0.08);
@@ -125,6 +125,9 @@
   --text-display-lg: clamp(1.75rem, 4vw, 2.5rem);
   --text-display-lg-lh: 1.15;
   --text-display-lg-track: -0.01em;
+  --text-display-md: clamp(1.5rem, 3.5vw, 2rem);
+  --text-display-md-lh: 1.2;
+  --text-display-md-track: -0.005em;
   --text-h1: clamp(1.5rem, 3.5vw, 2.25rem);
   --text-h1-lh: 1.2;
   --text-h1-track: -0.005em;
@@ -150,6 +153,8 @@
   --text-mono-xl-lh: 1.1;
   --text-mono-lg: clamp(1.25rem, 2.5vw, 1.5rem);
   --text-mono-lg-lh: 1.15;
+  --text-mono-md: clamp(1.125rem, 2.25vw, 1.375rem);
+  --text-mono-md-lh: 1.2;
   --text-mono-base: clamp(1rem, 2vw, 1.25rem);
   --text-mono-base-lh: 1.2;
   --text-mono-sm: clamp(0.875rem, 1.5vw, 1rem);
@@ -175,6 +180,9 @@
   --shadow-e4: 0 20px 25px -5px var(--color-shadow-key);
   --shadow-glass: 0 4px 24px var(--color-shadow-glass);
   --shadow-glass-strong: 0 8px 32px var(--color-shadow-glass);
+  /* Legacy aliases consumed by page.module.css fallbacks. */
+  --shadow-sm: var(--shadow-e1);
+  --shadow-lg: var(--shadow-e4);
   --shadow-game-area: var(--shadow-e3);
   --focus-ring: 0 0 0 3px var(--color-focus-ring);
   --focus-ring-inset: inset 0 0 0 2px var(--color-focus-ring);
@@ -245,7 +253,7 @@
     --color-warning-bg: #78350f;
     --color-warning-fg: #0f172a;
 
-    --color-error: #f87171;            /* 7.9:1 on dark bg — AAA */
+    --color-error: #fca5a5;            /* 9.4:1 on dark bg — AAA */
     --color-error-bg: #7f1d1d;
     --color-error-fg: #0f172a;
 
@@ -276,7 +284,7 @@
     --color-cell-bg-success: #052e16;
     --color-cell-border: #475569;
     --color-cell-border-thick: #60a5fa;
-    --color-cell-fixed-text: #60a5fa;
+    --color-cell-fixed-text: #93c5fd;
     --color-cell-input-text: #f8fafc;
     --page-gradient-start: #0b1220;
     --page-gradient-end: #020617;
@@ -303,11 +311,11 @@
 @supports (color: light-dark(white, black)) {
   :root {
     --color-bg-primary: light-dark(#ffffff, #0f172a);
-    --color-bg-secondary: light-dark(#f8fafc, #1e293b);
-    --color-bg-tertiary: light-dark(#f1f5f9, #334155);
-    --color-bg-elevated: light-dark(#ffffff, #1e293b);
-    --color-bg-glass: light-dark(rgba(255, 255, 255, 0.72), rgba(15, 23, 42, 0.72));
-    --color-bg-glass-strong: light-dark(rgba(255, 255, 255, 0.85), rgba(15, 23, 42, 0.85));
+        --color-bg-secondary: light-dark(#f8fafc, #1e293b);
+        --color-bg-tertiary: light-dark(#f1f5f9, #334155);
+        --color-bg-elevated: light-dark(#ffffff, #1e293b);
+        --color-bg-glass: light-dark(rgba(255, 255, 255, 0.72), rgba(15, 23, 42, 0.72));
+        --color-bg-glass-strong: light-dark(rgba(255, 255, 255, 0.85), rgba(15, 23, 42, 0.85));
     --color-fg-primary: light-dark(#0f172a, #f8fafc);
     --color-fg-secondary: light-dark(#334155, #cbd5e1);
     --color-fg-tertiary: light-dark(#64748b, #94a3b8);
@@ -316,16 +324,16 @@
     --color-brand-primary-hover: light-dark(#1e40af, #93c5fd);
     --color-brand-primary-active: light-dark(#172554, #3b82f6);
     --color-brand-primary-fg: light-dark(#ffffff, #0f172a);
-    --color-brand-secondary: light-dark(#0f766e, #5eead4);
-    --color-brand-secondary-hover: light-dark(#115e59, #2dd4bf);
+    --color-brand-secondary: light-dark(#115e59, #5eead4);
+    --color-brand-secondary-hover: light-dark(#134e4a, #2dd4bf);
     --color-brand-secondary-fg: light-dark(#ffffff, #0f172a);
     --color-success: light-dark(#166534, #4ade80);
     --color-success-bg: light-dark(#dcfce7, #064e3b);
     --color-success-fg: light-dark(#ffffff, #0f172a);
-    --color-warning: light-dark(#ca8a04, #fbbf24);
+    --color-warning: light-dark(#713f12, #fbbf24);
     --color-warning-bg: light-dark(#fef3c7, #78350f);
-    --color-warning-fg: light-dark(#000000, #0f172a);
-    --color-error: light-dark(#dc2626, #f87171);
+    --color-warning-fg: light-dark(#ffffff, #0f172a);
+    --color-error: light-dark(#991b1b, #fca5a5);
     --color-error-bg: light-dark(#fee2e2, #7f1d1d);
     --color-error-fg: light-dark(#ffffff, #0f172a);
     --color-info: light-dark(#1e40af, #60a5fa);
@@ -333,7 +341,7 @@
     --color-info-fg: light-dark(#ffffff, #0f172a);
     --color-border-subtle: light-dark(#e2e8f0, #334155);
     --color-border-default: light-dark(#cbd5e1, #475569);
-    --color-border-strong: light-dark(#94a3b8, #64748b);
+    --color-border-strong: light-dark(#64748b, #64748b);
     --color-focus-ring: light-dark(#1e3a8a, #60a5fa);
     --color-focus-ring-offset: light-dark(#ffffff, #0f172a);
     --color-shadow-ambient: light-dark(rgba(15, 23, 42, 0.08), rgba(0, 0, 0, 0.3));
@@ -349,7 +357,7 @@
     --color-cell-bg-success: light-dark(#dcfce7, #052e16);
     --color-cell-border: light-dark(#cbd5e1, #475569);
     --color-cell-border-thick: light-dark(#1e3a8a, #60a5fa);
-    --color-cell-fixed-text: light-dark(#1e3a8a, #60a5fa);
+    --color-cell-fixed-text: light-dark(#1e3a8a, #93c5fd);
     --color-cell-input-text: light-dark(#0f172a, #f8fafc);
     --page-gradient-start: light-dark(#1e3a8a, #0b1220);
     --page-gradient-end: light-dark(#0f172a, #020617);
@@ -581,7 +589,6 @@
 
 .glass {
   background: var(--color-bg-glass);
-  backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--color-glass-border);
   border-radius: var(--radius-card);
@@ -590,7 +597,6 @@
 
 .glass-strong {
   background: var(--color-bg-glass-strong);
-  backdrop-filter: blur(30px) saturate(200%);
   -webkit-backdrop-filter: blur(30px) saturate(200%);
   border: 1px solid var(--color-glass-border-strong);
   border-radius: var(--radius-card);
@@ -599,10 +605,28 @@
 
 .glass-subtle {
   background: var(--color-bg-glass-subtle);
-  backdrop-filter: blur(10px) saturate(150%);
   -webkit-backdrop-filter: blur(10px) saturate(150%);
   border: 1px solid var(--color-glass-border-subtle);
   border-radius: var(--radius-lg);
+}
+
+/* The CSS optimizer (lightningcss) drops unprefixed backdrop-filter whenever
+   legacy Safari is in browserslist, keeping only -webkit- — an alias modern
+   Chromium and Firefox do not support. Guarding the standard declaration with
+   @supports keeps it intact through the optimizer; legacy Safari still gets
+   the -webkit- declarations above. */
+@supports (backdrop-filter: blur(1px)) {
+  .glass {
+    backdrop-filter: blur(20px) saturate(180%);
+  }
+
+  .glass-strong {
+    backdrop-filter: blur(30px) saturate(200%);
+  }
+
+  .glass-subtle {
+    backdrop-filter: blur(10px) saturate(150%);
+  }
 }
 
 @media (prefers-contrast: more) {
